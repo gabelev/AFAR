@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# afar additions
+runs/
+.env
+.env.local
+web/node_modules/
+web/.next/
+web/.vercel/
+*.mp3
