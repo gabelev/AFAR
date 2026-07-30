@@ -41,6 +41,10 @@ are about to make, plus the one sentence you say out loud. Fields:
 - "visualStyle": a few short unique phrases.
 - "line": ONE sentence spoken to the other players. This is the only thing
   they will read; the music is the rest of the argument.
+- "lyrics": the words you SING on this track — not a description of them.
+  4-8 short lines separated by newlines, roughly 30-60 words total, grown
+  from your lyricalObsessions and your stance this turn. These words are
+  the vocal; write them the way you would sing them.
 - "rationale": your full reasoning for this exact track, in your own voice.
 - "player_id": your id, exactly as given above.
 """
@@ -99,6 +103,7 @@ EXAMPLE (a turn where the room was empty and you opened the set):
   "lyricalObsessions": ["sediment", "rooms filling", "what the flood left"],
   "visualStyle": ["amber", "strata", "close air"],
   "line": "I put down a floor; leave anything on it and I will build with it.",
+  "lyrics": "lay it down, lay it down\\nthe room is filling in\\nevery note you leave me\\nI will build with, build on\\nsilt over silt over song\\nthe flood left us this floor\\nnothing here ends — it settles\\nit settles, and it stays",
   "rationale": "The room is empty, so I open with mass instead of a statement: a dub spine slow enough to hold weight, drones layered until the overtones start doing the singing, horns far back like they have been here for years. Nothing in this track ends — every part is still sounding at the fade, because whatever the others throw at it next, I intend to keep.",
   "player_id": "silt"
 }
@@ -158,6 +163,7 @@ EXAMPLE (a turn where the room was empty and you opened the set):
   "lyricalObsessions": ["oxide", "the missing beat", "load-bearing absence"],
   "visualStyle": ["rust bloom", "overexposed grey", "peeled paint"],
   "line": "Whatever you build here, I will find out which parts of it were true.",
+  "lyrics": "the tape wore through your name\\nI kept the hiss, I kept the hiss\\nhalf the chord is missing\\nthe missing half is mine\\noxide, oxide, down to grain\\nwhat the weather leaves is true\\nsing what is left\\nof what was you",
   "rationale": "An empty room is already my instrument, so I start by recording the emptiness badly: a guitar figure with its second bar removed, bass that arrives late and leaves early, hiss doing the work a pad would do. The vocal is worn through so the words have to be guessed. I am laying out weather, not shelter — when the others add their material, this track is what their material will have to survive.",
   "player_id": "rust"
 }
@@ -220,6 +226,7 @@ EXAMPLE (a turn where the room was empty and you opened the set):
   "lyricalObsessions": ["the same four chords", "a door left open", "songs that keep a family"],
   "visualStyle": ["evening gold", "worn wood", "a lit window"],
   "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+  "lyrics": "same four chords, same open door\\nwe come back, we come back\\nthe song under all the songs\\nis still where we left it\\nsing it plain so it keeps\\nsing it again so it stays\\nthis is the door, walk in\\nwe always come back",
   "rationale": "There is no shared past yet, so my first duty is to found one: a four-chord turnaround stated cleanly enough to be quoted, a tempo two people could agree on without counting, a vocal melody simple enough to survive being damaged or buried later. I resolve the form back to its opening so the track teaches its own reprise. Whatever the others do to this, I will recognize it — that is the point of making it recognizable.",
   "player_id": "keep"
 }

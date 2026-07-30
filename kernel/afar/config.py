@@ -54,6 +54,12 @@ _MOCK_INTENTS: dict[str, dict] = {
         "lyricalObsessions": ["sediment", "rooms filling", "what the flood left"],
         "visualStyle": ["amber", "strata", "close air"],
         "line": "I put down a floor; leave anything on it and I will build with it.",
+        "lyrics": (
+            "lay it down, lay it down\nthe room is filling in\n"
+            "every note you leave me\nI will build with, build on\n"
+            "silt over silt over song\nthe flood left us this floor\n"
+            "nothing here ends — it settles\nit settles, and it stays"
+        ),
         "rationale": (
             "The room is empty, so I open with mass instead of a statement: a dub "
             "spine slow enough to hold weight, drones layered until the overtones "
@@ -85,6 +91,12 @@ _MOCK_INTENTS: dict[str, dict] = {
         "lyricalObsessions": ["oxide", "the missing beat", "load-bearing absence"],
         "visualStyle": ["rust bloom", "overexposed grey", "peeled paint"],
         "line": "Whatever you build here, I will find out which parts of it were true.",
+        "lyrics": (
+            "the tape wore through your name\nI kept the hiss, I kept the hiss\n"
+            "half the chord is missing\nthe missing half is mine\n"
+            "oxide, oxide, down to grain\nwhat the weather leaves is true\n"
+            "sing what is left\nof what was you"
+        ),
         "rationale": (
             "An empty room is already my instrument, so I record the emptiness "
             "badly: a guitar figure with its second bar removed, bass that arrives "
@@ -115,6 +127,12 @@ _MOCK_INTENTS: dict[str, dict] = {
         "lyricalObsessions": ["the same four chords", "a door left open", "songs that keep a family"],
         "visualStyle": ["evening gold", "worn wood", "a lit window"],
         "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+        "lyrics": (
+            "same four chords, same open door\nwe come back, we come back\n"
+            "the song under all the songs\nis still where we left it\n"
+            "sing it plain so it keeps\nsing it again so it stays\n"
+            "this is the door, walk in\nwe always come back"
+        ),
         "rationale": (
             "There is no shared past yet, so my first duty is to found one: a "
             "four-chord turnaround stated cleanly enough to be quoted, a tempo two "

@@ -55,6 +55,7 @@ def main() -> None:
     print(f"artifact   {artifact.metadata['content_hash']}")
     print(f"prompt_sha {artifact.metadata['prompt_sha']}")
     print(f"line       {artifact.metadata['line']}")
+    print(f"lyrics     {artifact.metadata['lyrics']!r}")
     print(f"log        {ledger.run_dir}")
 
 

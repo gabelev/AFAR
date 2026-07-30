@@ -15,10 +15,10 @@ from ensemble.providers.model import MockProvider
 
 from afar.agents.personas import PERSONAS
 from afar.agents.player import Player, render_one
-from afar.config import _mock_players
-from afar.intent import Intent
+from afar.config import _MOCK_INTENTS, _mock_players
+from afar.intent import Influence, Intent, SonicPalette, VocalCharacter
 from afar.log import JsonlLedger, RunContext
-from afar.mapping import TRACK_DURATION_MS
+from afar.mapping import LYRICS_MAX_CHARS, TRACK_DURATION_MS, clamp_lyrics
 from afar.render.base import MockRenderer
 
 _STAMPS = ("condition", "code_sha", "seed", "renderer_version", "prompt_sha")
@@ -46,6 +46,7 @@ def test_decision_yields_a_valid_persona_true_intent(run):
             dict(
                 intent_row["intent"],
                 line=intent_row["line"],
+                lyrics=intent_row["lyrics"],
                 rationale=intent_row["rationale"],
                 player_id=intent_row["player"],
             )
@@ -54,6 +55,7 @@ def test_decision_yields_a_valid_persona_true_intent(run):
     intent.validate()
     assert intent.player_id == "silt"
     assert intent.line.strip()
+    assert intent.lyrics.strip()
     assert intent.rationale.strip()
 
 
@@ -62,6 +64,44 @@ def test_composition_plan_has_exactly_one_30s_chunk(run):
     plan = artifact.metadata["render"]["composition_plan"]
     assert len(plan["chunks"]) == 1
     assert plan["chunks"][0]["duration_ms"] == TRACK_DURATION_MS
+
+
+def test_chunk_text_is_the_sung_lyrics_not_the_spoken_line(run):
+    # The vocals regression: chunk text must come from intent.lyrics, clamped,
+    # never from the one-sentence chat-bubble line.
+    artifact, _ = run
+    text = artifact.metadata["render"]["composition_plan"]["chunks"][0]["text"]
+    silt = _MOCK_INTENTS["silt"]
+    assert text == clamp_lyrics(silt["lyrics"])
+    assert text != silt["line"]
+
+
+def test_long_lyrics_are_clamped_to_the_api_limit_at_render_time(tmp_path: Path):
+    long_lyrics = " ".join(["sediment settles"] * 30)  # well over 180 chars
+    intent = Intent(
+        seedPrompt="test artist",
+        era=7,
+        influences=(
+            Influence("drone", 0.4),
+            Influence("dub", 0.3),
+            Influence("spiritual jazz", 0.2),
+            Influence("tape music", 0.1),
+        ),
+        sonicPalette=SonicPalette(0, 0, 0, 0, 0, 0, 0),
+        vocalCharacter=VocalCharacter(0, 0),
+        lyricalObsessions=("sediment",),
+        visualStyle=("amber",),
+        line="A short spoken line.",
+        lyrics=long_lyrics,
+        rationale="test",
+        player_id="silt",
+    ).validate()
+    result = MockRenderer(tmp_path / "audio").render(intent, seed=1)
+    text = result.metadata["composition_plan"]["chunks"][0]["text"]
+    assert text == clamp_lyrics(long_lyrics)
+    assert len(text) <= LYRICS_MAX_CHARS
+    assert text.startswith("sediment settles")
+    assert text != intent.line
 
 
 def test_track_file_exists_and_its_sha256_matches_the_artifacts_row(run):
