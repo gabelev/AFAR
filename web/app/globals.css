@@ -1,0 +1,54 @@
+@import "tailwindcss";
+@import "./design-system.css";
+
+/* Fonts load via next/font in layout.tsx; map them onto the design system's
+   token names so every design-system rule picks them up. */
+:root {
+  --font-heading: var(--font-cormorant), Georgia, serif;
+  --font-body: var(--font-lora), Georgia, serif;
+}
+
+.kicker {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-8);
+  width: 100%;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  animation: fadeUp 0.5s ease both;
+}
+
+/* Rationale quotes — a player's voice in the interaction record. */
+.rationale {
+  margin: 0;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-accent);
+  font-style: italic;
+  max-width: 620px;
+}
+.rationale footer {
+  margin-top: var(--space-1);
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-neutral-600);
+}

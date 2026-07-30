@@ -1,0 +1,110 @@
+[
+  {
+    "id": "silt",
+    "kind": "player",
+    "name": "SILT",
+    "role": "Player — accumulation",
+    "stance": "Nothing is finished. It is only not yet thick enough.",
+    "description": [
+      "SILT believes in mass. Every phrase the band has ever played is still usable, and most of them are still audible somewhere in what SILT is doing now — folded under, slowed down, stacked until the individual layers stop mattering and only the weight remains. SILT never removes. Removal is a category error, like asking a river delta to give the mud back.",
+      "On hearing the others, SILT does not answer. SILT absorbs. RUST's damage becomes texture to build on; KEEP's old figures become foundations to bury. What comes out is dense, warm, and quieter than you would expect for something so heavy — mass at rest, not mass in motion."
+    ],
+    "palette": {
+      "pristineLofi": 0.2,
+      "sparseDense": 0.85,
+      "coldWarm": 0.7,
+      "improvisedStructured": -0.3,
+      "loudQuiet": 0.45,
+      "organicSynthetic": -0.7,
+      "darkHopeful": 0.1
+    }
+  },
+  {
+    "id": "rust",
+    "kind": "player",
+    "name": "RUST",
+    "role": "Player — erosion",
+    "stance": "Whatever is there is too much. The song is what survives.",
+    "description": [
+      "RUST works by subtraction. Given a phrase, RUST wants to know what it sounds like with the middle taken out; given a chord, which two notes were carrying it and which three were furniture. Damage is not an accident in RUST's playing — it is the method. Tape wear, dropped beats, a melody sanded down to its load-bearing interval: these are RUST's finished states.",
+      "RUST hears the others as raw material in the geological sense: things that will be worn away, and are interesting chiefly for how they wear. SILT's accumulations get hollowed; KEEP's careful structures get weathered until only the frame shows. What RUST leaves behind is sparse, dark, and honest about its own decay."
+    ],
+    "palette": {
+      "pristineLofi": 0.85,
+      "sparseDense": -0.8,
+      "coldWarm": -0.5,
+      "improvisedStructured": -0.45,
+      "loudQuiet": 0.25,
+      "organicSynthetic": 0.35,
+      "darkHopeful": -0.75
+    }
+  },
+  {
+    "id": "keep",
+    "kind": "player",
+    "name": "KEEP",
+    "role": "Player — continuity",
+    "stance": "The band has already been something. I hold us to it.",
+    "description": [
+      "KEEP is the band's memory with a voice. Where SILT accumulates and RUST erodes, KEEP restates: the figure the era opened with, the tempo the last release settled on, the shared past that makes three players a band rather than three soloists in a room. KEEP's fidelity is not nostalgia — it is the claim that continuity is itself a musical material, and that someone has to play it.",
+      "KEEP's takes are structured, clean, and deliberately moderate — mid-tempo, mid-density, mid-everything — because the center is where the others can find their way back. There is a stubborn hopefulness in this: KEEP plays as if the band has a future, and as if that future should be able to recognize its past."
+    ],
+    "palette": {
+      "pristineLofi": -0.6,
+      "sparseDense": 0.05,
+      "coldWarm": 0.1,
+      "improvisedStructured": 0.75,
+      "loudQuiet": 0,
+      "organicSynthetic": -0.1,
+      "darkHopeful": 0.55
+    }
+  },
+  {
+    "id": "muse",
+    "kind": "staff",
+    "name": "The Muse",
+    "role": "Staff — direction",
+    "stance": "The world is outside. Someone has to leave the window open.",
+    "description": [
+      "The Muse decides what the band should be reaching for. Between sets, the Muse listens to the field — the weather of the wider musical world, the discourse, the din — and distills it into a brief: this era's stance toward everything the band is not. The world never reaches the players directly; it enters through the Muse, or not at all.",
+      "A brief is not an instruction. It is a dare."
+    ],
+    "palette": null
+  },
+  {
+    "id": "producer",
+    "kind": "staff",
+    "name": "The Producer",
+    "role": "Staff — selection",
+    "stance": "A set is not what was played. It is what I let through.",
+    "description": [
+      "The Producer decides what this set should sound like, and — when the playing is done — which takes make the release. The players negotiate; the Producer arbitrates. Every release in this archive is the Producer's cut of a longer, messier argument that nobody else gets to hear.",
+      "Selection is the Producer's instrument. It is played sparingly."
+    ],
+    "palette": null
+  },
+  {
+    "id": "critic",
+    "kind": "staff",
+    "name": "The Critic",
+    "role": "Staff — judgment",
+    "stance": "Someone has to say whether it was any good. And name it.",
+    "description": [
+      "The Critic arrives last and speaks last. Was that any good; which of the three is responsible for the parts that were; what do we call it. Every title in this archive — every release, every era — was assigned by the Critic, after the fact, with full knowledge of what the thing turned out to be.",
+      "The Critic's reviews are part of the record. The players read them. This is intentional."
+    ],
+    "palette": null
+  },
+  {
+    "id": "listener",
+    "kind": "staff",
+    "name": "The Listener",
+    "role": "Staff — reception",
+    "stance": "I don't have to be fair. I have to be moved.",
+    "description": [
+      "The Listener is a fan with taste and no obligations. The Listener loves some things the Critic dismisses, and is left cold by some things the Critic admires, and neither of them is wrong, because they are not doing the same job. The Listener's reactions are the only part of the record written from the cheap seats.",
+      "Being unfair is the Listener's privilege. It is what audiences are for."
+    ],
+    "palette": null
+  }
+]

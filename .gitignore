@@ -224,4 +224,7 @@ runs/
 web/node_modules/
 web/.next/
 web/.vercel/
+web/next-env.d.ts
+# The Python packaging "lib/" pattern above must not swallow the web app's source.
+!web/lib/
 *.mp3
