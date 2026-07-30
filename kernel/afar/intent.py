@@ -15,9 +15,11 @@ live in `afar.mapping`, keyed by axis and pole — never here — so the vocabul
 tunes between runs without a schema migration.
 
 AFAR additions on top of the DNA: `line` (the one sentence a player says out
-loud — the installation's chat bubble), `rationale` (the full reasoning, kept
-for the log, never sent to the renderer), and `player_id` (the stable public
-id: silt | rust | keep — these join URLs and the world renderer, never rename).
+loud — the installation's chat bubble), `lyrics` (the words the player SINGS —
+the only prose that reaches the renderer's chunk text), `rationale` (the full
+reasoning, kept for the log, never sent to the renderer), and `player_id` (the
+stable public id: silt | rust | keep — these join URLs and the world renderer,
+never rename).
 """
 
 from __future__ import annotations
@@ -100,6 +102,7 @@ class Intent:
     visualStyle: tuple[str, ...]
     # -- AFAR additions (not part of the DNA JSON shape) ----------------------
     line: str  # one spoken sentence, shown as the player's chat bubble
+    lyrics: str  # multi-line sung lyrics; the renderer's chunk text
     rationale: str  # full reasoning; logged, never rendered
     player_id: str  # stable public id: silt | rust | keep
 
@@ -152,6 +155,8 @@ class Intent:
             problems.append(f"player_id must be one of {PLAYER_IDS}")
         if not isinstance(self.line, str) or not self.line.strip():
             problems.append("line must be a non-empty sentence")
+        if not isinstance(self.lyrics, str) or not self.lyrics.strip():
+            problems.append("lyrics must be non-empty")
         if not isinstance(self.rationale, str) or not self.rationale.strip():
             problems.append("rationale must be non-empty")
 
@@ -165,8 +170,9 @@ class Intent:
         """The exact schema.ts CreativeDNA JSON shape — nothing AFAR-specific.
 
         This is what crosses the boundary to anything that speaks afar_music's
-        dialect (the web mirror, the mapping oracles). line/rationale/player_id
-        deliberately stay out: generated framing is not part of the DNA.
+        dialect (the web mirror, the mapping oracles). line/lyrics/rationale/
+        player_id deliberately stay out: generated framing (and the sung words)
+        is not part of the DNA.
         """
         return {
             "seedPrompt": self.seedPrompt,
@@ -181,11 +187,18 @@ class Intent:
     def content_hash(self) -> str:
         """sha256 of the canonical JSON of the WHOLE intent (DNA + frame).
 
-        The line and rationale are part of the creative act, so two intents
-        that render identically but were meant differently hash differently.
-        Canonical = sorted keys, no whitespace — stable across processes.
+        The line, lyrics, and rationale are part of the creative act, so two
+        intents that render identically but were meant differently hash
+        differently. Canonical = sorted keys, no whitespace — stable across
+        processes.
         """
-        full = dict(self.to_dna_dict(), line=self.line, rationale=self.rationale, player_id=self.player_id)
+        full = dict(
+            self.to_dna_dict(),
+            line=self.line,
+            lyrics=self.lyrics,
+            rationale=self.rationale,
+            player_id=self.player_id,
+        )
         canonical = json.dumps(full, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
@@ -218,6 +231,7 @@ class Intent:
                 lyricalObsessions=tuple(data["lyricalObsessions"]),
                 visualStyle=tuple(data["visualStyle"]),
                 line=data["line"],
+                lyrics=data["lyrics"],
                 rationale=data["rationale"],
                 player_id=data["player_id"],
             )

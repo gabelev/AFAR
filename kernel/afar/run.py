@@ -124,7 +124,7 @@ def run_set(
     vectors: dict[str, dict[str, list[list[float]]]] = {
         space: {pid: [] for pid in ids} for space in SPACES
     }
-    round_frames: list[dict[str, dict[str, str]]] = []  # per round: pid -> line/rationale
+    round_frames: list[dict[str, dict[str, str]]] = []  # per round: pid -> line/lyrics/rationale
     round_hashes: list[dict[str, str]] = []  # per round: pid -> artifact content hash
 
     for t in range(rounds):
@@ -168,6 +168,7 @@ def run_set(
                     "player": pid,
                     "intent": intent.to_dna_dict(),
                     "line": intent.line,
+                    "lyrics": intent.lyrics,
                     "rationale": intent.rationale,
                 },
             )
@@ -222,7 +223,7 @@ def run_set(
                 intent=intent.to_dna_dict(),
                 content_hash=content_hash,
             )
-            frames[pid] = {"line": intent.line, "rationale": intent.rationale}
+            frames[pid] = {"line": intent.line, "lyrics": intent.lyrics, "rationale": intent.rationale}
             hashes[pid] = content_hash
             player = by_id[pid]
             player.memory.remember({"persona": player.persona.name, "artifact_kind": artifact.kind})

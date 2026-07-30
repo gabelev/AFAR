@@ -34,6 +34,16 @@ class RenderResult:
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
 
+def chunk_lyrics(intent: Intent) -> str:
+    """The chunk text for a render: the player's sung lyrics.
+
+    Falls back to the spoken line only for pre-lyrics intents (older logged
+    rows re-rendered); validate() keeps live lyrics non-empty. Clamping to the
+    API's character limit happens inside build_composition_plan.
+    """
+    return intent.lyrics if intent.lyrics.strip() else intent.line
+
+
 @runtime_checkable
 class Renderer(Protocol):
     """Intent -> audio file. `continue_from` is reserved for future continuity
@@ -67,7 +77,7 @@ class MockRenderer:
         if continue_from is not None:
             raise NotImplementedError("continuity is not supported in Step A renderers")
 
-        built = build_composition_plan(intent, intent.line)
+        built = build_composition_plan(intent, chunk_lyrics(intent))
         prompt_payload = {
             "model_id": "music_v2",
             "composition_plan": built.plan,

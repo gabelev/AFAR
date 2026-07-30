@@ -23,6 +23,7 @@ def make_intent(**overrides) -> Intent:
         lyricalObsessions=("rain",),
         visualStyle=("neon fog",),
         line="I begin where the rain does.",
+        lyrics="rain on the glass\nrain in the walls\nwe keep what falls\nwe keep what falls",
         rationale="A neutral palette to start from; everything else is a reply.",
         player_id="silt",
     )
@@ -75,6 +76,8 @@ def test_validate_accepts_a_valid_intent():
         {"visualStyle": ("fog", "")},  # empty tag
         {"player_id": "muse"},
         {"line": "   "},
+        {"lyrics": ""},
+        {"lyrics": "   \n  "},
         {"rationale": ""},
     ],
 )
@@ -110,7 +113,7 @@ def test_to_dna_dict_is_the_exact_schema_ts_shape():
         "visualStyle",
     }
     # AFAR additions never leak into the DNA shape.
-    assert "line" not in dna and "player_id" not in dna
+    assert "line" not in dna and "lyrics" not in dna and "player_id" not in dna
     assert dna["influences"][0] == {"genre": "synthpop", "weight": 0.4}
     assert set(dna["sonicPalette"]) == {
         "pristineLofi",
@@ -128,8 +131,9 @@ def test_content_hash_is_stable_and_sensitive():
     a, b = make_intent(), make_intent()
     assert a.content_hash() == b.content_hash()
     assert len(a.content_hash()) == 64
-    # The frame is part of the act: a different line hashes differently.
+    # The frame is part of the act: a different line or lyric hashes differently.
     assert make_intent(line="Different.").content_hash() != a.content_hash()
+    assert make_intent(lyrics="different words\nsung differently").content_hash() != a.content_hash()
     assert make_intent(era=0).content_hash() != a.content_hash()
 
 
@@ -140,6 +144,7 @@ def _payload() -> dict:
     return dict(
         intent.to_dna_dict(),
         line=intent.line,
+        lyrics=intent.lyrics,
         rationale=intent.rationale,
         player_id=intent.player_id,
     )

@@ -31,7 +31,7 @@ from typing import Any, Optional
 
 from afar.intent import Intent
 from afar.mapping import build_composition_plan
-from afar.render.base import RenderResult
+from afar.render.base import RenderResult, chunk_lyrics
 
 _MUSIC_URL = "https://api.elevenlabs.io/v1/music?output_format=mp3_44100_128"
 _TIMEOUT_S = 90.0
@@ -90,7 +90,7 @@ class ElevenLabsRenderer:
                 "never conditioning_ref"
             )
 
-        built = build_composition_plan(intent, intent.line)
+        built = build_composition_plan(intent, chunk_lyrics(intent))
         body = json.dumps(
             {
                 "model_id": "music_v2",

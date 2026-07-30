@@ -95,6 +95,7 @@ class Player(Agent):
             metadata={
                 "intent": intent.to_dna_dict(),
                 "line": intent.line,
+                "lyrics": intent.lyrics,
                 "rationale": intent.rationale,
                 "content_hash": result.content_hash,
                 "prompt_sha": result.prompt_sha,
@@ -161,6 +162,7 @@ def render_one(
             "player": intent.player_id,
             "intent": intent.to_dna_dict(),
             "line": intent.line,
+            "lyrics": intent.lyrics,
             "rationale": intent.rationale,
         },
     )

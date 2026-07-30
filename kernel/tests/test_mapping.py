@@ -52,6 +52,7 @@ def dna_with(**overrides) -> Intent:
         lyricalObsessions=("rain",),
         visualStyle=("neon fog",),
         line="x",
+        lyrics="rain keeps its own time",
         rationale="test",
         player_id="silt",
     )

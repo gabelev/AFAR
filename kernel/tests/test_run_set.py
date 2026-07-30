@@ -117,8 +117,8 @@ def test_release_record_is_logged_and_written_to_disk(tmp_path: Path):
     (release_row,) = _rows(ledger, "releases")
     assert release_row["id"] == record["release_id"]
     assert release_row["record"] == record
-    # The record carries the whole interaction: per-round lines + rationales
-    # and content-addressed artifact hashes for every player.
+    # The record carries the whole interaction: per-round lines + lyrics +
+    # rationales and content-addressed artifact hashes for every player.
     assert len(record["rounds"]) == _ROUNDS
     assert len(record["artifacts"]) == _ROUNDS
     for frames, hashes in zip(record["rounds"], record["artifacts"]):
@@ -126,6 +126,7 @@ def test_release_record_is_logged_and_written_to_disk(tmp_path: Path):
         assert set(hashes) == set(_PLAYERS)
         for pid in _PLAYERS:
             assert frames[pid]["line"]
+            assert frames[pid]["lyrics"]
             assert frames[pid]["rationale"]
     artifact_hashes = {row["hash"] for row in _rows(ledger, "artifacts")}
     assert {h for hashes in record["artifacts"] for h in hashes.values()} <= artifact_hashes
