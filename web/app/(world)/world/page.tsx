@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { GraphCoverMini } from "@/components/GraphCover";
 import { PlayerBar } from "@/components/PlayerBar";
-import { PressPhoto } from "@/components/PressPhoto";
+import { RailNow } from "@/components/world/RailNow";
 import { WorldLink } from "@/components/world/WorldLink";
-import { ACT_DESIGN, catalogueNumber, isActId } from "@/lib/acts";
-import { conditionGloss, listAgents, listReleases, stanceWord } from "@/lib/data";
+import { catalogueNumber } from "@/lib/acts";
+import { listAgents, listReleases, stanceWord } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 /**
- * The right pane of the split screen (design frame 1a): the catalogue
- * rail. The world on the left is the same data, walking around.
+ * The right pane of the split screen: a compact index, mono-label
+ * register. The world on the left is the show; the rail only points —
+ * NOW, THE ROSTER, LATEST RELEASE, THE OFFICE. Every section header
+ * links to the full page; the detailed copy lives there, not here.
  */
 export default async function WorldCataloguePage() {
   const [agents, releases] = await Promise.all([listAgents(), listReleases()]);
@@ -18,12 +20,20 @@ export default async function WorldCataloguePage() {
   const staff = agents.filter((a) => a.kind === "staff");
   const latest = releases[releases.length - 1];
 
+  const sectionPad = "20px var(--gutter)";
+  const headRow: React.CSSProperties = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    marginBottom: 12,
+  };
+
   return (
     <>
       <div className="sheet">
         <header
           style={{
-            padding: "44px var(--gutter) 28px",
+            padding: "36px var(--gutter) 22px",
             borderBottom: "1px solid var(--hairline-strong)",
             display: "flex",
             flexDirection: "column",
@@ -31,22 +41,35 @@ export default async function WorldCataloguePage() {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <Link href="/" style={{ fontSize: 40, fontWeight: 700, letterSpacing: "0.34em" }}>
+            <Link href="/" style={{ fontSize: 32, fontWeight: 700, letterSpacing: "0.34em" }}>
               AFAR.MUSIC
             </Link>
             <div className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
               EST. ERA 2020s
             </div>
           </div>
-          <div className="mono" style={{ fontSize: 12, letterSpacing: "0.06em", color: "var(--sec)" }}>
-            This is the label&apos;s building, live. The three acts record alone; the archive is
-            where they hear each other.
+          <div className="mono" style={{ fontSize: 11, letterSpacing: "0.06em", color: "var(--sec)" }}>
+            The universe, live — three artists recording alone; the archive is where they hear each
+            other.
           </div>
         </header>
 
-        <section style={{ padding: "32px var(--gutter)" }}>
-          <div className="label" style={{ marginBottom: 14 }}>
-            THE ROSTER
+        <section
+          style={{ padding: sectionPad, borderBottom: "1px solid var(--hairline)" }}
+        >
+          <div className="label" style={{ marginBottom: 8 }}>
+            NOW
+          </div>
+          <div className="mono" style={{ fontSize: 12, color: "var(--ink)" }}>
+            <RailNow fallback={`${acts.length} acts in studio`} />
+          </div>
+        </section>
+
+        <section style={{ padding: sectionPad }}>
+          <div style={headRow}>
+            <Link href="/" className="label" style={{ color: "var(--sec)" }}>
+              THE ROSTER →
+            </Link>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             {acts.map((agent, i) => (
@@ -55,101 +78,87 @@ export default async function WorldCataloguePage() {
                 id={agent.id}
                 href={`/act/${agent.id}`}
                 data-act={agent.id}
-                className={`wrap-sm rule-row${i === acts.length - 1 ? " rule-row-last" : ""}`}
-                style={{ display: "flex", gap: 16, alignItems: "baseline", padding: "16px 0" }}
+                className={`rule-row${i === acts.length - 1 ? " rule-row-last" : ""}`}
+                style={{ display: "flex", gap: 14, alignItems: "baseline", padding: "12px 0" }}
               >
-                {isActId(agent.id) && (
-                  <PressPhoto
-                    pressSrc={ACT_DESIGN[agent.id].press}
-                    imageUrl={agent.imageUrl}
-                    alt={`${agent.displayName} press photo`}
-                    className="pressthumb"
-                  />
-                )}
-                <div style={{ fontSize: 24, fontWeight: 600, width: 220 }}>{agent.displayName}</div>
-                <div
+                <span
+                  aria-hidden
+                  style={{
+                    width: 10,
+                    height: 10,
+                    flex: "none",
+                    alignSelf: "center",
+                    background: "var(--act-accent)",
+                  }}
+                />
+                <span style={{ fontSize: 18, fontWeight: 600, flex: 1 }}>{agent.displayName}</span>
+                <span
                   className="mono"
                   style={{
                     fontSize: 11,
                     letterSpacing: "0.2em",
                     color: "var(--act-ink)",
-                    width: 130,
                     textTransform: "uppercase",
                   }}
                 >
                   {stanceWord(agent)}
-                </div>
-                <div className="quote" style={{ fontSize: 13, flex: 1 }}>
-                  “{agent.stance}”
-                </div>
-                <div className="mono" style={{ fontSize: 10, color: "var(--sec)" }}>
-                  IN STUDIO
-                </div>
+                </span>
               </WorldLink>
             ))}
           </div>
         </section>
 
         {latest && (
-          <section
-            className="wrap-sm"
-            style={{ padding: "24px var(--gutter)", display: "flex", gap: 24, alignItems: "flex-start" }}
-          >
-            <GraphCoverMini edges={latest.influence} />
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div className="label">LATEST RELEASE</div>
-              <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                {latest.title}
-              </div>
-              <div className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
-                {catalogueNumber(latest.id)} · a split across the roster
-              </div>
-              <div className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
-                era {latest.era} · set {latest.set} ·{" "}
-                <span title={conditionGloss(latest.condition)}>{latest.condition}</span>
-              </div>
-              <div style={{ fontSize: 13, marginTop: 6 }}>
-                <WorldLink id={latest.id} href={`/release/${latest.id}`} className="link">
-                  view interaction record →
-                </WorldLink>
-              </div>
+          <section style={{ padding: sectionPad, borderTop: "1px solid var(--hairline)" }}>
+            <div style={headRow}>
+              <WorldLink
+                id={latest.id}
+                href={`/release/${latest.id}`}
+                className="label"
+                style={{ color: "var(--sec)" }}
+              >
+                LATEST RELEASE →
+              </WorldLink>
             </div>
+            <WorldLink
+              id={latest.id}
+              href={`/release/${latest.id}`}
+              style={{ display: "flex", gap: 16, alignItems: "center" }}
+            >
+              <GraphCoverMini edges={latest.influence} size={64} />
+              <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <span
+                  style={{
+                    fontSize: 17,
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {latest.title}
+                </span>
+                <span className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
+                  {catalogueNumber(latest.id)}
+                </span>
+              </span>
+            </WorldLink>
           </section>
         )}
 
-        <section
+        <nav
           className="mono"
           style={{
-            padding: "8px var(--gutter) 24px",
-            fontSize: 11,
-            lineHeight: 1.7,
-            color: "var(--sec)",
-            maxWidth: 640,
-          }}
-        >
-          <p style={{ marginBottom: 8 }}>
-            Everything here is made by AI. No human performs; a human built the room and left.
-          </p>
-          <p>
-            Watch the left side. When an act walks to the archive and plays a record, that is a
-            listening event — the only moment one act ever hears another. Each one leaves a trace
-            on the next release: a line in the record of who influenced whom.
-          </p>
-        </section>
-
-        <nav
-          className="mono wrap-sm"
-          style={{
-            padding: "20px var(--gutter)",
+            padding: sectionPad,
             marginTop: "auto",
             borderTop: "1px solid var(--hairline-strong)",
             fontSize: 11,
             color: "var(--sec)",
             display: "flex",
-            gap: 18,
+            gap: 16,
+            flexWrap: "wrap",
           }}
         >
-          <span style={{ letterSpacing: "0.22em" }}>THE OFFICE</span>
+          <span className="label">THE OFFICE</span>
           {staff.map((s) => (
             <WorldLink key={s.id} id={s.id} href={`/staff/${s.id}`} style={{ color: "inherit" }}>
               {s.displayName.replace(/^The /, "")}

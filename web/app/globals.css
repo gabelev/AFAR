@@ -135,6 +135,7 @@ a { color: inherit; text-decoration: none; }
   top: 0;
   width: 1056px; /* 33×34 tiles at 2× */
   height: 1088px;
+  transform-origin: 0 0; /* authored at 2×; extra zoom scales from here */
   will-change: transform;
 }
 .world-roomlabel {
@@ -171,6 +172,105 @@ a { color: inherit; text-decoration: none; }
   color: rgba(214, 207, 188, 0.55);
   text-transform: uppercase;
   max-width: calc(100% - 48px);
+}
+
+/* — free-camera chrome (overlay is pointer-events:none; these opt back in) — */
+.world-chip {
+  position: absolute;
+  left: 24px;
+  bottom: 42px;
+  pointer-events: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: rgba(214, 207, 188, 0.75);
+  background: rgba(10, 11, 13, 0.78);
+  border: 1px solid rgba(214, 207, 188, 0.18);
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.world-chip:hover {
+  color: rgba(214, 207, 188, 0.95);
+  border-color: rgba(214, 207, 188, 0.4);
+}
+.world-chip.pulse {
+  animation: world-chip-pulse 0.5s steps(2, jump-none) 3;
+}
+@keyframes world-chip-pulse {
+  from {
+    color: rgba(224, 178, 90, 0.95);
+    border-color: rgba(224, 178, 90, 0.7);
+  }
+  to {
+    color: rgba(214, 207, 188, 0.75);
+    border-color: rgba(214, 207, 188, 0.18);
+  }
+}
+.world-zoom {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+}
+.world-zoom button {
+  width: 26px;
+  height: 26px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1;
+  color: rgba(214, 207, 188, 0.75);
+  background: rgba(10, 11, 13, 0.78);
+  border: 1px solid rgba(214, 207, 188, 0.18);
+  cursor: pointer;
+}
+.world-zoom button + button {
+  border-top: none;
+}
+.world-zoom button:hover:not(:disabled) {
+  color: rgba(214, 207, 188, 0.95);
+}
+.world-zoom button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* — the rail toggle: a hairline tab riding the seam (world-pane's right
+   edge, so it follows the seam when the rail collapses) — */
+.rail-toggle {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  width: 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--hairline-frame);
+  border-right: none;
+  cursor: pointer;
+}
+.rail-toggle:hover {
+  background: var(--paper-2);
+}
+
+/* closed: the world takes the full width; the rail keeps its DOM (the
+   fixed player bar inside it must stay visible) but no box */
+.app-split[data-rail="closed"] .world-pane {
+  flex: 1 1 auto;
+}
+.app-split[data-rail="closed"] .right-pane {
+  flex: 0 0 0;
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* — page skeleton: an 864px reference sheet inside the right pane — */
@@ -320,23 +420,22 @@ a { color: inherit; text-decoration: none; }
 .playbtn:hover:not(:disabled) { background: rgba(28, 26, 21, 0.08); }
 .playbtn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* — small screens: the split stacks — the world becomes a fixed-height
-   strip above the catalogue (the design doesn't spec mobile; kept simple,
-   noted as open in DECISIONS.md) — */
+/* — small screens: the world runs full-bleed (rail closed by default);
+   opening the rail overlays it as a full paper panel, toggle tab on the
+   right edge (supersedes the old 280px-strip stacking; DECISIONS.md) — */
 @media (max-width: 900px) {
   .app-split {
-    display: block;
-    height: auto;
+    position: relative;
   }
   .world-pane {
-    height: 280px;
+    flex: 1 1 auto;
     border-right: none;
-    border-bottom: 1px solid rgba(214, 207, 188, 0.14);
   }
-  .right-pane {
-    overflow-y: visible;
-    height: auto;
-    padding-bottom: 72px; /* clear the fixed player bar */
+  .app-split[data-rail="open"] .right-pane {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    width: auto;
   }
 }
 

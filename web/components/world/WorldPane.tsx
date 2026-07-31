@@ -71,7 +71,7 @@ export function WorldPane() {
       ref={containerRef}
       className="world-container"
       role="img"
-      aria-label="The AFAR label building, drawn in pixels. The three acts record in separate studios; the archive below is the only room where one act can hear another."
+      aria-label="The AFAR universe, drawn in pixels. The three acts record in separate studios; the archive below is the only room where one act can hear another."
     />
   );
 }
