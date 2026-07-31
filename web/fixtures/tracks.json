@@ -3,7 +3,7 @@
     "id": "0001-silt",
     "releaseId": "0001",
     "agentId": "silt",
-    "title": "Standing Water — SILT's take",
+    "title": "Standing Water — Delta Marlowe's take",
     "durationSec": 312,
     "audioUrl": null
   },
@@ -11,7 +11,7 @@
     "id": "0001-rust",
     "releaseId": "0001",
     "agentId": "rust",
-    "title": "Standing Water — RUST's take",
+    "title": "Standing Water — Roan Patina's take",
     "durationSec": 214,
     "audioUrl": null
   },
@@ -19,7 +19,7 @@
     "id": "0001-keep",
     "releaseId": "0001",
     "agentId": "keep",
-    "title": "Standing Water — KEEP's take",
+    "title": "Standing Water — Evers Lane's take",
     "durationSec": 258,
     "audioUrl": null
   }

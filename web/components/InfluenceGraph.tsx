@@ -1,16 +1,17 @@
 import type { InfluenceEdge, PlayerId } from "@/lib/data";
 
 /**
- * The interaction record as a fixed triangle: SILT / RUST / KEEP, with one
- * directed edge per ordered pair. Stroke width encodes influence weight —
- * how much of one player's material shaped another's take. Placeholder
- * renderer: positions are fixed; only the weights come from data.
+ * The interaction record as a fixed triangle: the three acts, one directed
+ * edge per ordered pair. Stroke width encodes influence weight — how much
+ * of one act's material shaped another's take. Placeholder renderer:
+ * positions are fixed; only the weights come from data. Labels are the
+ * stage surnames; the small sub-label is the stable log id.
  */
 
-const NODES: Record<PlayerId, { x: number; y: number; label: string }> = {
-  silt: { x: 210, y: 70, label: "SILT" },
-  rust: { x: 80, y: 292, label: "RUST" },
-  keep: { x: 340, y: 292, label: "KEEP" },
+const NODES: Record<PlayerId, { x: number; y: number; label: string; sub: string }> = {
+  silt: { x: 210, y: 70, label: "MARLOWE", sub: "silt" },
+  rust: { x: 80, y: 292, label: "PATINA", sub: "rust" },
+  keep: { x: 340, y: 292, label: "LANE", sub: "keep" },
 };
 
 const NODE_R = 36;
@@ -47,7 +48,7 @@ export function InfluenceGraph({ influence }: { influence: InfluenceEdge[] }) {
     <svg
       viewBox="0 0 420 370"
       role="img"
-      aria-label="Influence graph: directed edges between SILT, RUST, and KEEP weighted by influence"
+      aria-label="Influence graph: directed edges between Delta Marlowe, Roan Patina, and Evers Lane weighted by influence"
       style={{ width: "100%", maxWidth: 440, height: "auto" }}
     >
       <defs>
@@ -104,15 +105,26 @@ export function InfluenceGraph({ influence }: { influence: InfluenceEdge[] }) {
             />
             <text
               x={n.x}
-              y={n.y}
+              y={n.y - 4}
               textAnchor="middle"
               dominantBaseline="middle"
-              fontSize={14}
-              letterSpacing={1.5}
+              fontSize={11.5}
+              letterSpacing={1}
               fill="var(--color-text)"
               style={{ fontFamily: "var(--font-heading)", fontWeight: 600 }}
             >
               {n.label}
+            </text>
+            <text
+              x={n.x}
+              y={n.y + 11}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize={8}
+              letterSpacing={1.2}
+              fill="var(--color-neutral-600)"
+            >
+              {n.sub}
             </text>
           </g>
         );

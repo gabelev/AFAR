@@ -1,18 +1,34 @@
 import Link from "next/link";
 import { Radar } from "@/components/Radar";
-import { listAgents, listReleases } from "@/lib/data";
+import { listAgents, listReleases, listTracks, stanceWord, type Release, type Track } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
+/** The era of the newest release carrying one of this act's takes, if any. */
+function latestEra(agentId: string, releases: Release[], tracks: Track[]): string | null {
+  const byId = new Map(tracks.map((t) => [t.id, t]));
+  for (let i = releases.length - 1; i >= 0; i--) {
+    if (releases[i].takeIds.some((id) => byId.get(id)?.agentId === agentId)) {
+      return releases[i].era;
+    }
+  }
+  return null;
+}
+
 export default async function RosterPage() {
-  const [agents, releases] = await Promise.all([listAgents(), listReleases()]);
-  const players = agents.filter((a) => a.kind === "player");
+  const [agents, releases, tracks] = await Promise.all([
+    listAgents(),
+    listReleases(),
+    listTracks(),
+  ]);
+  const acts = agents.filter((a) => a.kind === "player");
   const staff = agents.filter((a) => a.kind === "staff");
   const latest = releases[releases.length - 1];
 
   return (
     <div className="page fade-up">
       <section style={{ padding: "var(--space-8) 0 var(--space-6)" }}>
+        <p className="kicker">The label</p>
         <h1
           style={{
             fontWeight: 400,
@@ -32,55 +48,80 @@ export default async function RosterPage() {
       <hr className="hr" />
 
       <section>
-        <p className="kicker">The band</p>
-        <p className="text-muted" style={{ marginBottom: "var(--space-4)" }}>
-          Three players. Each holds an aesthetic commitment, not a genre. The silhouette is what
-          they are currently reaching for.
+        <p className="kicker">The roster</p>
+        <p className="text-muted" style={{ marginBottom: "var(--space-4)", maxWidth: 620 }}>
+          Three acts, one label. Each holds an aesthetic commitment, not a genre — and each hears
+          the others only through what they release. The silhouette is what an act is currently
+          reaching for.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: "var(--space-4)" }}>
-          {players.map((agent) => (
-            <Link
-              key={agent.id}
-              href={`/agent/${agent.id}`}
-              className="card elev-sm"
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <div className="flex items-start justify-between gap-2">
+          {acts.map((agent) => {
+            const era = latestEra(agent.id, releases, tracks);
+            return (
+              <Link
+                key={agent.id}
+                href={`/agent/${agent.id}`}
+                data-act={agent.id}
+                className="card elev-sm act-card"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <div className="act-portrait">
+                  {agent.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={agent.imageUrl} alt={`Portrait of ${agent.displayName}`} />
+                  ) : (
+                    agent.palette && <Radar palette={agent.palette} size={168} />
+                  )}
+                </div>
                 <div>
-                  <span className="card-kicker">{agent.role}</span>
-                  <h3 className="card-title" style={{ fontSize: 26, letterSpacing: "0.05em" }}>
-                    {agent.name}
+                  <span className="card-kicker">
+                    {agent.id} · {stanceWord(agent)}
+                  </span>
+                  <h3 className="card-title" style={{ fontSize: 27, lineHeight: 1.1 }}>
+                    {agent.displayName}
                   </h3>
                 </div>
-                {agent.palette && <Radar palette={agent.palette} size={64} />}
-              </div>
-              <p className="card-body" style={{ fontStyle: "italic" }}>
-                “{agent.stance}”
-              </p>
-            </Link>
-          ))}
+                <p className="card-body" style={{ fontStyle: "italic" }}>
+                  “{agent.stance}”
+                </p>
+                {era && (
+                  <div className="card-meta">
+                    <span className="tag tag-neutral">{era}</span>
+                  </div>
+                )}
+              </Link>
+            );
+          })}
         </div>
       </section>
 
       <section style={{ marginTop: "var(--space-8)" }}>
-        <p className="kicker">The staff</p>
-        <p className="text-muted" style={{ marginBottom: "var(--space-4)" }}>
-          Four voices around the band. They act on the frame between sets — the players never hear
-          them mid-set.
+        <p className="kicker">The masthead</p>
+        <p className="text-muted" style={{ marginBottom: "var(--space-4)", maxWidth: 620 }}>
+          Four voices around the acts — the label&apos;s staff. They work the frame between sets;
+          the acts never hear them mid-set.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: "var(--space-4)" }}>
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+          style={{
+            gap: "var(--space-4)",
+            borderTop: "1px solid var(--color-divider)",
+            paddingTop: "var(--space-4)",
+          }}
+        >
           {staff.map((agent) => (
             <Link
               key={agent.id}
               href={`/agent/${agent.id}`}
-              className="card elev-sm"
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              <span className="card-kicker">{agent.role}</span>
-              <h3 className="card-title" style={{ fontSize: 20 }}>
-                {agent.name}
+              <span className="card-kicker" style={{ color: "var(--color-neutral-600)" }}>
+                {agent.role}
+              </span>
+              <h3 className="card-title" style={{ fontSize: 19, margin: "2px 0 var(--space-1)" }}>
+                {agent.displayName}
               </h3>
-              <p className="card-body" style={{ fontStyle: "italic" }}>
+              <p className="text-muted" style={{ fontSize: 13, fontStyle: "italic", margin: 0 }}>
                 “{agent.stance}”
               </p>
             </Link>
@@ -93,10 +134,10 @@ export default async function RosterPage() {
           <p className="kicker">From the archive</p>
           <Link
             href={`/release/${latest.id}`}
-            className="card elev-sm"
+            className="card elev-sm act-card"
             style={{ textDecoration: "none", color: "inherit", maxWidth: 560 }}
           >
-            <span className="card-kicker">Release {latest.id}</span>
+            <span className="card-kicker">Release {latest.id} · a split across the roster</span>
             <h3 className="card-title" style={{ fontSize: 24 }}>
               {latest.title}
             </h3>
