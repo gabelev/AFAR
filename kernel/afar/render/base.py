@@ -78,11 +78,11 @@ class MockRenderer:
             raise NotImplementedError("continuity is not supported in Step A renderers")
 
         built = build_composition_plan(intent, chunk_lyrics(intent))
+        # Same body shape as the live renderer: ONLY model_id + composition_plan
+        # (context_adherence lives inside the plan's chunk in music_v2).
         prompt_payload = {
             "model_id": "music_v2",
             "composition_plan": built.plan,
-            "respect_sections_durations": False,
-            "context_adherence": built.context_adherence,
         }
         prompt_sha = hashlib.sha256(
             json.dumps(prompt_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")

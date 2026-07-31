@@ -18,7 +18,7 @@ from afar.agents.player import Player, render_one
 from afar.config import _MOCK_INTENTS, _mock_players
 from afar.intent import Influence, Intent, SonicPalette, VocalCharacter
 from afar.log import JsonlLedger, RunContext
-from afar.mapping import LYRICS_MAX_CHARS, TRACK_DURATION_MS, clamp_lyrics
+from afar.mapping import LYRIC_LINE_MAX_CHARS, TRACK_DURATION_MS, clamp_lyrics
 from afar.render.base import MockRenderer
 
 _STAMPS = ("condition", "code_sha", "seed", "renderer_version", "prompt_sha")
@@ -99,7 +99,7 @@ def test_long_lyrics_are_clamped_to_the_api_limit_at_render_time(tmp_path: Path)
     result = MockRenderer(tmp_path / "audio").render(intent, seed=1)
     text = result.metadata["composition_plan"]["chunks"][0]["text"]
     assert text == clamp_lyrics(long_lyrics)
-    assert len(text) <= LYRICS_MAX_CHARS
+    assert all(len(line) <= LYRIC_LINE_MAX_CHARS for line in text.split("\n"))
     assert text.startswith("sediment settles")
     assert text != intent.line
 

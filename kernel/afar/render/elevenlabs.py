@@ -5,7 +5,9 @@ in the style of ensemble's AnthropicProvider so the kernel keeps zero runtime
 dependencies. Built to the verified API facts (afar_music docs/SPEC.md):
 
 - model pinned to music_v2; composition plan, not a one-shot prompt
-- respect_sections_durations: false (better audio at 30s)
+- the body carries ONLY model_id + composition_plan: all style direction and
+  context_adherence live inside the plan's chunks (music_v2 schema);
+  respect_sections_durations is music_v1-only and is not sent
 - the response BODY is raw mp3 audio; track metadata is on `x-*` response
   headers
 - ~5-6s generation for a 30s track; 90s timeout leaves headroom
@@ -91,12 +93,13 @@ class ElevenLabsRenderer:
             )
 
         built = build_composition_plan(intent, chunk_lyrics(intent))
+        # ONLY model_id + composition_plan: context_adherence rides inside the
+        # plan's chunk, and respect_sections_durations is music_v1-only — both
+        # used to be sent at the top level, where music_v2 silently ignores them.
         body = json.dumps(
             {
                 "model_id": "music_v2",
                 "composition_plan": built.plan,
-                "respect_sections_durations": False,
-                "context_adherence": built.context_adherence,
             }
         ).encode("utf-8")
         # The sha of the EXACT request bytes: what the API was actually asked.
