@@ -19,6 +19,126 @@ a{color:#a34c2e;text-decoration:none}a:hover{color:#c0663f;text-decoration:under
 <section style="display:flex;flex-direction:column;gap:56px;padding:64px;font-family:'Archivo',sans-serif;color:#d6cfbc;align-items:flex-start">
 
   <div style="display:flex;flex-direction:column;gap:10px;max-width:900px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.28em;color:#a9a290">TURN 2 · THE STREET</div>
+    <div style="font-size:44px;font-weight:700;letter-spacing:0.14em">ARCHIVE ROW</div>
+    <div style="font-size:15px;line-height:1.6;color:#a9a290;text-wrap:pretty">The AFAR house becomes the corner landmark of a small night block. Four smaller buildings face it across the road — two papered up FOR LEASE, two resident bedroom-studios. Every front door sights the AFAR corner: the archive stays the only listening room in town. Frames <a href="#2a">2a</a> street normal · <a href="#2b">2b</a> street listening event · <a href="#2c">2c</a> era-B proof · <a href="#2d">2d</a> completed staff spritesheets · <a href="#2e">2e</a> resident interior.</div>
+  </div>
+
+  <!-- 2a STREET NORMAL -->
+  <div id="2a" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#d6cfbc;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px;letter-spacing:0.1em">2a</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">STREET, NORMAL STATE — NIGHT. VESS CAMBER AT THE DESK IN RES 03, LAMPS ON, RAIN ENDING.</span></div>
+    <div style="position:relative;width:1792px;height:1088px;flex:none;outline:1px solid rgba(214,207,188,0.14)">
+      <canvas id="s-normal" style="width:1792px;height:1088px;image-rendering:pixelated;display:block"></canvas>
+      <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;pointer-events:none;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.22em;color:rgba(214,207,188,0.48)">
+          <div style="position:absolute;left:70px;top:70px;background:rgba(10,11,13,0.78);padding:2px 6px">AFAR — THE HOUSE</div>
+          <div style="position:absolute;left:1310px;top:110px;background:rgba(10,11,13,0.78);padding:2px 6px">RES 01 · FOR LEASE</div>
+          <div style="position:absolute;left:1310px;top:366px;background:rgba(10,11,13,0.78);padding:2px 6px">RES 02 · MOVE-IN READY</div>
+          <div style="position:absolute;left:1310px;top:622px;background:rgba(10,11,13,0.78);padding:2px 6px">RES 03 · VESS CAMBER</div>
+          <div style="position:absolute;left:1310px;top:878px;background:rgba(10,11,13,0.78);padding:2px 6px">RES 04 · FOR LEASE</div>
+          <div style="position:absolute;left:1090px;top:40px;background:rgba(10,11,13,0.78);padding:2px 6px">ARCHIVE ROW</div>
+          <div style="position:absolute;left:1146px;top:238px;background:rgba(10,11,13,0.78);padding:2px 6px;color:rgba(224,178,90,0.7)">R TRAIN — DOWNTOWN</div>
+          <div style="position:absolute;left:1000px;top:648px;background:rgba(10,11,13,0.78);padding:2px 6px;color:rgba(224,178,90,0.7)">MAILBOX — DEMOS TO THE LABEL</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ showLogs }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;pointer-events:none;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.5;color:#d6cfbc">
+          <div style="position:absolute;left:1330px;top:700px;max-width:240px;background:rgba(10,11,13,0.78);padding:4px 7px;border-left:2px solid #8a6f9e">VC&nbsp; mixing the demo again before I mail it</div>
+        </div>
+      </sc-if>
+      <div style="position:absolute;left:70px;bottom:24px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:rgba(214,207,188,0.55)">ERA 2020s · SET 1 · EVERY FRONT DOOR SIGHTS THE AFAR CORNER</div>
+    </div>
+  </div>
+
+  <!-- 2b STREET LISTENING EVENT -->
+  <div id="2b" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#e0b25a;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px;letter-spacing:0.1em">2b</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">STREET LISTENING EVENT — VESS CAMBER WALKS THE BLOCK TO THE ARCHIVE. BLOCK DIMS; THE ROUTE AND THE DESTINATION STAY LIT.</span></div>
+    <div style="position:relative;width:1792px;height:1088px;flex:none;outline:1px solid rgba(214,207,188,0.14)">
+      <canvas id="s-listen" style="width:1792px;height:1088px;image-rendering:pixelated;display:block"></canvas>
+      <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;pointer-events:none;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.22em">
+          <div style="position:absolute;left:486px;top:492px;color:rgba(224,178,90,0.85);background:rgba(10,11,13,0.78);padding:2px 6px">THE ARCHIVE — LISTENING ROOM</div>
+          <div style="position:absolute;left:1310px;top:622px;color:rgba(214,207,188,0.48);background:rgba(10,11,13,0.78);padding:2px 6px">RES 03 · VESS CAMBER — DOOR OPEN</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ showLogs }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;pointer-events:none;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.5;color:#d6cfbc">
+          <div style="position:absolute;left:990px;top:640px;max-width:280px;background:rgba(10,11,13,0.85);padding:5px 8px;border-left:2px solid #8a6f9e">VC&nbsp; carrying AFAR-0001 back — STANDING WATER, side B</div>
+        </div>
+      </sc-if>
+      <div style="position:absolute;left:70px;bottom:24px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:rgba(224,178,90,0.75)">02:47 · THE WHOLE STREET'S RECORDS ARE HEARD IN ONE ROOM</div>
+    </div>
+  </div>
+
+  <!-- 2c ERA-B PROOF -->
+  <div id="2c" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#d6cfbc;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px;letter-spacing:0.1em">2c</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">STREET ERA PROOF — SAME TILEMAP THROUGH THE ERA-B LUT + PROP DIFF. STREET ENTRIES ADDED TO THE SAME 8-ENTRY REMAP DISCIPLINE.</span></div>
+    <div style="display:flex;gap:40px;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <canvas id="s-era-b" style="width:1792px;height:1088px;image-rendering:pixelated;display:block;outline:1px solid rgba(214,207,188,0.14)"></canvas>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a9a290;letter-spacing:0.14em">ERA 2030s · DRY SEASON — COMPARE <a href="#2a">2a</a> FOR ERA A</div>
+      </div>
+      <div style="max-width:360px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.9;color:#a9a290;padding-top:8px">
+        <div style="letter-spacing:0.26em;color:#d6cfbc;padding-bottom:12px">STREET LUT ENTRIES</div>
+        asphalt #2b2e34 &#8594; #302d27<br>asphalt seam #262a2f &#8594; #2a2722<br>pavement #4a463d &#8594; #4d4536<br>pavement grout #403c34 &#8594; #423b2e<br>curb #5a5449 &#8594; #5c5240<br><br>
+        PROP DIFF — road puddles &#8722;4, dust patches +2. lamp pools inherit the existing lamp remap. guest accents (#8a6f9e) never remap — tenants keep their colour through the seasons.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2d STAFF SPRITESHEETS -->
+  <div id="2d" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#d6cfbc;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px;letter-spacing:0.1em">2d</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">STAFF SPRITES COMPLETED — DOWN / LEFT / RIGHT / UP × 3 WALK FRAMES, PLUS THE FIRST RESIDENT</span></div>
+    <div style="background:#14161a;padding:28px;display:flex;gap:36px;flex:none">
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b8577;letter-spacing:0.14em">THE PRODUCER</div>
+        <div style="display:flex;gap:14px;align-items:flex-end"><canvas data-sheet="producer" data-scale="1" style="image-rendering:pixelated"></canvas><canvas data-sheet="producer" data-scale="2" style="image-rendering:pixelated"></canvas><canvas data-hero="producer" style="image-rendering:pixelated"></canvas></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290;max-width:230px;line-height:1.6">headphones always on &#183; square stance</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b8577;letter-spacing:0.14em">THE CRITIC</div>
+        <div style="display:flex;gap:14px;align-items:flex-end"><canvas data-sheet="critic" data-scale="1" style="image-rendering:pixelated"></canvas><canvas data-sheet="critic" data-scale="2" style="image-rendering:pixelated"></canvas><canvas data-hero="critic" style="image-rendering:pixelated"></canvas></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290;max-width:230px;line-height:1.6">glasses &#183; never puts the papers down</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b8577;letter-spacing:0.14em">THE LISTENER</div>
+        <div style="display:flex;gap:14px;align-items:flex-end"><canvas data-sheet="listener" data-scale="1" style="image-rendering:pixelated"></canvas><canvas data-sheet="listener" data-scale="2" style="image-rendering:pixelated"></canvas><canvas data-hero="listener" style="image-rendering:pixelated"></canvas></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290;max-width:230px;line-height:1.6">round &#183; unhurried</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b8577;letter-spacing:0.14em">THE MUSE</div>
+        <div style="display:flex;gap:14px;align-items:flex-end"><canvas data-sheet="muse" data-scale="1" style="image-rendering:pixelated"></canvas><canvas data-sheet="muse" data-scale="2" style="image-rendering:pixelated"></canvas><canvas data-hero="muse" style="image-rendering:pixelated"></canvas></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290;max-width:230px;line-height:1.6">long hair &#183; pale robe &#183; hair reads from behind</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start;border-left:1px solid rgba(214,207,188,0.14);padding-left:36px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a6f9e;letter-spacing:0.14em">VESS CAMBER — RESIDENT</div>
+        <div style="display:flex;gap:14px;align-items:flex-end"><canvas data-sheet="vess" data-scale="1" style="image-rendering:pixelated"></canvas><canvas data-sheet="vess" data-scale="2" style="image-rendering:pixelated"></canvas><canvas data-hero="vess" style="image-rendering:pixelated"></canvas></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290;max-width:230px;line-height:1.6">flat cap &#183; chest stripe &#183; guest violet #8a6f9e</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2e RESIDENT INTERIOR -->
+  <div id="2e" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#8a6f9e;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px;letter-spacing:0.1em">2e</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">RESIDENT BEDROOM-STUDIO — ONE ROOM, PARAMETERIZED: ACCENT COLOUR + ONE CHARACTER-PROP SLOT</span></div>
+    <div style="display:flex;gap:40px;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <canvas id="res-occ" style="width:1024px;height:704px;image-rendering:pixelated;display:block;outline:1px solid rgba(214,207,188,0.14)"></canvas>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a9a290;letter-spacing:0.14em">RES 03 — VESS CAMBER · ACCENT #8a6f9e · PROP SLOT: AMP</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <canvas id="res-ready" style="width:1024px;height:704px;image-rendering:pixelated;display:block;outline:1px solid rgba(214,207,188,0.14)"></canvas>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a9a290;letter-spacing:0.14em">RES 02 — MOVE-IN READY · NEUTRAL ACCENT · PROP SLOT EMPTY (DASHED)</div>
+      </div>
+      <div style="max-width:320px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.9;color:#a9a290;padding-top:8px">
+        <div style="letter-spacing:0.26em;color:#d6cfbc;padding-bottom:12px">THE TENANT SYSTEM</div>
+        same room, different tenant: one accent colour (console trim, sign plate, sprite coat) + one prop in the dashed slot (amp, tape reels, &#8230;). windows face the street — the walk to the archive starts in view of the corner.
+      </div>
+    </div>
+  </div>
+
+
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:900px">
     <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.28em;color:#a9a290">TURN 1 · DESIGN FRAMES</div>
     <div style="font-size:44px;font-weight:700;letter-spacing:0.14em">AFAR — LABEL INTERFACE</div>
     <div style="font-size:15px;line-height:1.6;color:#a9a290;text-wrap:pretty">Three acts who hear each other only on record. Split-screen: a Phaser-buildable tile world (16px grid, 2×) on the left, the catalogue on the right. Frames <a href="#1a">1a</a> normal state · <a href="#1b">1b</a> the listening event · <a href="#1c">1c</a>–<a href="#1e">1e</a> release page, three cover registers · <a href="#1f">1f</a> Roan Patina act page · <a href="#1g">1g</a> tiles, sprites, palette · <a href="#1h">1h</a> era remap proof.</div>
@@ -478,6 +598,11 @@ class Component extends DCLogic {
     document.querySelectorAll('[data-sheet]').forEach(cv => m.drawSheet(cv, cv.dataset.sheet, +cv.dataset.scale || 1));
     document.querySelectorAll('[data-hero]').forEach(cv => m.drawHero(cv, cv.dataset.hero, 6));
     m.drawDrift(g('drift'));
+    m.drawStreet(g('s-normal'), { scene: 'normal', era: 'A' });
+    m.drawStreet(g('s-listen'), { scene: 'listening', era: 'A', dim });
+    m.drawStreet(g('s-era-b'), { scene: 'normal', era: 'B' });
+    m.drawResidentRoom(g('res-occ'), { acc: '#8a6f9e', accD: '#5e4a6c', prop: 'amp', occupied: true });
+    m.drawResidentRoom(g('res-ready'), { acc: '#8b8577', accD: '#5e5a4f', prop: 'none' });
   }
   componentDidUpdate(prev) {
     if (prev.listeningDim !== this.props.listeningDim) this.paint();
