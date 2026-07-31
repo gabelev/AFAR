@@ -23,6 +23,8 @@ const INITIALS: Record<WorldActId, string> = { silt: "DM", rust: "RP", keep: "EL
 /** The release-row-shaped input for ONE set-block (fixture or Neon). */
 export interface TimelineSource {
   releaseId: string;
+  /** The run that produced this block's lines — with releaseId, its identity. */
+  runId?: string;
   title: string;
   era: string;
   set: number;
@@ -90,6 +92,7 @@ export type CatalogueEvent = WorldEvent & { block: number };
 
 export interface WorldTimeline {
   releaseId: string;
+  runId?: string;
   catalogueNo: string;
   title: string;
   era: string;
@@ -104,6 +107,8 @@ export interface WorldTimeline {
 /** Per-block display facts the world reads while a block is playing. */
 export interface SetBlockMeta {
   releaseId: string;
+  /** Block identity for the live diff is releaseId + runId (see live.ts). */
+  runId?: string;
   catalogueNo: string;
   title: string;
   era: string;
@@ -189,6 +194,7 @@ export function compileTimeline(src: TimelineSource): WorldTimeline {
 
   return {
     releaseId: src.releaseId,
+    runId: src.runId,
     catalogueNo: `AFAR-${src.releaseId}`,
     title: src.title,
     era: src.era,
@@ -216,6 +222,7 @@ export function compileCatalogue(src: TimelineCatalogueSource): WorldCatalogue {
     const tl = compileTimeline(blockSrc);
     blocks.push({
       releaseId: tl.releaseId,
+      runId: tl.runId,
       catalogueNo: tl.catalogueNo,
       title: tl.title,
       era: tl.era,

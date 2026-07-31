@@ -50,8 +50,9 @@ export async function GET() {
 
   return NextResponse.json(compileCatalogue({ blocks }), {
     headers: {
-      // Derived from an immutable log; the mutable bits (title) can lag an hour.
-      "cache-control": "public, max-age=3600, stale-while-revalidate=86400",
+      // Open tabs poll this route for new releases (createWorld's live
+      // splice) — a fresh record should reach them in about a minute.
+      "cache-control": "public, max-age=60, stale-while-revalidate=300",
     },
   });
 }

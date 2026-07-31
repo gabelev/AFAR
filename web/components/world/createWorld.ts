@@ -20,6 +20,13 @@
  */
 
 import { CAMERA_MARGIN, cameraBounds, clampMidpoint } from "@/lib/world/camera";
+import {
+  arrivalCaption,
+  arrivalNowLine,
+  diffCatalogue,
+  splicePlayOrder,
+  startTimelinePoller,
+} from "@/lib/world/live";
 import { setNow } from "@/lib/world/now";
 import type { WorldTarget } from "@/lib/world/resolve";
 import { CHARACTER_RESOLVE } from "@/lib/world/resolve";
@@ -200,6 +207,7 @@ export async function createWorld(
   // ——— the scene ———
   let handleFly: (t: WorldTarget) => void = () => {};
   let handleAnchor: (t: WorldTarget | null, fly?: boolean) => void = () => {};
+  let handleCatalogue: (next: WorldCatalogue) => void = () => {};
 
   class WorldScene extends Ph.Scene {
     chars: Record<string, InstanceType<typeof Ph.GameObjects.Sprite>> = {};
@@ -217,6 +225,48 @@ export async function createWorld(
     /** Set once a pointer-down has moved far enough to count as a drag. */
     dragging = false;
     dragDist = 0;
+    /**
+     * Live splice (lib/world/live.ts): after the poller spots new blocks,
+     * this queue overrides the natural event order for one pass — the
+     * current block finishes, the arrivals play, the old order resumes.
+     */
+    pendingOrder: number[] = [];
+    /** A restructured catalogue waits here and is adopted at wrap-around. */
+    pendingCatalogue: WorldCatalogue | null = null;
+
+    /** The next event to play: the splice queue first, else natural order. */
+    nextEventIndex(): number {
+      const shifted = this.pendingOrder.shift();
+      if (shifted !== undefined) return shifted;
+      const next = (this.eventIndex + 1) % (timeline?.events.length || 1);
+      if (next === 0 && this.pendingCatalogue) {
+        // a reshaped catalogue (re-published run) is adopted only here, on
+        // the wrap — never mid-sequence, never as a restart
+        timeline = this.pendingCatalogue;
+        this.pendingCatalogue = null;
+      }
+      return next;
+    }
+
+    /**
+     * A new record just landed: in follow mode the camera gives a brief
+     * acknowledging beat toward the archive (where records live) and
+     * returns — unless it is following a walker, which is never cut.
+     * Roaming users only get the caption and the chip pulse: no yanks.
+     */
+    acknowledgeArrival() {
+      if (this.camMode !== "follow" || this.followTarget) {
+        pulseChip();
+        return;
+      }
+      const cam = this.cameras.main;
+      cam.pan(PLATTER.x, PLATTER.y, 700, "Sine.easeOut");
+      this.time.delayedCall(2400, () => {
+        if (this.camMode !== "follow" || this.followTarget) return;
+        const home = this.anchor ?? HOME_CENTER;
+        cam.pan(home.tx * T, home.ty * T, 800, "Sine.easeOut");
+      });
+    }
 
     /**
      * Clamp-and-set scroll through the pure camera math. Clamps the camera
@@ -352,6 +402,40 @@ export async function createWorld(
         if (fly) handleFly(target ?? HOME_CENTER);
       };
 
+      // The poller found a fresh catalogue: diff it against what is
+      // playing and splice — the clock never resets, the current block is
+      // never interrupted (lib/world/live.ts owns the pure math).
+      handleCatalogue = (nextCat) => {
+        if (!timeline) {
+          // the initial fetch had failed: the world finally gets a timeline
+          timeline = nextCat;
+          if (nextCat.events.length > 0) {
+            setCaption(blockCaption(0));
+            this.runEvent(0);
+          }
+          return;
+        }
+        const diff = diffCatalogue(timeline, nextCat);
+        if (diff.kind === "noop") return;
+        if (diff.kind === "restructured") {
+          this.pendingCatalogue = nextCat; // adopted at the next wrap-around
+          return;
+        }
+        const firstNewEventIndex = timeline.events.length;
+        timeline = nextCat; // changed display facts apply in place
+        if (diff.newBlockIndices.length > 0) {
+          this.pendingCatalogue = null;
+          this.pendingOrder = splicePlayOrder(nextCat.events, this.eventIndex, firstNewEventIndex);
+          const arrivals = diff.newBlockIndices.map((i) => nextCat.blocks[i]);
+          setCaption(arrivalCaption(arrivals), "lamp");
+          setNow(arrivalNowLine(arrivals));
+          this.acknowledgeArrival();
+        } else if (nextCat.events[this.eventIndex]?.kind === "round") {
+          // e.g. a title updated by the Critic, refreshed mid-round
+          setCaption(blockCaption(nextCat.events[this.eventIndex].block));
+        }
+      };
+
       // ——— free camera: drag / trackpad-wheel roaming ———
       this.input.on("pointerdown", () => {
         this.dragging = false;
@@ -421,7 +505,7 @@ export async function createWorld(
       if (!timeline) return;
       this.eventIndex = index;
       const ev = timeline.events[index];
-      const next = () => this.runEvent((index + 1) % timeline!.events.length);
+      const next = () => this.runEvent(this.nextEventIndex());
       if (ev.kind === "round") this.runRound(ev, next);
       else if (ev.kind === "listening") this.runListening(ev, next);
       else this.runTransition(ev, next);
@@ -683,10 +767,23 @@ export async function createWorld(
   });
   observer.observe(container);
 
+  // Liveness: while the tab is open the world refetches the timeline on a
+  // slow jittered cadence (paused when hidden) and splices new releases
+  // into the playing loop — no refresh, ever. Failures are silent.
+  const stopPolling = startTimelinePoller({
+    fetchCatalogue: async () => {
+      const res = await fetch("/api/timeline", { cache: "no-store" });
+      return res.ok ? ((await res.json()) as WorldCatalogue) : null;
+    },
+    onCatalogue: (cat) => handleCatalogue(cat),
+    doc: document,
+  });
+
   return {
     flyTo: (target) => handleFly(target),
     setAnchor: (target, fly) => handleAnchor(target, fly),
     destroy: () => {
+      stopPolling();
       observer.disconnect();
       game.destroy(true);
       overlay.remove();
