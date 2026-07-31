@@ -36,7 +36,49 @@
   animation: fadeUp 0.5s ease both;
 }
 
-/* Rationale quotes — a player's voice in the interaction record. */
+/* Per-act accent — scoping the design system's accent to an act's card or
+   page tints its radar, kicker, and links in one move. Earthy tones drawn
+   from each act's stance: silt keeps the house ochre, rust oxidizes, keep
+   settles into lichen. The mineral slug is the data-act key (stable id). */
+[data-act="silt"] { --color-accent: #a06f24; }
+[data-act="rust"] { --color-accent: #94512e; }
+[data-act="keep"] { --color-accent: #5f7261; }
+
+/* An act's portrait slot. AI-image portraits arrive later; until then the
+   Radar silhouette IS the portrait — framed like a specimen plate. */
+.act-portrait {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-sm);
+  background:
+    radial-gradient(
+      circle at 50% 44%,
+      color-mix(in srgb, var(--color-accent) 10%, transparent),
+      transparent 72%
+    ),
+    var(--color-surface);
+}
+.act-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+.act-portrait svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.act-card {
+  transition: box-shadow 0.2s ease;
+}
+.act-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Rationale quotes — an act's voice in the interaction record. */
 .rationale {
   margin: 0;
   padding-left: var(--space-3);

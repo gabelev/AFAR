@@ -125,6 +125,10 @@ async function main() {
     );
   };
 
+  // Agents are upserted wholesale, so agents.data jsonb carries the full
+  // fixture shape — including displayName (stage name over the stable id)
+  // and the nullable imageUrl portrait slot. data.ts falls back
+  // displayName -> name, so rows seeded before the rename still render.
   for (const agent of agents) await upsertJson("agents", agent.id, agent);
   console.log(`agents  ${agents.length} upserted`);
 

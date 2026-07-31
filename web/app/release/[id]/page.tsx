@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InfluenceGraph } from "@/components/InfluenceGraph";
-import { TrackPlayer } from "@/components/TrackPlayer";
+import { PlayerProvider, TrackPlayer } from "@/components/TrackPlayer";
 import { getRelease, listAgents, tracksForRelease } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -12,16 +12,27 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
   if (!release) notFound();
 
   const [takes, agents] = await Promise.all([tracksForRelease(release), listAgents()]);
-  const agentName = (agentId: string) => agents.find((a) => a.id === agentId)?.name ?? agentId;
+  const displayName = (agentId: string) =>
+    agents.find((a) => a.id === agentId)?.displayName ?? agentId;
 
   return (
     <div className="page fade-up">
       <Link href="/" className="btn btn-ghost">
-        ← Back to the archive
+        ← Back to the roster
       </Link>
 
       <section style={{ marginTop: "var(--space-4)" }}>
-        <p className="kicker">Release {release.id}</p>
+        {release.coverUrl && (
+          // Cover slot — AI-image covers arrive later; nothing renders until then.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={release.coverUrl}
+            alt={`Cover of ${release.title}`}
+            className="plate"
+            style={{ maxWidth: 320, marginBottom: "var(--space-4)" }}
+          />
+        )}
+        <p className="kicker">Release {release.id} · a split across the roster</p>
         <h1 style={{ fontWeight: 400, fontSize: 56, margin: "0 0 var(--space-2)" }}>
           {release.title}
         </h1>
@@ -42,21 +53,23 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
         <p className="text-muted" style={{ marginBottom: "var(--space-3)", maxWidth: 620 }}>
           {release.selection}
         </p>
-        <div className="flex flex-col" style={{ gap: "var(--space-2)", maxWidth: 720 }}>
-          {takes.map((take) => (
-            <TrackPlayer
-              key={take.id}
-              title={take.title}
-              audioUrl={take.audioUrl}
-              tag={agentName(take.agentId)}
-              subtitle={
-                take.durationSec
-                  ? `${Math.floor(take.durationSec / 60)}:${String(take.durationSec % 60).padStart(2, "0")}`
-                  : undefined
-              }
-            />
-          ))}
-        </div>
+        <PlayerProvider>
+          <div className="flex flex-col" style={{ gap: "var(--space-2)", maxWidth: 720 }}>
+            {takes.map((take) => (
+              <TrackPlayer
+                key={take.id}
+                title={take.title}
+                audioUrl={take.audioUrl}
+                tag={displayName(take.agentId)}
+                subtitle={
+                  take.durationSec
+                    ? `${Math.floor(take.durationSec / 60)}:${String(take.durationSec % 60).padStart(2, "0")}`
+                    : undefined
+                }
+              />
+            ))}
+          </div>
+        </PlayerProvider>
       </section>
 
       <hr className="hr" style={{ marginTop: "var(--space-8)" }} />
@@ -64,7 +77,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
       <section>
         <p className="kicker">The interaction record</p>
         <p className="text-muted" style={{ maxWidth: 620, marginBottom: "var(--space-4)" }}>
-          Who shaped whom, this set. Edge weight is how much of one player&apos;s material ended up
+          Who shaped whom, this set. Edge weight is how much of one act&apos;s material ended up
           in another&apos;s take — measured from the log, not self-reported.
         </p>
         <div
@@ -74,11 +87,11 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
           <InfluenceGraph influence={release.influence} />
           <div className="flex flex-col" style={{ gap: "var(--space-4)" }}>
             {Object.entries(release.rationales).map(([agentId, quote]) => (
-              <blockquote key={agentId} className="rationale">
+              <blockquote key={agentId} className="rationale" data-act={agentId}>
                 “{quote}”
                 <footer>
                   <Link href={`/agent/${agentId}`} style={{ color: "inherit" }}>
-                    {agentName(agentId)}
+                    {displayName(agentId)}
                   </Link>
                 </footer>
               </blockquote>

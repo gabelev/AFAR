@@ -1,11 +1,64 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 /**
- * One take row with play/pause. Plain <audio> under the hood; only one
- * take plays at a time per page. When audioUrl is null (the take exists in
- * the log but its audio hasn't been mirrored yet) the row renders disabled.
+ * One shared audio element per page — the archive's single <audio> owner
+ * (web convention: exactly one owner; the world renderer never originates
+ * sound). Take rows toggle through the provider, so starting one take
+ * silently stops whichever other was playing.
+ */
+
+interface PlayerState {
+  playingUrl: string | null;
+  toggle: (url: string) => void;
+}
+
+const PlayerContext = createContext<PlayerState>({ playingUrl: null, toggle: () => {} });
+
+export function PlayerProvider({ children }: { children: React.ReactNode }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingUrl, setPlayingUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const audio = new Audio();
+    audio.preload = "none";
+    const clear = () => setPlayingUrl(null);
+    audio.addEventListener("ended", clear);
+    audio.addEventListener("error", clear);
+    audioRef.current = audio;
+    return () => {
+      audio.pause();
+      audioRef.current = null;
+    };
+  }, []);
+
+  const toggle = (url: string) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playingUrl === url) {
+      audio.pause();
+      setPlayingUrl(null);
+      return;
+    }
+    audio.src = url;
+    void audio.play().catch(() => setPlayingUrl(null));
+    setPlayingUrl(url);
+  };
+
+  return (
+    <PlayerContext.Provider value={{ playingUrl, toggle }}>{children}</PlayerContext.Provider>
+  );
+}
+
+export function usePlayer() {
+  return useContext(PlayerContext);
+}
+
+/**
+ * One take row with play/pause, driven by the page's PlayerProvider. When
+ * audioUrl is null (the take exists in the log but its audio hasn't been
+ * mirrored yet) the row renders disabled.
  */
 export function TrackPlayer({
   title,
@@ -18,36 +71,8 @@ export function TrackPlayer({
   subtitle?: string;
   tag?: string;
 }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [playing, setPlaying] = useState(false);
-
-  useEffect(() => {
-    const el = audioRef.current;
-    if (!el) return;
-    const onPlay = () => {
-      // Pause every other player on the page.
-      document.querySelectorAll("audio").forEach((other) => {
-        if (other !== el) other.pause();
-      });
-      setPlaying(true);
-    };
-    const onStop = () => setPlaying(false);
-    el.addEventListener("play", onPlay);
-    el.addEventListener("pause", onStop);
-    el.addEventListener("ended", onStop);
-    return () => {
-      el.removeEventListener("play", onPlay);
-      el.removeEventListener("pause", onStop);
-      el.removeEventListener("ended", onStop);
-    };
-  }, [audioUrl]);
-
-  const toggle = () => {
-    const el = audioRef.current;
-    if (!el) return;
-    if (el.paused) void el.play();
-    else el.pause();
-  };
+  const { playingUrl, toggle } = usePlayer();
+  const playing = audioUrl !== null && playingUrl === audioUrl;
 
   return (
     <div
@@ -62,7 +87,7 @@ export function TrackPlayer({
       <button
         type="button"
         className="btn btn-primary btn-icon"
-        onClick={toggle}
+        onClick={() => audioUrl && toggle(audioUrl)}
         disabled={!audioUrl}
         aria-label={playing ? `Pause ${title}` : `Play ${title}`}
       >
@@ -76,7 +101,6 @@ export function TrackPlayer({
         </div>
         {subtitle && <div className="card-meta">{subtitle}</div>}
       </div>
-      {audioUrl && <audio ref={audioRef} src={audioUrl} preload="none" />}
     </div>
   );
 }

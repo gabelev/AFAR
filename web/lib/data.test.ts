@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  AgentSchema,
   PLAYER_IDS,
   STAFF_IDS,
   fixtureAgents,
@@ -21,6 +22,28 @@ describe("agents fixture", () => {
       if (agent.kind === "player") expect(agent.palette).not.toBeNull();
       else expect(agent.palette).toBeNull();
     }
+  });
+
+  it("gives every act a stage name over the stable id, and staff their title", () => {
+    for (const agent of fixtureAgents) {
+      expect(agent.displayName.length).toBeGreaterThan(0);
+      if (agent.kind === "player") {
+        // Stage name is display-only; the mineral sub-identity stays in `name`.
+        expect(agent.displayName).not.toBe(agent.name);
+        expect(agent.displayName).not.toBe(agent.id);
+      } else {
+        // Staff titles ARE the roles — no stage persona.
+        expect(agent.displayName).toBe(agent.name);
+      }
+    }
+  });
+
+  it("falls back displayName to name, so pre-rename DB rows still parse", () => {
+    const staff = fixtureAgents.find((a) => a.kind === "staff")!;
+    const withoutDisplayName: Record<string, unknown> = { ...staff };
+    delete withoutDisplayName.displayName;
+    const parsed = AgentSchema.parse(withoutDisplayName);
+    expect(parsed.displayName).toBe(staff.name);
   });
 
   it("keeps player palettes distinct — the silhouettes are the identities", () => {

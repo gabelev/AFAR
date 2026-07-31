@@ -15,15 +15,26 @@ export const PLAYER_IDS = ["silt", "rust", "keep"] as const;
 export const STAFF_IDS = ["muse", "producer", "critic", "listener"] as const;
 export type PlayerId = (typeof PLAYER_IDS)[number];
 
-export const AgentSchema = z.object({
-  id: z.string().min(1),
-  kind: z.enum(["player", "staff"]),
-  name: z.string().min(1),
-  role: z.string().min(1),
-  stance: z.string().min(1),
-  description: z.array(z.string().min(1)),
-  palette: SonicPaletteSchema.nullable(),
-});
+export const AgentSchema = z
+  .object({
+    id: z.string().min(1),
+    kind: z.enum(["player", "staff"]),
+    /** Stable sub-identity (the mineral slug for acts, the title for staff). */
+    name: z.string().min(1),
+    /** Public stage name. Optional in the data so pre-rename DB rows still parse. */
+    displayName: z.string().min(1).optional(),
+    role: z.string().min(1),
+    stance: z.string().min(1),
+    description: z.array(z.string().min(1)),
+    palette: SonicPaletteSchema.nullable(),
+    /** Portrait slot — AI-image portraits arrive later; pages fall back to the Radar. */
+    imageUrl: z.string().min(1).nullable().optional(),
+  })
+  .transform((a) => ({
+    ...a,
+    displayName: a.displayName ?? a.name,
+    imageUrl: a.imageUrl ?? null,
+  }));
 
 export const TrackSchema = z.object({
   id: z.string().min(1),
@@ -40,23 +51,32 @@ export const InfluenceEdgeSchema = z.object({
   weight: z.number().min(0).max(1),
 });
 
-export const ReleaseSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  era: z.enum(ERAS),
-  set: z.number().int().positive(),
-  condition: z.string().min(1),
-  date: z.string().min(1),
-  brief: z.string().min(1),
-  selection: z.string().min(1),
-  review: z.string().min(1),
-  reaction: z.string().min(1),
-  takeIds: z.array(z.string().min(1)),
-  influence: z.array(InfluenceEdgeSchema),
-  rationales: z.record(z.string(), z.string()),
-});
+export const ReleaseSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    era: z.enum(ERAS),
+    set: z.number().int().positive(),
+    condition: z.string().min(1),
+    date: z.string().min(1),
+    brief: z.string().min(1),
+    selection: z.string().min(1),
+    review: z.string().min(1),
+    reaction: z.string().min(1),
+    takeIds: z.array(z.string().min(1)),
+    influence: z.array(InfluenceEdgeSchema),
+    rationales: z.record(z.string(), z.string()),
+    /** Cover slot — AI-image covers arrive later; the release hero shows one when present. */
+    coverUrl: z.string().min(1).nullable().optional(),
+  })
+  .transform((r) => ({ ...r, coverUrl: r.coverUrl ?? null }));
 
 export type Agent = z.infer<typeof AgentSchema>;
+
+/** The stance word from a role line like "Act — accumulation" — used in kickers next to the id. */
+export function stanceWord(agent: Agent): string {
+  return agent.role.split("—")[1]?.trim() ?? agent.role;
+}
 export type Track = z.infer<typeof TrackSchema>;
 export type InfluenceEdge = z.infer<typeof InfluenceEdgeSchema>;
 export type Release = z.infer<typeof ReleaseSchema>;
