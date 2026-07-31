@@ -190,7 +190,11 @@ def load_set_view(run_dir: Path) -> SetView:
 
 @dataclass(frozen=True)
 class StaffRecord:
-    """What one staff pass produced, and where its facts landed."""
+    """What one staff pass produced, and where its facts landed.
+
+    `degraded` names the stages that failed after retries and were carried
+    absent (the doctrine: a completed set is never voided by staff failure —
+    the material always outranks the commentary)."""
 
     released: bool
     selection: Any  # afar.agents.producer.Selection
@@ -201,17 +205,69 @@ class StaffRecord:
     release_record: Optional[dict[str, Any]]
     release_path: Optional[Path]
     superseded_release_id: str
+    degraded: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
 class BoundaryRecord:
-    """What the Muse + Listener half of the frame produced."""
+    """What the Muse + Listener half of the frame produced. Either piece may
+    be None when its stage degraded (named in `degraded`)."""
 
-    brief: Any  # afar.agents.muse.Brief
-    reaction: Any  # afar.agents.listener.Reaction
+    brief: Optional[Any]  # afar.agents.muse.Brief
+    reaction: Optional[Any]  # afar.agents.listener.Reaction
     release_record: dict[str, Any]
     release_path: Path
     superseded_release_id: str
+    degraded: tuple[str, ...] = ()
+
+
+#: The honest public sentence each degraded stage leaves behind — what the
+#: release page says instead of pretending the stage spoke (or hiding the gap).
+STAGE_DEGRADED_NOTES: dict[str, str] = {
+    "producer": (
+        "The Producer did not file this time — the final round's takes stand, "
+        "kept mechanically."
+    ),
+    "critic": "The Critic did not file this time.",
+    "muse": "The Muse did not file this time — no brief carries forward from this release.",
+    "listener": "The Listener did not file this time.",
+}
+
+
+def _short_error(err: BaseException) -> str:
+    return f"{type(err).__name__}: {err}"[:300]
+
+
+def _degraded_entry(stage: str, err: BaseException) -> dict[str, str]:
+    return {"note": STAGE_DEGRADED_NOTES[stage], "error": _short_error(err)}
+
+
+def _mechanical_selection(view: SetView) -> Any:
+    """The Producer's degradation: the final round's takes, kept mechanically —
+    release 0002's v1 behavior, now with an honest note instead of a panel."""
+    from afar.agents.producer import Selection, TakeChoice
+
+    final = view.rounds - 1
+    takes = {}
+    for pid in view.players:
+        row = view.take_at(pid, final)
+        takes[pid] = TakeChoice(
+            player=pid,
+            round=final,
+            take_id=row.take_id,
+            intent_id=row.intent_id,
+            scores={},
+            reasoning="mechanical: the Producer did not file; the final round's take stands",
+            line=row.line,
+            lyrics=row.lyrics,
+            dissents=[],
+        )
+    return Selection(
+        released=True,
+        takes=takes,
+        note=STAGE_DEGRADED_NOTES["producer"],
+        failed_players=(),
+    )
 
 
 def _append_release_record(
@@ -285,7 +341,10 @@ def run_muse_listener(
         stance = ScheduleConfig().eras_stance_cycle[0]
     run_dir = Path(run_dir)
     record = json.loads(newest_release_path(run_dir).read_text(encoding="utf-8"))
-    if "producer" not in record.get("staff", {}):
+    if (
+        "producer" not in record.get("staff", {})
+        and "producer" not in record.get("staff_degraded", {})
+    ):
         raise ValueError(
             f"run {run_dir.name}: newest release record carries no Producer cut — "
             "the Muse and the Listener act only after a release exists"
@@ -293,28 +352,99 @@ def run_muse_listener(
     (run_row,) = _read_jsonl(run_dir / "runs.jsonl")
     ledger = JsonlLedger(run_dir.parent, run_dir.name, context=RunContext(code_sha=config.code_sha))
     set_stamps = {"condition": run_row["condition"], "seed": run_row["seed"]}
+    degraded: dict[str, dict[str, str]] = {}
 
     # --- the Muse: the brief, carried forward ---------------------------------
-    sink = ProvenanceLog()
-    muse = MuseAgent(
-        config.model,
-        perceiver=perceiver if perceiver is not None else build_perceiver(config.live, config.model, sink),
-        taboo=taboo if taboo is not None else FieldTabooMemory(stance=stance),
-    )
-    prior_reactions = load_recent_reactions(run_dir.parent, exclude_run=run_dir.name)
-    brief = muse.compose(
-        stance=stance,
-        release_records=[record],
-        reaction_rows=prior_reactions,
-        stage_names=STAGE_NAMES,
-        carried_forward=True,
-    )
-    ledger.write(
-        "briefs",
-        {
-            **set_stamps,
-            "kind": "brief",
-            "agent": "muse",
+    # Each outward stage is wrapped INDIVIDUALLY (the degradation doctrine):
+    # a Muse that fails after the retry ladder means no brief this boundary —
+    # logged, absent, honest — never a voided set or a silenced Listener.
+    brief: Any = None
+    try:
+        sink = ProvenanceLog()
+        muse = MuseAgent(
+            config.model,
+            perceiver=perceiver if perceiver is not None else build_perceiver(config.live, config.model, sink),
+            taboo=taboo if taboo is not None else FieldTabooMemory(stance=stance),
+        )
+        prior_reactions = load_recent_reactions(run_dir.parent, exclude_run=run_dir.name)
+        brief = muse.compose(
+            stance=stance,
+            release_records=[record],
+            reaction_rows=prior_reactions,
+            stage_names=STAGE_NAMES,
+            carried_forward=True,
+        )
+    except Exception as err:  # noqa: BLE001 — the material outranks the commentary
+        degraded["muse"] = _degraded_entry("muse", err)
+        ledger.write(
+            "briefs",
+            {
+                **set_stamps,
+                "kind": "staff_stage_failed",
+                "agent": "muse",
+                "stage": "muse",
+                "error": _short_error(err),
+                "note": STAGE_DEGRADED_NOTES["muse"],
+                "basis_release_id": record["release_id"],
+            },
+        )
+    else:
+        ledger.write(
+            "briefs",
+            {
+                **set_stamps,
+                "kind": "brief",
+                "agent": "muse",
+                "stance": brief.stance,
+                "theme": brief.theme,
+                "text": brief.body,
+                "palette_notes": list(brief.palette_notes),
+                "forbidden_moves": list(brief.forbidden_moves),
+                "sources": list(brief.sources),
+                "thin": brief.thin,
+                "carried_forward": brief.carried_forward,
+                "basis_release_id": record["release_id"],
+            },
+        )
+
+    # --- the Listener: the reception ------------------------------------------
+    reaction: Any = None
+    try:
+        listener = ListenerAgent(config.model)
+        reaction = listener.react(record, stage_names=STAGE_NAMES)
+    except Exception as err:  # noqa: BLE001 — same doctrine, independent stage
+        degraded["listener"] = _degraded_entry("listener", err)
+        ledger.write(
+            "reactions",
+            {
+                **set_stamps,
+                "kind": "staff_stage_failed",
+                "agent": "listener",
+                "stage": "listener",
+                "error": _short_error(err),
+                "note": STAGE_DEGRADED_NOTES["listener"],
+                "basis_release_id": record["release_id"],
+            },
+        )
+    else:
+        ledger.write(
+            "reactions",
+            {
+                **set_stamps,
+                "kind": "reaction",
+                "agent": "listener",
+                "valence": reaction.valence,
+                "text": reaction.text,
+                "disagreements_with_critic": list(reaction.disagreements_with_critic),
+                "basis_release_id": record["release_id"],
+            },
+        )
+
+    # --- the boundary-enriched, content-addressed release record --------------
+    record_body = {key: value for key, value in record.items() if key != "release_id"}
+    staff_block = dict(record_body.get("staff", {}))
+    if brief is not None:
+        staff_block["muse"] = {
             "stance": brief.stance,
             "theme": brief.theme,
             "text": brief.body,
@@ -323,50 +453,29 @@ def run_muse_listener(
             "sources": list(brief.sources),
             "thin": brief.thin,
             "carried_forward": brief.carried_forward,
-            "basis_release_id": record["release_id"],
-        },
-    )
-
-    # --- the Listener: the reception ------------------------------------------
-    listener = ListenerAgent(config.model)
-    reaction = listener.react(record, stage_names=STAGE_NAMES)
-    ledger.write(
-        "reactions",
-        {
-            **set_stamps,
-            "kind": "reaction",
-            "agent": "listener",
+        }
+    if reaction is not None:
+        staff_block["listener"] = {
             "valence": reaction.valence,
             "text": reaction.text,
             "disagreements_with_critic": list(reaction.disagreements_with_critic),
-            "basis_release_id": record["release_id"],
-        },
-    )
-
-    # --- the boundary-enriched, content-addressed release record --------------
-    record_body = {key: value for key, value in record.items() if key != "release_id"}
-    staff_block = dict(record_body.get("staff", {}))
-    staff_block["muse"] = {
-        "stance": brief.stance,
-        "theme": brief.theme,
-        "text": brief.body,
-        "palette_notes": list(brief.palette_notes),
-        "forbidden_moves": list(brief.forbidden_moves),
-        "sources": list(brief.sources),
-        "thin": brief.thin,
-        "carried_forward": brief.carried_forward,
-    }
-    staff_block["listener"] = {
-        "valence": reaction.valence,
-        "text": reaction.text,
-        "disagreements_with_critic": list(reaction.disagreements_with_critic),
-    }
+        }
     record_body["staff"] = staff_block
+    merged_degraded = {**record.get("staff_degraded", {}), **degraded}
+    if merged_degraded:
+        record_body["staff_degraded"] = merged_degraded
     prior_staff = list(record.get("provenance", {}).get("staff", []))
-    record_body["provenance"] = {
-        "staff": [*prior_staff, "muse", "listener"],
+    provenance: dict[str, Any] = {
+        "staff": [
+            *prior_staff,
+            *(["muse"] if brief is not None else []),
+            *(["listener"] if reaction is not None else []),
+        ],
         "supersedes_release_id": record["release_id"],
     }
+    if merged_degraded:
+        provenance["staff_degraded"] = sorted(merged_degraded)
+    record_body["provenance"] = provenance
     release_record, release_path = _append_release_record(run_dir, ledger, set_stamps, record_body)
     return BoundaryRecord(
         brief=brief,
@@ -374,6 +483,7 @@ def run_muse_listener(
         release_record=release_record,
         release_path=release_path,
         superseded_release_id=record["release_id"],
+        degraded=tuple(degraded),
     )
 
 
@@ -390,6 +500,17 @@ def run_staff(
     release' verdict the verdict is logged and NO new record is written: not
     releasing is a decision, not a correction — and with nothing shipped, the
     Muse and the Listener have nothing to hear (no brief, no reaction).
+
+    THE DEGRADATION DOCTRINE (DECISIONS.md: the material always outranks the
+    commentary): a completed set is never voided by staff failure. Each stage
+    is wrapped individually; a stage that still fails after the retry ladder
+    (afar.agents.robust) logs a `staff_stage_failed` row in its home table
+    and the chain CONTINUES with that piece absent — Producer down means the
+    final round's takes stand mechanically (release 0002's v1 behavior, with
+    an honest note); Critic down means no titles and no review (the publish
+    path placeholders honestly); Muse/Listener down means no brief/reaction
+    this boundary. The set still yields a release record and PUBLISHES.
+    Only `run_set` itself failing is a failed set.
     """
     from afar.agents.critic import CriticAgent
     from afar.agents.producer import ProducerAgent
@@ -399,89 +520,133 @@ def run_staff(
     old_record = dict(view.record)
     ledger = JsonlLedger(run_dir.parent, run_dir.name, context=RunContext(code_sha=config.code_sha))
     set_stamps = {"condition": view.condition, "seed": view.seed}
+    degraded: dict[str, dict[str, str]] = {}
 
     # --- the Producer's cut ---------------------------------------------------
-    producer = ProducerAgent(config.model)
-    selection = producer.select(view)
-    for pid in view.players:
-        choice = selection.takes.get(pid)
-        if choice is None:
-            continue
+    producer_filed = True
+    try:
+        producer = ProducerAgent(config.model)
+        selection = producer.select(view)
+    except Exception as err:  # noqa: BLE001 — the material outranks the commentary
+        producer_filed = False
+        degraded["producer"] = _degraded_entry("producer", err)
         ledger.write(
             "selections",
             {
                 **set_stamps,
-                "kind": "take",
+                "kind": "staff_stage_failed",
                 "agent": "producer",
-                "player": pid,
-                "round": choice.round,
-                "take_id": choice.take_id,
-                "intent_id": choice.intent_id,
-                "scores": choice.scores,
-                "reasoning": choice.reasoning,
-                "dissents": choice.dissents,
+                "stage": "producer",
+                "error": _short_error(err),
+                "note": STAGE_DEGRADED_NOTES["producer"],
                 "basis_release_id": old_record["release_id"],
             },
         )
-    ledger.write(
-        "selections",
-        {
-            **set_stamps,
-            "kind": "selection",
-            "agent": "producer",
-            "released": selection.released,
-            "note": selection.note,
-            "failed_players": list(selection.failed_players),
-            "basis_release_id": old_record["release_id"],
-        },
-    )
-    if not selection.released:
-        return StaffRecord(
-            released=False,
-            selection=selection,
-            review=None,
-            names=None,
-            brief=None,
-            reaction=None,
-            release_record=None,
-            release_path=None,
-            superseded_release_id=old_record["release_id"],
+        selection = _mechanical_selection(view)
+    else:
+        for pid in view.players:
+            choice = selection.takes.get(pid)
+            if choice is None:
+                continue
+            ledger.write(
+                "selections",
+                {
+                    **set_stamps,
+                    "kind": "take",
+                    "agent": "producer",
+                    "player": pid,
+                    "round": choice.round,
+                    "take_id": choice.take_id,
+                    "intent_id": choice.intent_id,
+                    "scores": choice.scores,
+                    "reasoning": choice.reasoning,
+                    "dissents": choice.dissents,
+                    "basis_release_id": old_record["release_id"],
+                },
+            )
+        ledger.write(
+            "selections",
+            {
+                **set_stamps,
+                "kind": "selection",
+                "agent": "producer",
+                "released": selection.released,
+                "note": selection.note,
+                "failed_players": list(selection.failed_players),
+                "basis_release_id": old_record["release_id"],
+            },
         )
+        if not selection.released:
+            # 'No release this set' is the Producer's DECISION — only a panel
+            # that actually convened may refuse a release. A failed Producer
+            # never voids the material (the degraded path above).
+            return StaffRecord(
+                released=False,
+                selection=selection,
+                review=None,
+                names=None,
+                brief=None,
+                reaction=None,
+                release_record=None,
+                release_path=None,
+                superseded_release_id=old_record["release_id"],
+            )
 
     # --- the Critic's word, then the name (last) ------------------------------
-    critic = CriticAgent(config.model)
-    review = critic.review(view, selection)
-    names = critic.name(selection, review)
-    for pid in view.players:
+    review = None
+    names = None
+    try:
+        critic = CriticAgent(config.model)
+        review = critic.review(view, selection)
+        names = critic.name(selection, review)
+    except Exception as err:  # noqa: BLE001 — same doctrine
+        review = None
+        names = None
+        degraded["critic"] = _degraded_entry("critic", err)
         ledger.write(
             "reviews",
             {
                 **set_stamps,
-                "kind": "act-review",
+                "kind": "staff_stage_failed",
                 "agent": "critic",
-                "player": pid,
-                "text": review.per_act[pid],
+                "stage": "critic",
+                "error": _short_error(err),
+                "note": STAGE_DEGRADED_NOTES["critic"],
+                "basis_release_id": old_record["release_id"],
             },
         )
-    ledger.write(
-        "reviews",
-        {**set_stamps, "kind": "release-review", "agent": "critic", "text": review.release},
-    )
-    ledger.write(
-        "reviews",
-        {
-            **set_stamps,
-            "kind": "titles",
-            "agent": "critic",
-            "release_title": names.release_title,
-            "take_titles": dict(names.take_titles),
-        },
-    )
+    else:
+        for pid in view.players:
+            ledger.write(
+                "reviews",
+                {
+                    **set_stamps,
+                    "kind": "act-review",
+                    "agent": "critic",
+                    "player": pid,
+                    "text": review.per_act[pid],
+                },
+            )
+        ledger.write(
+            "reviews",
+            {**set_stamps, "kind": "release-review", "agent": "critic", "text": review.release},
+        )
+        ledger.write(
+            "reviews",
+            {
+                **set_stamps,
+                "kind": "titles",
+                "agent": "critic",
+                "release_title": names.release_title,
+                "take_titles": dict(names.take_titles),
+            },
+        )
 
     # --- the staff-enriched, content-addressed release record -----------------
     record_body = {key: value for key, value in old_record.items() if key != "release_id"}
-    record_body["staff"] = {
-        "producer": {
+    staff_block: dict[str, Any] = {}
+    if producer_filed:
+        staff_block["producer"] = {
             "selected": {
                 pid: {
                     "round": choice.round,
@@ -494,18 +659,24 @@ def run_staff(
                 for pid, choice in selection.takes.items()
             },
             "note": selection.note,
-        },
-        "critic": {
+        }
+    if review is not None and names is not None:
+        staff_block["critic"] = {
             "release_title": names.release_title,
             "take_titles": dict(names.take_titles),
             "release_review": review.release,
             "act_reviews": dict(review.per_act),
-        },
-    }
-    record_body["provenance"] = {
-        "staff": ["producer", "critic"],
+        }
+    record_body["staff"] = staff_block
+    if degraded:
+        record_body["staff_degraded"] = dict(degraded)
+    provenance: dict[str, Any] = {
+        "staff": [stage for stage in ("producer", "critic") if stage in staff_block],
         "supersedes_release_id": old_record["release_id"],
     }
+    if degraded:
+        provenance["staff_degraded"] = sorted(degraded)
+    record_body["provenance"] = provenance
     _append_release_record(run_dir, ledger, set_stamps, record_body)
 
     # --- the Muse and the Listener, after the release exists ------------------
@@ -522,4 +693,9 @@ def run_staff(
         release_record=boundary.release_record,
         release_path=boundary.release_path,
         superseded_release_id=old_record["release_id"],
+        degraded=tuple(
+            stage
+            for stage in ("producer", "critic", "muse", "listener")
+            if stage in degraded or stage in boundary.degraded
+        ),
     )

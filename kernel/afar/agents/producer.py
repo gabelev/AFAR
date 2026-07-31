@@ -40,6 +40,7 @@ from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
 from ensemble.taste import Discriminator, ScoreVector, Verdict
 
+from afar.agents.robust import staff_complete
 from afar.intent import _loads_lenient
 from afar.staff import STAGE_NAMES, SetView, TakeRow, take_digest
 
@@ -167,24 +168,36 @@ class LogJudge:
             "ROUNDS line. Be willing to score low; a flat pool of high scores "
             "is a judge asleep."
         )
-        raw = self.model.complete(
-            [
-                Message(role="system", content=f"You are the {self.grounding} judge. {self.brief}"),
-                Message(role="user", content=prompt),
-            ]
-        )
-        data = _loads_lenient(raw)
-        scores = data["scores"] if isinstance(data, Mapping) and "scores" in data else data
-        if not isinstance(scores, Mapping):
-            raise ValueError(f"{self.grounding} judge reply is not a scores object")
-        for take in takes:
-            entry = scores.get(str(take.round))
-            if entry is None:
-                raise ValueError(f"{self.grounding} judge skipped round {take.round}")
-            self._scored[take.take_id] = (
-                max(0.0, min(1.0, float(entry["score"]))),
-                str(entry.get("why", "")),
+        def parse(raw: str) -> dict[str, tuple[float, str]]:
+            data = _loads_lenient(raw)
+            scores = data["scores"] if isinstance(data, Mapping) and "scores" in data else data
+            if not isinstance(scores, Mapping):
+                raise ValueError(f"{self.grounding} judge reply is not a scores object")
+            parsed: dict[str, tuple[float, str]] = {}
+            for take in takes:
+                entry = scores.get(str(take.round))
+                if entry is None:
+                    raise ValueError(f"{self.grounding} judge skipped round {take.round}")
+                try:
+                    score = float(entry["score"])
+                except (KeyError, TypeError, ValueError) as err:
+                    raise ValueError(
+                        f"{self.grounding} judge round {take.round} score is unusable: {err!r}"
+                    ) from err
+                parsed[take.take_id] = (max(0.0, min(1.0, score)), str(entry.get("why", "")))
+            return parsed
+
+        self._scored.update(
+            staff_complete(
+                self.model,
+                [
+                    Message(role="system", content=f"You are the {self.grounding} judge. {self.brief}"),
+                    Message(role="user", content=prompt),
+                ],
+                stage=f"producer/{self.grounding}-judge",
+                parse=parse,
             )
+        )
 
     def score_of(self, take_id: str) -> float:
         return self._scored[take_id][0]
@@ -368,7 +381,14 @@ class ProducerAgent(Agent):
             }
             for pid, choice in selection.takes.items()
         ]
-        note = self.model.complete(
+        def parse(raw: str) -> str:
+            text = re.sub(r"^[\"“]|[\"”]$", "", raw.strip()).strip()
+            if not text:
+                raise ValueError("the selection note came back empty")
+            return text
+
+        note = staff_complete(
+            self.model,
             [
                 Message(role="system", content=self.persona.base_prompt),
                 Message(
@@ -378,7 +398,9 @@ class ProducerAgent(Agent):
                         + json.dumps(summary, indent=1, ensure_ascii=False)
                     ),
                 ),
-            ]
-        ).strip()
-        note = re.sub(r"^[\"“]|[\"”]$", "", note).strip()
+            ],
+            stage="producer/note",
+            parse=parse,
+            nudge="Reply again with ONLY the note text.",
+        )
         return Artifact(kind="selection", body=note, metadata={"released": True})

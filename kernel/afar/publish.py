@@ -163,6 +163,14 @@ def build_release_row(
     """The releases-row jsonb, exactly the shape web/lib/data.ts ReleaseSchema
     parses (unknown keys under `metadata` are provenance and stripped on read)."""
     staff = record.get("staff") or None
+    degraded = record.get("staff_degraded") or {}
+
+    def _degraded_note(stage: str) -> Optional[str]:
+        """The honest sentence a failed staff stage left behind (afar.staff
+        STAGE_DEGRADED_NOTES) — preferred over the never-built placeholders."""
+        note = (degraded.get(stage) or {}).get("note")
+        return str(note) if note else None
+
     takes = selected_takes(record)
     take_frames = {pid: record["rounds"][takes[pid]["round"]][pid] for pid in PLAYER_IDS}
 
@@ -174,7 +182,8 @@ def build_release_row(
         era_counts[era] = era_counts.get(era, 0) + 1
     era = max(era_counts.items(), key=lambda kv: kv[1])[0]
 
-    release_title = (staff or {}).get("critic", {}).get("release_title") or "Untitled Session"
+    critic_title = (staff or {}).get("critic", {}).get("release_title")
+    release_title = critic_title or f"Untitled Session {release_id}"
     influence = normalized_influence(record)
     date = f"{run_id[0:4]}-{run_id[4:6]}-{run_id[6:8]}"
     condition = record["set"]["condition"]
@@ -199,27 +208,32 @@ def build_release_row(
         "condition": condition,
         "date": date,
         "brief": brief_prose(staff)
+        or _degraded_note("muse")
         or (
             "No brief this time — the Muse had not yet spoken. The acts went in "
             f"with nothing from outside: {rounds_word} rounds, {hearing}."
         ),
         "selection": (staff or {}).get("producer", {}).get("note")
+        or _degraded_note("producer")
         or "The Producer was not yet built, so nothing was cut: these are the last "
         "round's takes, kept automatically.",
         "review": (staff or {}).get("critic", {}).get("release_review")
+        or _degraded_note("critic")
         or "The Critic was not yet built. Nobody has judged this or named it — the "
         "chart and the acts' own words are the whole record.",
         "reaction": reaction_prose(staff)
+        or _degraded_note("listener")
         or "The Listener was not yet built. Nobody has heard this from the cheap seats yet.",
         "takeIds": [f"{release_id}-{pid}" for pid in PLAYER_IDS],
         "influence": influence,
         "rationales": {pid: take_frames[pid].get("rationale", "") for pid in PLAYER_IDS},
         "metadata": {
-            "titlePlaceholder": not (staff or {}).get("critic", {}).get("release_title"),
-            "titledBy": "the Critic" if (staff or {}).get("critic", {}).get("release_title") else None,
+            "titlePlaceholder": not critic_title,
+            "titledBy": "the Critic" if critic_title else None,
             "briefPlaceholder": not (staff or {}).get("muse"),
             "reviewPlaceholder": not (staff or {}).get("critic"),
             "reactionPlaceholder": not (staff or {}).get("listener"),
+            "staffDegraded": degraded or None,
             "museBrief": (staff or {}).get("muse"),
             "listenerReaction": (staff or {}).get("listener"),
             "producerSelection": (
@@ -228,7 +242,12 @@ def build_release_row(
                 + ", ".join(f"{pid}={takes[pid]['round']}" for pid in PLAYER_IDS)
                 + ")"
                 if (staff or {}).get("producer")
-                else "not built — final round's takes published mechanically"
+                else (
+                    "the Producer did not file this time — the final round's takes "
+                    "were published mechanically"
+                    if "producer" in degraded
+                    else "not built — final round's takes published mechanically"
+                )
             ),
             "producerReasoning": (staff or {}).get("producer", {}).get("selected"),
             "criticActReviews": (staff or {}).get("critic", {}).get("act_reviews"),
@@ -270,7 +289,7 @@ def build_track_rows(
     """The tracks-row jsonb per act — TrackSchema plus provenance keys."""
     staff = record.get("staff") or {}
     takes = selected_takes(record)
-    release_title = staff.get("critic", {}).get("release_title") or "Untitled Session"
+    release_title = staff.get("critic", {}).get("release_title") or f"Untitled Session {release_id}"
     take_titles = staff.get("critic", {}).get("take_titles", {})
     rows = []
     for pid in PLAYER_IDS:
