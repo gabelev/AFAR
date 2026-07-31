@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GraphCoverMini } from "@/components/GraphCover";
 import { PlayerBar } from "@/components/PlayerBar";
+import { RailModes } from "@/components/world/RailModes";
 import { RailNow } from "@/components/world/RailNow";
 import { WorldLink } from "@/components/world/WorldLink";
 import { catalogueNumber } from "@/lib/acts";
@@ -63,6 +64,7 @@ export default async function WorldCataloguePage() {
           <div className="mono" style={{ fontSize: 12, color: "var(--ink)" }}>
             <RailNow fallback={`${acts.length} acts in studio`} />
           </div>
+          <RailModes />
         </section>
 
         <section style={{ padding: sectionPad }}>

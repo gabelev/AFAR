@@ -5,8 +5,17 @@
  * design handoff's pixel spec (assets pre-rendered at 1x by
  * scripts/render_pixels.mjs, displayed at 2x, pixelArt on).
  *
- * World behaviour is the compiled catalogue — every published set played
- * chronologically (0002 → 0003 → 0004 → repeat) on one continuous clock.
+ * The world has two ways of being watched (lib/world/mode.ts owns the
+ * pure state). NOW — the default: the acts potter in their studios
+ * (ambient idle, small non-claiming movements, their last logged lines
+ * dimmed), the latest record sits on the shelf at the turntable, and
+ * clicking it (or the rail control) plays that block's staging once; a
+ * live-poll arrival stages "A NEW RECORD JUST LANDED", plays the new
+ * block once, and settles back to idle. REPLAY: the compiled catalogue —
+ * every published set played chronologically (0002 → 0003 → 0004 →
+ * repeat) on one continuous clock, with a rail picker that jumps the
+ * loop to any block's start.
+ *
  * Round phases: the three acts idle in their studios with the lines they
  * actually wrote. In CONTACT sets, between rounds: a LISTENING EVENT — one
  * act walks studio → corridor → archive, the camera glides and follows,
@@ -21,12 +30,33 @@
 
 import { CAMERA_MARGIN, cameraBounds, clampMidpoint } from "@/lib/world/camera";
 import {
+  onCommand,
+  publishRailState,
+  type WorldCommand,
+} from "@/lib/world/control";
+import {
   arrivalCaption,
   arrivalNowLine,
   diffCatalogue,
   splicePlayOrder,
   startTimelinePoller,
 } from "@/lib/world/live";
+import {
+  advanceOnce,
+  arrivalPlayOrder,
+  beginOnce,
+  blockPlayOrder,
+  blockStartIndex,
+  idleCaption,
+  idleNowLine,
+  initialPhase,
+  lastLoggedLines,
+  latestBlockIndex,
+  modeOf,
+  pickerEntries,
+  shelfLine,
+  type ModePhase,
+} from "@/lib/world/mode";
 import { setNow } from "@/lib/world/now";
 import type { WorldTarget } from "@/lib/world/resolve";
 import { CHARACTER_RESOLVE } from "@/lib/world/resolve";
@@ -34,6 +64,7 @@ import {
   clock,
   type ListeningEvent,
   type RoundEvent,
+  type SetBlockMeta,
   type TransitionEvent,
   type WorldActId,
   type WorldCatalogue,
@@ -60,6 +91,8 @@ const PLACEMENTS: Record<string, { tx: number; ty: number; dir: string }> = {
   listener: { tx: 4.4, ty: 26.2, dir: "down" },
   muse: { tx: 2, ty: 23.4, dir: "left" },
 };
+
+const ACTS: readonly WorldActId[] = ["keep", "rust", "silt"];
 
 /** Studio door column per act (single-tile door gaps at y=11). */
 const STUDIO_DOOR_X: Record<WorldActId, number> = { keep: 6, rust: 16, silt: 26 };
@@ -211,6 +244,7 @@ export async function createWorld(
   let handleFly: (t: WorldTarget) => void = () => {};
   let handleAnchor: (t: WorldTarget | null, fly?: boolean) => void = () => {};
   let handleCatalogue: (next: WorldCatalogue) => void = () => {};
+  let handleCommand: (cmd: WorldCommand) => void = () => {};
 
   class WorldScene extends Ph.Scene {
     chars: Record<string, InstanceType<typeof Ph.GameObjects.Sprite>> = {};
@@ -236,8 +270,14 @@ export async function createWorld(
     pendingOrder: number[] = [];
     /** A restructured catalogue waits here and is adopted at wrap-around. */
     pendingCatalogue: WorldCatalogue | null = null;
+    /** NOW / REPLAY (lib/world/mode.ts): the default is NOW, idle. */
+    phase: ModePhase = initialPhase();
+    /** An arrival that landed mid-once-through; staged when it ends. */
+    pendingArrival: { arrivals: SetBlockMeta[]; firstNew: number } | null = null;
+    /** Bumped on every startAmbience so stale idle timers go quiet. */
+    ambienceSeq = 0;
 
-    /** The next event to play: the splice queue first, else natural order. */
+    /** The next REPLAY event to play: the splice queue first, else natural order. */
     nextEventIndex(): number {
       const shifted = this.pendingOrder.shift();
       if (shifted !== undefined) return shifted;
@@ -412,30 +452,82 @@ export async function createWorld(
         if (!timeline) {
           // the initial fetch had failed: the world finally gets a timeline
           timeline = nextCat;
-          if (nextCat.events.length > 0) {
-            setCaption(blockCaption(0));
-            this.runEvent(0);
-          }
+          if (nextCat.events.length > 0) this.enterIdle();
           return;
         }
         const diff = diffCatalogue(timeline, nextCat);
         if (diff.kind === "noop") return;
+
+        if (this.phase.kind === "replay") {
+          if (diff.kind === "restructured") {
+            this.pendingCatalogue = nextCat; // adopted at the next wrap-around
+            return;
+          }
+          const firstNewEventIndex = timeline.events.length;
+          timeline = nextCat; // changed display facts apply in place
+          if (diff.newBlockIndices.length > 0) {
+            this.pendingCatalogue = null;
+            this.pendingOrder = splicePlayOrder(nextCat.events, this.eventIndex, firstNewEventIndex);
+            const arrivals = diff.newBlockIndices.map((i) => nextCat.blocks[i]);
+            setCaption(arrivalCaption(arrivals), "lamp");
+            setNow(arrivalNowLine(arrivals));
+            this.acknowledgeArrival();
+          } else if (nextCat.events[this.eventIndex]?.kind === "round") {
+            // e.g. a title updated by the Critic, refreshed mid-round
+            setCaption(blockCaption(nextCat.events[this.eventIndex].block));
+          }
+          this.publishRail();
+          return;
+        }
+
+        // NOW mode. Idle means nothing is playing, so even a restructured
+        // catalogue can be adopted on the spot; a once-through in progress
+        // is never interrupted — arrivals and reshapes wait for its end.
         if (diff.kind === "restructured") {
-          this.pendingCatalogue = nextCat; // adopted at the next wrap-around
+          if (this.phase.kind === "idle") {
+            timeline = nextCat;
+            this.enterIdle(); // re-stage the shelf with the fresh catalogue
+          } else {
+            this.pendingCatalogue = nextCat;
+          }
           return;
         }
         const firstNewEventIndex = timeline.events.length;
         timeline = nextCat; // changed display facts apply in place
         if (diff.newBlockIndices.length > 0) {
-          this.pendingCatalogue = null;
-          this.pendingOrder = splicePlayOrder(nextCat.events, this.eventIndex, firstNewEventIndex);
           const arrivals = diff.newBlockIndices.map((i) => nextCat.blocks[i]);
-          setCaption(arrivalCaption(arrivals), "lamp");
-          setNow(arrivalNowLine(arrivals));
-          this.acknowledgeArrival();
-        } else if (nextCat.events[this.eventIndex]?.kind === "round") {
-          // e.g. a title updated by the Critic, refreshed mid-round
-          setCaption(blockCaption(nextCat.events[this.eventIndex].block));
+          if (this.phase.kind === "idle") {
+            this.stageArrival(arrivals, firstNewEventIndex);
+          } else {
+            this.pendingArrival = { arrivals, firstNew: firstNewEventIndex };
+          }
+        } else if (this.phase.kind === "idle") {
+          this.enterIdle(); // display facts changed; refresh the idle labels
+        }
+        this.publishRail();
+      };
+
+      // Rail controls: the NOW/REPLAY toggle, the shelf play, the picker.
+      handleCommand = (cmd) => {
+        if (!timeline || timeline.events.length === 0) return;
+        if (cmd.kind === "mode") {
+          if (cmd.mode === modeOf(this.phase)) return;
+          if (cmd.mode === "replay") {
+            this.enterReplay(0);
+          } else {
+            this.resetStage();
+            this.pendingOrder = [];
+            if (this.pendingCatalogue) {
+              timeline = this.pendingCatalogue;
+              this.pendingCatalogue = null;
+            }
+            this.enterIdle();
+          }
+        } else if (cmd.kind === "play-latest") {
+          if (this.phase.kind === "idle") this.playLatestOnce();
+        } else if (cmd.kind === "jump") {
+          const start = blockStartIndex(timeline.events, cmd.block);
+          if (start >= 0) this.enterReplay(start);
         }
       };
 
@@ -488,7 +580,18 @@ export async function createWorld(
           `translate(${-view.x * cam.zoom}px, ${-view.y * cam.zoom}px) scale(${cam.zoom / ZOOM})`;
       });
 
-      if (timeline && timeline.events.length > 0) this.runEvent(0);
+      // The shelf: clicking the turntable while the world idles plays the
+      // latest record's staging once. (A drag never counts as a click.)
+      const shelf = this.add
+        .zone(PLATTER.x - 30, PLATTER.y - 26, 60, 52)
+        .setOrigin(0, 0)
+        .setInteractive({ useHandCursor: true });
+      shelf.on("pointerup", () => {
+        if (!this.dragging && this.phase.kind === "idle") this.playLatestOnce();
+      });
+
+      // Default on load: NOW — the acts are in the studio.
+      if (timeline && timeline.events.length > 0) this.enterIdle();
       else this.showIdleLines();
     }
 
@@ -504,11 +607,213 @@ export async function createWorld(
       setNow(null);
     }
 
+    /**
+     * Publish what the rail's controls need: mode, the picker entries,
+     * the shelf record, and (in replay) the block currently playing.
+     */
+    publishRail() {
+      if (!timeline || timeline.blocks.length === 0) {
+        publishRailState(null);
+        return;
+      }
+      publishRailState({
+        mode: modeOf(this.phase),
+        entries: pickerEntries(timeline),
+        latest: latestBlockIndex(timeline),
+        playingBlock:
+          this.phase.kind === "replay" ? (timeline.events[this.eventIndex]?.block ?? null) : null,
+      });
+    }
+
+    /**
+     * Stop everything scripted and put the stage back: timers and tweens
+     * killed, acts home at their consoles, lights up, turntable quiet. In
+     * follow mode the camera glides home; a roaming camera stays put.
+     */
+    resetStage() {
+      this.time.removeAllEvents();
+      this.tweens.killAll();
+      this.listening = false;
+      this.fx.clear();
+      this.setDim(false, null);
+      roomLabels.archive.classList.remove("lit");
+      this.followTarget = null;
+      for (const act of ACTS) {
+        const s = this.chars[act];
+        const home = PLACEMENTS[act];
+        s.setPosition(home.tx * T, home.ty * T - 6);
+        s.play(`${CHARACTER_RESOLVE[act].sprite!}-idle-${home.dir}`);
+        bubbles[act].el.style.opacity = "1";
+      }
+      setBubble(bubbles.turntable, null);
+      if (this.camMode === "follow") {
+        const cam = this.cameras.main;
+        cam.stopFollow();
+        cam.panEffect.reset();
+        const home = this.anchor ?? HOME_CENTER;
+        cam.pan(home.tx * T, home.ty * T, 700, "Sine.easeOut");
+      }
+    }
+
+    /**
+     * NOW, idle: the acts are in the studio. Their last logged lines show
+     * dimmed (remembered, not claimed), the latest record sits on the
+     * shelf, and the ambience timer gives the rooms small honest life.
+     * The camera is never moved by idle.
+     */
+    enterIdle() {
+      this.phase = { kind: "idle" };
+      this.pendingArrival = null;
+      if (!timeline || timeline.events.length === 0) {
+        this.showIdleLines();
+        this.publishRail();
+        return;
+      }
+      const lines = lastLoggedLines(timeline);
+      for (const act of ACTS) {
+        setBubble(bubbles[act], lines?.[act] ?? "in the studio", {
+          accent: ACT_ACCENT[act],
+          prefix: ACT_INITIALS[act],
+          opacity: 0.45,
+        });
+      }
+      setBubble(bubbles.turntable, shelfLine(timeline), { accent: "#e0b25a", opacity: 0.75 });
+      setCaption(idleCaption(timeline));
+      setNow(idleNowLine(timeline));
+      this.startAmbience();
+      this.publishRail();
+    }
+
+    /** REPLAY: the catalogue loop, from `startIndex` (0 = the top). */
+    enterReplay(startIndex: number) {
+      this.resetStage();
+      this.pendingOrder = [];
+      this.pendingArrival = null;
+      this.ambienceSeq++; // idle timers go quiet
+      this.phase = { kind: "replay" };
+      this.runEvent(startIndex);
+    }
+
+    /** The shelf click / rail control: the latest record's staging, once. */
+    playLatestOnce() {
+      if (!timeline) return;
+      const { phase, first } = beginOnce(
+        blockPlayOrder(timeline.events, latestBlockIndex(timeline)),
+        "record",
+      );
+      if (first === null) return;
+      this.resetStage();
+      this.phase = phase;
+      this.publishRail();
+      this.runEvent(first);
+    }
+
+    /**
+     * A new record just landed while the world idled: the arrival staging
+     * runs (lamp caption, NOW line, the camera's acknowledging beat), then
+     * the new block plays once, then idle resumes with it as latest.
+     */
+    stageArrival(arrivals: SetBlockMeta[], firstNew: number) {
+      if (!timeline) return;
+      const order = arrivalPlayOrder(timeline.events, firstNew);
+      this.resetStage();
+      setCaption(arrivalCaption(arrivals), "lamp");
+      setNow(arrivalNowLine(arrivals));
+      this.acknowledgeArrival();
+      const { phase, first } = beginOnce(order, "arrival");
+      this.phase = phase;
+      this.publishRail();
+      if (first === null) {
+        this.enterIdle();
+        return;
+      }
+      // let the caption and the camera beat land before the record starts
+      this.time.delayedCall(3200, () => this.runEvent(first));
+    }
+
+    /** A once-through ended: stage what queued behind it, else go idle. */
+    finishOnce() {
+      if (this.pendingArrival) {
+        const p = this.pendingArrival;
+        this.pendingArrival = null;
+        this.stageArrival(p.arrivals, p.firstNew);
+        return;
+      }
+      if (this.pendingCatalogue) {
+        timeline = this.pendingCatalogue;
+        this.pendingCatalogue = null;
+      }
+      this.enterIdle();
+    }
+
+    /**
+     * Idle ambience: every few seconds one act shifts at the console,
+     * turns toward the shelf, or takes a step in place — existing frames,
+     * no claims, no dialogue, and never the camera. Randomized cadence;
+     * `ambienceSeq` retires stale timers when the phase changes.
+     */
+    startAmbience() {
+      const seq = ++this.ambienceSeq;
+      const tick = () => {
+        if (seq !== this.ambienceSeq || this.phase.kind !== "idle") return;
+        this.idleGesture(ACTS[Math.floor(Math.random() * ACTS.length)]);
+        this.time.delayedCall(3500 + Math.random() * 5500, tick);
+      };
+      this.time.delayedCall(1200 + Math.random() * 2400, tick);
+    }
+
+    idleGesture(act: WorldActId) {
+      const s = this.chars[act];
+      const sprite = CHARACTER_RESOLVE[act].sprite!;
+      const home = PLACEMENTS[act];
+      const settle = (ms: number) =>
+        this.time.delayedCall(ms, () => {
+          if (this.followTarget !== s) s.play(`${sprite}-idle-${home.dir}`);
+        });
+      const roll = Math.random();
+      if (roll < 0.4) {
+        // turn toward the shelf (some other way), then back to the console
+        const dirs = (["down", "left", "right", "up"] as const).filter((d) => d !== home.dir);
+        s.play(`${sprite}-idle-${dirs[Math.floor(Math.random() * dirs.length)]}`);
+        settle(1400 + Math.random() * 1400);
+      } else if (roll < 0.7) {
+        // a step in place at the console (walk frames, no displacement)
+        s.play(`${sprite}-walk-${home.dir}`);
+        settle(650);
+      } else {
+        // a small shift aside and back
+        const dx = (Math.random() < 0.5 ? -1 : 1) * 4;
+        s.play(`${sprite}-walk-${dx < 0 ? "left" : "right"}`);
+        this.tweens.add({
+          targets: s,
+          x: s.x + dx,
+          duration: 420,
+          yoyo: true,
+          ease: "Sine.easeInOut",
+          onComplete: () => {
+            if (this.followTarget !== s) s.play(`${sprite}-idle-${home.dir}`);
+          },
+        });
+      }
+    }
+
     runEvent(index: number) {
       if (!timeline) return;
       this.eventIndex = index;
       const ev = timeline.events[index];
-      const next = () => this.runEvent(this.nextEventIndex());
+      if (!ev) return;
+      const next = () => {
+        if (this.phase.kind === "once") {
+          const { phase, next: n } = advanceOnce(this.phase);
+          this.phase = phase;
+          if (n === null) this.finishOnce();
+          else this.runEvent(n);
+        } else if (this.phase.kind === "replay") {
+          this.runEvent(this.nextEventIndex());
+        }
+        // idle: a stray completion after a phase change stages nothing
+      };
+      if (this.phase.kind === "replay") this.publishRail();
       if (ev.kind === "round") this.runRound(ev, next);
       else if (ev.kind === "listening") this.runListening(ev, next);
       else this.runTransition(ev, next);
@@ -782,11 +1087,17 @@ export async function createWorld(
     doc: document,
   });
 
+  // Rail controls (NOW/REPLAY toggle, shelf play, release picker) arrive
+  // over the control bus; the scene answers with its rail state.
+  const offCommand = onCommand((cmd) => handleCommand(cmd));
+
   return {
     flyTo: (target) => handleFly(target),
     setAnchor: (target, fly) => handleAnchor(target, fly),
     destroy: () => {
       stopPolling();
+      offCommand();
+      publishRailState(null);
       observer.disconnect();
       game.destroy(true);
       overlay.remove();
