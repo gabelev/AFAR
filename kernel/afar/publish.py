@@ -611,7 +611,7 @@ def publish_tape(
             url = "postgresql://" + url[len("postgres://"):]
         conn = psycopg.connect(url)
     try:
-        jsonb = _jsonb_wrapper(connection is None)
+        jsonb = _jsonb_for(conn)
         outcome = _write_tape(
             conn, jsonb, view, shelving, audio, release_id=release_id, tape_id=tape_id
         )
@@ -773,7 +773,7 @@ def publish_run(
         conn = psycopg.connect(url)
 
     try:
-        jsonb = _jsonb_wrapper(connection is None)
+        jsonb = _jsonb_for(conn)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS media "
             "(id text PRIMARY KEY, content_type text NOT NULL, bytes bytea NOT NULL)"
@@ -849,12 +849,20 @@ def publish_run(
     )
 
 
-def _jsonb_wrapper(live: bool):
-    """psycopg needs dicts wrapped in Jsonb; injected test connections take raw."""
-    if live:
+def _jsonb_for(conn: Any):
+    """The jsonb wrapper for a connection of UNKNOWN provenance: a real
+    psycopg connection (whoever opened it) gets Jsonb; injected test fakes
+    take raw dicts. The retrospective script passes its own psycopg
+    connection into publish_tape — the `connection is None` heuristic alone
+    mis-classified it (the observed 'cannot adapt type dict' crash)."""
+    try:
+        import psycopg
         from psycopg.types.json import Jsonb
 
-        return Jsonb
+        if isinstance(conn, psycopg.Connection):
+            return Jsonb
+    except ImportError:
+        pass
     return lambda value: value
 
 
