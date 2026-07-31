@@ -24,6 +24,7 @@ from typing import Any, Mapping
 from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
 
+from afar.agents.robust import staff_complete
 from afar.intent import _loads_lenient
 from afar.staff import STAGE_NAMES, SURNAMES, SetView, take_digest
 
@@ -133,15 +134,24 @@ class CriticAgent(Agent):
             'nothing else: {"release": "<verdict>", "acts": {"<player_id>": '
             '"<verdict>"}} — one entry per player id on the ACTS line.'
         )
-        raw = self.model.complete(
+        def parse(raw: str) -> dict[str, Any]:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "acts" not in data or "release" not in data:
+                raise ValueError("critic review reply is not the expected JSON object")
+            missing = [pid for pid in view.players if pid not in data["acts"]]
+            if missing:
+                raise ValueError(f"critic review reply is missing verdicts for {missing}")
+            return dict(data)
+
+        data = staff_complete(
+            self.model,
             [
                 Message(role="system", content=self.persona.base_prompt),
                 Message(role="user", content=prompt),
-            ]
+            ],
+            stage="critic/review",
+            parse=parse,
         )
-        data = _loads_lenient(raw)
-        if not isinstance(data, Mapping) or "acts" not in data or "release" not in data:
-            raise ValueError("critic review reply is not the expected JSON object")
         per_act = {pid: str(data["acts"][pid]).strip() for pid in view.players}
         return Artifact(
             kind="review",
@@ -189,14 +199,23 @@ class CriticAgent(Agent):
             '"take_titles": {"<player_id>": "<title>"}} — one entry per '
             "player id on the ACTS line."
         )
-        raw = self.model.complete(
+        def parse(raw: str) -> dict[str, Any]:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "release_title" not in data or "take_titles" not in data:
+                raise ValueError("critic naming reply is not the expected JSON object")
+            missing = [pid for pid in selection.takes if pid not in data["take_titles"]]
+            if missing:
+                raise ValueError(f"critic naming reply is missing titles for {missing}")
+            return dict(data)
+
+        data = staff_complete(
+            self.model,
             [
                 Message(role="system", content=self.persona.base_prompt),
                 Message(role="user", content=prompt),
-            ]
+            ],
+            stage="critic/name",
+            parse=parse,
         )
-        data = _loads_lenient(raw)
-        if not isinstance(data, Mapping) or "release_title" not in data or "take_titles" not in data:
-            raise ValueError("critic naming reply is not the expected JSON object")
         titles = {pid: str(data["take_titles"][pid]).strip() for pid in selection.takes}
         return Names(release_title=str(data["release_title"]).strip(), take_titles=titles)

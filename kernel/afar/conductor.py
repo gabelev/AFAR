@@ -36,6 +36,11 @@ SPEND CONTROL (hard, by design):
 DURABILITY: each set runs under try/except — a failure logs a `set_failed`
 row to the conductor ledger, checkpoints, and the loop continues with the
 next planned set (the schedule is position-stable; nothing else shifts).
+`set_failed` (and the failure backoff) is reserved for `run_set` itself
+failing: a completed set is NEVER voided by staff failure. Staff stages
+degrade individually inside `run_staff` (afar.staff — the material always
+outranks the commentary), the set still publishes, and the conductor logs a
+`staff_degraded` row naming which stages went absent.
 A failed set does NOT wait out the full pace interval: the next attempt
 comes after a short failure backoff (AFAR_FAILURE_BACKOFF_MIN, default 15
 minutes, doubling per consecutive failure, capped at the pace interval;
@@ -240,6 +245,7 @@ class SetOutcome:
     released: bool = False
     publish: Optional[Mapping[str, Any]] = None
     error: Optional[str] = None
+    staff_degraded: tuple[str, ...] = ()
 
 
 class Conductor:
@@ -455,9 +461,19 @@ class Conductor:
         )
 
         # The frame: Producer -> Critic -> Muse -> Listener (existing machinery).
+        # run_staff degrades per stage internally — a staff failure can no
+        # longer void this completed, fully-paid set (the doctrine: the
+        # material always outranks the commentary).
         staff = run_staff(
             set_ledger.run_dir, self.config, stance=plan.era_stance, taboo=self.taboo
         )
+        if staff.degraded:
+            self._log(
+                "staff_degraded",
+                set_index=plan.index,
+                run_id=run_id,
+                stages=list(staff.degraded),
+            )
 
         publish_row: Optional[dict[str, Any]] = None
         if staff.released:
@@ -475,6 +491,7 @@ class Conductor:
             completed=True,
             released=staff.released,
             publish=publish_row,
+            staff_degraded=staff.degraded,
         )
 
     def _publish(self, run_dir: Path) -> dict[str, Any]:
