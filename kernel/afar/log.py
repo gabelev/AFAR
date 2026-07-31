@@ -38,6 +38,7 @@ TABLES: tuple[str, ...] = (
     "artifacts",
     "embeddings",
     "features",
+    "selections",
     "reviews",
     "releases",
 )

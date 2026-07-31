@@ -66,10 +66,14 @@ export const ReleaseSchema = z
     takeIds: z.array(z.string().min(1)),
     influence: z.array(InfluenceEdgeSchema),
     rationales: z.record(z.string(), z.string()),
+    /** The Critic's per-act verdicts, keyed by player id. Optional so
+     * pre-staff releases (and fixtures) still parse; missing means the
+     * Critic has not weighed in on the acts individually. */
+    reviews: z.record(z.string(), z.string()).optional(),
     /** Cover slot — AI-image covers arrive later; the release hero shows one when present. */
     coverUrl: z.string().min(1).nullable().optional(),
   })
-  .transform((r) => ({ ...r, coverUrl: r.coverUrl ?? null }));
+  .transform((r) => ({ ...r, coverUrl: r.coverUrl ?? null, reviews: r.reviews ?? {} }));
 
 export type Agent = z.infer<typeof AgentSchema>;
 
@@ -174,6 +178,17 @@ export async function tracksForRelease(release: Release): Promise<Track[]> {
   return release.takeIds
     .map((id) => byId.get(id))
     .filter((t): t is Track => t !== undefined);
+}
+
+/** The Critic's verdicts on one act, release by release, newest first. */
+export async function criticReviewsForPlayer(
+  agentId: string,
+): Promise<{ releaseId: string; releaseTitle: string; verdict: string }[]> {
+  const releases = await listReleases();
+  return releases
+    .filter((r) => typeof r.reviews[agentId] === "string")
+    .map((r) => ({ releaseId: r.id, releaseTitle: r.title, verdict: r.reviews[agentId] }))
+    .reverse();
 }
 
 /** Rationale quotes a player has left on releases, newest first. */

@@ -20,14 +20,21 @@
  *   - runs/<id>/artifacts.jsonl — content hash -> mp3 path; the hash is the
  *     media id, so audio URLs are content-addressed
  *
- * Take selection: the Producer is NOT built yet, so for v1 this publishes the
- * FINAL round's three takes (one per player), mechanically. That fact is
- * recorded in the release row's metadata. The influence triangle shows the
- * final round's AUDIO-space graph; the zod InfluenceEdgeSchema wants weights
- * in [0, 1], so the zero-centred kernel values are clamped for display and
- * the raw signed edges (both spaces, every round) ride along in metadata —
- * web/lib/data.ts strips unknown keys on read, so metadata is pure
- * provenance, exactly like seed.mjs's track.line/intent.
+ * Take selection: when the newest release record carries a `staff` block
+ * (kernel/afar/staff.py — the Producer's cut and the Critic's word, appended
+ * at the set boundary), this script publishes the PRODUCER-selected takes
+ * (which may come from different rounds per act), the Critic's release title
+ * and per-take titles (superseding the interim line-derived titles), the
+ * Critic's reviews (release verdict + per-act verdicts), and the Producer's
+ * public selection note. Panel reasoning and dissents ride along in metadata.
+ * Records without a staff block fall back to the pre-staff behavior: the
+ * FINAL round's three takes, mechanically, with placeholder prose. The
+ * influence triangle shows the final round's INTENT-space graph either way —
+ * it is a fact about the set, not about the cut; the zod InfluenceEdgeSchema
+ * wants weights in [0, 1], so the zero-centred kernel values are normalized
+ * for display and the raw signed edges (both spaces, every round) ride along
+ * in metadata — web/lib/data.ts strips unknown keys on read, so metadata is
+ * pure provenance, exactly like seed.mjs's track.line/intent.
  *
  * Idempotent: upserts keyed on id. Touches ONLY release "0002" and its
  * tracks/media — release 0001 and the agents table are never written.
@@ -50,7 +57,7 @@ const RUNS_ROOT = path.join(REPO_ROOT, "runs");
 const PLAYER_IDS = ["silt", "rust", "keep"];
 
 const RELEASE_ID = "0002";
-const RELEASE_TITLE = "First Contact"; // placeholder — the Critic doesn't exist yet
+const RELEASE_TITLE = "First Contact"; // fallback for pre-staff records; the Critic's title supersedes it
 const SITE = "https://afar.band";
 
 // Display-only stage names (DECISIONS.md: stage names over stable ids).
@@ -127,36 +134,67 @@ export function findRun(runIdArg, runsRoot = RUNS_ROOT) {
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 
+/**
+ * The takes to publish: the Producer's cut when the record carries a staff
+ * block, otherwise (pre-staff records) the final round's takes, mechanically.
+ * Returns { [pid]: { round, hash } }; the Producer's cut may span rounds.
+ */
+export function selectedTakes(record) {
+  const finalRound = record.set.rounds - 1;
+  const selected = record.staff?.producer?.selected;
+  return Object.fromEntries(
+    PLAYER_IDS.map((pid) =>
+      selected?.[pid]
+        ? [pid, { round: selected[pid].round, hash: selected[pid].take_id }]
+        : [pid, { round: finalRound, hash: record.artifacts[finalRound][pid] }],
+    ),
+  );
+}
+
 // --- main --------------------------------------------------------------------
 
 async function main() {
   const sql = neon(loadDatabaseUrl());
   const { runId, runDir, record } = findRun(process.argv[2]);
   const finalRound = record.set.rounds - 1;
-  console.log(`publishing run ${runId} (release_record ${record.release_id.slice(0, 12)}…), final round ${finalRound}`);
-
-  // Final round facts: takes (hash -> mp3 path), frames, full intents.
-  const artifactPathByHash = new Map(readJsonl(path.join(runDir, "artifacts.jsonl")).map((a) => [a.hash, a.path]));
-  const finalIntents = new Map(
-    readJsonl(path.join(runDir, "intents.jsonl"))
-      .filter((row) => row.round === finalRound)
-      .map((row) => [row.player, row]),
+  const staff = record.staff ?? null;
+  const takes = selectedTakes(record);
+  console.log(
+    `publishing run ${runId} (release_record ${record.release_id.slice(0, 12)}…), ` +
+      (staff
+        ? `Producer's cut: ${PLAYER_IDS.map((pid) => `${pid} r${takes[pid].round}`).join(", ")}`
+        : `no staff block — final round ${finalRound} mechanically`),
   );
-  const finalFrames = record.rounds[finalRound]; // pid -> {line, lyrics, rationale}
-  const finalHashes = record.artifacts[finalRound]; // pid -> content hash
+
+  // Selected-take facts: takes (hash -> mp3 path), frames, full intents.
+  const artifactPathByHash = new Map(readJsonl(path.join(runDir, "artifacts.jsonl")).map((a) => [a.hash, a.path]));
+  const intentRows = readJsonl(path.join(runDir, "intents.jsonl"));
+  const takeIntents = new Map(
+    PLAYER_IDS.map((pid) => [
+      pid,
+      intentRows.find((row) => row.player === pid && row.round === takes[pid].round),
+    ]),
+  );
+  const takeFrames = Object.fromEntries(
+    PLAYER_IDS.map((pid) => [pid, record.rounds[takes[pid].round]?.[pid]]),
+  ); // pid -> {line, lyrics, rationale} for the SELECTED round
   for (const pid of PLAYER_IDS) {
-    if (!finalHashes[pid] || !finalFrames[pid] || !finalIntents.get(pid)) {
-      throw new Error(`final round is missing player ${pid}`);
+    if (!takes[pid]?.hash || !takeFrames[pid] || !takeIntents.get(pid)) {
+      throw new Error(`selected take is missing player ${pid}`);
     }
   }
 
-  // Era: majority vote over the final round's DNA (kernel logs an ERAS index).
+  // Era: majority vote over the selected takes' DNA (kernel logs an ERAS index).
   const eraCounts = new Map();
   for (const pid of PLAYER_IDS) {
-    const era = ERAS[finalIntents.get(pid).intent.era] ?? "2020s";
+    const era = ERAS[takeIntents.get(pid).intent.era] ?? "2020s";
     eraCounts.set(era, (eraCounts.get(era) ?? 0) + 1);
   }
   const era = [...eraCounts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+
+  // Titles and staff prose: the Critic names releases and takes; the Producer
+  // explains the cut. Pre-staff records keep the interim placeholder prose.
+  const releaseTitle = staff?.critic?.release_title ?? RELEASE_TITLE;
 
   // Influence triangle: the FINAL round's INTENT-space graph — per DECISIONS.md
   // the interaction record leads with intent space (audio-space features are
@@ -180,7 +218,7 @@ async function main() {
 
   const release = {
     id: RELEASE_ID,
-    title: RELEASE_TITLE,
+    title: releaseTitle,
     era,
     set: 2,
     condition: record.set.condition, // "contact"
@@ -188,26 +226,37 @@ async function main() {
     brief:
       "No brief opened this session — the Muse was not yet built. The three acts went in with nothing from the outside: six rounds of recording, each act able to hear the others. Whatever common ground they found, they found in each other.",
     selection:
+      staff?.producer?.note ??
       "The Producer was not yet built, so nothing was cut: these are the last round's three takes, one from each act, kept automatically. Choosing — as a creative act — begins with the next release.",
     review:
+      staff?.critic?.release_review ??
       "The Critic was not yet built, so no one has judged this or named it. Until then the record speaks for itself: the chart of who pulled whom, and the acts' own words below, are the whole review.",
     reaction:
       "The Listener was not yet built. Nobody has heard this from the cheap seats yet.",
     takeIds: PLAYER_IDS.map((pid) => `${RELEASE_ID}-${pid}`),
     influence,
-    rationales: Object.fromEntries(PLAYER_IDS.map((pid) => [pid, finalFrames[pid].rationale])),
+    rationales: Object.fromEntries(PLAYER_IDS.map((pid) => [pid, takeFrames[pid].rationale])),
+    // Per-act verdicts from the Critic — rendered on the act pages.
+    ...(staff?.critic?.act_reviews ? { reviews: staff.critic.act_reviews } : {}),
     // Everything below is provenance: web/lib/data.ts strips unknown keys.
     metadata: {
-      titlePlaceholder: true, // the Critic names releases; it doesn't exist yet
+      titlePlaceholder: !staff?.critic?.release_title,
+      titledBy: staff?.critic?.release_title ? "the Critic" : null,
       briefPlaceholder: true, // no Muse yet
-      reviewPlaceholder: true, // no Critic yet
+      reviewPlaceholder: !staff?.critic,
       reactionPlaceholder: true, // no Listener yet
-      producerSelection: "not built — final round's takes published mechanically",
+      producerSelection: staff?.producer
+        ? `the Producer's cut — one take per act, chosen from all rounds by a three-judge panel reading the log (round per act: ${PLAYER_IDS.map((pid) => `${pid}=${takes[pid].round}`).join(", ")})`
+        : "not built — final round's takes published mechanically",
+      producerReasoning: staff?.producer?.selected ?? null, // scores, reasoning, dissents per act
+      criticActReviews: staff?.critic?.act_reviews ?? null,
+      criticTakeTitles: staff?.critic?.take_titles ?? null,
       runId,
       releaseRecordId: record.release_id,
       set: record.set,
       // The kernel's correction trail (e.g. {audio_reembedded_from: "mock",
-      // embedder: "mert", supersedes_release_id}) — absent on first-take records.
+      // embedder: "mert", supersedes_release_id} or the staff supersession) —
+      // absent on first-take records.
       recordProvenance: record.provenance ?? null,
       influenceDisplay:
         `final-round INTENT-space graph, min-max normalized to [0,1] for InfluenceEdgeSchema (audio-space embedder: ${record.set.embedder.name})`,
@@ -216,7 +265,7 @@ async function main() {
       novelty: record.novelty,
       asymmetry: record.asymmetry,
       artifactsByRound: record.artifacts,
-      lines: Object.fromEntries(PLAYER_IDS.map((pid) => [pid, finalFrames[pid].line])),
+      lines: Object.fromEntries(PLAYER_IDS.map((pid) => [pid, takeFrames[pid].line])),
     },
   };
 
@@ -230,10 +279,14 @@ async function main() {
   }
 
   for (const pid of PLAYER_IDS) {
-    const hash = finalHashes[pid];
+    const hash = takes[pid].hash;
     const file = artifactPathByHash.get(hash);
     if (!file) throw new Error(`no artifact row for hash ${hash}`);
-    const bytes = readFileSync(path.isAbsolute(file) ? file : path.join(REPO_ROOT, file));
+    // The logged path is authoritative; if the run was copied between
+    // machines the content-addressed basename under runs/audio still resolves.
+    let mp3 = path.isAbsolute(file) ? file : path.join(REPO_ROOT, file);
+    if (!existsSync(mp3)) mp3 = path.join(RUNS_ROOT, "audio", path.basename(file));
+    const bytes = readFileSync(mp3);
     if (bytes.length < 1000) throw new Error(`suspiciously small mp3 for ${pid}: ${bytes.length} bytes`);
     await sql.query(
       `INSERT INTO media (id, content_type, bytes) VALUES ($1, $2, decode($3, 'hex'))
@@ -252,25 +305,27 @@ async function main() {
   };
 
   for (const pid of PLAYER_IDS) {
-    const row = finalIntents.get(pid);
+    const row = takeIntents.get(pid);
     await upsertJson("tracks", `${RELEASE_ID}-${pid}`, {
       id: `${RELEASE_ID}-${pid}`,
       releaseId: RELEASE_ID,
       agentId: pid,
-      title: `First Contact — ${STAGE_NAMES[pid]}'s take`,
+      // The Critic's take title supersedes the interim line-derived title.
+      title: staff?.critic?.take_titles?.[pid] ?? `${releaseTitle} — ${STAGE_NAMES[pid]}'s take`,
       durationSec: 30, // music_v2 renders 30s takes
-      audioUrl: `/api/media/${finalHashes[pid]}`,
+      audioUrl: `/api/media/${takes[pid].hash}`,
       // provenance (stripped by data.ts on read)
+      titledBy: staff?.critic?.take_titles?.[pid] ? "the Critic" : null,
       line: row.line,
       intent: row.intent,
-      round: finalRound,
+      round: takes[pid].round,
       runId,
     });
   }
   console.log(`tracks  ${PLAYER_IDS.length} upserted`);
 
   await upsertJson("releases", RELEASE_ID, release);
-  console.log(`release ${RELEASE_ID} "${RELEASE_TITLE}" upserted (era ${era}, ${influence.length} influence edges)`);
+  console.log(`release ${RELEASE_ID} "${releaseTitle}" upserted (era ${era}, ${influence.length} influence edges)`);
 
   // --- verify: what the site will actually read back -------------------------
 
@@ -283,13 +338,13 @@ async function main() {
   for (const t of trackRows) console.log(`  track ${t.id} -> ${t.url}`);
   const mediaRows = await sql.query(
     "SELECT id, content_type, length(bytes) AS bytes FROM media WHERE id = ANY($1) ORDER BY id",
-    [PLAYER_IDS.map((pid) => finalHashes[pid])],
+    [PLAYER_IDS.map((pid) => takes[pid].hash)],
   );
   for (const m of mediaRows) console.log(`  media ${m.id.slice(0, 12)}… ${m.content_type} ${m.bytes} bytes`);
 
   // Live check: the deployed site must serve every selected take.
   for (const pid of PLAYER_IDS) {
-    const url = `${SITE}/api/media/${finalHashes[pid]}`;
+    const url = `${SITE}/api/media/${takes[pid].hash}`;
     const res = await fetch(url, { method: "GET" });
     const type = res.headers.get("content-type") ?? "?";
     await res.body?.cancel();
