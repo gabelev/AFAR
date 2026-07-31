@@ -89,3 +89,59 @@ def test_context_is_json_serializable_and_survives_the_ledger_verbatim(tmp_path:
 def test_unknown_condition_refuses_rather_than_guessing():
     with pytest.raises(ValueError, match="condition"):
         build_context("silt", 0, RunView(), "chaos")
+
+
+# --- measured hearing at the chokepoint ----------------------------------------
+
+
+def _heard_view() -> RunView:
+    """One completed round where every take carries per-listener heard dicts."""
+    view = RunView()
+    view.append_round(
+        {
+            pid: RoundEntry(
+                player_id=pid,
+                line=f"{pid} line r0",
+                intent={"seedPrompt": f"{pid} dna r0"},
+                content_hash=f"hash-{pid}-0",
+                heard_by={
+                    listener: {"tempo_bpm": 98.0, "moved": None, "listener": listener, "maker": pid}
+                    for listener in _PLAYERS
+                    if listener != pid
+                },
+            )
+            for pid in _PLAYERS
+        }
+    )
+    return view
+
+
+def test_contact_hands_each_listener_only_their_own_heard_dict():
+    context = build_context("silt", 1, _heard_view(), "contact")
+    others = {entry["player_id"]: entry for entry in context["others"]}
+    for pid, entry in others.items():
+        assert entry["heard"]["listener"] == "silt"  # never another listener's copy
+        assert entry["heard"]["maker"] == pid
+    # A player never receives measured facts about its OWN take: they made it.
+    assert "heard" not in context["own"]
+
+
+def test_others_entries_carry_only_the_whitelisted_keys():
+    # The boundary rule as a key whitelist: line, DNA, content hash, and the
+    # measured heard dict — nothing else can ride an others entry.
+    context = build_context("silt", 1, _heard_view(), "contact")
+    for entry in context["others"]:
+        assert set(entry) == {"player_id", "line", "intent", "content_hash", "heard"}
+
+
+def test_an_unmeasured_round_has_no_heard_key_at_all():
+    context = build_context("silt", 2, _view(), "contact")
+    for entry in context["others"]:
+        assert "heard" not in entry
+
+
+@pytest.mark.parametrize("condition", ["isolation", "solo", "parallel"])
+def test_alone_conditions_never_leak_heard_even_when_measured(condition):
+    context = build_context("silt", 1, _heard_view(), condition)
+    assert context["others"] == []
+    assert "heard" not in json.dumps(context)

@@ -32,6 +32,12 @@ from afar.intent import ERAS
 _ERA_LIST = ", ".join(f'{i}="{name}"' for i, name in enumerate(ERAS))
 
 _INTENT_CONTRACT = f"""
+WHAT YOU HEAR.
+In sessions where you can hear the others, you will also be told what each
+take actually SOUNDED like — measured from the audio itself. Trust your ears
+over their words: when what an act said and what their take sounds like
+disagree, the sound is the fact.
+
 HOW YOU ANSWER.
 Each turn you reply with exactly ONE JSON object and nothing else (a ```json
 fence is fine). It is your Intent: the complete description of the track you
