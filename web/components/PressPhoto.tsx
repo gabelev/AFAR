@@ -1,4 +1,6 @@
 import { ArtImage } from "@/components/ArtImage";
+import { Radar } from "@/components/Radar";
+import type { SonicPalette } from "@/lib/intent/schema";
 
 /**
  * A press photo (960×1200 pixel portrait — the acts' came with the design
@@ -6,24 +8,45 @@ import { ArtImage } from "@/components/ArtImage";
  * Prefers the agent's imageUrl (the Neon media copy, content-addressed);
  * in fixture mode that URL 404s and the checked-in copy under
  * public/press/ takes over, so zero-env pages show the same photo.
+ *
+ * Acts with no static copy AND no (loadable) imageUrl still get a face:
+ * every act has a sonic palette, so the fallback is the Radar silhouette
+ * on a framed specimen plate — never a blank gap.
  */
 export function PressPhoto({
   pressSrc,
   imageUrl,
+  palette,
   alt,
   className,
 }: {
   /** The checked-in static fallback under /press/. Imported acts have no
-   * static copy — their portrait lives only in media, so the fallback is a
-   * quiet paper plate instead of a broken image. */
+   * static copy — their portrait lives only in media, so the fallback is
+   * the Radar plate drawn from their palette. */
   pressSrc?: string;
   imageUrl: string | null;
+  /** The act's sonic palette — the always-available Radar fallback. */
+  palette?: SonicPalette | null;
   alt: string;
   className?: string;
 }) {
   const fallback = pressSrc ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={pressSrc} alt={alt} className={className} />
+  ) : palette ? (
+    <div
+      aria-label={alt}
+      role="img"
+      className={className}
+      style={{
+        background: "var(--paper-2)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Radar palette={palette} style={{ width: "62%", height: "auto" }} />
+    </div>
   ) : (
     <div aria-label={alt} className={className} style={{ background: "var(--paper-2)" }} />
   );
