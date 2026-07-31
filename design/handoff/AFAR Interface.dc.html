@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&amp;display=swap" rel="stylesheet">
+<style>
+body{background:#0b0c0e;margin:0}
+a{color:#a34c2e;text-decoration:none}a:hover{color:#c0663f;text-decoration:underline}
+</style>
+</helmet>
+<section style="display:flex;flex-direction:column;gap:56px;padding:64px;font-family:'Archivo',sans-serif;color:#d6cfbc;align-items:flex-start">
+
+  <div style="display:flex;flex-direction:column;gap:10px;max-width:900px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.28em;color:#a9a290">TURN 1 · DESIGN FRAMES</div>
+    <div style="font-size:44px;font-weight:700;letter-spacing:0.14em">AFAR — LABEL INTERFACE</div>
+    <div style="font-size:15px;line-height:1.6;color:#a9a290;text-wrap:pretty">Three acts who hear each other only on record. Split-screen: a Phaser-buildable tile world (16px grid, 2×) on the left, the catalogue on the right. Frames <a href="#1a">1a</a> normal state · <a href="#1b">1b</a> the listening event · <a href="#1c">1c</a>–<a href="#1e">1e</a> release page, three cover registers · <a href="#1f">1f</a> Roan Patina act page · <a href="#1g">1g</a> tiles, sprites, palette · <a href="#1h">1h</a> era remap proof.</div>
+  </div>
+
+  <!-- ============ 1a NORMAL STATE ============ -->
+  <div id="1a" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#d6cfbc;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px;letter-spacing:0.1em">1a</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">NORMAL STATE — THREE STUDIOS, NO SIGHTLINES, EVERYONE WORKING ALONE</span></div>
+    <div style="width:1920px;height:1080px;display:flex;position:relative;flex:none;outline:1px solid rgba(214,207,188,0.14);background:#0e1013">
+      <div style="position:relative;width:1056px;height:1080px;overflow:hidden;flex:none">
+        <canvas id="w-normal" style="width:1056px;height:1088px;image-rendering:pixelated;display:block"></canvas>
+        <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;inset:0;pointer-events:none;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.22em;color:rgba(214,207,188,0.48)">
+            <div style="position:absolute;left:70px;top:70px;background:rgba(10,11,13,0.78);padding:2px 6px">STUDIO A · EVERS LANE</div>
+            <div style="position:absolute;left:390px;top:70px;background:rgba(10,11,13,0.78);padding:2px 6px">STUDIO B · ROAN PATINA</div>
+            <div style="position:absolute;left:710px;top:70px;background:rgba(10,11,13,0.78);padding:2px 6px">STUDIO C · DELTA MARLOWE</div>
+            <div style="position:absolute;left:70px;top:492px;background:rgba(10,11,13,0.78);padding:2px 6px">THE LABEL OFFICE</div>
+            <div style="position:absolute;left:486px;top:492px;background:rgba(10,11,13,0.78);padding:2px 6px">THE ARCHIVE — LISTENING ROOM</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showLogs }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;inset:0;pointer-events:none;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.5;color:#d6cfbc">
+            <div style="position:absolute;left:120px;top:296px;max-width:230px;background:rgba(10,11,13,0.78);padding:4px 7px;border-left:2px solid #a34c2e">EL&nbsp; this is the third time we've been here</div>
+            <div style="position:absolute;left:420px;top:296px;max-width:230px;background:rgba(10,11,13,0.78);padding:4px 7px;border-left:2px solid #71917d">RP&nbsp; taking out everything Delta put in</div>
+            <div style="position:absolute;left:706px;top:296px;max-width:260px;background:rgba(10,11,13,0.78);padding:4px 7px;border-left:2px solid #bd9040">DM&nbsp; adding a fourth layer under what Evers left</div>
+          </div>
+        </sc-if>
+        <div style="position:absolute;left:70px;bottom:24px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:rgba(214,207,188,0.55)">ERA 2020s · SET 1 · OVERCAST, DISTANT TRAFFIC, RAIN ENDING</div>
+      </div>
+      <!-- right: catalogue home -->
+      <div style="width:864px;height:1080px;flex:none;background:#ddd6c4;color:#1c1a15;display:flex;flex-direction:column">
+        <div style="padding:44px 48px 28px;border-bottom:1px solid rgba(28,26,21,0.25);display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font-size:40px;font-weight:700;letter-spacing:0.34em">AFAR</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5e5a4f">EST. ERA 2020s</div>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.06em;color:#5e5a4f">Three acts. They hear each other only on record.</div>
+        </div>
+        <div style="padding:32px 48px;display:flex;flex-direction:column;gap:4px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#5e5a4f;margin-bottom:14px">THE ROSTER</div>
+          <div style="display:flex;flex-direction:column">
+            <div style="display:flex;gap:16px;align-items:baseline;padding:16px 0;border-top:1px solid rgba(28,26,21,0.2)">
+              <div style="width:44px;height:52px;flex:none;align-self:center;background-image:url('photos/press-evers.png');background-size:cover;background-position:50% 18%;image-rendering:pixelated;outline:1px solid rgba(28,26,21,0.3)"></div>
+              <div style="font-size:24px;font-weight:600;width:220px">Evers Lane</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.2em;color:#a34c2e;width:130px">CONTINUITY</div>
+              <div style="font-size:13px;font-style:italic;color:#4a463c;flex:1;text-wrap:pretty">&#8220;This scene has already been something. I hold us to it.&#8221;</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5e5a4f">IN STUDIO</div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:baseline;padding:16px 0;border-top:1px solid rgba(28,26,21,0.2)">
+              <div style="width:44px;height:52px;flex:none;align-self:center;background-image:url('photos/press-roan.png');background-size:cover;background-position:50% 18%;image-rendering:pixelated;outline:1px solid rgba(28,26,21,0.3)"></div>
+              <div style="font-size:24px;font-weight:600;width:220px">Roan Patina</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.2em;color:#4b6355;width:130px">EROSION</div>
+              <div style="font-size:13px;font-style:italic;color:#4a463c;flex:1;text-wrap:pretty">&#8220;Whatever is there is too much. The song is what survives.&#8221;</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5e5a4f">IN STUDIO</div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:baseline;padding:16px 0;border-top:1px solid rgba(28,26,21,0.2);border-bottom:1px solid rgba(28,26,21,0.2)">
+              <div style="width:44px;height:52px;flex:none;align-self:center;background-image:url('photos/press-delta.png');background-size:cover;background-position:50% 18%;image-rendering:pixelated;outline:1px solid rgba(28,26,21,0.3)"></div>
+              <div style="font-size:24px;font-weight:600;width:220px">Delta Marlowe</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.2em;color:#7c5e2a;width:130px">ACCUMULATION</div>
+              <div style="font-size:13px;font-style:italic;color:#4a463c;flex:1;text-wrap:pretty">&#8220;Nothing is finished. It is only not yet thick enough.&#8221;</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5e5a4f">IN STUDIO</div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:24px 48px;display:flex;gap:24px;align-items:flex-start">
+          <svg width="120" height="120" viewBox="0 0 120 120" style="flex:none;background:#d6cfbc;outline:1px solid rgba(28,26,21,0.3)">
+            <circle cx="60" cy="60" r="44" fill="none" stroke="#1c1a15" stroke-width="0.8"></circle>
+            <circle cx="60" cy="60" r="30" fill="none" stroke="#1c1a15" stroke-width="0.6"></circle>
+            <circle cx="60" cy="26" r="5" fill="#a34c2e"></circle>
+            <circle cx="31" cy="77" r="5" fill="#71917d"></circle>
+            <circle cx="89" cy="77" r="5" fill="#bd9040"></circle>
+            <line x1="60" y1="26" x2="89" y2="77" stroke="#1c1a15" stroke-width="0.8"></line>
+            <line x1="89" y1="77" x2="31" y2="77" stroke="#1c1a15" stroke-width="0.8"></line>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#5e5a4f">LATEST RELEASE</div>
+            <div style="font-size:22px;font-weight:700;letter-spacing:0.08em">STANDING WATER</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5e5a4f">AFAR-0001 · a split across the roster</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5e5a4f">era 2020s · set 1 · overcast, distant traffic, rain ending</div>
+            <div style="font-size:13px;margin-top:6px"><a href="#1c">view interaction record &#8594;</a></div>
+          </div>
+        </div>
+        <div style="padding:20px 48px;margin-top:auto;border-top:1px solid rgba(28,26,21,0.25);font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5e5a4f;display:flex;gap:18px">
+          <span style="letter-spacing:0.22em">THE OFFICE</span><span>Producer</span><span>Critic</span><span>Listener</span><span>Muse</span>
+        </div>
+        <div style="height:72px;background:#14130f;color:#a9a290;display:flex;align-items:center;padding:0 48px;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:12px">
+          <span>&#9632;&nbsp; NOTHING PLAYING — THE BUILDING IS QUIET</span>
+          <span>3 ACTS IN STUDIO</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 1b LISTENING EVENT ============ -->
+  <div id="1b" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#e0b25a;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px;letter-spacing:0.1em">1b</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">THE LISTENING EVENT — EVERS LANE IN THE ARCHIVE, PLAYING STANDING WATER. THE ONLY PERCEPTION CHANNEL, LIT.</span></div>
+    <div style="width:1920px;height:1080px;display:flex;position:relative;flex:none;outline:1px solid rgba(214,207,188,0.14);background:#0e1013">
+      <div style="position:relative;width:1056px;height:1080px;overflow:hidden;flex:none">
+        <canvas id="w-listen" style="width:1056px;height:1088px;image-rendering:pixelated;display:block"></canvas>
+        <sc-if value="{{ showLabels }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;inset:0;pointer-events:none;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.22em;color:rgba(214,207,188,0.35)">
+            <div style="position:absolute;left:70px;top:70px;background:rgba(10,11,13,0.78);padding:2px 6px">STUDIO A · EVERS LANE</div>
+            <div style="position:absolute;left:486px;top:492px;color:rgba(224,178,90,0.85);background:rgba(10,11,13,0.78);padding:2px 6px">THE ARCHIVE — LISTENING ROOM</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showLogs }}" hint-placeholder-val="{{ true }}">
+          <div style="position:absolute;inset:0;pointer-events:none;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.5;color:#d6cfbc">
+            <div style="position:absolute;left:120px;top:270px;opacity:0.45;background:rgba(10,11,13,0.7);padding:4px 7px">studio a — empty</div>
+            <div style="position:absolute;left:420px;top:296px;max-width:230px;opacity:0.4;background:rgba(10,11,13,0.7);padding:4px 7px;border-left:2px solid #71917d">RP&nbsp; taking out everything Delta put in</div>
+            <div style="position:absolute;left:706px;top:296px;max-width:260px;opacity:0.4;background:rgba(10,11,13,0.7);padding:4px 7px;border-left:2px solid #bd9040">DM&nbsp; adding a fourth layer under what Evers left</div>
+            <div style="position:absolute;left:500px;top:846px;max-width:300px;background:rgba(10,11,13,0.85);padding:5px 8px;border-left:2px solid #e0b25a">EL&nbsp; playing AFAR-0001 — STANDING WATER · side A</div>
+          </div>
+        </sc-if>
+        <div style="position:absolute;left:70px;bottom:24px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.2em;color:rgba(224,178,90,0.75)">03:15 · NEEDLE DOWN — THIS IS THE ONLY WAY AN ACT HEARS ANOTHER</div>
+      </div>
+      <!-- right: now playing -->
+      <div style="width:864px;height:1080px;flex:none;background:#ddd6c4;color:#1c1a15;display:flex;flex-direction:column">
+        <div style="padding:44px 48px 28px;border-bottom:1px solid rgba(28,26,21,0.25);display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font-size:40px;font-weight:700;letter-spacing:0.34em">AFAR</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a34c2e">&#9679; LISTENING ROOM LIVE</div>
+        </div>
+        <div style="padding:36px 48px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#5e5a4f">NOW PLAYING · TURNTABLE 1</div>
+          <div style="font-size:36px;font-weight:700;letter-spacing:0.08em">STANDING WATER</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5e5a4f">AFAR-0001 · side A · 07:41 / 18:03</div>
+          <div style="height:3px;background:rgba(28,26,21,0.18);margin-top:10px;position:relative"><div style="position:absolute;left:0;top:0;bottom:0;width:43%;background:#a34c2e"></div></div>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:14px">
+            <div style="width:12px;height:12px;background:#a34c2e"></div>
+            <div style="font-size:15px;font-weight:600">Evers Lane is in the listening room.</div>
+          </div>
+        </div>
+        <div style="padding:8px 48px 32px;display:flex;flex-direction:column;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;color:#4a463c">
+          <div style="font-size:11px;letter-spacing:0.26em;color:#5e5a4f;margin-bottom:8px">EVENT LOG</div>
+          <div>03:12&nbsp;&nbsp;Evers Lane leaves Studio A</div>
+          <div>03:14&nbsp;&nbsp;pulls AFAR-0001 from shelf C2</div>
+          <div>03:15&nbsp;&nbsp;needle down — side A</div>
+          <div style="color:#a34c2e">03:33&nbsp;&nbsp;on needle-up, an edge is written: AFAR-0001 &#8594; Evers Lane · set 2</div>
+        </div>
+        <div style="margin:0 48px;padding:20px 0;border-top:1px solid rgba(28,26,21,0.25);font-size:14px;font-style:italic;color:#4a463c;text-wrap:pretty">The archive is the whole perception channel. What plays here is heard. Nothing else is.</div>
+        <div style="height:72px;margin-top:auto;background:#14130f;color:#d6cfbc;display:flex;align-items:center;padding:0 48px;gap:16px;font-family:'IBM Plex Mono',monospace;font-size:12px">
+          <span style="color:#e0b25a">&#9654;</span><span>STANDING WATER — SIDE A</span>
+          <span style="margin-left:auto;color:#a9a290">HEARD BY: EVERS LANE</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 1c / 1d / 1e RELEASE PAGE COVERS ============ -->
+  <div style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.18em;color:#a9a290">RELEASE PAGE — THE INFLUENCE GRAPH IS THE COVER ART · THREE REGISTERS</div>
+    <div style="display:flex;gap:40px;align-items:flex-start">
+
+      <div id="1c" style="display:flex;flex-direction:column;gap:12px;flex:none">
+        <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#d6cfbc;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px">1c</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">ETCHED PLATE</span></div>
+        <div style="width:864px;height:1080px;background:#ddd6c4;color:#1c1a15;display:flex;flex-direction:column;flex:none;outline:1px solid rgba(214,207,188,0.14)">
+          <div style="padding:28px 48px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.2em;color:#5e5a4f;border-bottom:1px solid rgba(28,26,21,0.25);display:flex;justify-content:space-between"><span>CATALOGUE / AFAR-0001</span><span>SET 1</span></div>
+          <div style="display:flex;justify-content:center;padding:36px 0 0">
+            <svg width="480" height="480" viewBox="0 0 480 480" style="background:#d6cfbc;outline:1px solid rgba(28,26,21,0.35)">
+              <rect x="10" y="10" width="460" height="460" fill="none" stroke="#1c1a15" stroke-width="0.8"></rect>
+              <circle cx="240" cy="248" r="182" fill="none" stroke="#1c1a15" stroke-width="8" stroke-dasharray="1 5" opacity="0.55"></circle>
+              <circle cx="240" cy="248" r="168" fill="none" stroke="#1c1a15" stroke-width="0.7"></circle>
+              <circle cx="240" cy="248" r="140" fill="none" stroke="#1c1a15" stroke-width="0.5"></circle>
+              <circle cx="240" cy="248" r="112" fill="none" stroke="#1c1a15" stroke-width="0.5"></circle>
+              <circle cx="240" cy="248" r="84" fill="none" stroke="#1c1a15" stroke-width="0.5"></circle>
+              <circle cx="240" cy="248" r="10" fill="none" stroke="#1c1a15" stroke-width="0.7"></circle>
+              <line x1="240" y1="108" x2="361" y2="318" stroke="#1c1a15" stroke-width="1"></line>
+              <polygon points="0,-4 9,0 0,4" transform="translate(325,256) rotate(60)" fill="#1c1a15"></polygon>
+              <line x1="361" y1="318" x2="119" y2="318" stroke="#1c1a15" stroke-width="1"></line>
+              <polygon points="0,-4 9,0 0,4" transform="translate(216,318) rotate(180)" fill="#1c1a15"></polygon>
+              <circle cx="240" cy="76" r="20" fill="none" stroke="#a34c2e" stroke-width="1" stroke-dasharray="3 3"></circle>
+              <circle cx="240" cy="108" r="9" fill="#a34c2e"></circle>
+              <circle cx="119" cy="318" r="9" fill="#71917d"></circle>
+              <circle cx="361" cy="318" r="9" fill="#bd9040"></circle>
+              <text x="240" y="52" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" letter-spacing="2" fill="#1c1a15">EVERS LANE &#183; &#215;3</text>
+              <text x="112" y="348" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" letter-spacing="2" fill="#1c1a15">ROAN PATINA</text>
+              <text x="366" y="348" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" letter-spacing="2" fill="#1c1a15">DELTA MARLOWE</text>
+              <text x="330" y="200" font-family="IBM Plex Mono" font-size="9" letter-spacing="1" fill="#5e5a4f">layered under</text>
+              <text x="205" y="336" font-family="IBM Plex Mono" font-size="9" letter-spacing="1" fill="#5e5a4f">cut away</text>
+              <text x="240" y="446" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" letter-spacing="4" fill="#1c1a15">AFAR-0001 &#183; STANDING WATER</text>
+            </svg>
+          </div>
+          <div style="padding:28px 48px 0;display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:30px;font-weight:700;letter-spacing:0.08em">STANDING WATER</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5e5a4f">A SPLIT ACROSS THE ROSTER · ERA 2020s · SET 1 · OVERCAST, DISTANT TRAFFIC, RAIN ENDING</div>
+          </div>
+          <div style="padding:22px 48px;display:flex;flex-direction:column;gap:0;font-size:13px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#5e5a4f;padding-bottom:10px">INTERACTION RECORD</div>
+            <div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid rgba(28,26,21,0.2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;width:64px;color:#a34c2e">EL &#8594; DM</span><span style="font-style:italic;color:#4a463c">&#8220;adding a fourth layer under what Evers left&#8221;</span></div>
+            <div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid rgba(28,26,21,0.2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;width:64px;color:#7c5e2a">DM &#8594; RP</span><span style="font-style:italic;color:#4a463c">&#8220;taking out everything Delta put in&#8221;</span></div>
+            <div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid rgba(28,26,21,0.2);border-bottom:1px solid rgba(28,26,21,0.2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;width:64px;color:#a34c2e">EL &#10227; EL</span><span style="font-style:italic;color:#4a463c">&#8220;this is the third time we've been here&#8221;</span></div>
+          </div>
+          <div style="margin-top:auto;padding:18px 48px 28px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#5e5a4f">THE GRAPH IS THE COVER. NOTHING IS ILLUSTRATED TWICE.</div>
+        </div>
+      </div>
+
+      <div id="1d" style="display:flex;flex-direction:column;gap:12px;flex:none">
+        <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#d6cfbc;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px">1d</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">SEDIMENT BANDS</span></div>
+        <div style="width:864px;height:1080px;background:#ddd6c4;color:#1c1a15;display:flex;flex-direction:column;flex:none;outline:1px solid rgba(214,207,188,0.14)">
+          <div style="padding:28px 48px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.2em;color:#5e5a4f;border-bottom:1px solid rgba(28,26,21,0.25);display:flex;justify-content:space-between"><span>CATALOGUE / AFAR-0001</span><span>SET 1</span></div>
+          <div style="display:flex;justify-content:center;padding:36px 0 0">
+            <svg width="480" height="480" viewBox="0 0 480 480" style="background:#d6cfbc;outline:1px solid rgba(28,26,21,0.35)">
+              <rect x="10" y="10" width="460" height="460" fill="none" stroke="#1c1a15" stroke-width="0.8"></rect>
+              <rect x="60" y="300" width="330" height="110" fill="#bd9040"></rect>
+              <rect x="60" y="196" width="330" height="104" fill="#a34c2e"></rect>
+              <rect x="60" y="156" width="330" height="40" fill="#71917d"></rect>
+              <rect x="96" y="156" width="26" height="9" fill="#d6cfbc"></rect>
+              <rect x="170" y="156" width="40" height="14" fill="#d6cfbc"></rect>
+              <rect x="258" y="156" width="22" height="7" fill="#d6cfbc"></rect>
+              <rect x="318" y="156" width="34" height="11" fill="#d6cfbc"></rect>
+              <line x1="60" y1="300" x2="390" y2="300" stroke="#1c1a15" stroke-width="0.8"></line>
+              <line x1="60" y1="196" x2="390" y2="196" stroke="#1c1a15" stroke-width="0.8"></line>
+              <line x1="150" y1="240" x2="150" y2="356" stroke="#16140f" stroke-width="1.2"></line>
+              <polygon points="-4,0 4,0 0,9" transform="translate(150,356)" fill="#16140f"></polygon>
+              <line x1="300" y1="330" x2="300" y2="178" stroke="#16140f" stroke-width="1.2"></line>
+              <polygon points="-4,0 4,0 0,-9" transform="translate(300,178)" fill="#16140f"></polygon>
+              <text x="404" y="180" font-family="IBM Plex Mono" font-size="10" letter-spacing="1" fill="#1c1a15">ROAN</text>
+              <text x="404" y="252" font-family="IBM Plex Mono" font-size="10" letter-spacing="1" fill="#1c1a15">EVERS</text>
+              <text x="404" y="358" font-family="IBM Plex Mono" font-size="10" letter-spacing="1" fill="#1c1a15">DELTA</text>
+              <text x="60" y="140" font-family="IBM Plex Mono" font-size="9" letter-spacing="1" fill="#5e5a4f">SURFACE — WHAT SURVIVES. NOTCHES = MATERIAL CUT AWAY.</text>
+              <text x="158" y="262" font-family="IBM Plex Mono" font-size="9" letter-spacing="1" fill="#16140f">EL &#8595; DM</text>
+              <text x="308" y="322" font-family="IBM Plex Mono" font-size="9" letter-spacing="1" fill="#16140f">DM &#8593; RP</text>
+              <text x="60" y="436" font-family="IBM Plex Mono" font-size="12" letter-spacing="4" fill="#1c1a15">AFAR-0001 &#183; STANDING WATER</text>
+              <text x="60" y="452" font-family="IBM Plex Mono" font-size="9" letter-spacing="2" fill="#5e5a4f">SECTION THROUGH SET 1 &#183; DEPTH = TIME</text>
+            </svg>
+          </div>
+          <div style="padding:28px 48px 0;display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:30px;font-weight:700;letter-spacing:0.08em">STANDING WATER</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5e5a4f">A SPLIT ACROSS THE ROSTER · ERA 2020s · SET 1 · OVERCAST, DISTANT TRAFFIC, RAIN ENDING</div>
+          </div>
+          <div style="padding:22px 48px;display:flex;flex-direction:column;font-size:13px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#5e5a4f;padding-bottom:10px">SIDES</div>
+            <div style="display:flex;gap:12px;padding:9px 0;border-top:1px solid rgba(28,26,21,0.2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;width:34px">A1</span><span style="font-weight:600;width:160px">Evers Lane</span><span style="font-style:italic;color:#4a463c">the figure, third time</span></div>
+            <div style="display:flex;gap:12px;padding:9px 0;border-top:1px solid rgba(28,26,21,0.2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;width:34px">A2</span><span style="font-weight:600;width:160px">Roan Patina</span><span style="font-style:italic;color:#4a463c">what survives</span></div>
+            <div style="display:flex;gap:12px;padding:9px 0;border-top:1px solid rgba(28,26,21,0.2);border-bottom:1px solid rgba(28,26,21,0.2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;width:34px">B1</span><span style="font-weight:600;width:160px">Delta Marlowe</span><span style="font-style:italic;color:#4a463c">fourth layer</span></div>
+          </div>
+          <div style="margin-top:auto;padding:18px 48px 28px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#5e5a4f">DEPTH READS AS TIME. INFLUENCE READS AS INTRUSION.</div>
+        </div>
+      </div>
+
+      <div id="1e" style="display:flex;flex-direction:column;gap:12px;flex:none">
+        <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#d6cfbc;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px">1e</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">NODE-AND-ARC SCORE</span></div>
+        <div style="width:864px;height:1080px;background:#ddd6c4;color:#1c1a15;display:flex;flex-direction:column;flex:none;outline:1px solid rgba(214,207,188,0.14)">
+          <div style="padding:28px 48px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.2em;color:#5e5a4f;border-bottom:1px solid rgba(28,26,21,0.25);display:flex;justify-content:space-between"><span>CATALOGUE / AFAR-0001</span><span>SET 1</span></div>
+          <div style="display:flex;justify-content:center;padding:36px 0 0">
+            <svg width="480" height="480" viewBox="0 0 480 480" style="background:#d6cfbc;outline:1px solid rgba(28,26,21,0.35)">
+              <rect x="10" y="10" width="460" height="460" fill="none" stroke="#1c1a15" stroke-width="0.8"></rect>
+              <line x1="110" y1="150" x2="430" y2="150" stroke="#1c1a15" stroke-width="0.6"></line>
+              <line x1="110" y1="250" x2="430" y2="250" stroke="#1c1a15" stroke-width="0.6"></line>
+              <line x1="110" y1="350" x2="430" y2="350" stroke="#1c1a15" stroke-width="0.6"></line>
+              <text x="48" y="154" font-family="IBM Plex Mono" font-size="10" letter-spacing="1" fill="#1c1a15">EVERS</text>
+              <text x="48" y="254" font-family="IBM Plex Mono" font-size="10" letter-spacing="1" fill="#1c1a15">ROAN</text>
+              <text x="48" y="354" font-family="IBM Plex Mono" font-size="10" letter-spacing="1" fill="#1c1a15">DELTA</text>
+              <text x="130" y="404" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#5e5a4f">take 01</text>
+              <text x="220" y="404" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#5e5a4f">take 02</text>
+              <text x="310" y="404" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#5e5a4f">take 03</text>
+              <text x="400" y="404" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#5e5a4f">take 04</text>
+              <path d="M 130 150 Q 175 300 220 350" fill="none" stroke="#16140f" stroke-width="1"></path>
+              <path d="M 220 350 Q 265 290 310 250" fill="none" stroke="#16140f" stroke-width="1"></path>
+              <path d="M 130 150 Q 265 60 400 150" fill="none" stroke="#a34c2e" stroke-width="1" stroke-dasharray="4 3"></path>
+              <circle cx="130" cy="150" r="8" fill="#a34c2e"></circle>
+              <circle cx="220" cy="350" r="8" fill="#bd9040"></circle>
+              <circle cx="310" cy="250" r="8" fill="#71917d"></circle>
+              <circle cx="400" cy="150" r="8" fill="#a34c2e"></circle>
+              <text x="130" y="132" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#5e5a4f">the figure</text>
+              <text x="220" y="372" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#5e5a4f">fourth layer</text>
+              <text x="310" y="232" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#5e5a4f">cuts</text>
+              <text x="400" y="132" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#5e5a4f">third time</text>
+              <text x="240" y="446" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" letter-spacing="4" fill="#1c1a15">AFAR-0001 &#183; STANDING WATER</text>
+            </svg>
+          </div>
+          <div style="padding:28px 48px 0;display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:30px;font-weight:700;letter-spacing:0.08em">STANDING WATER</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5e5a4f">A SPLIT ACROSS THE ROSTER · ERA 2020s · SET 1 · OVERCAST, DISTANT TRAFFIC, RAIN ENDING</div>
+          </div>
+          <div style="padding:22px 48px;display:flex;flex-direction:column;font-size:13px">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#5e5a4f;padding-bottom:10px">INTERACTION RECORD</div>
+            <div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid rgba(28,26,21,0.2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;width:64px;color:#a34c2e">EL &#8594; DM</span><span style="font-style:italic;color:#4a463c">take 02, under the figure</span></div>
+            <div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid rgba(28,26,21,0.2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;width:64px;color:#7c5e2a">DM &#8594; RP</span><span style="font-style:italic;color:#4a463c">take 03, subtraction</span></div>
+            <div style="display:flex;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid rgba(28,26,21,0.2);border-bottom:1px solid rgba(28,26,21,0.2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;width:64px;color:#a34c2e">EL &#10227; EL</span><span style="font-style:italic;color:#4a463c">take 04, recurrence</span></div>
+          </div>
+          <div style="margin-top:auto;padding:18px 48px 28px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#5e5a4f">TAKES ON THE X-AXIS. INFLUENCE AS SLURS BETWEEN STAVES.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 1f ACT PAGE ============ -->
+  <div id="1f" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#71917d;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px">1f</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">ACT PAGE — ROAN PATINA</span></div>
+    <div style="width:864px;height:1080px;background:#ddd6c4;color:#1c1a15;display:flex;flex-direction:column;flex:none;outline:1px solid rgba(214,207,188,0.14)">
+      <div style="padding:28px 48px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.2em;color:#5e5a4f;border-bottom:1px solid rgba(28,26,21,0.25);display:flex;justify-content:space-between"><span>ROSTER / ROAN PATINA</span><span>STUDIO B</span></div>
+      <div style="padding:36px 48px 0;display:flex;gap:28px;align-items:flex-start">
+        <div style="display:flex;flex-direction:column;gap:10px;flex:1">
+          <div style="display:flex;gap:16px;align-items:center">
+            <div style="width:16px;height:16px;background:#71917d"></div>
+            <div style="font-size:42px;font-weight:700;letter-spacing:0.06em">Roan Patina</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.26em;color:#4b6355;margin-left:auto">EROSION</div>
+          </div>
+          <div style="font-size:17px;font-style:italic;color:#4a463c;text-wrap:pretty">&#8220;Whatever is there is too much. The song is what survives.&#8221;</div>
+        </div>
+        <img src="photos/press-roan.png" alt="Roan Patina press photo" style="width:118px;height:127px;object-fit:cover;object-position:top;image-rendering:pixelated;outline:1px solid rgba(28,26,21,0.3);flex:none">
+      </div>
+      <div style="padding:28px 48px 0;display:flex;flex-direction:column;gap:10px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#5e5a4f">SILHOUETTE DRIFT · SETS &#8722;2 &#8594; 1</div>
+        <div style="background:#16140f;padding:18px 24px;display:flex;align-items:center;gap:24px">
+          <canvas id="drift" style="image-rendering:pixelated;display:block"></canvas>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.7;color:#a9a290;max-width:280px">stance is the identity.<br>the silhouette is what she is reaching for now — and it is thinning.</div>
+        </div>
+      </div>
+      <div style="padding:26px 48px 0;display:flex;flex-direction:column;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4a463c">
+        <div style="font-size:11px;letter-spacing:0.26em;color:#5e5a4f;padding-bottom:10px">TAKES · SET 1</div>
+        <div style="display:flex;gap:14px;padding:7px 0;border-top:1px solid rgba(28,26,21,0.2)"><span style="width:64px">take 04</span><span style="width:56px;color:#4b6355">kept</span><span style="font-style:italic">&#8220;taking out everything Delta put in&#8221;</span></div>
+        <div style="display:flex;gap:14px;padding:7px 0;border-top:1px solid rgba(28,26,21,0.2)"><span style="width:64px">take 03</span><span style="width:56px">struck</span><span>removed the traffic bed</span></div>
+        <div style="display:flex;gap:14px;padding:7px 0;border-top:1px solid rgba(28,26,21,0.2)"><span style="width:64px">take 02</span><span style="width:56px">struck</span><span>removed her own vocal</span></div>
+        <div style="display:flex;gap:14px;padding:7px 0;border-top:1px solid rgba(28,26,21,0.2);border-bottom:1px solid rgba(28,26,21,0.2)"><span style="width:64px">take 01</span><span style="width:56px">heard</span><span>AFAR-0000 acetate · listening room</span></div>
+      </div>
+      <div style="padding:26px 48px 0;display:flex;gap:48px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#4a463c">
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1">
+          <div style="font-size:11px;letter-spacing:0.26em;color:#5e5a4f">INFLUENCE IN</div>
+          <div>&#8592; Delta Marlowe · set 1 · listening room</div>
+          <div>&#8592; Evers Lane · set &#8722;2 · AFAR-0000</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1">
+          <div style="font-size:11px;letter-spacing:0.26em;color:#5e5a4f">INFLUENCE OUT</div>
+          <div style="color:#a34c2e">none recorded since set &#8722;2</div>
+        </div>
+      </div>
+      <div style="margin:28px 48px 0;border-top:1px solid rgba(28,26,21,0.25);padding-top:20px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#5e5a4f">FROM THE OFFICE — THE CRITIC</div>
+        <div style="font-size:22px;font-style:italic;margin-top:10px;text-wrap:pretty">&#8220;Roan Patina has been coasting for three sets.&#8221;</div>
+      </div>
+      <div style="margin-top:auto;height:72px;background:#14130f;color:#a9a290;display:flex;align-items:center;padding:0 48px;font-family:'IBM Plex Mono',monospace;font-size:12px;justify-content:space-between">
+        <span>&#9632;&nbsp; NOTHING PLAYING</span><span>RP · IN STUDIO B</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 1g ASSET SHEETS ============ -->
+  <div id="1g" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#d6cfbc;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px">1g</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">ASSET SHEETS — TILES · SPRITES · PALETTE (16px GRID, KENNEY-STYLE CUSTOM, NO LIMEZU)</span></div>
+    <div style="display:flex;gap:40px;align-items:stretch">
+      <div style="background:#14161a;padding:28px;display:flex;flex-direction:column;gap:16px;flex:none">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#a9a290">TILE PALETTE · 16&#215;16 @3&#215;</div>
+        <div style="display:grid;grid-template-columns:repeat(4,96px);gap:20px 16px">
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="floorboard" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">floorboard</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="concrete" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">concrete</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="rug" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">archive rug</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="wall" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">wall cap+face</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="void+rain" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">night + rain</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="window" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">window</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="chair" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">chair</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="crate" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">crate</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="puddle" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">puddle (era)</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="dust ghost" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">dust ghost</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="lamp" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">lamp</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="console desk" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">console 32&#215;32</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="tape rack" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">tape rack</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="record shelf" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">record shelf</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="turntable" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">turntable 32&#215;32</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><canvas data-tile="armchair" style="image-rendering:pixelated"></canvas><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290">armchair</span></div>
+        </div>
+      </div>
+      <div style="background:#14161a;padding:28px;display:flex;flex-direction:column;gap:20px;flex:none">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#a9a290">SPRITESHEETS · 16&#215;16 · 4-DIR &#215; 3 FRAMES · 1&#215; / 2&#215; / 6&#215;</div>
+        <div style="display:flex;gap:36px">
+          <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a34c2e;letter-spacing:0.14em">EVERS LANE</div>
+            <div style="display:flex;gap:14px;align-items:flex-end"><canvas data-sheet="evers" data-scale="1" style="image-rendering:pixelated"></canvas><canvas data-sheet="evers" data-scale="2" style="image-rendering:pixelated"></canvas><canvas data-hero="evers" style="image-rendering:pixelated"></canvas></div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290;max-width:250px;line-height:1.6">tall &#183; wide brim &#183; one unbroken column</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#71917d;letter-spacing:0.14em">ROAN PATINA</div>
+            <div style="display:flex;gap:14px;align-items:flex-end"><canvas data-sheet="roan" data-scale="1" style="image-rendering:pixelated"></canvas><canvas data-sheet="roan" data-scale="2" style="image-rendering:pixelated"></canvas><canvas data-hero="roan" style="image-rendering:pixelated"></canvas></div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290;max-width:250px;line-height:1.6">hooded &#183; tapering &#183; pixels missing from the coat</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#bd9040;letter-spacing:0.14em">DELTA MARLOWE</div>
+            <div style="display:flex;gap:14px;align-items:flex-end"><canvas data-sheet="delta" data-scale="1" style="image-rendering:pixelated"></canvas><canvas data-sheet="delta" data-scale="2" style="image-rendering:pixelated"></canvas><canvas data-hero="delta" style="image-rendering:pixelated"></canvas></div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#a9a290;max-width:250px;line-height:1.6">broad &#183; stacked &#183; layered bands on the coat</div>
+          </div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5e5a4f;line-height:1.7;max-width:820px">rows: down / left / right (flipped) / up &#183; cols: idle, step L, step R.<br>silhouette test: tellable apart at 16px by shape and colour alone — column vs. taper vs. slab.</div>
+      </div>
+      <div style="background:#14161a;padding:28px;display:flex;flex-direction:column;gap:16px;flex:none">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#a9a290">PRESS PHOTOS · 72&#215;96 PORTRAIT GRID</div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <img src="photos/press-evers.png" alt="Evers Lane press photo" style="width:224px;display:block;image-rendering:pixelated">
+          <img src="photos/press-roan.png" alt="Roan Patina press photo" style="width:224px;display:block;image-rendering:pixelated">
+          <img src="photos/press-delta.png" alt="Delta Marlowe press photo" style="width:224px;display:block;image-rendering:pixelated">
+        </div>
+      </div>
+      <div style="background:#14161a;padding:28px;display:flex;flex-direction:column;gap:16px;flex:none">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.26em;color:#a9a290">PALETTE · 16 ENTRIES</div>
+        <div style="display:grid;grid-template-columns:repeat(2,190px);gap:10px 20px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#a9a290">
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#0e1013;outline:1px solid #2c3038;flex:none"></div><div>#0e1013<br>void / night</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#1b2027;flex:none"></div><div>#1b2027<br>rain streak</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#1e2126;flex:none"></div><div>#1e2126<br>wall cap</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#4b4f57;flex:none"></div><div>#4b4f57<br>wall face</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#383b40;flex:none"></div><div>#383b40<br>concrete</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#463d31;flex:none"></div><div>#463d31<br>floorboard</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#544130;flex:none"></div><div>#544130<br>archive rug</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#5c4b37;flex:none"></div><div>#5c4b37<br>furniture wood</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#16140f;flex:none"></div><div>#16140f<br>ink / outline</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#d6cfbc;flex:none"></div><div>#d6cfbc<br>paper</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#e0b25a;flex:none"></div><div>#e0b25a<br>lamp</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#6a6f78;flex:none"></div><div>#6a6f78<br>metal</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#31404c;flex:none"></div><div>#31404c<br>glass / water</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#a34c2e;flex:none"></div><div>#a34c2e<br>EVERS — oxide</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#71917d;flex:none"></div><div>#71917d<br>ROAN — verdigris</div></div>
+          <div style="display:flex;gap:10px;align-items:center"><div style="width:26px;height:26px;background:#bd9040;flex:none"></div><div>#bd9040<br>DELTA — ochre</div></div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5e5a4f;line-height:1.7;max-width:400px">act accents share chroma and lightness; only hue varies — so an era LUT can drift the environment without touching identity.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 1h ERA PROOF ============ -->
+  <div id="1h" style="display:flex;flex-direction:column;gap:12px;flex:none">
+    <div style="display:flex;gap:12px;align-items:baseline;font-family:'IBM Plex Mono',monospace"><span style="background:#d6cfbc;color:#16140f;font-size:11px;font-weight:500;padding:2px 8px">1h</span><span style="font-size:12px;letter-spacing:0.18em;color:#a9a290">ERA SYSTEM PROOF — SAME TILEMAP, RUNTIME LUT + PROP DIFF ONLY. NOTHING REDRAWN.</span></div>
+    <div style="display:flex;gap:40px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <canvas id="era-a" style="width:1056px;height:1088px;image-rendering:pixelated;display:block;outline:1px solid rgba(214,207,188,0.14)"></canvas>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a9a290;letter-spacing:0.14em">ERA 2020s · SET 1 — OVERCAST, RAIN ENDING</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <canvas id="era-b" style="width:1056px;height:1088px;image-rendering:pixelated;display:block;outline:1px solid rgba(214,207,188,0.14)"></canvas>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#a9a290;letter-spacing:0.14em">ERA 2030s · SET 4 — DRY SEASON (HYPOTHETICAL)</div>
+      </div>
+      <div style="max-width:360px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.9;color:#a9a290;padding-top:8px">
+        <div style="letter-spacing:0.26em;color:#d6cfbc;padding-bottom:12px">THE REMAP BUDGET</div>
+        LUT — 8 palette entries remapped:<br>void, rain&#8594;dust, glass, floorboard (&#215;2), concrete (&#215;2), wall face, lamp.<br><br>
+        PROP DIFF — 3 changes:<br>corridor puddles &#8722;2 · archive crates +2 (sets accumulate) · roan studio: crate &#8594; dust ghost.<br><br>
+        act accents never remap. identity survives the season.
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showRoomLabels&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;World overlays&quot;},&quot;showLogLines&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;World overlays&quot;},&quot;listeningDim&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.45,&quot;min&quot;:0.2,&quot;max&quot;:0.85,&quot;step&quot;:0.01,&quot;unit&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Listening event&quot;}}">
+class Component extends DCLogic {
+  async componentDidMount() {
+    try {
+      this.m = await import('./pixel.js');
+      this.paint();
+    } catch (e) { console.error('pixel.js failed to load', e); }
+  }
+  paint() {
+    const m = this.m; if (!m) return;
+    const g = id => document.getElementById(id);
+    const dim = this.props.listeningDim ?? 0.62;
+    m.drawWorld(g('w-normal'), { scene: 'normal', era: 'A' });
+    m.drawWorld(g('w-listen'), { scene: 'listening', era: 'A', dim });
+    m.drawWorld(g('era-a'), { scene: 'normal', era: 'A' });
+    m.drawWorld(g('era-b'), { scene: 'normal', era: 'B' });
+    document.querySelectorAll('[data-tile]').forEach(cv => m.drawTile(cv, cv.dataset.tile));
+    document.querySelectorAll('[data-sheet]').forEach(cv => m.drawSheet(cv, cv.dataset.sheet, +cv.dataset.scale || 1));
+    document.querySelectorAll('[data-hero]').forEach(cv => m.drawHero(cv, cv.dataset.hero, 6));
+    m.drawDrift(g('drift'));
+  }
+  componentDidUpdate(prev) {
+    if (prev.listeningDim !== this.props.listeningDim) this.paint();
+  }
+  renderVals() {
+    return {
+      showLabels: this.props.showRoomLabels ?? true,
+      showLogs: this.props.showLogLines ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>

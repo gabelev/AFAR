@@ -5,8 +5,8 @@ import { useState, type CSSProperties, type ReactNode } from "react";
 /**
  * An <img> that renders `fallback` if the source fails to load. Fixtures
  * carry /api/media URLs so fixture mode stays in step with Neon, but with no
- * DATABASE_URL those URLs 404 — the Radar plate (or nothing, for covers)
- * takes over instead of a broken-image glyph.
+ * DATABASE_URL those URLs 404 — the fallback (the checked-in press photo,
+ * or nothing) takes over instead of a broken-image glyph.
  */
 export function ArtImage({
   src,
