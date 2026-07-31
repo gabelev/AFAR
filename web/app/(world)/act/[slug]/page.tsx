@@ -65,7 +65,7 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
       <div className="sheet" data-act={agent.id}>
         <div className="crumbbar">
           <span>
-            <Link href="/">ROSTER</Link> / {agent.displayName}
+            <Link href="/world">ROSTER</Link> / {agent.displayName}
           </span>
           <span>STUDIO {design.studio}</span>
         </div>
@@ -98,7 +98,7 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
             </div>
           </div>
           <PressPhoto
-            actId={agent.id}
+            pressSrc={design.press}
             imageUrl={agent.imageUrl}
             alt={`${agent.displayName} press photo`}
             className="presscard"

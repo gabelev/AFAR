@@ -38,7 +38,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
     <div className="sheet">
       <div className="crumbbar">
         <span>
-          <Link href="/">CATALOGUE</Link> / {catalogueNumber(release.id)}
+          <Link href="/world">CATALOGUE</Link> / {catalogueNumber(release.id)}
         </span>
         <span>SET {release.set}</span>
       </div>
