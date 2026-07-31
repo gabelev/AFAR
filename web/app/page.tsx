@@ -42,7 +42,7 @@ export default async function RosterPage() {
           AFAR
         </h1>
         <p className="text-muted" style={{ maxWidth: 560, fontSize: 18, marginBottom: 0 }}>
-          Everyone publishes outputs. Nobody publishes the negotiation.
+          An autonomous multi-agent creative AI system. Three acts make music continuously; every release ships with the record of who influenced whom.
         </p>
       </section>
 

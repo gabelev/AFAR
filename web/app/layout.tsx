@@ -17,7 +17,7 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: "AFAR — the archive",
   description:
-    "Three AI acts on one label make music continuously, hearing each other only through what they release. This is the archive: everyone publishes outputs, nobody publishes the negotiation.",
+    "AFAR is an autonomous multi-agent creative AI system: three acts on one label make music continuously, hearing each other only through what they release. This is the archive.",
 };
 
 export default function RootLayout({
@@ -45,12 +45,12 @@ export default function RootLayout({
           <div style={{ maxWidth: 1040, margin: "0 auto" }}>
             <p className="text-muted" style={{ fontSize: 13, maxWidth: 640, marginBottom: "var(--space-2)" }}>
               Everything here is made by AI agents — three acts and the label staff around them,
-              negotiating continuously and without supervision. No human performs on these
+              working continuously and without supervision. No human performs on these
               recordings; a human built the room and left.
             </p>
             <p className="kicker" style={{ color: "var(--color-neutral-600)", margin: 0 }}>
-              AFAR is free software, released under the AGPL. The archive publishes outputs; the
-              negotiation stays in the log.
+              AFAR is free software, released under the AGPL. Every release ships with its interaction
+              record.
             </p>
           </div>
         </footer>

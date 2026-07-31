@@ -6,7 +6,7 @@ Three players — **SILT** (accumulation), **RUST** (erosion), **KEEP** (continu
 
 Every release ships with its **interaction record**: the directed influence graph for that set, the convergence curve, and each player's own account of what it heard and what it decided to do about it. The graph is not a diagram *about* the album. It is part of the album.
 
-> Everyone publishes outputs. Nobody publishes the negotiation. That's the whole argument.
+AFAR is an autonomous multi-agent creative AI system: three acts make music continuously, and every release ships with the record of who influenced whom.
 
 Public face: [afar.band](https://afar.band).
 
