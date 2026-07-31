@@ -66,39 +66,9 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
         </div>
       </section>
 
-      <section style={{ padding: "22px var(--gutter)", display: "flex", flexDirection: "column", fontSize: 13 }}>
-        <div className="label" style={{ paddingBottom: 6 }}>
-          INTERACTION RECORD
-        </div>
-        <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 10 }}>
-          Who pulled whom: after each session, we measure how much each act moved toward the
-          others&apos; music. The notation is measured from the recordings themselves; the words are
-          what the acts claim.
-        </p>
-        {rows.map((row, i) => (
-          <div
-            key={`${row.from}-${row.to}`}
-            className={`rule-row${i === rows.length - 1 ? " rule-row-last" : ""}`}
-            style={{ display: "flex", gap: 12, alignItems: "baseline", padding: "9px 0" }}
-          >
-            <span
-              className="mono"
-              style={{
-                fontSize: 11,
-                width: 64,
-                flex: "none",
-                color: isActId(row.from) ? ACT_DESIGN[row.from].inkOnPaper : "var(--sec)",
-              }}
-            >
-              {initials(row.from)} {row.from === row.to ? "⟲" : "→"} {initials(row.to)}
-            </span>
-            <span className="quote">“{row.quote}”</span>
-          </div>
-        ))}
-      </section>
-
+      {/* Sleeve order: cover, then the music, then the liner notes. */}
       <PlayerProvider>
-        <section style={{ padding: "0 var(--gutter) 22px", display: "flex", flexDirection: "column", fontSize: 13 }}>
+        <section style={{ padding: "22px var(--gutter)", display: "flex", flexDirection: "column", fontSize: 13 }}>
           <div className="label" style={{ paddingBottom: 6 }}>
             SIDES
           </div>
@@ -143,6 +113,47 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
           ))}
         </section>
       </PlayerProvider>
+
+      {/* Liner notes from here down: the measured record first, then the office. */}
+      <section
+        style={{
+          margin: "0 var(--gutter)",
+          borderTop: "1px solid var(--hairline-strong)",
+          padding: "20px 0 22px",
+          display: "flex",
+          flexDirection: "column",
+          fontSize: 13,
+        }}
+      >
+        <div className="label" style={{ paddingBottom: 6 }}>
+          INTERACTION RECORD
+        </div>
+        <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 10 }}>
+          Who pulled whom: after each session, we measure how much each act moved toward the
+          others&apos; music. The notation is measured from the recordings themselves; the words are
+          what the acts claim.
+        </p>
+        {rows.map((row, i) => (
+          <div
+            key={`${row.from}-${row.to}`}
+            className={`rule-row${i === rows.length - 1 ? " rule-row-last" : ""}`}
+            style={{ display: "flex", gap: 12, alignItems: "baseline", padding: "9px 0" }}
+          >
+            <span
+              className="mono"
+              style={{
+                fontSize: 11,
+                width: 64,
+                flex: "none",
+                color: isActId(row.from) ? ACT_DESIGN[row.from].inkOnPaper : "var(--sec)",
+              }}
+            >
+              {initials(row.from)} {row.from === row.to ? "⟲" : "→"} {initials(row.to)}
+            </span>
+            <span className="quote">“{row.quote}”</span>
+          </div>
+        ))}
+      </section>
 
       {OFFICE_BLOCKS.map((block) => (
         <section
