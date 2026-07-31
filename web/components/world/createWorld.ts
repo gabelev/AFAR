@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The left pane: the world's building as a Phaser 3 scene, built from the
+ * The left pane: the label building as a Phaser 3 world, built from the
  * design handoff's pixel spec (assets pre-rendered at 1x by
  * scripts/render_pixels.mjs, displayed at 2x, pixelArt on).
  *
@@ -15,6 +15,8 @@
  * Every word on screen comes from the log; the world only stages it.
  */
 
+import { CAMERA_MARGIN, clampScroll } from "@/lib/world/camera";
+import { setNow } from "@/lib/world/now";
 import type { WorldTarget } from "@/lib/world/resolve";
 import { CHARACTER_RESOLVE } from "@/lib/world/resolve";
 import {
@@ -98,6 +100,39 @@ export async function createWorld(
   const caption = document.createElement("div");
   caption.className = "world-caption";
   overlay.appendChild(caption);
+
+  // Camera-mode chip (bottom-left, log-line register): follow ↔ roam.
+  const chip = document.createElement("button");
+  chip.type = "button";
+  chip.className = "world-chip mono";
+  overlay.appendChild(chip);
+  const setChip = (mode: "follow" | "roam") => {
+    chip.textContent = mode === "follow" ? "● FOLLOWING — click to roam" : "○ ROAMING — click to follow";
+    chip.setAttribute("aria-pressed", String(mode === "roam"));
+  };
+  setChip("follow");
+  const pulseChip = () => {
+    chip.classList.remove("pulse");
+    void chip.offsetWidth; // restart the animation
+    chip.classList.add("pulse");
+  };
+
+  // Zoom steps (bottom-right): 2× / 3×, nearest-neighbour either way.
+  const zoomBox = document.createElement("div");
+  zoomBox.className = "world-zoom";
+  const zoomOut = document.createElement("button");
+  zoomOut.type = "button";
+  zoomOut.className = "mono";
+  zoomOut.textContent = "−";
+  zoomOut.setAttribute("aria-label", "Zoom out");
+  const zoomIn = document.createElement("button");
+  zoomIn.type = "button";
+  zoomIn.className = "mono";
+  zoomIn.textContent = "+";
+  zoomIn.setAttribute("aria-label", "Zoom in");
+  zoomBox.append(zoomOut, zoomIn);
+  overlay.appendChild(zoomBox);
+
   container.appendChild(overlay);
 
   const eraCaption = timeline
@@ -105,7 +140,7 @@ export async function createWorld(
       (timeline.condition === "contact"
         ? "RECORDED TOGETHER — EACH ACT COULD HEAR THE OTHERS"
         : timeline.condition.toUpperCase())
-    : "ERA 2020s · THE AFAR WORLD";
+    : "ERA 2020s · THE UNIVERSE";
   const setCaption = (text: string, tone: "normal" | "lamp" | "oxide" = "normal") => {
     caption.textContent = text;
     caption.style.color =
@@ -127,7 +162,7 @@ export async function createWorld(
     a: el("world-roomlabel", { left: "70px", top: "70px" }, "STUDIO A · EVERS LANE"),
     b: el("world-roomlabel", { left: "390px", top: "70px" }, "STUDIO B · ROAN PATINA"),
     c: el("world-roomlabel", { left: "710px", top: "70px" }, "STUDIO C · DELTA MARLOWE"),
-    office: el("world-roomlabel", { left: "70px", top: "492px" }, "THE LABEL OFFICE"),
+    office: el("world-roomlabel", { left: "70px", top: "492px" }, "THE OFFICE"),
     archive: el("world-roomlabel", { left: "486px", top: "492px" }, "THE ARCHIVE — LISTENING ROOM"),
   };
 
@@ -168,6 +203,57 @@ export async function createWorld(
     eventIndex = 0;
     ringPhase = 0;
     listening = false;
+    /** follow = the scripted camera owns the view; roam = the user does. */
+    camMode: "follow" | "roam" = "follow";
+    /** The walker the scripted camera would be following right now. */
+    followTarget: InstanceType<typeof Ph.GameObjects.Sprite> | null = null;
+    /** Set once a pointer-down has moved far enough to count as a drag. */
+    dragging = false;
+    dragDist = 0;
+
+    /** Clamp-and-set scroll through the pure camera math. */
+    scrollBy(dx: number, dy: number) {
+      const cam = this.cameras.main;
+      const next = clampScroll(
+        cam.scrollX + dx,
+        cam.scrollY + dy,
+        cam.width / cam.zoom,
+        cam.height / cam.zoom,
+        WORLD_W,
+        WORLD_H,
+        CAMERA_MARGIN,
+      );
+      cam.setScroll(next.x, next.y);
+    }
+
+    /** User interaction takes the camera: stop follows/pans, flip the chip. */
+    detachCamera() {
+      const cam = this.cameras.main;
+      cam.stopFollow();
+      cam.panEffect.reset();
+      if (this.camMode !== "roam") {
+        this.camMode = "roam";
+        setChip("roam");
+      }
+    }
+
+    /** Chip click while roaming: glide back to the scripted view. */
+    resumeFollow() {
+      this.camMode = "follow";
+      setChip("follow");
+      const cam = this.cameras.main;
+      const target = this.followTarget;
+      if (target) {
+        cam.pan(target.x, target.y, 700, "Sine.easeOut", false, (_c: unknown, progress: number) => {
+          if (progress === 1 && this.camMode === "follow" && this.followTarget) {
+            cam.startFollow(this.followTarget, true, 0.08, 0.08);
+          }
+        });
+      } else {
+        const home = this.anchor ?? HOME_CENTER;
+        cam.pan(home.tx * T, home.ty * T, 700, "Sine.easeOut");
+      }
+    }
 
     preload() {
       this.load.image("bg-a", "/world/bg-era-a.png");
@@ -206,7 +292,9 @@ export async function createWorld(
           .setDepth(10);
         s.play(`${sprite}-idle-${place.dir}`);
         s.setInteractive({ useHandCursor: true });
-        s.on("pointerup", () => opts.onNavigate(entry.route));
+        s.on("pointerup", () => {
+          if (!this.dragging) opts.onNavigate(entry.route);
+        });
         this.chars[id] = s;
       }
 
@@ -215,13 +303,26 @@ export async function createWorld(
       this.dim = this.add.graphics().setDepth(20);
       this.fx = this.add.graphics().setDepth(30);
 
-      this.cameras.main.setBounds(0, 0, WORLD_W, WORLD_H);
+      // Bounds include the roaming margin of night void around the building.
+      this.cameras.main.setBounds(
+        -CAMERA_MARGIN,
+        -CAMERA_MARGIN,
+        WORLD_W + 2 * CAMERA_MARGIN,
+        WORLD_H + 2 * CAMERA_MARGIN,
+      );
       this.cameras.main.setZoom(ZOOM);
       this.cameras.main.centerOn(HOME_CENTER.tx * T, HOME_CENTER.ty * T);
       this.cameras.main.setBackgroundColor("#0e1013");
 
+      // A deliberate click (rail link / sprite) is user intent: the camera
+      // goes there and stays in follow, whatever mode it was in.
       handleFly = (target) => {
         this.cameras.main.stopFollow();
+        this.cameras.main.panEffect.reset();
+        if (this.camMode !== "follow") {
+          this.camMode = "follow";
+          setChip("follow");
+        }
         this.cameras.main.pan(target.tx * T, target.ty * T, 700, "Sine.easeOut");
       };
       handleAnchor = (target, fly = true) => {
@@ -229,10 +330,51 @@ export async function createWorld(
         if (fly) handleFly(target ?? HOME_CENTER);
       };
 
+      // ——— free camera: drag / trackpad-wheel roaming ———
+      this.input.on("pointerdown", () => {
+        this.dragging = false;
+        this.dragDist = 0;
+      });
+      this.input.on("pointermove", (p: { isDown: boolean; x: number; y: number; prevPosition: { x: number; y: number } }) => {
+        if (!p.isDown) return;
+        const dx = p.x - p.prevPosition.x;
+        const dy = p.y - p.prevPosition.y;
+        this.dragDist += Math.hypot(dx, dy);
+        if (this.dragDist < 4) return; // still a click, not a drag
+        this.dragging = true;
+        this.detachCamera();
+        const z = this.cameras.main.zoom;
+        this.scrollBy(-dx / z, -dy / z);
+      });
+      this.input.on(
+        "wheel",
+        (_p: unknown, _over: unknown, deltaX: number, deltaY: number) => {
+          this.detachCamera();
+          const z = this.cameras.main.zoom;
+          this.scrollBy(deltaX / z, deltaY / z);
+        },
+      );
+
+      chip.onclick = () => {
+        if (this.camMode === "roam") this.resumeFollow();
+        else this.detachCamera();
+      };
+      const setZoomLevel = (level: 2 | 3) => {
+        this.cameras.main.zoomTo(level, 250, "Sine.easeOut");
+        zoomIn.disabled = level === 3;
+        zoomOut.disabled = level === 2;
+      };
+      zoomIn.onclick = () => setZoomLevel(3);
+      zoomOut.onclick = () => setZoomLevel(2);
+      zoomOut.disabled = true;
+
       this.events.on("postupdate", () => {
-        // worldView is the world-space rect actually on screen (zoom-aware).
-        const view = this.cameras.main.worldView;
-        camLayer.style.transform = `translate(${-view.x * ZOOM}px, ${-view.y * ZOOM}px)`;
+        // worldView is the world-space rect actually on screen (zoom-aware);
+        // the overlay is authored in 2× px, so extra zoom scales it up.
+        const cam = this.cameras.main;
+        const view = cam.worldView;
+        camLayer.style.transform =
+          `translate(${-view.x * cam.zoom}px, ${-view.y * cam.zoom}px) scale(${cam.zoom / ZOOM})`;
       });
 
       if (timeline && timeline.events.length > 0) this.runEvent(0);
@@ -248,6 +390,7 @@ export async function createWorld(
           opacity: 0.45,
         });
       }
+      setNow(null);
     }
 
     runEvent(index: number) {
@@ -266,6 +409,7 @@ export async function createWorld(
         });
       }
       setCaption(eraCaption);
+      setNow("EL · RP · DM — recording, each alone");
       this.time.delayedCall(ev.duration * 1000, done);
     }
 
@@ -405,13 +549,20 @@ export async function createWorld(
         if (other !== actor) bubbles[other].el.style.opacity = "0.4";
       }
 
-      // camera glide, then follow the walker (never hard-cuts)
-      cam.stopFollow();
-      cam.pan(s.x, s.y, 700, "Sine.easeOut", false, (_c: unknown, progress: number) => {
-        if (progress === 1) cam.startFollow(s, true, 0.08, 0.08);
-      });
+      // camera glide, then follow the walker (never hard-cuts) — unless the
+      // user is roaming: then the chip pulses and the camera stays theirs.
+      this.followTarget = s;
+      if (this.camMode === "follow") {
+        cam.stopFollow();
+        cam.pan(s.x, s.y, 700, "Sine.easeOut", false, (_c: unknown, progress: number) => {
+          if (progress === 1 && this.camMode === "follow") cam.startFollow(s, true, 0.08, 0.08);
+        });
+      } else {
+        pulseChip();
+      }
 
       this.drawPathDashes(actor);
+      setNow(`${ACT_INITIALS[actor]} · walking to the archive`);
 
       const walkMs = this.walkAlong(actor, sprite, out, () => {
         // needle down
@@ -424,6 +575,7 @@ export async function createWorld(
           `${clock(ev.t + walkMs / 1000)} · NEEDLE DOWN — THIS IS THE ONLY WAY AN ACT HEARS ANOTHER`,
           "lamp",
         );
+        setNow(`${ACT_INITIALS[actor]} · needle down in the archive`);
 
         const dwellMs = Math.max(6000, ev.duration * 1000 - 2 * walkMs - 1500);
         this.time.delayedCall(dwellMs, () => {
@@ -444,9 +596,12 @@ export async function createWorld(
             for (const other of ["keep", "rust", "silt"] as WorldActId[]) {
               bubbles[other].el.style.opacity = "1";
             }
-            cam.stopFollow();
-            const target = this.anchor ?? HOME_CENTER;
-            cam.pan(target.tx * T, target.ty * T, 800, "Sine.easeOut");
+            this.followTarget = null;
+            if (this.camMode === "follow") {
+              cam.stopFollow();
+              const target = this.anchor ?? HOME_CENTER;
+              cam.pan(target.tx * T, target.ty * T, 800, "Sine.easeOut");
+            }
             this.time.delayedCall(600, done);
           });
         });
@@ -488,6 +643,7 @@ export async function createWorld(
       observer.disconnect();
       game.destroy(true);
       overlay.remove();
+      setNow(null);
     },
   };
 }
