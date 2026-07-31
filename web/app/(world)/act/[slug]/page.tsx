@@ -119,6 +119,7 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
           <PressPhoto
             pressSrc={design?.press}
             imageUrl={agent.imageUrl}
+            palette={agent.palette}
             alt={`${agent.displayName} press photo`}
             className={design ? "presscard-lg" : "presscard-lg photo-smooth"}
           />

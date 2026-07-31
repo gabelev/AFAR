@@ -41,6 +41,7 @@ function RosterCard({ agent }: { agent: Agent }) {
       <PressPhoto
         pressSrc={isActId(agent.id) ? ACT_DESIGN[agent.id].press : undefined}
         imageUrl={agent.imageUrl}
+        palette={agent.palette}
         alt={`${agent.displayName} press photo`}
         className={isActId(agent.id) ? "roster-card-photo" : "roster-card-photo photo-smooth"}
       />
