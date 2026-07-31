@@ -63,6 +63,85 @@ class SetResult:
     paths: dict[str, Path]
 
 
+def compute_space_features(
+    embs: Mapping[str, Sequence[Sequence[float]]],
+    *,
+    rounds: int,
+    ledger: JsonlLedger,
+    space: str,
+    stamps: Mapping[str, Any],
+    row_extra: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Compute and log one space's interaction features; return the block.
+
+    The single feature-assembly path: `run_set` calls it for both spaces at the
+    end of a set, and `scripts/reembed.py` calls it again for audio space when
+    embeddings are recomputed with a real model. Every number is logged as a
+    features row (stamped with `stamps` + `row_extra`, so a re-embed can mark
+    its rows with the superseding model_id) and returned as
+    {"influence", "convergence", "novelty", "asymmetry"} in exactly the shape
+    the release record carries per space.
+    """
+    ids = list(embs)
+    extra = dict(row_extra or {})
+    graphs: dict[str, dict[str, float]] = {}
+    asym: dict[str, dict[str, float]] = {}
+    for t in range(1, rounds):
+        graph = features.influence_graph(embs, t)
+        edges = {f"{a}<-{b}": value for (a, b), value in graph.items()}
+        graphs[str(t)] = edges
+        ledger.write(
+            "features",
+            {**stamps, **extra, "space": space, "feature": "influence", "round": t, "edges": edges},
+        )
+        pairs: dict[str, float] = {}
+        for a, b in combinations(ids, 2):
+            value = features.asymmetry(graph[(a, b)], graph[(b, a)])
+            pairs[f"{a}|{b}"] = value
+            ledger.write(
+                "features",
+                {
+                    **stamps,
+                    **extra,
+                    "space": space,
+                    "feature": "asymmetry",
+                    "round": t,
+                    "pair": f"{a}|{b}",
+                    "value": value,
+                },
+            )
+        asym[str(t)] = pairs
+    curve = features.convergence_curve(embs)
+    for t, value in enumerate(curve):
+        ledger.write(
+            "features",
+            {**stamps, **extra, "space": space, "feature": "convergence", "round": t, "value": value},
+        )
+    novelty_by: dict[str, dict[str, float]] = {pid: {} for pid in ids}
+    for pid in ids:
+        for t in range(1, rounds):
+            value = features.novelty(embs[pid][t], embs[pid][:t])
+            novelty_by[pid][str(t)] = value
+            ledger.write(
+                "features",
+                {
+                    **stamps,
+                    **extra,
+                    "space": space,
+                    "feature": "novelty",
+                    "round": t,
+                    "player": pid,
+                    "value": value,
+                },
+            )
+    return {
+        "influence": graphs,
+        "convergence": curve,
+        "novelty": novelty_by,
+        "asymmetry": asym,
+    }
+
+
 def player_seed(seed: int, player_id: str, t: int) -> int:
     """Derive the render seed for one (player, round) from the set seed.
 
@@ -244,59 +323,15 @@ def run_set(
         "asymmetry": {},
     }
     for space in SPACES:
-        embs = vectors[space]
-        graphs: dict[str, dict[str, float]] = {}
-        asym: dict[str, dict[str, float]] = {}
-        for t in range(1, rounds):
-            graph = features.influence_graph(embs, t)
-            edges = {f"{a}<-{b}": value for (a, b), value in graph.items()}
-            graphs[str(t)] = edges
-            ledger.write(
-                "features",
-                {**set_stamps, "space": space, "feature": "influence", "round": t, "edges": edges},
-            )
-            pairs: dict[str, float] = {}
-            for a, b in combinations(ids, 2):
-                value = features.asymmetry(graph[(a, b)], graph[(b, a)])
-                pairs[f"{a}|{b}"] = value
-                ledger.write(
-                    "features",
-                    {
-                        **set_stamps,
-                        "space": space,
-                        "feature": "asymmetry",
-                        "round": t,
-                        "pair": f"{a}|{b}",
-                        "value": value,
-                    },
-                )
-            asym[str(t)] = pairs
-        curve = features.convergence_curve(embs)
-        for t, value in enumerate(curve):
-            ledger.write(
-                "features",
-                {**set_stamps, "space": space, "feature": "convergence", "round": t, "value": value},
-            )
-        novelty_by: dict[str, dict[str, float]] = {pid: {} for pid in ids}
-        for pid in ids:
-            for t in range(1, rounds):
-                value = features.novelty(embs[pid][t], embs[pid][:t])
-                novelty_by[pid][str(t)] = value
-                ledger.write(
-                    "features",
-                    {
-                        **set_stamps,
-                        "space": space,
-                        "feature": "novelty",
-                        "round": t,
-                        "player": pid,
-                        "value": value,
-                    },
-                )
-        feature_block["influence"][space] = graphs
-        feature_block["convergence"][space] = curve
-        feature_block["novelty"][space] = novelty_by
-        feature_block["asymmetry"][space] = asym
+        block = compute_space_features(
+            vectors[space],
+            rounds=rounds,
+            ledger=ledger,
+            space=space,
+            stamps=set_stamps,
+        )
+        for feature_name, value in block.items():
+            feature_block[feature_name][space] = value
 
     # --- the release record ---------------------------------------------------
     # Everything in the record is a pure function of (personas, condition,

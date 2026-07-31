@@ -7,6 +7,14 @@ MockProvider + MockRenderer + MockEmbedder — which is the honest way to check
 the wiring before spending money on the live APIs. `--renderer elevenlabs`
 forces the live renderer (needs ELEVENLABS_API_KEY); `--embedder mert` needs
 the listen extra (uv sync --extra listen).
+
+Guard: a LIVE renderer with the MOCK embedder is refused unless
+--allow-mock-embedder is passed. Release 0002's first run paid for real
+ElevenLabs audio and then embedded it with MockEmbedder (the silent default),
+so every audio-space feature in the log was placeholder junk that had to be
+corrected after the fact with scripts/reembed.py. Real money spent on audio
+deserves real ears; mock embeddings on live audio must now be an explicit
+choice, never a default.
 """
 
 from __future__ import annotations
@@ -51,6 +59,24 @@ def _print_influence(record: dict, space: str) -> None:
         print(f"  {t:>5}  {cells}")
 
 
+def ensure_real_ears_for_live_renders(
+    renderer_name: str, embedder_name: str, *, allow_mock_embedder: bool
+) -> None:
+    """Refuse a live renderer + mock embedder combination unless overridden.
+
+    The guard that would have prevented release 0002's mock-embedded audio:
+    rendered tracks that cost real API money would be logged with placeholder
+    audio-space embeddings, poisoning every audio-space feature row.
+    """
+    if renderer_name != "mock" and embedder_name == "mock" and not allow_mock_embedder:
+        raise SystemExit(
+            f"refusing to run live renderer {renderer_name!r} with the mock embedder: "
+            "audio-space embeddings and features would be placeholder junk "
+            "(release 0002 had to be re-embedded for exactly this). "
+            "Pass --embedder mert, or --allow-mock-embedder to override."
+        )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run one full AFAR set (three players, N rounds).")
     parser.add_argument("--rounds", type=int, default=6)
@@ -59,12 +85,17 @@ def main() -> None:
     parser.add_argument("--renderer", choices=["mock", "elevenlabs"], default=None,
                         help="override AFAR_RENDERER for this run")
     parser.add_argument("--embedder", choices=["mock", "mert"], default="mock")
+    parser.add_argument("--allow-mock-embedder", action="store_true",
+                        help="explicitly permit mock audio embeddings on a live render")
     args = parser.parse_args()
 
     _load_dotenv(Path(__file__).resolve().parents[1] / ".env")
     if args.renderer is not None:
         os.environ["AFAR_RENDERER"] = args.renderer
     config = build_config()
+    ensure_real_ears_for_live_renders(
+        config.renderer.name, args.embedder, allow_mock_embedder=args.allow_mock_embedder
+    )
 
     embedder: AudioEmbedder
     if args.embedder == "mert":
