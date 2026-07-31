@@ -1,16 +1,18 @@
 /**
  * Pure camera math for the free camera. The world is a fixed pixel rect;
  * the user may roam it plus a comfortable margin of night void on every
- * side. Kept free of Phaser so the clamp is unit-testable.
+ * side. Kept free of Phaser so the clamp is unit-testable. The margin
+ * itself lives in the geometry registry.
  */
+
+import { CAMERA_MARGIN } from "@/lib/world/geometry";
+
+export { CAMERA_MARGIN };
 
 export interface Scroll {
   x: number;
   y: number;
 }
-
-/** Night-void margin around the building, in world px (6 tiles). */
-export const CAMERA_MARGIN = 96;
 
 /**
  * Clamp a camera scroll position (top-left corner, world px) so the view

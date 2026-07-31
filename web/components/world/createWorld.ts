@@ -30,6 +30,23 @@
 
 import { CAMERA_MARGIN, cameraBounds, clampMidpoint } from "@/lib/world/camera";
 import {
+  BUBBLES,
+  DASHES,
+  DIM,
+  HOME_CENTER,
+  PLACEMENTS,
+  PLATTER,
+  ROOM_LABELS,
+  SHEET_ROW,
+  STUDIO_DOOR_X,
+  STUDIO_NAME,
+  TILE,
+  TURNTABLE_STAND,
+  WALK,
+  WORLD_H,
+  WORLD_W,
+} from "@/lib/world/geometry";
+import {
   onCommand,
   publishRailState,
   type WorldCommand,
@@ -70,40 +87,17 @@ import {
   type WorldCatalogue,
 } from "@/lib/world/timeline";
 
-const T = 16;
-const WORLD_W = 33 * T; // 528
-const WORLD_H = 34 * T; // 544
+// All geometry (canvas dims, placements, doors, turntable, labels, walk
+// waypoints, dim rects) comes from the registry via lib/world/geometry.ts.
+const T = TILE;
 const ZOOM = 2;
 
-/** Spritesheet row per character (render_pixels.mjs CHARACTERS order). */
-const SHEET_ROW: Record<string, number> = {
-  evers: 0, roan: 1, delta: 2, producer: 3, critic: 4, listener: 5, muse: 6,
-};
 const DIR_COL: Record<string, number> = { down: 0, left: 1, right: 2, up: 3 };
-
-/** Design placements (pixelspec DEFAULT_PLACEMENTS): sprite drawn at (tx*16, ty*16 - 6). */
-const PLACEMENTS: Record<string, { tx: number; ty: number; dir: string }> = {
-  keep: { tx: 5, ty: 7, dir: "up" },
-  rust: { tx: 15.5, ty: 7, dir: "down" },
-  silt: { tx: 24.5, ty: 7, dir: "down" },
-  producer: { tx: 5, ty: 22, dir: "up" },
-  critic: { tx: 10.4, ty: 18.4, dir: "down" },
-  listener: { tx: 4.4, ty: 26.2, dir: "down" },
-  muse: { tx: 2, ty: 23.4, dir: "left" },
-};
 
 const ACTS: readonly WorldActId[] = ["keep", "rust", "silt"];
 
-/** Studio door column per act (single-tile door gaps at y=11). */
-const STUDIO_DOOR_X: Record<WorldActId, number> = { keep: 6, rust: 16, silt: 26 };
-const STUDIO_NAME: Record<WorldActId, string> = { keep: "a", rust: "b", silt: "c" };
 const ACT_ACCENT: Record<WorldActId, string> = { keep: "#a34c2e", rust: "#71917d", silt: "#bd9040" };
 const ACT_INITIALS: Record<WorldActId, string> = { keep: "EL", rust: "RP", silt: "DM" };
-
-/** Where a listening act stands at the turntable (design 1b: Evers at 21.4, 24.6, facing up). */
-const TURNTABLE_STAND = { tx: 21.4, ty: 24.6 };
-const PLATTER = { x: 21 * T + 15, y: 22 * T + 14 };
-const HOME_CENTER: WorldTarget = { tx: 16.5, ty: 17 };
 
 export interface WorldHandle {
   flyTo(target: WorldTarget): void;
@@ -207,23 +201,21 @@ export async function createWorld(
     return d;
   };
 
-  // Room labels on the wall caps (design frame 1a positions, world px × ZOOM).
-  const roomLabels: Record<string, HTMLDivElement> = {
-    a: el("world-roomlabel", { left: "70px", top: "70px" }, "STUDIO A · EVERS LANE"),
-    b: el("world-roomlabel", { left: "390px", top: "70px" }, "STUDIO B · ROAN PATINA"),
-    c: el("world-roomlabel", { left: "710px", top: "70px" }, "STUDIO C · DELTA MARLOWE"),
-    office: el("world-roomlabel", { left: "70px", top: "492px" }, "THE OFFICE"),
-    archive: el("world-roomlabel", { left: "486px", top: "492px" }, "THE ARCHIVE — LISTENING ROOM"),
-  };
+  // Room labels on the wall caps (registry positions: design frame 1a, world px × ZOOM).
+  const roomLabels: Record<string, HTMLDivElement> = Object.fromEntries(
+    Object.entries(ROOM_LABELS).map(([key, label]) => [
+      key,
+      el("world-roomlabel", { left: `${label.px[0]}px`, top: `${label.px[1]}px` }, label.text),
+    ]),
+  );
 
   // Speech bubbles: one per act (near their studio) + one at the turntable.
-  const bubbleStyle: Partial<CSSStyleDeclaration> = { maxWidth: "230px" };
-  const bubbles: Record<WorldActId, Bubble> & { turntable: Bubble } = {
-    keep: { el: el("world-bubble", { ...bubbleStyle, left: "120px", top: "296px" }) },
-    rust: { el: el("world-bubble", { ...bubbleStyle, left: "420px", top: "296px" }) },
-    silt: { el: el("world-bubble", { ...bubbleStyle, left: "706px", top: "296px", maxWidth: "260px" }) },
-    turntable: { el: el("world-bubble", { left: "500px", top: "846px", maxWidth: "300px" }) },
-  };
+  const bubbles = Object.fromEntries(
+    Object.entries(BUBBLES).map(([key, b]) => [
+      key,
+      { el: el("world-bubble", { left: `${b.px[0]}px`, top: `${b.px[1]}px`, maxWidth: `${b.maxWidth}px` }) },
+    ]),
+  ) as Record<WorldActId, Bubble> & { turntable: Bubble };
   const setBubble = (
     b: Bubble,
     text: string | null,
@@ -851,16 +843,15 @@ export async function createWorld(
       this.time.delayedCall(ev.duration * 1000, done);
     }
 
-    /** Waypoints (in sprite coords) for an act's walk studio → turntable. */
+    /** Waypoints (in sprite coords) for an act's walk studio → turntable (registry). */
     walkPath(actor: WorldActId): { tx: number; ty: number }[] {
       const start = PLACEMENTS[actor];
       const doorX = STUDIO_DOOR_X[actor];
       return [
         { tx: start.tx, ty: start.ty },
-        { tx: doorX - 0.4, ty: start.ty },
-        { tx: doorX - 0.4, ty: 13 },
-        { tx: 21.9, ty: 13 },
-        { tx: 21.9, ty: 16.2 },
+        { tx: doorX + WALK.doorOffset, ty: start.ty },
+        { tx: doorX + WALK.doorOffset, ty: WALK.corridorY },
+        ...WALK.approach.map(([tx, ty]) => ({ tx, ty })),
         { tx: TURNTABLE_STAND.tx, ty: TURNTABLE_STAND.ty },
       ];
     }
@@ -910,12 +901,10 @@ export async function createWorld(
     drawPathDashes(actor: WorldActId) {
       const doorX = STUDIO_DOOR_X[actor];
       // Tile-centre dash path, the design's register (1b: paper dashes every 6px).
-      const pts = [
-        [doorX + 0.5, 12],
-        [doorX + 0.5, 13.5],
-        [22.5, 13.5],
-        [22.5, 16],
-        [22.2, 21.5],
+      const pts: [number, number][] = [
+        [doorX + DASHES.doorOffset, DASHES.startY],
+        [doorX + DASHES.doorOffset, DASHES.cornerY],
+        ...DASHES.tail,
       ];
       this.fx.fillStyle(0xa9a290, 0.5);
       for (let i = 0; i < pts.length - 1; i++) {
@@ -961,11 +950,12 @@ export async function createWorld(
       const doorX = STUDIO_DOOR_X[actor];
       this.litMask.clear();
       this.litMask.fillStyle(0xffffff, 1);
-      // archive + its walls, and the walked corridor strip (design pixel.js clip rects)
-      this.litMask.fillRect(14 * T, 15 * T, 18 * T, 18 * T);
-      const x1 = Math.min(doorX - 1.5, 20.5);
-      const x2 = Math.max(doorX + 1.5, 24);
-      this.litMask.fillRect(x1 * T, 11 * T, (x2 - x1) * T, 5 * T);
+      // archive + its walls, and the walked corridor strip (registry dim rects)
+      const [ax, ay, aw, ah] = DIM.archive;
+      this.litMask.fillRect(ax * T, ay * T, aw * T, ah * T);
+      const x1 = Math.min(doorX - DIM.corridor.halfWidth, DIM.corridor.span[0]);
+      const x2 = Math.max(doorX + DIM.corridor.halfWidth, DIM.corridor.span[1]);
+      this.litMask.fillRect(x1 * T, DIM.corridor.y * T, (x2 - x1) * T, DIM.corridor.h * T);
       const mask = this.litMask.createGeometryMask();
       mask.invertAlpha = true;
       this.dim.setMask(mask);
