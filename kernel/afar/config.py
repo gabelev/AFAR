@@ -16,6 +16,9 @@ Conductor knobs (the spend controls — see afar/conductor.py):
                            (default "0": the master switch ships OFF)
     AFAR_SETS_PER_DAY   -> pacing target, float (default 3.0)
     AFAR_DAILY_GEN_CAP  -> hard ceiling on generations per UTC day (default 60)
+    AFAR_FAILURE_BACKOFF_MIN -> minutes before retrying after a failed set,
+                           doubling per consecutive failure, capped at the
+                           pace interval (default 15)
 """
 
 from __future__ import annotations
@@ -235,6 +238,7 @@ class AfarConfig:
     enabled: bool = False  # AFAR_ENABLED — the master switch; ships OFF
     sets_per_day: float = 3.0  # AFAR_SETS_PER_DAY — pacing target
     daily_gen_cap: int = 60  # AFAR_DAILY_GEN_CAP — hard per-UTC-day ceiling
+    failure_backoff_min: float = 15.0  # AFAR_FAILURE_BACKOFF_MIN — post-failure retry delay
 
 
 def _kernel_root() -> Path:
@@ -290,6 +294,9 @@ def build_config() -> AfarConfig:
     daily_gen_cap = int(os.environ.get("AFAR_DAILY_GEN_CAP", "60"))
     if daily_gen_cap < 0:
         raise ValueError(f"AFAR_DAILY_GEN_CAP must be >= 0, got {daily_gen_cap}")
+    failure_backoff_min = float(os.environ.get("AFAR_FAILURE_BACKOFF_MIN", "15"))
+    if failure_backoff_min <= 0:
+        raise ValueError(f"AFAR_FAILURE_BACKOFF_MIN must be > 0, got {failure_backoff_min}")
     return AfarConfig(
         model=model,
         renderer=_build_renderer(runs_root),
@@ -299,4 +306,5 @@ def build_config() -> AfarConfig:
         enabled=os.environ.get("AFAR_ENABLED", "0") == "1",
         sets_per_day=sets_per_day,
         daily_gen_cap=daily_gen_cap,
+        failure_backoff_min=failure_backoff_min,
     )

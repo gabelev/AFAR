@@ -36,6 +36,11 @@ SPEND CONTROL (hard, by design):
 DURABILITY: each set runs under try/except — a failure logs a `set_failed`
 row to the conductor ledger, checkpoints, and the loop continues with the
 next planned set (the schedule is position-stable; nothing else shifts).
+A failed set does NOT wait out the full pace interval: the next attempt
+comes after a short failure backoff (AFAR_FAILURE_BACKOFF_MIN, default 15
+minutes, doubling per consecutive failure, capped at the pace interval;
+a completed set resets it) — the daily generation cap still governs, since
+failed sets spend real generations.
 On boot the conductor resumes idempotently from the JSONL cursor: the
 highest set index with a `set_completed`/`set_failed` row, plus one.
 SIGTERM is honored mid-set via `run_set(after_round=...)`: the current round
@@ -100,6 +105,22 @@ def pace_seconds(elapsed: float, sets_per_day: float, rng: random.Random) -> flo
     base = SECONDS_PER_DAY / sets_per_day
     jittered = base * rng.uniform(1.0 - _JITTER, 1.0 + _JITTER)
     return max(0.0, jittered - max(0.0, elapsed))
+
+
+def failure_backoff_seconds(
+    consecutive_failures: int, backoff_min: float, sets_per_day: float
+) -> float:
+    """How long to sleep after a failed set: backoff_min minutes, doubling per
+    consecutive failure (15/30/60/...), capped at the unjittered pace interval
+    — a transient outage gets a fast second chance instead of the full ~8h
+    wait, while a persistent one degrades to normal pacing. The daily
+    generation cap still governs spend on every attempt."""
+    if consecutive_failures < 1:
+        raise ValueError(f"consecutive_failures must be >= 1, got {consecutive_failures}")
+    if sets_per_day <= 0:
+        raise ValueError(f"sets_per_day must be > 0, got {sets_per_day}")
+    backoff = backoff_min * 60.0 * (2 ** (consecutive_failures - 1))
+    return min(backoff, SECONDS_PER_DAY / sets_per_day)
 
 
 def next_set_index(rows: list[Mapping[str, Any]]) -> int:
@@ -259,6 +280,7 @@ class Conductor:
 
         self._stop = False
         self._last_beat = 0.0
+        self._consecutive_failures = 0  # in-memory: a restart retries promptly anyway
         rows = self._rows()
         self.set_index = next_set_index(rows)
         self.taboo = FieldTabooMemory(
@@ -518,6 +540,7 @@ class Conductor:
             started = time.monotonic()
             try:
                 outcome = self.run_one_set(plan)
+                self._consecutive_failures = 0
                 if not self.smoke:
                     self._log(
                         "set_completed",
@@ -534,10 +557,12 @@ class Conductor:
                 self._log("set_aborted", set_index=plan.index, error=str(err))
                 return 0
             except Exception as err:  # noqa: BLE001 — durability over purity
+                self._consecutive_failures += 1
                 self._log(
                     "set_failed",
                     set_index=plan.index,
                     error=f"{type(err).__name__}: {err}"[:500],
+                    consecutive_failures=self._consecutive_failures,
                     generations_today=self.budget.spent_today,
                 )
 
@@ -546,11 +571,27 @@ class Conductor:
                 return 0
             self.set_index += 1
             elapsed = time.monotonic() - started
-            self._idle(
-                pace_seconds(elapsed, self.config.sets_per_day, self.rng),
-                "heartbeat",
-                waiting="pace",
-            )
+            if self._consecutive_failures:
+                # A transient failure gets a fast second chance, not the full
+                # pace interval (the ElevenLabs-500 lesson). Doubling per
+                # consecutive failure, capped at the pace interval; the daily
+                # cap check above still governs every attempt's spend.
+                sleep_s = failure_backoff_seconds(
+                    self._consecutive_failures,
+                    self.config.failure_backoff_min,
+                    self.config.sets_per_day,
+                )
+                self._last_beat = 0.0  # a backoff is an event: its row always lands
+                self._idle(
+                    sleep_s,
+                    "heartbeat",
+                    waiting="failure_backoff",
+                    sleep_seconds=round(sleep_s, 1),
+                    consecutive_failures=self._consecutive_failures,
+                )
+            else:
+                sleep_s = pace_seconds(elapsed, self.config.sets_per_day, self.rng)
+                self._idle(sleep_s, "heartbeat", waiting="pace", sleep_seconds=round(sleep_s, 1))
 
         self._log("stopped", note="SIGTERM between sets")
         return 0

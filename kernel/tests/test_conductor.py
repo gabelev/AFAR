@@ -21,6 +21,8 @@ from afar.conductor import (
     Conductor,
     GenBudget,
     SECONDS_PER_DAY,
+    SetOutcome,
+    failure_backoff_seconds,
     load_newest_brief,
     next_set_index,
     pace_seconds,
@@ -92,6 +94,81 @@ def test_pace_never_goes_negative_and_rejects_bad_rates():
 def test_seconds_to_next_utc_day():
     now = datetime(2026, 7, 31, 23, 0, 0, tzinfo=timezone.utc)
     assert seconds_to_next_utc_day(now) == 3600.0
+
+
+# --- the failure backoff (pure) -----------------------------------------------
+
+
+def test_failure_backoff_doubles_per_consecutive_failure_and_caps_at_the_pace():
+    pace = SECONDS_PER_DAY / 3.0  # 28800s at 3 sets/day
+    assert failure_backoff_seconds(1, 15.0, 3.0) == 900.0  # 15 min
+    assert failure_backoff_seconds(2, 15.0, 3.0) == 1800.0  # 30 min
+    assert failure_backoff_seconds(3, 15.0, 3.0) == 3600.0  # 60 min
+    assert failure_backoff_seconds(6, 15.0, 3.0) == pace  # 900 * 2^5 hits the cap exactly
+    assert failure_backoff_seconds(50, 15.0, 3.0) == pace  # never past normal pacing
+    assert failure_backoff_seconds(1, 30.0, 3.0) == 1800.0  # the knob is minutes
+
+
+def test_failure_backoff_rejects_bad_inputs():
+    with pytest.raises(ValueError):
+        failure_backoff_seconds(0, 15.0, 3.0)
+    with pytest.raises(ValueError):
+        failure_backoff_seconds(1, 15.0, 0.0)
+
+
+def test_failure_backoff_min_env_knob(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    from afar.config import build_config
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("AFAR_FAILURE_BACKOFF_MIN", raising=False)
+    monkeypatch.setenv("AFAR_RUNS_ROOT", str(tmp_path))
+    assert build_config().failure_backoff_min == 15.0
+    monkeypatch.setenv("AFAR_FAILURE_BACKOFF_MIN", "5")
+    assert build_config().failure_backoff_min == 5.0
+    monkeypatch.setenv("AFAR_FAILURE_BACKOFF_MIN", "0")
+    with pytest.raises(ValueError):
+        build_config()
+
+
+def test_set_failure_gets_a_fast_retry_and_success_resets_the_backoff(tmp_path: Path):
+    """The droplet lesson: a set that died on a transient 500 must not wait
+    the full ~8h pace interval for its next attempt — 15 min, doubling per
+    consecutive failure, and one completed set resets the schedule."""
+    conductor = _conductor(tmp_path)
+    outcomes = iter(["fail", "fail", "ok"])
+
+    def fake_run_one_set(plan):
+        if next(outcomes) == "fail":
+            raise RuntimeError("ElevenLabs music request failed (500): service_unavailable")
+        return SetOutcome(set_index=plan.index, run_id=f"run-{plan.index}", completed=True)
+
+    idles: list[tuple[float, dict]] = []
+
+    def fake_idle(seconds: float, kind: str, **row) -> None:
+        idles.append((seconds, row))
+        if len(idles) >= 3:
+            conductor._stop = True
+
+    conductor.run_one_set = fake_run_one_set
+    conductor._idle = fake_idle
+    assert conductor.run_forever() == 0
+
+    # Failure 1 -> 15 min, failure 2 -> 30 min, success -> normal pacing again;
+    # the chosen sleep rides in the heartbeat/pacing row.
+    assert idles[0][0] == 900.0
+    assert idles[0][1]["waiting"] == "failure_backoff"
+    assert idles[0][1] == {"waiting": "failure_backoff", "sleep_seconds": 900.0,
+                           "consecutive_failures": 1}
+    assert idles[1][0] == 1800.0
+    assert idles[1][1]["consecutive_failures"] == 2
+    assert idles[2][1]["waiting"] == "pace"
+    assert idles[2][1]["sleep_seconds"] == round(idles[2][0], 1)
+    assert conductor._consecutive_failures == 0
+
+    rows = _conductor_rows(tmp_path)
+    assert [r["consecutive_failures"] for r in rows if r["kind"] == "set_failed"] == [1, 2]
+    assert len([r for r in rows if r["kind"] == "set_completed"]) == 1
+    assert conductor.set_index == 3  # failed sets still advance the cursor
 
 
 # --- the cursor (pure) --------------------------------------------------------
