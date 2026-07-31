@@ -228,6 +228,29 @@ class ProducerAgent(Agent):
         super().__init__(persona, model, **kw)
         self.judges = list(judges) if judges is not None else default_judges(model)
 
+    # -- the direction half: where the Muse's brief is consumed ----------------
+
+    def direct(self, brief: Any) -> dict[str, Any]:
+        """Consume the Muse's brief at SET START — the only door the outside
+        world enters through (architecture rule 2: through the brief, never
+        the ear). Returns the session direction the conductor will hand to
+        `run_set` when it exists; nothing here reaches `build_context`, so
+        nothing from the Muse can enter a player's mid-set perceive context.
+
+        Minimal seam, deliberately: v1 passes the brief through as direction.
+        A later Producer may translate it (tempo targets, a dare per act);
+        the contract that matters is WHERE this runs — set start, frame side.
+
+        `brief` is an afar.agents.muse.Brief.
+        """
+        return {
+            "stance": brief.stance,
+            "theme": brief.theme,
+            "text": brief.body,
+            "palette_notes": list(brief.palette_notes),
+            "forbidden_moves": list(brief.forbidden_moves),
+        }
+
     # -- the one decision ------------------------------------------------------
 
     def select(self, view: SetView) -> Selection:

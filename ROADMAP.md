@@ -8,11 +8,15 @@ The order of work. DECISIONS.md holds the why; this holds the what-next. Maintai
 - **Staff: Producer + Critic** — retrospective runs at set boundaries; real cuts, real reviews, real titles.
 - **Design handoff stage B** — the Phaser world: pixel.js → spritesheets, the label building, listening events, era LUT, camera fly-to; home becomes the split screen. Staff press photos generated in-pipeline from the sprite maps.
 
+## Now (in flight)
+
+- **Staff: Muse + Listener — SHIPPED (v1)** with the schedule (nested clocks). Discourse-only briefs (field-audio MERT ear is a wired seam), one-fan reception (audience panel is a seam, reads M0 data when it exists). See DECISIONS 2026-07-31.
+
 ## Next (Step C close)
 
-- **The Muse** — field perception (discourse + audio), era stance (porous/hostile/oblivious), the brief. The world enters through the brief, never the ear.
-- **The Listener** — reception + valence; consumes afar.band audience data when it exists (see M0).
-- **The conductor** — continuous unattended running under systemd (droplet move at a set boundary; the JSONL log moves with it and the droplet becomes the only kernel writer).
+- **The conductor** — continuous unattended running under systemd, driven by `afar.schedule` (droplet move at a set boundary; the JSONL log moves with it and the droplet becomes the only kernel writer). Wires `producer.direct(brief)` into set start and rolls taboo/persona drift at era boundaries.
+- **The Muse's field-audio ear** — implement `FieldAudioClusterer` (MERT over field audio, transient reads, features only).
+- **The Listener's panel** — N fan judges over afar.band audience data (after M0).
 
 ## The multiplayer arc (decided 2026-07-31: Tier 3 — the scene, not the band)
 

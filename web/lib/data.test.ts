@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   AgentSchema,
   PLAYER_IDS,
+  ReleaseSchema,
   STAFF_IDS,
   fixtureAgents,
   fixtureReleases,
@@ -93,6 +94,17 @@ describe("releases fixture", () => {
         expect(typeof release.rationales[id]).toBe("string");
       }
     }
+  });
+
+  it("parses the Listener's valence when present, tolerates its absence, refuses junk", () => {
+    // Pre-Listener rows (all current fixtures) carry no reactionValence.
+    const base: Record<string, unknown> = { ...fixtureReleases[0] };
+    delete base.reactionValence;
+    expect(ReleaseSchema.parse(base).reactionValence).toBeUndefined();
+    // A Listener-enriched row carries the one-word verdict.
+    expect(ReleaseSchema.parse({ ...base, reactionValence: "mixed" }).reactionValence).toBe("mixed");
+    // The valence vocabulary is closed — anything else is a publish bug.
+    expect(() => ReleaseSchema.parse({ ...base, reactionValence: "lukewarm" })).toThrow();
   });
 });
 

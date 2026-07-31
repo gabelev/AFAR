@@ -25,7 +25,7 @@ from afar.config import AfarConfig, _mock_players
 from afar.log import JsonlLedger, RunContext
 from afar.perception.embedder import MockEmbedder
 from afar.render.base import MockRenderer
-from afar.staff import load_set_view, newest_release_path, run_staff
+from afar.staff import load_set_view, newest_release_path, run_muse_listener, run_staff
 from afar.run import run_set
 
 _PLAYERS = ("silt", "rust", "keep")
@@ -227,26 +227,47 @@ def test_run_staff_appends_rows_and_supersedes_the_record(played_run: Path):
     assert [row["kind"] for row in reviews] == ["act-review"] * 3 + ["release-review", "titles"]
     assert reviews[4]["release_title"] == "Mock Pressing"
 
-    # The staff-enriched record supersedes the old one; the old file survives.
+    # briefs / reactions: the boundary's outward half, one row each.
+    (brief_row,) = _rows(run_dir, "briefs")
+    assert brief_row["kind"] == "brief" and brief_row["agent"] == "muse"
+    assert brief_row["stance"] == "porous"  # the default cycle's first era
+    assert brief_row["theme"] and brief_row["text"] and brief_row["carried_forward"] is True
+    (reaction_row,) = _rows(run_dir, "reactions")
+    assert reaction_row["kind"] == "reaction" and reaction_row["agent"] == "listener"
+    assert reaction_row["valence"] in ("loved", "liked", "mixed", "cold")
+    assert reaction_row["text"]
+
+    # The supersede CHAIN: base -> producer/critic record -> muse/listener record.
     record = result.release_record
     assert result.released
-    assert record["provenance"]["supersedes_release_id"] == old_record["release_id"]
-    assert record["provenance"]["staff"] == ["producer", "critic"]
+    assert record["provenance"]["staff"] == ["producer", "critic", "muse", "listener"]
     assert record["release_id"] != old_record["release_id"]
     assert result.release_path.exists()
     assert newest_release_path(run_dir) == result.release_path
-    assert len(list(run_dir.glob("release-*.json"))) == 2
+    assert len(list(run_dir.glob("release-*.json"))) == 3
+    mid_id = record["provenance"]["supersedes_release_id"]
+    mid_path = run_dir / f"release-{mid_id[:12]}.json"
+    mid_record = json.loads(mid_path.read_text())
+    assert mid_record["provenance"]["staff"] == ["producer", "critic"]
+    assert mid_record["provenance"]["supersedes_release_id"] == old_record["release_id"]
+    assert brief_row["basis_release_id"] == mid_id  # the Muse read what shipped
+    assert reaction_row["basis_release_id"] == mid_id
     # The interaction facts are untouched — staff adds, never edits.
     for key in ("influence", "convergence", "novelty", "asymmetry", "rounds", "artifacts", "set"):
         assert record[key] == old_record[key]
-    # The staff block carries the cut and the word.
+    # The staff block carries the cut, the word, the brief, and the reception.
     staff = record["staff"]
+    assert set(staff) == {"producer", "critic", "muse", "listener"}
     assert set(staff["producer"]["selected"]) == set(_PLAYERS)
     for pid in _PLAYERS:
         sel = staff["producer"]["selected"][pid]
         assert sel["take_id"] == old_record["artifacts"][sel["round"]][pid]
     assert staff["critic"]["release_title"] == "Mock Pressing"
     assert set(staff["critic"]["act_reviews"]) == set(_PLAYERS)
+    assert staff["muse"]["text"] == brief_row["text"]
+    assert staff["muse"]["carried_forward"] is True
+    assert staff["listener"]["valence"] == reaction_row["valence"]
+    assert staff["listener"]["text"] == reaction_row["text"]
     # Logged as a releases row too.
     assert [row["id"] for row in _rows(run_dir, "releases")][-1] == record["release_id"]
 
@@ -272,4 +293,77 @@ def test_run_staff_logs_the_no_release_verdict_and_writes_no_record(played_run: 
     assert verdict["failed_players"] == ["keep"]
     assert "No release from this set" in verdict["note"]
     assert not (run_dir / "reviews.jsonl").exists()  # the Critic never ran
+    assert not (run_dir / "briefs.jsonl").exists()  # nothing shipped: no brief
+    assert not (run_dir / "reactions.jsonl").exists()  # …and nothing to hear
     assert len(list(run_dir.glob("release-*.json"))) == 1  # nothing superseded
+
+
+# --- the Muse + Listener half of the frame -------------------------------------
+
+
+def test_run_muse_listener_requires_a_cut_record(played_run: Path):
+    # The outward half acts only AFTER the release exists: on a run whose
+    # newest record has no Producer cut, it refuses rather than inventing one.
+    config = _mock_config(played_run.parent)
+    with pytest.raises(ValueError, match="no Producer cut"):
+        run_muse_listener(played_run, config)
+
+
+def test_run_muse_listener_enriches_an_already_cut_record(played_run: Path):
+    # The retrospective path: Producer/Critic have already run (their rows and
+    # record exist); the Muse + Listener enrich on top without re-running them.
+    config = _mock_config(played_run.parent)
+    run_staff(played_run, config)
+    selections_before = (played_run / "selections.jsonl").read_text()
+    reviews_before = (played_run / "reviews.jsonl").read_text()
+
+    boundary = run_muse_listener(played_run, config)
+
+    # Producer/Critic rows untouched; a second brief/reaction row appended.
+    assert (played_run / "selections.jsonl").read_text() == selections_before
+    assert (played_run / "reviews.jsonl").read_text() == reviews_before
+    assert len(_rows(played_run, "briefs")) == 2
+    assert len(_rows(played_run, "reactions")) == 2
+    assert boundary.release_record["provenance"]["staff"] == [
+        "producer", "critic", "muse", "listener", "muse", "listener",
+    ]
+    assert newest_release_path(played_run) == boundary.release_path
+
+
+def test_the_reception_loop_reaches_the_next_brief(tmp_path: Path):
+    # Run A ships and the Listener reacts; at run B's boundary the Muse must
+    # READ that logged reaction — the loop closes at set boundaries, through
+    # the log, never the ear.
+    config = _mock_config(tmp_path)
+    for run_id in ("run-a", "run-b"):
+        ledger = JsonlLedger(tmp_path, run_id, context=RunContext(code_sha="test-sha"))
+        players = [Player(PERSONAS[pid], config.model, config.renderer) for pid in _PLAYERS]
+        run_set(
+            players,
+            rounds=_ROUNDS,
+            condition="contact",
+            config=config,
+            ledger=ledger,
+            embedder=MockEmbedder(),
+            seed=7,
+        )
+    provider = MockProvider(responder=_mock_players)
+    config_a = _mock_config(tmp_path, responder=_mock_players)
+    run_staff(tmp_path / "run-a", config_a)
+    (reaction_row,) = _rows(tmp_path / "run-a", "reactions")
+
+    config_b = AfarConfig(
+        model=provider,
+        renderer=MockRenderer(tmp_path / "audio"),
+        runs_root=tmp_path,
+        live=False,
+        code_sha="test-sha",
+    )
+    run_staff(tmp_path / "run-b", config_b)
+    muse_calls = [
+        "\n".join(m.content for m in call)
+        for call in provider.calls
+        if any("Write the brief" in m.content for m in call)
+    ]
+    assert muse_calls, "the Muse never composed at run B's boundary"
+    assert reaction_row["text"] in muse_calls[-1]

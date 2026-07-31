@@ -2,18 +2,22 @@
 
 Architecture rule 1 (the boundary rule): staff act on the FRAME between sets,
 never inside one. This module is that frame. `run_staff` takes a COMPLETED
-run's append-only log, shows it to the Producer (who makes the cut) and then
-the Critic (who reviews the finished work and names it, last), appends their
-decisions as new `selections` / `reviews` rows, and writes a new
-content-addressed release record that supersedes the previous one — the same
-append-only correction pattern as `scripts/reembed.py`. Nothing here ever
-edits a logged row, and nothing here ever feeds forward into a player's
-context: the loop closes at set boundaries through the log, not the ear.
+run's append-only log, walks the full staff over it in order — Producer,
+Critic, Muse, Listener — appends their decisions as new `selections` /
+`reviews` / `briefs` / `reactions` rows, and writes new content-addressed
+release records that supersede the previous one — the same append-only
+correction pattern as `scripts/reembed.py`. Nothing here ever edits a logged
+row, and nothing here ever feeds forward into a player's context: the loop
+closes at set boundaries through the log, not the ear.
 
 Order is load-bearing: Producer first (the cut), Critic second (the word on
-the finished cut, then the name). The Critic's naming call sees ONLY finished
-work — the selected takes and its own review — so a title can never become a
-brief.
+the finished cut, then the name — the naming call sees ONLY finished work, so
+a title can never become a brief), then the Muse and the Listener AFTER the
+release exists — the Muse reads what actually shipped (plus the Listener's
+logged reactions from earlier boundaries) into the next brief, and the
+Listener reacts to the finished, titled release like any fan would. The
+Listener's reaction row is what the NEXT boundary's Muse reads: the reception
+loop closes here, at the frame, never inside a set.
 """
 
 from __future__ import annotations
@@ -192,20 +196,198 @@ class StaffRecord:
     selection: Any  # afar.agents.producer.Selection
     review: Optional[Any]  # afar.agents.critic.Review
     names: Optional[Any]  # afar.agents.critic.Names
+    brief: Optional[Any]  # afar.agents.muse.Brief
+    reaction: Optional[Any]  # afar.agents.listener.Reaction
     release_record: Optional[dict[str, Any]]
     release_path: Optional[Path]
     superseded_release_id: str
 
 
-def run_staff(run_dir: Path, config: AfarConfig) -> StaffRecord:
-    """Run the staff retrospectively on one completed set. See module docstring.
+@dataclass(frozen=True)
+class BoundaryRecord:
+    """What the Muse + Listener half of the frame produced."""
 
-    Appends `selections` and `reviews` rows to the run's log and, when the
-    Producer releases, writes a NEW content-addressed release record whose
-    `provenance.supersedes_release_id` names the record it builds on — exactly
-    the reembed correction pattern. On a 'no release' verdict the verdict is
-    logged and NO new record is written: not releasing is a decision, not a
-    correction.
+    brief: Any  # afar.agents.muse.Brief
+    reaction: Any  # afar.agents.listener.Reaction
+    release_record: dict[str, Any]
+    release_path: Path
+    superseded_release_id: str
+
+
+def _append_release_record(
+    run_dir: Path,
+    ledger: JsonlLedger,
+    set_stamps: Mapping[str, Any],
+    record_body: Mapping[str, Any],
+) -> tuple[dict[str, Any], Path]:
+    """Write one content-addressed release record (row + file) and return it.
+    The single supersede path: everything staff-enriched goes through here."""
+    canonical = json.dumps(record_body, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    release_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    release_record = {"release_id": release_id, **record_body}
+    ledger.write("releases", {**set_stamps, "id": release_id, "record": release_record})
+    release_path = run_dir / f"release-{release_id[:12]}.json"
+    release_path.write_text(
+        json.dumps(release_record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    return release_record, release_path
+
+
+def load_recent_reactions(
+    runs_root: Path, *, exclude_run: str | None = None, limit: int = 6
+) -> list[dict[str, Any]]:
+    """The Listener's most recent logged reactions across ALL runs — what the
+    Muse reads at a boundary. Reading the log, not remembering, is the point:
+    the loop closes through logged rows (rule 3), and a fresh process on a
+    fresh machine hears the same fan."""
+    runs_root = Path(runs_root)
+    rows: list[dict[str, Any]] = []
+    if runs_root.exists():
+        for run_dir in sorted(p for p in runs_root.iterdir() if p.is_dir()):
+            if run_dir.name == exclude_run:
+                continue
+            path = run_dir / "reactions.jsonl"
+            if path.exists():
+                rows.extend(r for r in _read_jsonl(path) if r.get("kind") == "reaction")
+    rows.sort(key=lambda r: str(r.get("ts", "")))
+    return rows[-limit:]
+
+
+def run_muse_listener(
+    run_dir: Path,
+    config: AfarConfig,
+    *,
+    stance: str | None = None,
+    taboo: Any = None,
+    perceiver: Any = None,
+) -> BoundaryRecord:
+    """The outward-facing half of the frame: the Muse, then the Listener,
+    AFTER the release exists.
+
+    Requires the newest release record to carry the Producer's cut (a release
+    must exist before anyone can hear it or carry it forward). Appends one
+    `briefs` row and one `reactions` row, then writes a NEW content-addressed
+    record whose staff block gains `muse` and `listener` — the same supersede
+    pattern as the Producer/Critic pass, run second.
+
+    The brief written here is by construction a CARRY-FORWARD: composed after
+    the release it reads, consumed at the NEXT set's start by
+    `ProducerAgent.direct`. `stance` comes from the schedule (the conductor's
+    job); until the conductor exists it defaults to the first era's stance.
+    """
+    from afar.agents.listener import ListenerAgent
+    from afar.agents.muse import MuseAgent
+    from afar.perception.field import ProvenanceLog, build_perceiver
+    from afar.schedule import ScheduleConfig
+    from afar.state.field_taboo import FieldTabooMemory
+
+    if stance is None:
+        stance = ScheduleConfig().eras_stance_cycle[0]
+    run_dir = Path(run_dir)
+    record = json.loads(newest_release_path(run_dir).read_text(encoding="utf-8"))
+    if "producer" not in record.get("staff", {}):
+        raise ValueError(
+            f"run {run_dir.name}: newest release record carries no Producer cut — "
+            "the Muse and the Listener act only after a release exists"
+        )
+    (run_row,) = _read_jsonl(run_dir / "runs.jsonl")
+    ledger = JsonlLedger(run_dir.parent, run_dir.name, context=RunContext(code_sha=config.code_sha))
+    set_stamps = {"condition": run_row["condition"], "seed": run_row["seed"]}
+
+    # --- the Muse: the brief, carried forward ---------------------------------
+    sink = ProvenanceLog()
+    muse = MuseAgent(
+        config.model,
+        perceiver=perceiver if perceiver is not None else build_perceiver(config.live, config.model, sink),
+        taboo=taboo if taboo is not None else FieldTabooMemory(stance=stance),
+    )
+    prior_reactions = load_recent_reactions(run_dir.parent, exclude_run=run_dir.name)
+    brief = muse.compose(
+        stance=stance,
+        release_records=[record],
+        reaction_rows=prior_reactions,
+        stage_names=STAGE_NAMES,
+        carried_forward=True,
+    )
+    ledger.write(
+        "briefs",
+        {
+            **set_stamps,
+            "kind": "brief",
+            "agent": "muse",
+            "stance": brief.stance,
+            "theme": brief.theme,
+            "text": brief.body,
+            "palette_notes": list(brief.palette_notes),
+            "forbidden_moves": list(brief.forbidden_moves),
+            "sources": list(brief.sources),
+            "thin": brief.thin,
+            "carried_forward": brief.carried_forward,
+            "basis_release_id": record["release_id"],
+        },
+    )
+
+    # --- the Listener: the reception ------------------------------------------
+    listener = ListenerAgent(config.model)
+    reaction = listener.react(record, stage_names=STAGE_NAMES)
+    ledger.write(
+        "reactions",
+        {
+            **set_stamps,
+            "kind": "reaction",
+            "agent": "listener",
+            "valence": reaction.valence,
+            "text": reaction.text,
+            "disagreements_with_critic": list(reaction.disagreements_with_critic),
+            "basis_release_id": record["release_id"],
+        },
+    )
+
+    # --- the boundary-enriched, content-addressed release record --------------
+    record_body = {key: value for key, value in record.items() if key != "release_id"}
+    staff_block = dict(record_body.get("staff", {}))
+    staff_block["muse"] = {
+        "stance": brief.stance,
+        "theme": brief.theme,
+        "text": brief.body,
+        "palette_notes": list(brief.palette_notes),
+        "forbidden_moves": list(brief.forbidden_moves),
+        "sources": list(brief.sources),
+        "thin": brief.thin,
+        "carried_forward": brief.carried_forward,
+    }
+    staff_block["listener"] = {
+        "valence": reaction.valence,
+        "text": reaction.text,
+        "disagreements_with_critic": list(reaction.disagreements_with_critic),
+    }
+    record_body["staff"] = staff_block
+    prior_staff = list(record.get("provenance", {}).get("staff", []))
+    record_body["provenance"] = {
+        "staff": [*prior_staff, "muse", "listener"],
+        "supersedes_release_id": record["release_id"],
+    }
+    release_record, release_path = _append_release_record(run_dir, ledger, set_stamps, record_body)
+    return BoundaryRecord(
+        brief=brief,
+        reaction=reaction,
+        release_record=release_record,
+        release_path=release_path,
+        superseded_release_id=record["release_id"],
+    )
+
+
+def run_staff(run_dir: Path, config: AfarConfig, *, stance: str | None = None) -> StaffRecord:
+    """Run the full staff retrospectively on one completed set — Producer,
+    Critic, Muse, Listener, in that order. See module docstring.
+
+    Appends `selections` / `reviews` / `briefs` / `reactions` rows to the
+    run's log and, when the Producer releases, writes NEW content-addressed
+    release records whose `provenance.supersedes_release_id` chains name the
+    records they build on — exactly the reembed correction pattern. On a 'no
+    release' verdict the verdict is logged and NO new record is written: not
+    releasing is a decision, not a correction — and with nothing shipped, the
+    Muse and the Listener have nothing to hear (no brief, no reaction).
     """
     from afar.agents.critic import CriticAgent
     from afar.agents.producer import ProducerAgent
@@ -257,6 +439,8 @@ def run_staff(run_dir: Path, config: AfarConfig) -> StaffRecord:
             selection=selection,
             review=None,
             names=None,
+            brief=None,
+            reaction=None,
             release_record=None,
             release_path=None,
             superseded_release_id=old_record["release_id"],
@@ -320,20 +504,18 @@ def run_staff(run_dir: Path, config: AfarConfig) -> StaffRecord:
         "staff": ["producer", "critic"],
         "supersedes_release_id": old_record["release_id"],
     }
-    canonical = json.dumps(record_body, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    release_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-    release_record = {"release_id": release_id, **record_body}
-    ledger.write("releases", {**set_stamps, "id": release_id, "record": release_record})
-    release_path = run_dir / f"release-{release_id[:12]}.json"
-    release_path.write_text(
-        json.dumps(release_record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
+    _append_release_record(run_dir, ledger, set_stamps, record_body)
+
+    # --- the Muse and the Listener, after the release exists ------------------
+    boundary = run_muse_listener(run_dir, config, stance=stance)
     return StaffRecord(
         released=True,
         selection=selection,
         review=review,
         names=names,
-        release_record=release_record,
-        release_path=release_path,
+        brief=boundary.brief,
+        reaction=boundary.reaction,
+        release_record=boundary.release_record,
+        release_path=boundary.release_path,
         superseded_release_id=old_record["release_id"],
     )
