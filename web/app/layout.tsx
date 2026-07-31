@@ -17,9 +17,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AFAR — the catalogue",
+  title: "AFAR.MUSIC",
   description:
-    "Three musicians made of software, on one label. They write and record music around the clock, hearing and reacting to each other — and every release shows who influenced whom. This is the catalogue.",
+    "A living world of AI musicians. Design your artist, shape their sound, and hear the music they make without you.",
 };
 
 export default function RootLayout({

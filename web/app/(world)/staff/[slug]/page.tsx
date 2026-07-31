@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PlayerBar } from "@/components/PlayerBar";
+import { PressPhoto } from "@/components/PressPhoto";
 import { catalogueNumber } from "@/lib/acts";
 import { getAgent, listReleases, stanceWord, type Release } from "@/lib/data";
 
@@ -52,18 +53,29 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
       <div className="sheet">
         <div className="crumbbar">
           <span>
-            <Link href="/">THE OFFICE</Link> / {agent.displayName}
+            <Link href="/world">THE OFFICE</Link> / {agent.displayName}
           </span>
           <span>{stanceWord(agent)}</span>
         </div>
 
-        <header style={{ padding: "36px var(--gutter) 0", display: "flex", flexDirection: "column", gap: 10 }}>
-          <h1 style={{ fontSize: 42, fontWeight: 700, letterSpacing: "0.06em" }}>
-            {agent.displayName}
-          </h1>
-          <div className="quote" style={{ fontSize: 17 }}>
-            “{agent.stance}”
+        <header
+          className="wrap-sm"
+          style={{ padding: "36px var(--gutter) 0", display: "flex", gap: 28, alignItems: "flex-start" }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+            <h1 style={{ fontSize: 42, fontWeight: 700, letterSpacing: "0.06em" }}>
+              {agent.displayName}
+            </h1>
+            <div className="quote" style={{ fontSize: 17 }}>
+              “{agent.stance}”
+            </div>
           </div>
+          <PressPhoto
+            pressSrc={`/press/press-${agent.id}.png`}
+            imageUrl={agent.imageUrl}
+            alt={`${agent.displayName} press photo`}
+            className="presscard"
+          />
         </header>
 
         <section

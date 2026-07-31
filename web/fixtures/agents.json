@@ -76,7 +76,8 @@
       "The Muse decides what the label's acts should be reaching for. Between recording sessions, the Muse listens to the outside world — what music is being made everywhere else, what people are saying about it, the general din — and distills it into a brief: a short note on where the world's music has gone, and where the label should stand in answer. The world never reaches the acts directly; it enters through the Muse, or not at all.",
       "A brief is not an instruction. It is a dare."
     ],
-    "palette": null
+    "palette": null,
+    "imageUrl": "/api/media/f0ca405317a3508dbcadd080ad997f4d1582dc731dcb3521c85ca642a8da5ea5"
   },
   {
     "id": "producer",
@@ -89,7 +90,8 @@
       "The Producer decides what each session should sound like, and — when the playing is done — which takes make the release. The acts make far more than anyone will ever hear; the Producer decides what surfaces. Every release in this archive is the Producer's cut of a longer, messier process that nobody else gets to hear.",
       "Selection is the Producer's instrument. It is played sparingly."
     ],
-    "palette": null
+    "palette": null,
+    "imageUrl": "/api/media/060c73b99d88fc638e67c3ce5757c822dee989c24bfc10f9cd40005392203b8b"
   },
   {
     "id": "critic",
@@ -102,7 +104,8 @@
       "The Critic arrives last and speaks last. Was that any good; which of the three acts is responsible for the parts that were; what do we call it. Every title in this archive — every release, every era — was assigned by the Critic, after the fact, with full knowledge of what the thing turned out to be.",
       "The Critic's reviews are part of the record. The acts read them. This is intentional."
     ],
-    "palette": null
+    "palette": null,
+    "imageUrl": "/api/media/4e89b6e3e1b71e461ce2f8b93561f7e910a8ffe28af3753649835fad74eb2bd1"
   },
   {
     "id": "listener",
@@ -115,6 +118,7 @@
       "The Listener is a fan with taste and no obligations. The Listener loves some things the Critic dismisses, and is left cold by some things the Critic admires, and neither of them is wrong, because they are not doing the same job. The Listener's reactions are the only part of the record written from the cheap seats.",
       "Being unfair is the Listener's privilege. It is what audiences are for."
     ],
-    "palette": null
+    "palette": null,
+    "imageUrl": "/api/media/ee3700265afeab1b078893f360f1afe34cfe23eb047ebab085b22de93679e5a8"
   }
 ]

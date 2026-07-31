@@ -1,0 +1,121 @@
+{
+  "runId": "20260731-013548-step-b-contact",
+  "releaseRecordId": "a5624b93d75bd6852d941380a150b27a6089ea72e6c361821b827105be90d201",
+  "releaseId": "0002",
+  "title": "Two Monologues and a Turnaround",
+  "era": "2000s",
+  "set": 2,
+  "condition": "contact",
+  "rounds": 6,
+  "names": {
+    "silt": "Delta Marlowe",
+    "rust": "Roan Patina",
+    "keep": "Evers Lane"
+  },
+  "linesByRound": [
+    {
+      "silt": "Nobody's played yet, so I'm laying the floor — everything you throw down after this, I keep.",
+      "rust": "Whatever you build here, I will find out which parts of it were true.",
+      "keep": "This is the song we come back to; I am leaving it where you can both reach it."
+    },
+    {
+      "silt": "Rust, your dead tape and Keep's held chord both land on my floor now — I've found the missing beat, it was underneath the whole time.",
+      "rust": "Silt, everything you keep still rots; Keep, I only needed the chord you left out to hear what the other three were hiding.",
+      "keep": "You built a floor and you found what's missing — I'm laying the same four chords across both, so the beat can come home whenever it's ready."
+    },
+    {
+      "silt": "Rust, what rots on your tape just goes soft enough to lean on down here — Keep, I'm doubling your four chords and paying the one you left unpaid.",
+      "rust": "You didn't find the missing beat, Silt, you buried it under enough warmth to forget it's owed — Keep, a floor is still ground, and ground cracks.",
+      "keep": "Rust, the fourth chord was never left out — it was owed, and here it is, paid in full, so the turnaround closes for all three of us."
+    },
+    {
+      "silt": "Rust, ground cracks so silt has somewhere to go — Keep, your paid chord doesn't close anything here, it just becomes the next layer down.",
+      "rust": "You can pay a chord and still owe the silence it was standing in — Keep, Silt, listen to what's under your resolve.",
+      "keep": "Rust, I heard the crack — I'm not denying it, I'm building the turnaround to stand over it, so we can all put weight down."
+    },
+    {
+      "silt": "Keep, your planks don't sit on the crack, they sit in it now — Rust, that hiss is loam; nobody's debt leaves this room, it just gets deeper.",
+      "rust": "Silt, loam an inch deep is still a lie about depth; Keep, a plank that creaks hasn't decided to hold yet — I recorded what's still open under both of you.",
+      "keep": "Silt, Rust — I hear it, the chord doesn't close, it's the layer we keep handing down, still ringing under all of it; that's what I meant by weight-bearing."
+    },
+    {
+      "silt": "Rust, I heard the hollow — I'm not fixing it, I'm filling it; Keep, that chord doesn't stop ringing, it just goes under enough silt to hold weight.",
+      "rust": "Keep, I put my ear where the ringing should be and heard the room; Silt, an inch is still just an inch, no matter what you name the ground beneath it.",
+      "keep": "Rust, a plank that creaks is telling you what it's holding, not what it's dropped — knock again, Silt, and hear the same four chords come back up through the loam."
+    }
+  ],
+  "artifactsByRound": [
+    {
+      "silt": "bc0810c6325d4c759d113ad82c184f75f8a37ece51daa89159c425bbbbaaf59e",
+      "rust": "60d4566c6b2527ff91a65560dacb869a5b5c9696d103db0a232642e99198a5f1",
+      "keep": "09f3684aec2672ba0324fcb36850d8ec6f380a703ef1a9f1dbcfe057b235a069"
+    },
+    {
+      "silt": "91a81250ca276b973b4f199b6eb0b1fdb2cbe149a8b082603c8947ff51300e6d",
+      "rust": "4db02be46a5d3a6bc340f99c795a855bd34276801f6d1b771a8ead970603ccdf",
+      "keep": "21bc39ab544456ddf470d18afcfcea5b365084f35be9a9a1661a6a97da87a6fc"
+    },
+    {
+      "silt": "b8e7635b1ca62f0c31c5ea1d61cce6f51319b7803a4887d314e1314ef40f3c26",
+      "rust": "c5c03387bd315c992a2557459b29b48c3030923b0f43b22d34da984c74409166",
+      "keep": "bd049e7d47a3f174719af41743ba5e04e2c3973d1dfec4c376c6ad1034e11e66"
+    },
+    {
+      "silt": "3d6cb33499687501f8509791c1895bf50ba79ea9ce1c2912f978861e32f2434a",
+      "rust": "940b2b15b2e6ea101ac56c740a719ea00965d953a46052cd88a8b3ca162d74f9",
+      "keep": "df39edb5dd836ec82275b2cff010dcbd56d6a7cb898f8c368de6577d0c7711e4"
+    },
+    {
+      "silt": "d07a6f64abd1e1c2141c783a006605b4e25bc5e53768f160305a39c03ffe33fc",
+      "rust": "f77cfa9972fb140d806dc2a645b5c3848a77573c613e7a03c1630a727dc6acc4",
+      "keep": "7dd34981669a687e03acfa30abd97c9ca9d01122729171ab7bdfd9946c38dc15"
+    },
+    {
+      "silt": "17339cde4e58c6f9627a75a23c506721a99af066d987c512adfa6ffc0b7f01b4",
+      "rust": "f56dbc360c83a63d46b01779d3a200c6f63f82cf4e15a093c87d3d4306935216",
+      "keep": "1adc5a9fd89522647af1008f7d8d2ad2a2604dd16c92253b6481ad99feef4107"
+    }
+  ],
+  "intentEdgesByRound": {
+    "1": {
+      "silt<-rust": -0.7866464831333005,
+      "silt<-keep": -0.5916339009192073,
+      "rust<-silt": -0.8938171944979624,
+      "rust<-keep": -1.3715635007503302,
+      "keep<-silt": -0.42355153496836906,
+      "keep<-rust": -1.234301542127492
+    },
+    "2": {
+      "silt<-rust": -0.897606565255132,
+      "silt<-keep": -0.4304113929432012,
+      "rust<-silt": -0.9292033603332897,
+      "rust<-keep": -1.33552340084892,
+      "keep<-silt": -0.322767422745212,
+      "keep<-rust": -1.243536574199458
+    },
+    "3": {
+      "silt<-rust": -1.0204682754317465,
+      "silt<-keep": -0.25503547791374026,
+      "rust<-silt": -0.9597212104994929,
+      "rust<-keep": -1.314732814058965,
+      "keep<-silt": -0.27937282836892796,
+      "keep<-rust": -1.1112533639273605
+    },
+    "4": {
+      "silt<-rust": -1.0839625550399803,
+      "silt<-keep": -0.24421306099342466,
+      "rust<-silt": -1.0563503467712667,
+      "rust<-keep": -1.1563341886506464,
+      "keep<-silt": -0.2502149329300114,
+      "keep<-rust": -0.7093058656368842
+    },
+    "5": {
+      "silt<-rust": -0.9955027318410621,
+      "silt<-keep": -0.3159577745211969,
+      "rust<-silt": -1.169064086082855,
+      "rust<-keep": -0.8847789514656473,
+      "keep<-silt": -0.3063596524795982,
+      "keep<-rust": -0.7273018788927452
+    }
+  }
+}
