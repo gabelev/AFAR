@@ -27,7 +27,7 @@ export const AgentSchema = z
     stance: z.string().min(1),
     description: z.array(z.string().min(1)),
     palette: SonicPaletteSchema.nullable(),
-    /** Portrait slot — AI-image portraits arrive later; pages fall back to the Radar. */
+    /** Portrait slot — the act's press photo in Neon media; pages fall back to public/press/. */
     imageUrl: z.string().min(1).nullable().optional(),
   })
   .transform((a) => ({

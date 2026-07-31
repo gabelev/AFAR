@@ -60,11 +60,16 @@ function readJsonl(file) {
     .map((l) => JSON.parse(l));
 }
 
-/** Newest logged intent + artifact per player across all runs (run dir names sort by timestamp). */
+/**
+ * Newest logged intent + artifact per player across the STEP-A runs (run dir
+ * names sort by timestamp). Release 0001 is the Step A split; later set runs
+ * (step-b-*) are published by publish_set.mjs and must never repoint 0001's
+ * takes — hence the step-a filter.
+ */
 function latestTakes() {
   if (!existsSync(RUNS_ROOT)) throw new Error(`runs/ not found at ${RUNS_ROOT}`);
   const takes = new Map(); // player -> { runId, intent row, artifact row }
-  for (const runId of readdirSync(RUNS_ROOT).sort()) {
+  for (const runId of readdirSync(RUNS_ROOT).filter((d) => d.includes("step-a")).sort()) {
     const intentsFile = path.join(RUNS_ROOT, runId, "intents.jsonl");
     const artifactsFile = path.join(RUNS_ROOT, runId, "artifacts.jsonl");
     if (!existsSync(intentsFile) || !existsSync(artifactsFile)) continue;

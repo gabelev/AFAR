@@ -1,11 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArtImage } from "@/components/ArtImage";
-import { InfluenceGraph } from "@/components/InfluenceGraph";
-import { PlayerProvider, TrackPlayer } from "@/components/TrackPlayer";
+import { GraphCover } from "@/components/GraphCover";
+import { PlayerProvider, PlayButton } from "@/components/TrackPlayer";
+import { ACT_DESIGN, catalogueNumber, interactionRows, isActId, sideLabel } from "@/lib/acts";
 import { conditionGloss, getRelease, listAgents, tracksForRelease } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
+
+/** The office's voice on this release — kept content, re-registered. */
+const OFFICE_BLOCKS = [
+  { label: "FROM THE MUSE — THE BRIEF", staffId: "muse", pick: "brief" },
+  { label: "FROM THE PRODUCER — THE SELECTION", staffId: "producer", pick: "selection" },
+  { label: "FROM THE CRITIC — THE REVIEW", staffId: "critic", pick: "review" },
+  { label: "FROM THE LISTENER — THE REACTION", staffId: "listener", pick: "reaction" },
+] as const;
 
 export default async function ReleasePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,124 +23,144 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
   const [takes, agents] = await Promise.all([tracksForRelease(release), listAgents()]);
   const displayName = (agentId: string) =>
     agents.find((a) => a.id === agentId)?.displayName ?? agentId;
+  const initials = (agentId: string) =>
+    isActId(agentId)
+      ? ACT_DESIGN[agentId].initials
+      : displayName(agentId)
+          .split(/\s+/)
+          .map((w) => w[0])
+          .join("")
+          .toUpperCase();
+  const names = Object.fromEntries(agents.map((a) => [a.id, a.displayName]));
+  const rows = interactionRows(release);
 
   return (
-    <div className="page fade-up">
-      <Link href="/" className="btn btn-ghost">
-        ← Back to the roster
-      </Link>
+    <div className="sheet">
+      <div className="crumbbar">
+        <span>
+          <Link href="/">CATALOGUE</Link> / {catalogueNumber(release.id)}
+        </span>
+        <span>SET {release.set}</span>
+      </div>
 
-      <section style={{ marginTop: "var(--space-4)" }}>
-        {release.coverUrl && (
-          // Cover slot — renders nothing if the media URL 404s (fixture mode).
-          <ArtImage
-            src={release.coverUrl}
-            alt={`Cover of ${release.title}`}
-            className="plate"
-            style={{ maxWidth: 320, marginBottom: "var(--space-4)" }}
-          />
-        )}
-        <p className="kicker">Release {release.id} · one track from each act</p>
-        <h1 style={{ fontWeight: 400, fontSize: 56, margin: "0 0 var(--space-2)" }}>
+      <div style={{ display: "flex", justifyContent: "center", padding: "36px 0 0" }}>
+        <GraphCover
+          releaseId={release.id}
+          title={release.title}
+          edges={release.influence}
+          names={names}
+        />
+      </div>
+
+      <section
+        style={{ padding: "28px var(--gutter) 0", display: "flex", flexDirection: "column", gap: 6 }}
+      >
+        <h1 style={{ fontSize: 30, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
           {release.title}
         </h1>
-        <div className="flex flex-wrap items-center" style={{ gap: 6, marginBottom: "var(--space-4)" }}>
-          <span className="tag tag-accent">{release.era}</span>
-          <span className="tag tag-neutral">set {release.set}</span>
-          <span className="tag tag-neutral" title={conditionGloss(release.condition)}>
-            {release.condition}
-          </span>
-          <span className="tag tag-neutral">{release.date}</span>
+        <div className="mono" style={{ fontSize: 11, color: "var(--sec)", textTransform: "uppercase" }}>
+          A SPLIT ACROSS THE ROSTER · ERA {release.era} · SET {release.set} ·{" "}
+          <span title={conditionGloss(release.condition)}>{release.condition}</span>
         </div>
-
-        <blockquote className="rationale" style={{ marginBottom: "var(--space-4)" }}>
-          “{release.brief}”<footer>The Muse — the brief that opened the session, the acts&apos; only word from the outside world</footer>
-        </blockquote>
       </section>
 
-      <section style={{ marginTop: "var(--space-6)" }}>
-        <p className="kicker">The takes</p>
-        <p className="text-muted" style={{ marginBottom: "var(--space-3)", maxWidth: 620 }}>
-          {release.selection}
-        </p>
-        <PlayerProvider>
-          <div className="flex flex-col" style={{ gap: "var(--space-2)", maxWidth: 720 }}>
-            {takes.map((take) => (
-              <TrackPlayer
-                key={take.id}
-                title={take.title}
-                audioUrl={take.audioUrl}
-                tag={displayName(take.agentId)}
-                subtitle={
-                  take.durationSec
-                    ? `${Math.floor(take.durationSec / 60)}:${String(take.durationSec % 60).padStart(2, "0")}`
-                    : undefined
-                }
-              />
-            ))}
-          </div>
-        </PlayerProvider>
-      </section>
-
-      <hr className="hr" style={{ marginTop: "var(--space-8)" }} />
-
-      <section>
-        <p className="kicker">The interaction record</p>
-        <p className="text-muted" style={{ maxWidth: 620, marginBottom: "var(--space-4)" }}>
+      <section style={{ padding: "22px var(--gutter)", display: "flex", flexDirection: "column", fontSize: 13 }}>
+        <div className="label" style={{ paddingBottom: 6 }}>
+          INTERACTION RECORD
+        </div>
+        <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 10 }}>
           Who pulled whom: after each session, we measure how much each act moved toward the
-          others&apos; music and how much it held its own course. The heavier the arrow, the
-          stronger the pull — measured from the recordings themselves, not from what the acts
-          claim.
+          others&apos; music. The notation is measured from the recordings themselves; the words are
+          what the acts claim.
         </p>
-        <div
-          className="grid grid-cols-1 md:grid-cols-[minmax(280px,440px)_1fr]"
-          style={{ gap: "var(--space-8)", alignItems: "start" }}
-        >
-          <InfluenceGraph influence={release.influence} />
-          <div className="flex flex-col" style={{ gap: "var(--space-4)" }}>
-            <p className="kicker" style={{ margin: 0 }}>
-              In their own words
-            </p>
-            {Object.entries(release.rationales).map(([agentId, quote]) => (
-              <blockquote key={agentId} className="rationale" data-act={agentId}>
-                “{quote}”
-                <footer>
-                  <Link href={`/agent/${agentId}`} style={{ color: "inherit" }}>
-                    {displayName(agentId)}
-                  </Link>
-                </footer>
-              </blockquote>
-            ))}
+        {rows.map((row, i) => (
+          <div
+            key={`${row.from}-${row.to}`}
+            className={`rule-row${i === rows.length - 1 ? " rule-row-last" : ""}`}
+            style={{ display: "flex", gap: 12, alignItems: "baseline", padding: "9px 0" }}
+          >
+            <span
+              className="mono"
+              style={{
+                fontSize: 11,
+                width: 64,
+                flex: "none",
+                color: isActId(row.from) ? ACT_DESIGN[row.from].inkOnPaper : "var(--sec)",
+              }}
+            >
+              {initials(row.from)} {row.from === row.to ? "⟲" : "→"} {initials(row.to)}
+            </span>
+            <span className="quote">“{row.quote}”</span>
           </div>
-        </div>
+        ))}
       </section>
 
-      <section style={{ marginTop: "var(--space-8)" }}>
-        <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: "var(--space-4)" }}>
-          <div className="card">
-            <span className="card-kicker">The Critic — on the record</span>
-            <p className="card-body" style={{ fontSize: 14 }}>
-              {release.review}
-            </p>
-            <div className="card-meta">
-              <Link href="/agent/critic" style={{ color: "inherit" }}>
-                More from the Critic →
-              </Link>
-            </div>
+      <PlayerProvider>
+        <section style={{ padding: "0 var(--gutter) 22px", display: "flex", flexDirection: "column", fontSize: 13 }}>
+          <div className="label" style={{ paddingBottom: 10 }}>
+            SIDES
           </div>
-          <div className="card">
-            <span className="card-kicker">The Listener — from the cheap seats</span>
-            <p className="card-body" style={{ fontSize: 14 }}>
-              {release.reaction}
-            </p>
-            <div className="card-meta">
-              <Link href="/agent/listener" style={{ color: "inherit" }}>
-                More from the Listener →
-              </Link>
+          {takes.map((take, i) => (
+            <div
+              key={take.id}
+              className={`rule-row${i === takes.length - 1 ? " rule-row-last" : ""}`}
+              style={{ display: "flex", gap: 12, alignItems: "center", padding: "9px 0" }}
+            >
+              <span className="mono" style={{ fontSize: 11, width: 34, flex: "none" }}>
+                {sideLabel(i, takes.length)}
+              </span>
+              <span style={{ fontWeight: 600, width: 160 }}>
+                {isActId(take.agentId) ? (
+                  <Link href={`/act/${take.agentId}`}>{displayName(take.agentId)}</Link>
+                ) : (
+                  displayName(take.agentId)
+                )}
+              </span>
+              <PlayButton
+                audioUrl={take.audioUrl}
+                label={`${release.title} — ${displayName(take.agentId)}`}
+              />
+              <span className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
+                {take.audioUrl
+                  ? take.durationSec
+                    ? `${Math.floor(take.durationSec / 60)}:${String(take.durationSec % 60).padStart(2, "0")}`
+                    : ""
+                  : "audio not yet archived"}
+              </span>
             </div>
+          ))}
+        </section>
+      </PlayerProvider>
+
+      {OFFICE_BLOCKS.map((block) => (
+        <section
+          key={block.staffId}
+          style={{ margin: "0 var(--gutter)", borderTop: "1px solid var(--hairline-strong)", padding: "20px 0" }}
+        >
+          <div className="label">{block.label}</div>
+          <p className="quote" style={{ fontSize: 14, marginTop: 10, maxWidth: 680 }}>
+            “{release[block.pick]}”
+          </p>
+          <div style={{ fontSize: 12, marginTop: 8 }}>
+            <Link href={`/staff/${block.staffId}`} className="link">
+              more from {displayName(block.staffId).toLowerCase()} →
+            </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      ))}
+
+      <div
+        className="mono"
+        style={{
+          marginTop: "auto",
+          padding: "18px var(--gutter) 28px",
+          fontSize: 10,
+          letterSpacing: "0.14em",
+          color: "var(--sec)",
+        }}
+      >
+        THE GRAPH IS THE COVER. NOTHING IS ILLUSTRATED TWICE.
+      </div>
     </div>
   );
 }

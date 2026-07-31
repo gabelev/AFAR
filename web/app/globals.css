@@ -1,96 +1,192 @@
 @import "tailwindcss";
-@import "./design-system.css";
 
-/* Fonts load via next/font in layout.tsx; map them onto the design system's
-   token names so every design-system rule picks them up. */
+/* ═══════════════════════════════════════════════════════════════════════════
+   AFAR catalogue — paper/ink design system.
+   Source of truth: design/handoff/ (README.md + AFAR Interface.dc.html).
+   Every value below is from the handoff; it replaces the Cormorant/Lora
+   serif system entirely. Record-sleeve register: 1px hairline rules,
+   48px gutters, NO border radius, NO shadows.
+   Fonts (Archivo / IBM Plex Mono) load via next/font in app/layout.tsx.
+   ═══════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --font-heading: var(--font-cormorant), Georgia, serif;
-  --font-body: var(--font-lora), Georgia, serif;
+  /* UI palette */
+  --paper: #ddd6c4;
+  --paper-2: #d6cfbc; /* cover plate ground / player-bar text when live */
+  --ink: #1c1a15;
+  --bar: #14130f; /* player bar */
+  --band: #16140f; /* silhouette-drift strip / world ink */
+  --lamp: #e0b25a;
+  --sec: #5e5a4f;
+  --sec-deep: #4a463c;
+  --sec-faint: #a9a290;
+  --hairline: rgba(28, 26, 21, 0.2);
+  --hairline-strong: rgba(28, 26, 21, 0.25);
+  --hairline-frame: rgba(28, 26, 21, 0.3);
+  --hairline-plate: rgba(28, 26, 21, 0.35);
+
+  /* act accents — chips, nodes, sprites; identical chroma/lightness, hue varies */
+  --oxide: #a34c2e; /* Evers Lane (keep) */
+  --oxide-bright: #c0663f;
+  --verdigris: #71917d; /* Roan Patina (rust) */
+  --ochre: #bd9040; /* Delta Marlowe (silt) */
+
+  --gutter: 48px;
+
+  --font-display: var(--font-archivo), "Archivo", sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", monospace;
 }
 
-.kicker {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-accent);
+/* Per-act scope: --act-accent is the chip/node colour; --act-ink is the
+   darkened variant the design uses for stance text ON PAPER (the handoff's
+   roster/interaction-record rows: EROSION #4b6355, ACCUMULATION #7c5e2a;
+   CONTINUITY's oxide already reads on paper). Keyed by stable mineral id. */
+[data-act="keep"] { --act-accent: var(--oxide); --act-ink: #a34c2e; }
+[data-act="rust"] { --act-accent: var(--verdigris); --act-ink: #4b6355; }
+[data-act="silt"] { --act-accent: var(--ochre); --act-ink: #7c5e2a; }
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: 0; /* the system has no radius anywhere */
 }
 
-.page {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-8);
-  width: 100%;
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-.fade-up {
-  animation: fadeUp 0.5s ease both;
-}
-
-/* Per-act accent — scoping the design system's accent to an act's card or
-   page tints its radar, kicker, and links in one move. Earthy tones drawn
-   from each act's stance: silt keeps the house ochre, rust oxidizes, keep
-   settles into lichen. The mineral slug is the data-act key (stable id). */
-[data-act="silt"] { --color-accent: #a06f24; }
-[data-act="rust"] { --color-accent: #94512e; }
-[data-act="keep"] { --color-accent: #5f7261; }
-
-/* An act's portrait slot. AI-image portraits arrive later; until then the
-   Radar silhouette IS the portrait — framed like a specimen plate. */
-.act-portrait {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1 / 1;
-  border: 1px solid var(--color-divider);
-  border-radius: var(--radius-sm);
-  background:
-    radial-gradient(
-      circle at 50% 44%,
-      color-mix(in srgb, var(--color-accent) 10%, transparent),
-      transparent 72%
-    ),
-    var(--color-surface);
-}
-.act-portrait img {
-  width: 100%;
+html,
+body {
   height: 100%;
-  object-fit: cover;
-  border-radius: inherit;
-}
-.act-portrait svg {
-  max-width: 100%;
-  height: auto;
 }
 
-.act-card {
-  transition: box-shadow 0.2s ease;
-}
-.act-card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-/* Rationale quotes — an act's voice in the interaction record. */
-.rationale {
+body {
   margin: 0;
-  padding-left: var(--space-3);
-  border-left: 2px solid var(--color-accent);
-  font-style: italic;
-  max-width: 620px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
-.rationale footer {
-  margin-top: var(--space-1);
-  font-style: normal;
+
+h1, h2, h3, h4, p { margin: 0; }
+img { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+
+a { color: inherit; text-decoration: none; }
+.link { color: var(--oxide); }
+.link:hover { color: var(--oxide-bright); text-decoration: underline; }
+
+::selection { background: rgba(163, 76, 46, 0.25); }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* — type utilities — */
+.mono { font-family: var(--font-mono); }
+/* section label: the handoff's mono 11px letterspaced kicker */
+.label {
+  font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.26em;
+  color: var(--sec);
   text-transform: uppercase;
-  color: var(--color-neutral-600);
+}
+.quote { font-style: italic; color: var(--sec-deep); text-wrap: pretty; }
+
+/* — page skeleton: an 864px reference sheet, player bar full-bleed — */
+.sheet {
+  width: 100%;
+  max-width: 864px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* breadcrumb bar (release/act/staff pages) */
+.crumbbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px var(--gutter);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--sec);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--hairline-strong);
+}
+.crumbbar a:hover { color: var(--ink); }
+
+/* hairline-ruled rows */
+.rule-row { border-top: 1px solid var(--hairline); }
+.rule-row-last { border-bottom: 1px solid var(--hairline); }
+
+/* roster press-photo thumbnail (44×52, cropped to the face band) */
+.pressthumb {
+  width: 44px;
+  height: 52px;
+  flex: none;
+  object-fit: cover;
+  object-position: 50% 18%;
+  image-rendering: pixelated;
+  outline: 1px solid var(--hairline-frame);
+}
+
+/* act-page press photo */
+.presscard {
+  width: 118px;
+  height: 127px;
+  flex: none;
+  object-fit: cover;
+  object-position: top;
+  image-rendering: pixelated;
+  outline: 1px solid var(--hairline-frame);
+}
+
+/* — player bar: 72px, #14130f, mono 12 — */
+.playerbar-outer {
+  margin-top: auto;
+  background: var(--bar);
+}
+.playerbar {
+  max-width: 864px;
+  margin: 0 auto;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 var(--gutter);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--sec-faint);
+}
+.playerbar .live { color: var(--paper-2); }
+.playerbar .live .glyph { color: var(--lamp); }
+
+/* — take play button (mono register, hairline box) — */
+.playbtn {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: transparent;
+  border: 1px solid var(--hairline-frame);
+  color: var(--ink);
+  cursor: pointer;
+}
+.playbtn:hover:not(:disabled) { background: rgba(28, 26, 21, 0.08); }
+.playbtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* — small screens: the sheet is a fixed-register design; let rows wrap
+   rather than overflow — */
+@media (max-width: 720px) {
+  :root { --gutter: 24px; }
+  .wrap-sm { flex-wrap: wrap; }
 }
