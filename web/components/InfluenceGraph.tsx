@@ -48,7 +48,7 @@ export function InfluenceGraph({ influence }: { influence: InfluenceEdge[] }) {
     <svg
       viewBox="0 0 420 370"
       role="img"
-      aria-label="Influence graph: directed edges between Delta Marlowe, Roan Patina, and Evers Lane weighted by influence"
+      aria-label="Who pulled whom: arrows between Delta Marlowe, Roan Patina, and Evers Lane — the heavier the arrow, the stronger the pull"
       style={{ width: "100%", maxWidth: 440, height: "auto" }}
     >
       <defs>

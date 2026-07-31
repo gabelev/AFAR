@@ -44,7 +44,7 @@ export function Radar({
       width={size}
       height={size}
       role="img"
-      aria-label="Sonic palette radar"
+      aria-label="The shape of this act's sound — a chart with one dial for each pair of opposites, such as loud versus quiet"
     >
       {[0.25, 0.5, 0.75, 1].map((ring) => (
         <polygon

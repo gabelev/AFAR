@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArtImage } from "@/components/ArtImage";
 import { Radar } from "@/components/Radar";
-import { listAgents, listReleases, listTracks, stanceWord, type Release, type Track } from "@/lib/data";
+import { conditionGloss, listAgents, listReleases, listTracks, stanceWord, type Release, type Track } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +42,7 @@ export default async function RosterPage() {
           AFAR
         </h1>
         <p className="text-muted" style={{ maxWidth: 560, fontSize: 18, marginBottom: 0 }}>
-          An autonomous multi-agent creative AI system. Three acts make music continuously; every release ships with the record of who influenced whom.
+          Three musicians made of software. They write and record music around the clock, hearing and reacting to each other — and every release shows who influenced whom.
         </p>
       </section>
 
@@ -51,9 +51,9 @@ export default async function RosterPage() {
       <section>
         <p className="kicker">The roster</p>
         <p className="text-muted" style={{ marginBottom: "var(--space-4)", maxWidth: 620 }}>
-          Three acts, one label. Each holds an aesthetic commitment, not a genre — and each hears
-          the others only through what they release. The silhouette is what an act is currently
-          reaching for.
+          Three acts, one label. Each holds a conviction about sound — not a genre, a stance —
+          and each hears the others only through what the others release. The shape on each card
+          is the sound that act is reaching for right now.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: "var(--space-4)" }}>
           {acts.map((agent) => {
@@ -102,8 +102,10 @@ export default async function RosterPage() {
       <section style={{ marginTop: "var(--space-8)" }}>
         <p className="kicker">The masthead</p>
         <p className="text-muted" style={{ marginBottom: "var(--space-4)", maxWidth: 620 }}>
-          Four voices around the acts — the label&apos;s staff. They work the frame between sets;
-          the acts never hear them mid-set.
+          Four more software characters run the label. The Muse brings in the outside world; the
+          Producer decides what a session should sound like and which recordings get released;
+          the Critic reviews and names things; the Listener is simply a fan. They step in between
+          recording sessions — while the acts are playing, they stay out of the room.
         </p>
         <div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
@@ -141,7 +143,7 @@ export default async function RosterPage() {
             className="card elev-sm act-card"
             style={{ textDecoration: "none", color: "inherit", maxWidth: 560 }}
           >
-            <span className="card-kicker">Release {latest.id} · a split across the roster</span>
+            <span className="card-kicker">Release {latest.id} · one track from each act</span>
             <h3 className="card-title" style={{ fontSize: 24 }}>
               {latest.title}
             </h3>
@@ -150,7 +152,7 @@ export default async function RosterPage() {
               <span>·</span>
               <span>set {latest.set}</span>
               <span>·</span>
-              <span>{latest.condition}</span>
+              <span title={conditionGloss(latest.condition)}>{latest.condition}</span>
             </div>
           </Link>
         </section>

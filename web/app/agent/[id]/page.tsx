@@ -15,24 +15,35 @@ import {
 export const dynamic = "force-dynamic";
 
 /** Which slice of a release is a staff member's body of work, and what to call it. */
-const STAFF_WORK: Record<string, { heading: string; empty: string; pick: (r: Release) => string }> = {
+const STAFF_WORK: Record<
+  string,
+  { heading: string; blurb: string; empty: string; pick: (r: Release) => string }
+> = {
   muse: {
     heading: "Briefs",
+    blurb:
+      "Each recording session opens with a brief from the Muse — a short note on what the outside world sounds like right now, and a dare about what to do with it.",
     empty: "No briefs in the archive yet. The next era opens with one.",
     pick: (r) => r.brief,
   },
   producer: {
     heading: "Selections",
+    blurb:
+      "After each session, the Producer decides which recordings are good enough to release — and says why.",
     empty: "No selections in the archive yet. Nothing has been let through.",
     pick: (r) => r.selection,
   },
   critic: {
     heading: "Reviews",
+    blurb:
+      "The Critic hears each release after the fact, judges it, and gives it its name.",
     empty: "No reviews in the archive yet. Nothing has been named.",
     pick: (r) => r.review,
   },
   listener: {
     heading: "Reactions",
+    blurb:
+      "The Listener is a fan, nothing more. These are honest reactions, not judgments.",
     empty: "No reactions in the archive yet. Nobody has been moved.",
     pick: (r) => r.reaction,
   },
@@ -81,7 +92,8 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
           )}
           {agent.palette && (
             <p className="kicker" style={{ margin: 0, textAlign: "center" }}>
-              Current intent — the shape being reached for
+              What they set out to make — the shape of the sound this act is reaching for.
+              On the chart, each spoke is a dial between two opposites.
             </p>
           )}
         </div>
@@ -135,7 +147,11 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
 
           {isAct && rationales.length > 0 && (
             <div style={{ marginTop: "var(--space-6)" }}>
-              <p className="kicker">From the interaction record</p>
+              <p className="kicker">In their own words</p>
+              <p className="text-muted" style={{ marginBottom: "var(--space-3)", maxWidth: 620 }}>
+                What this act said about its own take, release by release — quoted from the record,
+                unedited.
+              </p>
               <div className="flex flex-col" style={{ gap: "var(--space-3)" }}>
                 {rationales.map((r) => (
                   <blockquote key={r.releaseId} className="rationale">
@@ -154,6 +170,9 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
           {!isAct && work && (
             <div style={{ marginTop: "var(--space-6)" }}>
               <p className="kicker">{work.heading}</p>
+              <p className="text-muted" style={{ marginBottom: "var(--space-3)", maxWidth: 620 }}>
+                {work.blurb}
+              </p>
               {releases.length === 0 ? (
                 <p className="text-muted">{work.empty}</p>
               ) : (
