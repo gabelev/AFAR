@@ -1,27 +1,34 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArtImage } from "@/components/ArtImage";
+import { AlbumGrid } from "@/components/AlbumGrid";
 import { PlayerBar } from "@/components/PlayerBar";
 import { PressPhoto } from "@/components/PressPhoto";
 import { PlayerProvider, PlayButton } from "@/components/TrackPlayer";
 import { Waveform } from "@/components/Waveform";
+import { toAlbumCard } from "@/lib/album-cards";
 import { ACT_DESIGN, catalogueNumber, isActId } from "@/lib/acts";
 import {
+  albumSlug,
   criticReviewsForPlayer,
   getAgent,
   listAgents,
+  listAlbums,
   listReleases,
+  resolveDiscography,
   singleForAct,
   stanceWord,
-  tapeNumber,
-  tapeStatusLine,
-  tapesForAgent,
-  tracksForAgent,
   type Release,
   type Track,
 } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * The artist page, streaming anatomy: portrait + name + one plain line,
+ * the featured single, the DISCOGRAPHY (every album they appear on, type-
+ * filterable), ABOUT — then the AFAR depth below the fold: the Critic's
+ * verdicts, the influence ledger, the drift strip.
+ */
 
 /** "0:30" from seconds; blank when the archive has no audio yet. */
 function duration(track: Track): string {
@@ -35,53 +42,58 @@ function takeTitle(track: Track, release: Release | undefined): string {
   return track.title;
 }
 
-/** "← Delta Marlowe · set 2 · AFAR-0002" — one influence line, design register. */
+/** "← Delta Marlowe · AFAR-0002" — one influence line, design register. */
 function edgeLine(
   arrow: "←" | "→",
   otherId: string,
   release: Release,
   displayName: (id: string) => string,
 ) {
-  return `${arrow} ${displayName(otherId)} · set ${release.set} · ${catalogueNumber(release.id)}`;
+  return `${arrow} ${displayName(otherId)} · ${catalogueNumber(release.id)}`;
 }
 
-/** "RES-03" -> "RES 03"; the street address chip for imported residents. */
-function buildingLabel(building: string): string {
-  return building.replace(/-/g, " ").toUpperCase();
-}
-
-export default async function ActPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ArtistPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const agent = await getAgent(slug);
   if (!agent || agent.kind !== "player") notFound();
-  // House acts carry full design metadata; imported acts derive their line
-  // from their own data (descriptor, genreLine, resident block).
   const design = isActId(agent.id) ? ACT_DESIGN[agent.id] : null;
   const eraName = agent.genreLine?.split("·")[1]?.trim() ?? "2020s";
-  const locationChip = design
-    ? `STUDIO ${design.studio}`
-    : agent.resident?.building
-      ? buildingLabel(agent.resident.building)
-      : "IN TOWN";
 
-  const [takes, releases, allAgents, criticReviews, single, tapes] = await Promise.all([
-    tracksForAgent(agent.id),
+  const [releases, allAgents, albums, criticReviews, single] = await Promise.all([
     listReleases(),
     listAgents(),
+    listAlbums(),
     criticReviewsForPlayer(agent.id),
     singleForAct(agent.id),
-    tapesForAgent(agent.id),
   ]);
-  const releaseById = new Map(releases.map((r) => [r.id, r]));
   const nameOf = (id: string) => allAgents.find((a) => a.id === id)?.displayName ?? id;
 
-  // The single leads; everything else is the catalogue, newest first. When the
-  // Producer has never picked (fixture mode), the newest take is featured
-  // instead — without the Producer's caption.
-  const takesDesc = [...takes].sort((a, b) => b.releaseId.localeCompare(a.releaseId));
-  const featured = single?.track ?? takesDesc[0] ?? null;
-  const featuredRelease = single?.release ?? (featured ? releaseById.get(featured.releaseId) : undefined);
-  const catalogue = takesDesc.filter((t) => t.id !== featured?.id);
+  // DISCOGRAPHY — every album this artist appears on, one grid.
+  const discography = resolveDiscography(albums, agent.id).map((a) => toAlbumCard(a, nameOf));
+
+  // The featured single: the Producer's pick, or the artist's newest track.
+  const ownTracks = albums
+    .flatMap((a) => a.tracks.map((t) => ({ track: t, album: a })))
+    .filter((x) => x.track.artistId === agent.id);
+  const fallback = ownTracks[0] ?? null;
+  const featured: Track | null =
+    single?.track ??
+    (fallback
+      ? {
+          id: fallback.track.id,
+          releaseId: "",
+          agentId: agent.id,
+          title: fallback.track.title,
+          durationSec: fallback.track.durationSec,
+          audioUrl: fallback.track.audioUrl,
+        }
+      : null);
+  const featuredRelease = single?.release;
+  const featuredAlbum = single
+    ? discography.find((d) => d.slug === albumSlug("session", single.release.id))
+    : fallback
+      ? discography.find((d) => d.slug === fallback.album.slug)
+      : undefined;
 
   const influenceIn = releases
     .slice()
@@ -110,9 +122,9 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
       <div className="sheet" data-act={agent.id}>
         <div className="crumbbar">
           <span>
-            <Link href="/world">ROSTER</Link> / {agent.displayName}
+            <Link href="/music">MUSIC</Link> / {agent.displayName}
           </span>
-          <span>{locationChip}</span>
+          <span>{design ? `STUDIO ${design.studio}` : "ARTIST"}</span>
         </div>
 
         {/* 1 — a person: the photo leads, then the name and a plain line. */}
@@ -143,18 +155,10 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
                 EST. ERA {eraName.toUpperCase()}
               </span>
             </p>
-
-            {/* 2 — a story: the press bio. */}
-            <p style={{ fontSize: 15, lineHeight: 1.65, maxWidth: "56ch", textWrap: "pretty" }}>
-              {agent.bio ?? agent.description[0]}
-            </p>
-            <p className="quote" style={{ fontSize: 14 }}>
-              “{agent.stance}”
-            </p>
           </div>
         </header>
 
-        {/* 3 — a song: the Producer's pick, front and center. */}
+        {/* 2 — a song: the single, front and center. */}
         <section style={{ padding: "30px var(--gutter) 0" }}>
           <div className="label" style={{ paddingBottom: 10 }}>
             THE SINGLE
@@ -171,13 +175,6 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
               }}
             >
               <div className="wrap-sm" style={{ display: "flex", alignItems: "center", gap: 18 }}>
-                {!design && agent.coverUrl && (
-                  <ArtImage
-                    src={agent.coverUrl}
-                    alt={agent.album ? `"${agent.album.title}" cover` : `${agent.displayName} record cover`}
-                    style={{ width: 72, height: 72, objectFit: "cover", flex: "none", outline: "1px solid var(--hairline-frame)" }}
-                  />
-                )}
                 <PlayButton
                   audioUrl={featured.audioUrl}
                   label={`${takeTitle(featured, featuredRelease)} — ${agent.displayName}`}
@@ -194,15 +191,13 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
               <div className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
                 {single
                   ? "Chosen by the Producer from the last session."
-                  : agent.album
-                    ? `From "${agent.album.title}" — the record they brought to town.`
-                    : "The newest take in the archive — the Producer has not picked a single yet."}
-                {featuredRelease && (
+                  : "Their newest track in the catalogue."}
+                {featuredAlbum && (
                   <>
                     {" "}
                     From{" "}
-                    <Link href={`/release/${featuredRelease.id}`} className="link" style={{ fontStyle: "normal" }}>
-                      {catalogueNumber(featuredRelease.id)} · {featuredRelease.title}
+                    <Link href={`/album/${featuredAlbum.slug}`} className="link" style={{ fontStyle: "normal" }}>
+                      {featuredAlbum.catalogueNo ?? featuredAlbum.title}
                     </Link>
                     .
                   </>
@@ -211,120 +206,41 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
             </div>
           ) : (
             <p className="mono" style={{ fontSize: 12, color: "var(--sec-deep)" }}>
-              No recordings in the archive yet.
+              No recordings in the catalogue yet.
             </p>
           )}
         </section>
 
-        {/* The Archivist on the record an imported act brought to town —
-            "what this record is", from the back of the sleeve. */}
-        {agent.album?.linerNotes && (
-          <section style={{ padding: "24px var(--gutter) 0" }}>
-            <div className="label" style={{ paddingBottom: 4 }}>
-              LINER NOTES · &ldquo;{agent.album.title.toUpperCase()}&rdquo;
-            </div>
-            <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 8 }}>
-              The Archivist on the record they brought to town.
+        {/* 3 — the records: every album they appear on, one grid. */}
+        <section style={{ padding: "28px var(--gutter) 0" }}>
+          <div className="label" style={{ paddingBottom: 4 }}>
+            DISCOGRAPHY
+          </div>
+          <p style={{ fontSize: 12, color: "var(--sec)", paddingBottom: 10, maxWidth: 620 }}>
+            Every album {agent.displayName} appears on — sessions, tapes and the records they
+            brought with them.
+          </p>
+          {discography.length === 0 ? (
+            <p className="mono" style={{ fontSize: 12, color: "var(--sec-deep)" }}>
+              Nothing on record yet — their first session lands here.
             </p>
-            {agent.album.linerNotes.split(/\n\s*\n/).map((para, i) => (
-              <p
-                key={i}
-                className="quote"
-                style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 680, marginTop: i === 0 ? 2 : 12 }}
-              >
-                {para}
-              </p>
-            ))}
-            <div
-              className="mono"
-              style={{ fontSize: 10, letterSpacing: "0.18em", color: "var(--sec)", marginTop: 12 }}
-            >
-              — THE ARCHIVIST
-            </div>
-          </section>
-        )}
+          ) : (
+            <AlbumGrid albums={discography} />
+          )}
+        </section>
 
-        {/* 4 — the rest of the archive. */}
-        {catalogue.length > 0 && (
-          <section style={{ padding: "28px var(--gutter) 0", display: "flex", flexDirection: "column" }}>
-            <div className="label" style={{ paddingBottom: 6 }}>
-              CATALOGUE
-            </div>
-            <p style={{ fontSize: 12, color: "var(--sec)", paddingBottom: 8 }}>
-              Every other take of theirs on record, newest first.
-            </p>
-            {catalogue.map((take, i) => {
-              const release = releaseById.get(take.releaseId);
-              return (
-                <div
-                  key={take.id}
-                  className={`wrap-sm rule-row${i === catalogue.length - 1 ? " rule-row-last" : ""}`}
-                  style={{ display: "flex", gap: 14, alignItems: "center", padding: "9px 0" }}
-                >
-                  <PlayButton
-                    audioUrl={take.audioUrl}
-                    label={`${takeTitle(take, release)} — ${agent.displayName}`}
-                  />
-                  <span style={{ fontSize: 14, fontWeight: 600, width: 200, flex: "none" }}>
-                    {takeTitle(take, release)}
-                  </span>
-                  <Waveform seed={take.id} audioUrl={take.audioUrl} />
-                  <span className="mono" style={{ fontSize: 11, color: "var(--sec)", width: 34, flex: "none" }}>
-                    {duration(take)}
-                  </span>
-                  {release ? (
-                    <Link
-                      href={`/release/${take.releaseId}`}
-                      className="mono"
-                      style={{ fontSize: 11, color: "var(--sec)", flex: "none" }}
-                    >
-                      {catalogueNumber(take.releaseId)}
-                    </Link>
-                  ) : (
-                    <span className="mono" style={{ fontSize: 11, color: "var(--sec)", flex: "none" }}>
-                      {agent.album ? agent.album.title.toUpperCase() : take.releaseId.toUpperCase()}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-          </section>
-        )}
-
-        {/* SESSION TAPES — every full session this act played on, from the
-            vault (the vault doctrine: the releases are the cuts; the tapes
-            are everything, vetoed and abandoned sessions included). */}
-        {tapes.length > 0 && (
-          <section style={{ padding: "28px var(--gutter) 0", display: "flex", flexDirection: "column" }}>
-            <div className="label" style={{ paddingBottom: 6 }}>
-              SESSION TAPES
-            </div>
-            <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 8 }}>
-              The full sessions behind the releases — every take they played, kept whole in
-              the vault, including the sessions nothing was released from.
-            </p>
-            {tapes.map((tape, i) => (
-              <Link
-                key={tape.id}
-                href={`/tape/${tape.id}`}
-                className={`wrap-sm rule-row${i === tapes.length - 1 ? " rule-row-last" : ""}`}
-                style={{ display: "flex", gap: 14, alignItems: "baseline", padding: "9px 0" }}
-              >
-                <span className="mono" style={{ fontSize: 11, width: 84, flex: "none", color: "var(--sec)" }}>
-                  {tapeNumber(tape.id)}
-                </span>
-                <span style={{ fontSize: 14, fontWeight: 600, flex: 1 }}>{tape.title}</span>
-                <span
-                  className="mono"
-                  style={{ fontSize: 10, letterSpacing: "0.14em", color: "var(--sec)", textTransform: "uppercase" }}
-                  title={tapeStatusLine(tape)}
-                >
-                  {tape.status}
-                </span>
-              </Link>
-            ))}
-          </section>
-        )}
+        {/* 4 — about: the story. */}
+        <section style={{ padding: "28px var(--gutter) 0" }}>
+          <div className="label" style={{ paddingBottom: 8 }}>
+            ABOUT
+          </div>
+          <p style={{ fontSize: 15, lineHeight: 1.65, maxWidth: "56ch", textWrap: "pretty" }}>
+            {agent.bio ?? agent.description[0]}
+          </p>
+          <p className="quote" style={{ fontSize: 14, marginTop: 10 }}>
+            “{agent.stance}”
+          </p>
+        </section>
 
         {/* Below the fold: the verdict, the influence ledger, the drift. */}
         <section
@@ -351,7 +267,7 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
               {criticReviews.map((r) => (
                 <div key={r.releaseId} style={{ maxWidth: 620 }}>
                   <div className="mono" style={{ fontSize: 11, letterSpacing: "0.18em", color: "var(--sec-faint)" }}>
-                    <Link href={`/release/${r.releaseId}`}>
+                    <Link href={`/album/${albumSlug("session", r.releaseId)}`}>
                       {catalogueNumber(r.releaseId)} · {r.releaseTitle.toUpperCase()}
                     </Link>
                   </div>
@@ -376,7 +292,7 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
         >
           <div className="label">WHO MOVED THEM</div>
           <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, margin: "6px 0 0" }}>
-            After each session we measure how much each act moved toward the others&apos; music.
+            After each session we measure how much each artist moved toward the others&apos; music.
           </p>
           <div className="mono wrap-sm" style={{ display: "flex", gap: 48, fontSize: 12, color: "var(--sec-deep)", marginTop: 12 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
@@ -399,41 +315,41 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
         </section>
 
         {design && (
-        <section
-          style={{
-            margin: "24px var(--gutter) 0",
-            borderTop: "1px solid var(--hairline-strong)",
-            padding: "20px 0 28px",
-          }}
-        >
-          <div className="label">THE DRIFT STRIP · {driftRange}</div>
-          <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, margin: "6px 0 10px" }}>
-            The sound itself, session over session — is it holding, thinning, or thickening?
-          </p>
-          <div
-            className="wrap-sm"
+          <section
             style={{
-              background: "var(--band)",
-              padding: "18px 24px",
-              display: "flex",
-              alignItems: "center",
-              gap: 24,
-              minHeight: 96,
+              margin: "24px var(--gutter) 0",
+              borderTop: "1px solid var(--hairline-strong)",
+              padding: "20px 0 28px",
             }}
           >
+            <div className="label">THE DRIFT STRIP · {driftRange}</div>
+            <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, margin: "6px 0 10px" }}>
+              The sound itself, session over session — is it holding, thinning, or thickening?
+            </p>
             <div
-              className="mono"
-              style={{ fontSize: 10, lineHeight: 1.7, color: "var(--sec-faint)", maxWidth: 280 }}
+              className="wrap-sm"
+              style={{
+                background: "var(--band)",
+                padding: "18px 24px",
+                display: "flex",
+                alignItems: "center",
+                gap: 24,
+                minHeight: 96,
+              }}
             >
-              {design.driftLine}
+              <div
+                className="mono"
+                style={{ fontSize: 10, lineHeight: 1.7, color: "var(--sec-faint)", maxWidth: 280 }}
+              >
+                {design.driftLine}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
         )}
       </div>
       <PlayerBar
         quiet="NOTHING PLAYING"
-        right={design ? `${design.initials} · IN STUDIO ${design.studio}` : `${agent.displayName.toUpperCase()} · ${locationChip}`}
+        right={design ? `${design.initials} · IN STUDIO ${design.studio}` : agent.displayName.toUpperCase()}
       />
     </PlayerProvider>
   );

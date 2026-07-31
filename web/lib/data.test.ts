@@ -9,10 +9,17 @@ import {
   fixtureAgents,
   fixtureReleases,
   fixtureTracks,
+  albumSlug,
+  albumTypeGloss,
+  albumTypeLabel,
+  resolveAlbum,
+  resolveAlbums,
+  resolveArtists,
+  resolveArtistsByActivity,
+  resolveDiscography,
   resolveSingle,
   resolveTapeForRelease,
   resolveTapesForAgent,
-  rosterSections,
   tapeNumber,
   tapeStatusLine,
   type Release,
@@ -122,21 +129,25 @@ describe("imported acts (the town)", () => {
     }
   });
 
-  it("splits the roster into house / residents / in town by the resident block", () => {
-    const inTownRow = AgentSchema.parse({
+  it("rosters every artist as ONE flat alphabetical list — no tiers, no staff", () => {
+    const withBuilding = AgentSchema.parse(importRow);
+    const withoutBuilding = AgentSchema.parse({
       ...importRow,
       id: "josie-ryland",
+      name: "Josie Ryland",
+      displayName: "Josie Ryland",
       resident: { origin: "tunz", building: null },
     });
-    const agents = [...fixtureAgents, AgentSchema.parse(importRow), inTownRow];
-    const { house, residents, inTown } = rosterSections(agents);
-    expect(house.map((a) => a.id).sort()).toEqual([...PLAYER_IDS].sort());
-    expect(residents.map((a) => a.id)).toEqual(["hohlraum"]);
-    expect(inTown.map((a) => a.id)).toEqual(["josie-ryland"]);
-    // staff never appear in any roster section
-    for (const section of [house, residents, inTown]) {
-      for (const a of section) expect(a.kind).toBe("player");
-    }
+    const artists = resolveArtists([...fixtureAgents, withBuilding, withoutBuilding]);
+    // Imports and founders interleave purely by name — the resident block
+    // (still data the world's street reads) buys no roster position.
+    expect(artists.map((a) => a.displayName)).toEqual(
+      [...artists.map((a) => a.displayName)].sort((a, b) => a.localeCompare(b)),
+    );
+    expect(artists.map((a) => a.id)).toContain("hohlraum");
+    expect(artists.map((a) => a.id)).toContain("josie-ryland");
+    for (const a of artists) expect(a.kind).toBe("player");
+    expect(artists).toHaveLength(PLAYER_IDS.length + 2);
   });
 
   it("parses import tracks (releaseId T-<slug>, no releases row required)", () => {
@@ -356,5 +367,119 @@ describe("tapes (the vault)", () => {
       linerNotes: "What happened in the room, kept plain.",
     });
     expect(withNotes.linerNotes).toContain("kept plain");
+  });
+});
+
+// --- the Album view: one entity over sessions, tapes and imported records ----
+
+describe("albums (the streaming IA's one entity)", () => {
+  const importAgent = AgentSchema.parse({
+    id: "hohlraum",
+    kind: "player",
+    name: "HOHLRAUM",
+    displayName: "HOHLRAUM",
+    role: "Act — the cold",
+    stance: "What survives a cold room is true.",
+    description: ["A recluse in a Berlin water tower."],
+    palette: null,
+    coverUrl: "/api/media/def",
+    genreLine: "dub techno · 2020s",
+    album: { id: "T-hohlraum", title: "Standpipe", linerNotes: "Ten chambers down." },
+  });
+  const importTrack = TrackSchema.parse({
+    id: "T-hohlraum-1",
+    releaseId: "T-hohlraum",
+    agentId: "hohlraum",
+    title: "Tank at Four AM",
+    durationSec: 31,
+    audioUrl: "/api/media/0ff",
+  });
+  const tape = TapeSchema.parse({ ...tapeRow, date: "2026-07-30" });
+  const albums = resolveAlbums(
+    [...fixtureAgents, importAgent],
+    fixtureReleases,
+    [tape],
+    [...fixtureTracks, importTrack],
+  );
+
+  it("mints stable public slugs from the catalogue ids", () => {
+    expect(albumSlug("session", "0001")).toBe("afar-0001");
+    expect(albumSlug("tape", "0002")).toBe("tape-0002");
+    expect(albumSlug("album", "T-hohlraum")).toBe("t-hohlraum");
+  });
+
+  it("unifies all three stored shapes into one flat list", () => {
+    expect(albums.map((a) => `${a.slug}:${a.type}`)).toEqual([
+      "tape-0002:tape", // 2026-07-30, newer than release 0001
+      "afar-0001:session",
+      "t-hohlraum:album", // undated back catalogue, after the dated records
+    ]);
+  });
+
+  it("builds the session album from the release: takes as tracks, graph cover data", () => {
+    const session = resolveAlbum(albums, "afar-0001")!;
+    expect(session.catalogueNo).toBe("AFAR-0001");
+    expect(session.title).toBe(fixtureReleases[0].title);
+    expect(session.artistIds).toEqual(["silt", "rust", "keep"]);
+    expect(session.tracks).toHaveLength(3);
+    expect(session.influence).toEqual(fixtureReleases[0].influence);
+    expect(session.release?.id).toBe("0001");
+    expect(session.tape).toBeNull();
+  });
+
+  it("builds the tape album from the vault row, takes in round order", () => {
+    const t = resolveAlbum(albums, "TAPE-0002")!; // slug lookup is case-insensitive
+    expect(t.catalogueNo).toBe("TAPE-0002");
+    expect(t.artistIds).toEqual(["silt", "rust"]);
+    expect(t.tracks.map((x) => x.title)).toEqual(["Round 1 take", "Round 1 take"]);
+    expect(t.tape?.status).toBe("rejected");
+  });
+
+  it("gives the imported record a first-class page: art, era, liner notes", () => {
+    const record = resolveAlbum(albums, "t-hohlraum")!;
+    expect(record.catalogueNo).toBeNull();
+    expect(record.coverUrl).toBe("/api/media/def");
+    expect(record.era).toBe("2020s");
+    expect(record.linerNotes).toBe("Ten chambers down.");
+    expect(record.importArtistId).toBe("hohlraum");
+    expect(record.tracks.map((x) => x.id)).toEqual(["T-hohlraum-1"]);
+  });
+
+  it("skips an import album with no mirrored tracks — nothing to stream yet", () => {
+    const silent = AgentSchema.parse({
+      ...JSON.parse(JSON.stringify(importAgent)),
+      id: "assembly-ghost",
+      album: { id: "T-assembly-ghost", title: "Line Voltage" },
+    });
+    const withSilent = resolveAlbums([silent], [], [], []);
+    expect(withSilent).toEqual([]);
+  });
+
+  it("assembles a discography: every album the artist appears on", () => {
+    expect(resolveDiscography(albums, "silt").map((a) => a.slug)).toEqual([
+      "tape-0002",
+      "afar-0001",
+    ]);
+    expect(resolveDiscography(albums, "keep").map((a) => a.slug)).toEqual(["afar-0001"]);
+    expect(resolveDiscography(albums, "hohlraum").map((a) => a.slug)).toEqual(["t-hohlraum"]);
+  });
+
+  it("ranks the roster by latest activity — records, not tiers, buy position", () => {
+    const byActivity = resolveArtistsByActivity([...fixtureAgents, importAgent], albums);
+    // The tape (newest record) features silt and rust; hohlraum's import
+    // album is the oldest thing in the catalogue, so hohlraum trails.
+    // Alphabetical (Delta Marlowe < Roan Patina) breaks the tie on the tape.
+    expect(byActivity.map((a) => a.id).slice(0, 2)).toEqual(["silt", "rust"]);
+    expect(byActivity[byActivity.length - 1].id).toBe("hohlraum");
+    expect(byActivity).toHaveLength(4);
+  });
+
+  it("speaks the casual register on every type badge", () => {
+    expect(albumTypeLabel("session")).toBe("SESSION");
+    expect(albumTypeLabel("tape")).toBe("TAPE");
+    expect(albumTypeLabel("album")).toBe("ALBUM");
+    for (const type of ["session", "tape", "album"] as const) {
+      expect(albumTypeGloss(type).length).toBeGreaterThan(20);
+    }
   });
 });

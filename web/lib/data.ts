@@ -212,28 +212,6 @@ export function stanceWord(agent: Agent): string {
   return agent.role.split("—")[1]?.trim() ?? agent.role;
 }
 
-/** A house act: one of the three the world was founded on (no resident block). */
-export function isHouseAct(agent: Agent): boolean {
-  return agent.kind === "player" && !agent.resident;
-}
-
-/**
- * The roster in the town's order: the house trio, then the street residents
- * (acts with a building), then everyone else in town. Data-driven — a new
- * import lands in the right section by its resident block alone.
- */
-export function rosterSections(agents: Agent[]): {
-  house: Agent[];
-  residents: Agent[];
-  inTown: Agent[];
-} {
-  const acts = agents.filter((a) => a.kind === "player");
-  return {
-    house: acts.filter((a) => !a.resident),
-    residents: acts.filter((a) => a.resident?.building != null),
-    inTown: acts.filter((a) => a.resident != null && a.resident.building == null),
-  };
-}
 /**
  * Plain-language tooltip for a set-condition chip. The kernel logs short
  * condition codes; scene descriptions ("overcast, distant traffic…") need
@@ -407,6 +385,261 @@ export async function singleForAct(
 ): Promise<{ track: Track; release: Release } | null> {
   const [releases, tracks] = await Promise.all([listReleases(), listTracks()]);
   return resolveSingle(releases, tracks, agentId);
+}
+
+/* ————————————————————————————————————————————————————————————————————
+ * The Album view: one entity over the catalogue's four shapes.
+ *
+ * A casual listener sees ARTISTS and ALBUMS. Under the hood an "album" is
+ * one of three stored shapes — a session release (AFAR-NNNN), a session
+ * tape (TAPE-NNNN, solo tapes included), or an imported back-catalogue
+ * album riding its artist's agent row (id T-<slug>, tracks in the tracks
+ * table). This is a READ-LAYER unification: nothing migrates, every
+ * stored shape keeps its schema, and the views below are derived fresh
+ * from the same rows the old pages read.
+ *
+ * Public ids: the slug is the catalogue number, lowercased — afar-0001,
+ * tape-0010, t-lolgorithm. Stable because the underlying ids are stable
+ * (CLAUDE.md: entity ids never rename).
+ * ———————————————————————————————————————————————————————————————————— */
+
+export type AlbumType = "session" | "tape" | "album";
+
+/** "0001" -> "AFAR-0001" (mirrors lib/acts.catalogueNumber, which imports from here). */
+function catalogueNumberOf(releaseId: string): string {
+  return `AFAR-${releaseId}`;
+}
+
+export interface AlbumTrackView {
+  id: string;
+  title: string;
+  artistId: string;
+  durationSec: number | null;
+  audioUrl: string | null;
+}
+
+export interface AlbumView {
+  /** Public id, used in /album/[slug] URLs. */
+  slug: string;
+  type: AlbumType;
+  /** "AFAR-0001" / "TAPE-0010"; imported albums carry no catalogue number. */
+  catalogueNo: string | null;
+  title: string;
+  /** Every artist on the record, in track order. */
+  artistIds: string[];
+  /** Sortable release date; imported albums predate the sessions and carry none. */
+  date: string | null;
+  /** The era line under the title ("2020s"). */
+  era: string | null;
+  tracks: AlbumTrackView[];
+  /** The Archivist's back-of-sleeve prose, whatever shape it rode in on. */
+  linerNotes: string | null;
+  /** Imported album art; sessions render their graph cover from `influence`. */
+  coverUrl: string | null;
+  influence: InfluenceEdge[] | null;
+  /** The depth payload — exactly one of these is set, matching `type`. */
+  release: Release | null;
+  tape: Tape | null;
+  importArtistId: string | null;
+}
+
+/** The casual-listener word for each album type (the type badge). */
+export function albumTypeLabel(type: AlbumType): string {
+  switch (type) {
+    case "session":
+      return "SESSION";
+    case "tape":
+      return "TAPE";
+    default:
+      return "ALBUM";
+  }
+}
+
+/** One plain line saying what a badge means — the tooltip next to it. */
+export function albumTypeGloss(type: AlbumType): string {
+  switch (type) {
+    case "session":
+      return "A finished record cut from one recording session — one take from each artist on it";
+    case "tape":
+      return "The whole session, every take, in the order it was played";
+    default:
+      return "A studio album an artist brought with them";
+  }
+}
+
+/** "afar-0001" | "tape-0010" | "t-lolgorithm" — slugs are lowercased catalogue ids. */
+export function albumSlug(type: AlbumType, id: string): string {
+  if (type === "session") return `afar-${id}`.toLowerCase();
+  if (type === "tape") return `tape-${id}`.toLowerCase();
+  return id.toLowerCase();
+}
+
+function sessionAlbum(release: Release, tracks: Track[]): AlbumView {
+  const byId = new Map(tracks.map((t) => [t.id, t]));
+  const takes = release.takeIds
+    .map((id) => byId.get(id))
+    .filter((t): t is Track => t !== undefined);
+  return {
+    slug: albumSlug("session", release.id),
+    type: "session",
+    catalogueNo: catalogueNumberOf(release.id),
+    title: release.title,
+    artistIds: takes.map((t) => t.agentId),
+    date: release.date,
+    era: release.era,
+    tracks: takes.map((t) => ({
+      id: t.id,
+      title: t.title,
+      artistId: t.agentId,
+      durationSec: t.durationSec,
+      audioUrl: t.audioUrl,
+    })),
+    linerNotes: release.linerNotes ?? null,
+    coverUrl: null,
+    influence: release.influence,
+    release,
+    tape: null,
+    importArtistId: null,
+  };
+}
+
+function tapeAlbum(tape: Tape): AlbumView {
+  const artistIds: string[] = [];
+  for (const take of tape.takes) {
+    if (!artistIds.includes(take.agentId)) artistIds.push(take.agentId);
+  }
+  return {
+    slug: albumSlug("tape", tape.id),
+    type: "tape",
+    catalogueNo: tapeNumber(tape.id),
+    title: tape.title,
+    artistIds,
+    date: tape.date,
+    era: null,
+    tracks: tape.takes.map((take, i) => ({
+      id: `${tape.id}-t${i}`,
+      title: take.title ?? `Round ${take.round + 1} take`,
+      artistId: take.agentId,
+      durationSec: take.durationSec ?? null,
+      audioUrl: take.audioUrl,
+    })),
+    linerNotes: tape.linerNotes ?? null,
+    coverUrl: null,
+    influence: null,
+    release: null,
+    tape,
+    importArtistId: null,
+  };
+}
+
+function importAlbum(agent: Agent, tracks: Track[]): AlbumView | null {
+  if (!agent.album) return null;
+  const own = tracks.filter((t) => t.releaseId === agent.album!.id);
+  if (own.length === 0) return null; // no audio imported yet — nothing to stream
+  return {
+    slug: albumSlug("album", agent.album.id),
+    type: "album",
+    catalogueNo: null,
+    title: agent.album.title,
+    artistIds: [agent.id],
+    date: null,
+    era: agent.genreLine?.split("·")[1]?.trim() ?? null,
+    tracks: own.map((t) => ({
+      id: t.id,
+      title: t.title,
+      artistId: t.agentId,
+      durationSec: t.durationSec,
+      audioUrl: t.audioUrl,
+    })),
+    linerNotes: agent.album.linerNotes ?? null,
+    coverUrl: agent.coverUrl,
+    influence: null,
+    release: null,
+    tape: null,
+    importArtistId: agent.id,
+  };
+}
+
+/**
+ * Every album in the catalogue, one flat list: dated records (sessions and
+ * tapes) newest first, then the imported back catalogues (undated — they
+ * predate the sessions) alphabetically. Pure so it's testable.
+ */
+export function resolveAlbums(
+  agents: Agent[],
+  releases: Release[],
+  tapes: Tape[],
+  tracks: Track[],
+): AlbumView[] {
+  const dated = [
+    ...releases.map((r) => sessionAlbum(r, tracks)),
+    ...tapes.map(tapeAlbum),
+  ].sort(
+    (a, b) => (b.date ?? "").localeCompare(a.date ?? "") || b.slug.localeCompare(a.slug),
+  );
+  const imports = agents
+    .flatMap((a) => importAlbum(a, tracks) ?? [])
+    .sort((a, b) => a.title.localeCompare(b.title));
+  return [...dated, ...imports];
+}
+
+export async function listAlbums(): Promise<AlbumView[]> {
+  const [agents, releases, tapes, tracks] = await Promise.all([
+    listAgents(),
+    listReleases(),
+    listTapes(),
+    listTracks(),
+  ]);
+  return resolveAlbums(agents, releases, tapes, tracks);
+}
+
+export function resolveAlbum(albums: AlbumView[], slug: string): AlbumView | null {
+  const wanted = slug.toLowerCase();
+  return albums.find((a) => a.slug === wanted) ?? null;
+}
+
+export async function getAlbum(slug: string): Promise<AlbumView | null> {
+  return resolveAlbum(await listAlbums(), slug);
+}
+
+/**
+ * An artist's discography: every album they appear on, in the flat
+ * catalogue order (newest dated first, their imported record last).
+ */
+export function resolveDiscography(albums: AlbumView[], artistId: string): AlbumView[] {
+  return albums.filter((a) => a.artistIds.includes(artistId));
+}
+
+export async function discographyForArtist(artistId: string): Promise<AlbumView[]> {
+  return resolveDiscography(await listAlbums(), artistId);
+}
+
+/** ONE flat roster — every artist, alphabetical. No sections, no tiers. */
+export function resolveArtists(agents: Agent[]): Agent[] {
+  return agents
+    .filter((a) => a.kind === "player")
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
+}
+
+export async function listArtists(): Promise<Agent[]> {
+  return resolveArtists(await listAgents());
+}
+
+/**
+ * The flat roster ordered by latest activity: whoever appears on the
+ * newest record leads. Data-driven — no tiers; an artist ranks by their
+ * records alone. Ties (and artists with no records yet) stay alphabetical.
+ */
+export function resolveArtistsByActivity(agents: Agent[], albums: AlbumView[]): Agent[] {
+  const rank = new Map<string, number>();
+  albums.forEach((album, i) => {
+    for (const id of album.artistIds) {
+      if (!rank.has(id)) rank.set(id, i);
+    }
+  });
+  return resolveArtists(agents).sort(
+    (a, b) => (rank.get(a.id) ?? albums.length) - (rank.get(b.id) ?? albums.length),
+  );
 }
 
 /** Rationale quotes a player has left on releases, newest first. */

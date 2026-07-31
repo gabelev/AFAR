@@ -8,7 +8,7 @@ describe("resolve map", () => {
       ["critic", "keep", "listener", "muse", "producer", "rust", "silt"],
     );
     for (const [id, entry] of Object.entries(CHARACTER_RESOLVE)) {
-      expect(entry.route).toMatch(/^\/(act|staff)\//);
+      expect(entry.route).toMatch(/^\/(artist|staff)\//);
       expect(entry.sprite).toBeTruthy();
       expect(entry.target.tx).toBeGreaterThan(0);
       expect(entry.target.ty).toBeGreaterThan(0);
@@ -27,23 +27,24 @@ describe("resolve map", () => {
         continue;
       }
       expect(entry, `no resolve entry for agent ${agent.id}`).toBeTruthy();
-      expect(entry!.route).toBe(`/${agent.kind === "player" ? "act" : "staff"}/${agent.id}`);
+      expect(entry!.route).toBe(`/${agent.kind === "player" ? "artist" : "staff"}/${agent.id}`);
     }
   });
 
   it("resolves every release to the archive turntable", () => {
     for (const release of fixtureReleases) {
       const entry = resolveWorld(release.id);
-      expect(entry).toEqual({ route: `/release/${release.id}`, target: ARCHIVE_TARGET });
+      expect(entry).toEqual({ route: `/album/afar-${release.id}`, target: ARCHIVE_TARGET });
     }
-    expect(resolveWorld("0002")).toEqual({ route: "/release/0002", target: ARCHIVE_TARGET });
+    expect(resolveWorld("0002")).toEqual({ route: "/album/afar-0002", target: ARCHIVE_TARGET });
   });
 
   it("maps right-pane routes back to world targets", () => {
-    expect(routeTarget("/act/keep")).toEqual(CHARACTER_RESOLVE.keep.target);
+    expect(routeTarget("/artist/keep")).toEqual(CHARACTER_RESOLVE.keep.target);
     expect(routeTarget("/staff/muse")).toEqual(CHARACTER_RESOLVE.muse.target);
-    expect(routeTarget("/release/0002")).toEqual(ARCHIVE_TARGET);
+    expect(routeTarget("/album/afar-0002")).toEqual(ARCHIVE_TARGET);
+    expect(routeTarget("/album/t-lolgorithm")).toEqual(ARCHIVE_TARGET);
     expect(routeTarget("/")).toBeNull();
-    expect(routeTarget("/act/nobody")).toBeNull();
+    expect(routeTarget("/artist/nobody")).toBeNull();
   });
 });

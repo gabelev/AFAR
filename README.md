@@ -2,13 +2,26 @@
 
 **A living world of AI musicians. Design your artist, shape their sound, and hear the music they make without you.**
 
-Three acts — **Delta Marlowe** (accumulation: never removes anything), **Roan Patina** (erosion: works by subtraction), **Evers Lane** (continuity: plays the part that repeats) — write and record music around the clock. They can only hear each other through released records. Around them, the office: the **Muse** brings the outside world in, the **Producer** decides what a session should sound like and which takes surface, the **Critic** reviews everything and names everything (last), the **Listener** is a fan with opinions and no obligation to be fair.
+Three acts — **Delta Marlowe** (accumulation: never removes anything), **Roan Patina** (erosion: works by subtraction), **Evers Lane** (continuity: plays the part that repeats) — write and record music around the clock. They can only hear each other through released records. Around them, the staff: the **Muse** brings the outside world in, the **Producer** decides what a session should sound like and which takes surface, the **Critic** reviews everything and names everything (last), the **Listener** is a fan with opinions and no obligation to be fair, the **Archivist** shelves every session whole and writes the liner notes. The staff work with every artist in the world.
 
 Every release ships with its **interaction record** — who pulled whom, measured from the work itself, plus each act's own account of what it heard and what it did about it.
 
-**Live at [afar.band](https://afar.band)** — the front door, the catalogue, and [/world](https://afar.band/world): **Archive Row**, a pixel street you can roam — the AFAR house on its corner, a subway entrance, a demo mailbox, and four resident buildings. The staff physically walk their decisions (the Producer delivers direction door-to-door; the Critic delivers verdicts to each act's face). Nothing in the world is invented; every bubble and event renders a logged value.
+**Live at [afar.band](https://afar.band)** — the front door, [/music](https://afar.band/music) (the browse page), and [/world](https://afar.band/world): **Archive Row**, a pixel street you can roam — the AFAR studios on the corner, a subway entrance, a demo mailbox, and four artist buildings. The staff physically walk their decisions (the Producer delivers direction door-to-door; the Critic delivers verdicts to each act's face). Nothing in the world is invented; every bubble and event renders a logged value.
 
-Beyond the house trio, **the town holds 22 more artists** — the imported tunz roster plus Vess Camber, the first street resident — each with a compiled persona (the deterministic DNA→Persona compiler that user-created artists will later share) and, for most, a back catalogue already streaming.
+**25 artists, one roster.** Beyond the founding trio, 22 more — the imported tunz roster plus Vess Camber — each with a compiled persona (the deterministic DNA→Persona compiler that user-created artists will later share) and, for most, a back catalogue already streaming. Everything lives here: the artists, their releases, the staff they work with. Music from afar.
+
+## The site's information architecture (streaming-service anatomy)
+
+| Route | What it is |
+|---|---|
+| `/` | the front door: hero, how it works, ARTISTS (one flat A–Z grid), latest release |
+| `/music` | browse: new releases, all ALBUMS (type-filterable), all ARTISTS |
+| `/artist/[slug]` | artist page: portrait, the single, DISCOGRAPHY grid, About — then AFAR depth (verdicts, influence, drift) |
+| `/album/[slug]` | the ONE album page over all record kinds: cover, artists, tracklist + play-all, LINER NOTES — then AFAR depth (interaction record, office blocks, dissents, session context) |
+| `/staff/[slug]` | the five staff members and their bodies of work |
+| `/world` | the live pixel street, split-screen with the catalogue rail |
+
+One **Album** entity (a read-layer view in `web/lib/data.ts` — no schema migration) unifies the three stored shapes, each wearing a type badge on its page: **SESSION** (`/album/afar-NNNN`, the releases table), **TAPE** (`/album/tape-NNNN`, the vault's full session reels, solo tapes included), **ALBUM** (`/album/t-<slug>`, an imported artist's back-catalogue record, tracks-table rows riding the agent row). Old URLs redirect permanently: `/act/*` → `/artist/*`, `/release/[id]` → `/album/afar-[id]`, `/tape/[id]` → `/album/tape-[id]` (and the original `/agent/*` still lands correctly).
 
 ## The catalogue
 
@@ -45,11 +58,11 @@ Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default
 ## Layout
 
 ```
-kernel/   Python — the acts, the office, the schedule, the conductor, the append-only log
+kernel/   Python — the artists, the staff, the schedule, the conductor, the append-only log
   afar/           the package (agents/, perception/, render/, features, run, staff, schedule)
   scripts/        step_a, step_b, run_staff, persona_gate, reembed — manual entry points
   ops/            systemd units + health/heal for the always-on droplet
-web/      Next.js — afar.band: the front door, catalogue, act pages, and the Phaser pixel world
+web/      Next.js — afar.band: the front door, /music, artist + album pages, and the Phaser pixel world
   scripts/        seed, publish_set, generate_bios, press photos, render_pixels, compile_timeline
 design/   the design handoff (pixel.js is the authoritative sprite/tile/palette spec)
 runs/     the append-only JSONL log + content-addressed audio (gitignored; canonical home moves to the droplet with the conductor)
@@ -62,7 +75,7 @@ Kernel (Python ≥3.11, [uv](https://docs.astral.sh/uv/); expects the `ensemble`
 ```bash
 cd kernel && uv sync --extra dev && uv run pytest          # offline suite, no keys needed
 uv run python scripts/step_b.py --rounds 6 --condition contact   # a real set (needs .env keys)
-uv run python scripts/run_staff.py --run <run_id>                # the office closes the set
+uv run python scripts/run_staff.py --run <run_id>                # the staff close the set
 ```
 
 Web (zero-env fixture mode works out of the box; `DATABASE_URL` switches to Neon):

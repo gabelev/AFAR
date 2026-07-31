@@ -64,7 +64,7 @@ function TapeTakeRow({
         </span>
         <span style={{ fontWeight: 600, width: 150, flex: "none", fontSize: 13 }}>
           {isActId(take.agentId) ? (
-            <Link href={`/act/${take.agentId}`}>{displayName(take.agentId)}</Link>
+            <Link href={`/artist/${take.agentId}`}>{displayName(take.agentId)}</Link>
           ) : (
             displayName(take.agentId)
           )}

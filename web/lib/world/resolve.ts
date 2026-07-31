@@ -26,7 +26,7 @@ export const CHARACTER_RESOLVE: Record<string, ResolveEntry> = Object.fromEntrie
   Object.entries(PLACEMENTS).map(([id, p]) => [
     id,
     {
-      route: `/${p.kind === "act" ? "act" : "staff"}/${id}`,
+      route: `/${p.kind === "act" ? "artist" : "staff"}/${id}`,
       target: { tx: p.tx + 0.5, ty: p.ty + 0.5 },
       sprite: p.sprite,
     },
@@ -46,14 +46,14 @@ export const STREET_RESOLVE: Record<string, ResolveEntry> = Object.fromEntries(
 export function resolveWorld(id: string): ResolveEntry | null {
   if (id in CHARACTER_RESOLVE) return CHARACTER_RESOLVE[id];
   if (id in STREET_RESOLVE) return STREET_RESOLVE[id];
-  if (/^\d{4}$/.test(id)) return { route: `/release/${id}`, target: ARCHIVE_TARGET };
+  if (/^\d{4}$/.test(id)) return { route: `/album/afar-${id}`, target: ARCHIVE_TARGET };
   return null;
 }
 
 /** Right-pane pathname → world target (camera centring on route change). */
 export function routeTarget(pathname: string): WorldTarget | null {
-  const act = pathname.match(/^\/(?:act|staff)\/([^/]+)/);
+  const act = pathname.match(/^\/(?:artist|staff)\/([^/]+)/);
   if (act) return CHARACTER_RESOLVE[act[1]]?.target ?? null;
-  if (/^\/release\/[^/]+/.test(pathname)) return ARCHIVE_TARGET;
+  if (/^\/album\/[^/]+/.test(pathname)) return ARCHIVE_TARGET;
   return null;
 }

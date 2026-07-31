@@ -472,6 +472,62 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
+/* — album grid (/music + artist discographies) — */
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+.album-card-cover {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-bottom: 1px solid var(--hairline);
+}
+.album-card-cover svg,
+.album-card-cover img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.album-card-reel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--paper-2);
+  color: var(--sec-deep);
+}
+.filter-chip {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  padding: 6px 12px;
+  border: 1px solid var(--hairline-frame);
+  color: var(--sec-deep);
+  background: none;
+  cursor: pointer;
+}
+.filter-chip:hover {
+  outline-color: var(--ink);
+  color: var(--ink);
+}
+.filter-chip[data-active] {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* — the new-releases row (/music): one horizontal shelf — */
+.release-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 160px;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
 /* — take play button (mono register, hairline box) — */
 .playbtn {
   width: 28px;
