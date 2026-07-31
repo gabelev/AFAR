@@ -6,6 +6,7 @@ import {
   compileTimeline,
   conditionLine,
   LISTEN_SECONDS,
+  preferTimelineBlocks,
   ROUND_SECONDS,
   TRANSITION_SECONDS,
   type ListeningEvent,
@@ -207,5 +208,38 @@ describe("clock", () => {
   it("formats the design's event-log clock", () => {
     expect(clock(0)).toBe("00:00");
     expect(clock(195)).toBe("03:15");
+  });
+});
+
+describe("preferTimelineBlocks", () => {
+  const fixture = [contactBlock];
+
+  it("prefers a valid DB-published timeline over the fixture", () => {
+    const db = { blocks: [contactBlock, isolationBlock] };
+    const chosen = preferTimelineBlocks(fixture, db);
+    expect(chosen).toHaveLength(2);
+    expect(chosen.map((b) => b.releaseId)).toEqual(["0002", "0004"]);
+  });
+
+  it("falls back to the fixture when the row is missing or empty", () => {
+    expect(preferTimelineBlocks(fixture, undefined)).toBe(fixture);
+    expect(preferTimelineBlocks(fixture, null)).toBe(fixture);
+    expect(preferTimelineBlocks(fixture, {})).toBe(fixture);
+    expect(preferTimelineBlocks(fixture, { blocks: [] })).toBe(fixture);
+    expect(preferTimelineBlocks(fixture, "not json")).toBe(fixture);
+  });
+
+  it("falls back when any block is structurally broken", () => {
+    // linesByRound shorter than rounds — a half-written or mis-shaped row.
+    const broken = { ...contactBlock, linesByRound: contactBlock.linesByRound.slice(0, 1) };
+    expect(preferTimelineBlocks(fixture, { blocks: [broken] })).toBe(fixture);
+    expect(preferTimelineBlocks(fixture, { blocks: [{ releaseId: "0009" }] })).toBe(fixture);
+    // One bad block poisons the payload — all or nothing, the fixture answers.
+    expect(preferTimelineBlocks(fixture, { blocks: [isolationBlock, broken] })).toBe(fixture);
+  });
+
+  it("accepts the committed fixture's own shape (the contract is shared)", () => {
+    const committed = committedSource as unknown as { blocks: TimelineSource[] };
+    expect(preferTimelineBlocks(fixture, committed)).toBe(committed.blocks);
   });
 });

@@ -10,6 +10,7 @@ dependencies = ["ensemble"]
 [project.optional-dependencies]
 dev = ["pytest>=8"]
 listen = ["torch", "transformers", "librosa", "soundfile", "nnAudio"]
+publish = ["psycopg[binary]>=3.1"]
 
 [tool.uv.sources]
 ensemble = { path = "../../moldzine/ensemble", editable = true }

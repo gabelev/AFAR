@@ -46,6 +46,44 @@ export interface TimelineCatalogueSource {
   blocks: TimelineSource[];
 }
 
+/**
+ * Prefer the DB-published timeline over the build-time fixture. The kernel's
+ * publish path (kernel/afar/publish.py, run by the conductor on the droplet)
+ * writes the compiled catalogue to Neon (`timeline_source`, id 'current') —
+ * the same shape compile_timeline.mjs writes to the fixture — so a publish
+ * reaches production WITHOUT a rebuild. The row is validated structurally
+ * before it is trusted: a malformed or empty payload (a half-written row, an
+ * old schema) falls back to the committed fixture, which always works.
+ */
+export function preferTimelineBlocks(
+  fixtureBlocks: TimelineSource[],
+  dbData: unknown,
+): TimelineSource[] {
+  if (typeof dbData !== "object" || dbData === null) return fixtureBlocks;
+  const blocks = (dbData as { blocks?: unknown }).blocks;
+  if (!Array.isArray(blocks) || blocks.length === 0) return fixtureBlocks;
+  const ok = blocks.every((b: unknown) => {
+    if (typeof b !== "object" || b === null) return false;
+    const block = b as Record<string, unknown>;
+    return (
+      typeof block.releaseId === "string" &&
+      typeof block.title === "string" &&
+      typeof block.era === "string" &&
+      typeof block.set === "number" &&
+      typeof block.condition === "string" &&
+      typeof block.rounds === "number" &&
+      typeof block.names === "object" &&
+      block.names !== null &&
+      Array.isArray(block.linesByRound) &&
+      block.linesByRound.length === block.rounds &&
+      Array.isArray(block.artifactsByRound) &&
+      typeof block.intentEdgesByRound === "object" &&
+      block.intentEdgesByRound !== null
+    );
+  });
+  return ok ? (blocks as TimelineSource[]) : fixtureBlocks;
+}
+
 export interface RoundEvent {
   kind: "round";
   /** Loop-clock seconds at which the event starts. */

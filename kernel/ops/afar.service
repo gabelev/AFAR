@@ -1,0 +1,29 @@
+[Unit]
+Description=AFAR conductor — the continuous loop (afar.band kernel)
+Wants=network-online.target
+After=network-online.target
+# If restarts are exhausted the unit enters failed state; escalate to the healer.
+OnFailure=afar-heal@%n.service
+StartLimitIntervalSec=10min
+StartLimitBurst=5
+
+[Service]
+Type=simple
+# Droplet layout: code at /root/projects/AFAR (+ ../moldzine/ensemble), runs/ inside it.
+WorkingDirectory=/root/projects/AFAR/kernel
+EnvironmentFile=/etc/afar/afar.env
+Environment=HOME=/root
+ExecStart=/root/.local/bin/uv run python -m afar.conductor
+Restart=always
+RestartSec=10
+# SIGTERM contract: finish the current round, checkpoint, exit 0. A live round
+# is three renders (90s timeout each) plus staff/publish — give it room.
+TimeoutStopSec=900
+# Hardening (from mold-issue.service)
+NoNewPrivileges=true
+ProtectSystem=full
+ReadWritePaths=/root/projects /var/lib/afar
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
