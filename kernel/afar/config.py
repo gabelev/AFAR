@@ -15,7 +15,10 @@ Conductor knobs (the spend controls — see afar/conductor.py):
     AFAR_ENABLED        -> "1" runs the piece; anything else idles + heartbeats
                            (default "0": the master switch ships OFF)
     AFAR_SETS_PER_DAY   -> pacing target, float (default 3.0)
-    AFAR_DAILY_GEN_CAP  -> hard ceiling on generations per UTC day (default 60)
+    AFAR_DAILY_AUDIO_MINUTES -> hard ceiling on generated audio-minutes per
+                           UTC day (default 110 — the $500/mo sizing; replaces
+                           AFAR_DAILY_GEN_CAP: with variable take lengths,
+                           minutes are what cost money, so minutes are the gate)
     AFAR_FAILURE_BACKOFF_MIN -> minutes before retrying after a failed set,
                            doubling per consecutive failure, capped at the
                            pace interval (default 15)
@@ -206,6 +209,10 @@ def _mock_staff(messages: Sequence[Message]) -> str | None:
             "[mock] One take from each act made the release; each was the round "
             "the panel could not argue with."
         )
+    if '"duration_s"' in text and "how long should" in text:
+        return json.dumps(
+            {"duration_s": 30, "why": "[mock] a sketch session — keep the takes short"}
+        )
     if '"palette_notes"' in text and "Write the brief" in text:
         return json.dumps(
             {
@@ -237,7 +244,7 @@ class AfarConfig:
     # Conductor spend controls (defaults keep every existing caller working).
     enabled: bool = False  # AFAR_ENABLED — the master switch; ships OFF
     sets_per_day: float = 3.0  # AFAR_SETS_PER_DAY — pacing target
-    daily_gen_cap: int = 60  # AFAR_DAILY_GEN_CAP — hard per-UTC-day ceiling
+    daily_audio_minutes: float = 110.0  # AFAR_DAILY_AUDIO_MINUTES — the hard daily gate
     failure_backoff_min: float = 15.0  # AFAR_FAILURE_BACKOFF_MIN — post-failure retry delay
 
 
@@ -291,9 +298,9 @@ def build_config() -> AfarConfig:
     sets_per_day = float(os.environ.get("AFAR_SETS_PER_DAY", "3"))
     if sets_per_day <= 0:
         raise ValueError(f"AFAR_SETS_PER_DAY must be > 0, got {sets_per_day}")
-    daily_gen_cap = int(os.environ.get("AFAR_DAILY_GEN_CAP", "60"))
-    if daily_gen_cap < 0:
-        raise ValueError(f"AFAR_DAILY_GEN_CAP must be >= 0, got {daily_gen_cap}")
+    daily_audio_minutes = float(os.environ.get("AFAR_DAILY_AUDIO_MINUTES", "110"))
+    if daily_audio_minutes < 0:
+        raise ValueError(f"AFAR_DAILY_AUDIO_MINUTES must be >= 0, got {daily_audio_minutes}")
     failure_backoff_min = float(os.environ.get("AFAR_FAILURE_BACKOFF_MIN", "15"))
     if failure_backoff_min <= 0:
         raise ValueError(f"AFAR_FAILURE_BACKOFF_MIN must be > 0, got {failure_backoff_min}")
@@ -305,6 +312,6 @@ def build_config() -> AfarConfig:
         code_sha=_code_sha(),
         enabled=os.environ.get("AFAR_ENABLED", "0") == "1",
         sets_per_day=sets_per_day,
-        daily_gen_cap=daily_gen_cap,
+        daily_audio_minutes=daily_audio_minutes,
         failure_backoff_min=failure_backoff_min,
     )

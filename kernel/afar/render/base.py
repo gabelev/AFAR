@@ -44,15 +44,27 @@ def chunk_lyrics(intent: Intent) -> str:
     return intent.lyrics if intent.lyrics.strip() else intent.line
 
 
+#: The default take length in seconds — what every render assumes unless the
+#: Producer's direction says otherwise.
+DEFAULT_DURATION_S = 30
+
+
 @runtime_checkable
 class Renderer(Protocol):
-    """Intent -> audio file. `continue_from` is reserved for future continuity
-    schemes; Step A renderers refuse it rather than fake it."""
+    """Intent -> audio file. `duration_s` is the Producer's session length
+    (default 30s — every pre-direction caller keeps its behavior).
+    `continue_from` is reserved for future continuity schemes; Step A
+    renderers refuse it rather than fake it."""
 
     name: str
 
     def render(
-        self, intent: Intent, *, seed: int, continue_from: Optional[Path] = None
+        self,
+        intent: Intent,
+        *,
+        seed: int,
+        duration_s: int = DEFAULT_DURATION_S,
+        continue_from: Optional[Path] = None,
     ) -> RenderResult: ...
 
 
@@ -72,12 +84,17 @@ class MockRenderer:
         self.out_dir = Path(out_dir)
 
     def render(
-        self, intent: Intent, *, seed: int, continue_from: Optional[Path] = None
+        self,
+        intent: Intent,
+        *,
+        seed: int,
+        duration_s: int = DEFAULT_DURATION_S,
+        continue_from: Optional[Path] = None,
     ) -> RenderResult:
         if continue_from is not None:
             raise NotImplementedError("continuity is not supported in Step A renderers")
 
-        built = build_composition_plan(intent, chunk_lyrics(intent))
+        built = build_composition_plan(intent, chunk_lyrics(intent), duration_ms=duration_s * 1000)
         # Same body shape as the live renderer: ONLY model_id + composition_plan
         # (context_adherence lives inside the plan's chunk in music_v2).
         prompt_payload = {
@@ -89,7 +106,10 @@ class MockRenderer:
         ).hexdigest()
 
         block = hashlib.sha256(f"{intent.content_hash()}:{seed}".encode("utf-8")).digest()
-        audio = b"afar-mock-track\n" + block * 32  # ~1KB, deterministic, obviously not mp3
+        # Byte length scales with duration (32 blocks per 30s: ~1KB at the
+        # default, byte-identical to the pre-duration mock at 30s) so tests
+        # can see a longer take in the artifact itself.
+        audio = b"afar-mock-track\n" + block * (32 * duration_s // DEFAULT_DURATION_S)
         content_hash = hashlib.sha256(audio).hexdigest()
 
         self.out_dir.mkdir(parents=True, exist_ok=True)
@@ -106,5 +126,6 @@ class MockRenderer:
                 "context_adherence": built.context_adherence,
                 "provenance": built.provenance,
                 "seed": seed,
+                "duration_s": duration_s,
             },
         )

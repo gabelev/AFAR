@@ -210,18 +210,46 @@ def test_the_brief_is_consumed_by_the_producers_direction_half():
     assert direction["text"] == brief.body
     assert direction["palette_notes"] == list(brief.palette_notes)
     assert direction["forbidden_moves"] == list(brief.forbidden_moves)
+    # The one creative call made here: the session's take length (the mock
+    # Producer chooses the 30s sketch), clamped to 30-120 whatever the model says.
+    assert direction["duration_s"] == 30
+    assert direction["duration_why"]
 
 
 def test_nothing_brief_shaped_can_enter_a_mid_set_context():
-    # build_context is the single chokepoint (rule 1) and its signature admits
-    # players' RunView state only — there is no parameter a brief could ride
-    # in on. The world enters through the brief at set start, never the ear.
+    # build_context is the single chokepoint (rule 1). The Producer's
+    # direction is the ONE frame parameter it admits, and direction_frame is
+    # a hard whitelist: only text / palette_notes / forbidden_moves /
+    # duration_s cross. Everything else staff-shaped — stance, theme, a
+    # review, a verdict — is structurally unable to reach a mid-set context,
+    # whatever a caller stuffs into the direction dict.
     import inspect
 
-    from afar.perception.context import build_context
+    from afar.perception.context import RunView, build_context
 
     params = set(inspect.signature(build_context).parameters)
-    assert params == {"player_id", "t", "run", "condition"}
+    assert params == {"player_id", "t", "run", "condition", "direction"}
+
+    smuggled = {
+        "text": "hold the room",
+        "palette_notes": ["close-mic'd"],
+        "forbidden_moves": ["field-move x"],
+        "duration_s": 60,
+        # staff-shaped material that must never cross:
+        "stance": "hostile",
+        "theme": "rooms",
+        "brief": "the whole brief body",
+        "review": "the Critic's word",
+        "verdict": "no release",
+        "sources": ["https://outside.world"],
+    }
+    context = build_context("silt", 0, RunView(), "contact", direction=smuggled)
+    assert context["direction"] == {
+        "text": "hold the room",
+        "palette_notes": ["close-mic'd"],
+        "forbidden_moves": ["field-move x"],
+        "duration_s": 60,
+    }
 
 
 # --- wiring ---------------------------------------------------------------------

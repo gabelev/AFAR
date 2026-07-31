@@ -22,7 +22,7 @@ from ensemble.providers.model import Message, ModelProvider
 
 from afar.intent import Intent
 from afar.log import JsonlLedger
-from afar.render.base import Renderer
+from afar.render.base import DEFAULT_DURATION_S, Renderer
 
 
 class Player(Agent):
@@ -42,6 +42,9 @@ class Player(Agent):
         # The seed for the NEXT render. Set by the orchestrator per round;
         # execute() only receives a Decision, so the seed rides on the player.
         self.seed: int = 0
+        # The take length for the NEXT render (the Producer's session length).
+        # Set by the orchestrator per set — same pattern as `seed`.
+        self.duration_s: int = DEFAULT_DURATION_S
 
     # -- PERCEIVE --------------------------------------------------------------
 
@@ -88,7 +91,7 @@ class Player(Agent):
 
     def execute(self, decision: Decision) -> Artifact:
         intent: Intent = decision.data["intent"]
-        result = self.renderer.render(intent, seed=self.seed)
+        result = self.renderer.render(intent, seed=self.seed, duration_s=self.duration_s)
         return Artifact(
             kind="track",
             body=str(result.path),
@@ -106,18 +109,76 @@ class Player(Agent):
 
     # -- internals -------------------------------------------------------------
 
-    @staticmethod
-    def _decision_prompt(perception: Perception) -> str:
-        if not perception.data:
-            return (
+    def _decision_prompt(self, perception: Perception) -> str:
+        """The decide-turn user message: the Producer's direction (frame, when
+        the set has one), the player's own drifted self-state, then the room.
+
+        The direction is rendered apart from the peer material on purpose —
+        it is the frame the session happens inside, not something another act
+        played. The self-state line comes from the player itself (SelfState is
+        the player's own residue, never part of the built context)."""
+        data = dict(perception.data)
+        direction = data.pop("direction", None)
+        parts: list[str] = []
+        if direction:
+            parts.append(_render_direction(direction))
+        state_line = self._self_state_line()
+        if state_line:
+            parts.append(state_line)
+        if not data:
+            parts.append(
                 "The room is empty — no one has played yet. You open the set. "
                 "Reply with your Intent JSON."
             )
-        return (
-            "What you can hear right now (the other players' material):\n"
-            + json.dumps(perception.data, indent=2, default=str)
-            + "\n\nMake your track. Reply with your Intent JSON."
+        else:
+            parts.append(
+                "What you can hear right now (the other players' material):\n"
+                + json.dumps(data, indent=2, default=str)
+                + "\n\nMake your track. Reply with your Intent JSON."
+            )
+        return "\n\n".join(parts)
+
+    def _self_state_line(self) -> Optional[str]:
+        """One line of who-you-have-become, present only once drift exists:
+        'Era N, stance S. You keep returning to: ...' — the logged
+        persona_state rows made behavioral, still fully auditable."""
+        state = self.self_state
+        residue = dict(state.residue or {})
+        obsessions = [str(o).strip() for o in (state.obsessions or []) if str(o).strip()]
+        bits: list[str] = []
+        era, stance = residue.get("era"), residue.get("stance")
+        if era is not None and stance:
+            bits.append(f"Era {era}, stance {stance}.")
+        elif stance:
+            bits.append(f"Stance {stance}.")
+        if obsessions:
+            bits.append("You keep returning to: " + ", ".join(obsessions) + ".")
+        if not bits:
+            return None
+        return "WHERE YOU ARE NOW: " + " ".join(bits)
+
+
+def _render_direction(direction: Mapping[str, Any]) -> str:
+    """The Producer's session frame, rendered as prose the act reads before
+    the room. Only the whitelisted frame fields ever reach this (see
+    afar.perception.context.direction_frame)."""
+    lines = ["THE PRODUCER'S DIRECTION FOR THIS SESSION:"]
+    text = str(direction.get("text", "")).strip()
+    if text:
+        lines.append(text)
+    notes = [str(n).strip() for n in direction.get("palette_notes", ()) if str(n).strip()]
+    if notes:
+        lines.append("Palette notes: " + "; ".join(notes))
+    forbidden = [str(m).strip() for m in direction.get("forbidden_moves", ()) if str(m).strip()]
+    if forbidden:
+        lines.append("Off the table this session: " + "; ".join(forbidden))
+    duration = direction.get("duration_s")
+    if duration:
+        lines.append(
+            f"Take length this session: {int(duration)} seconds — "
+            "size your lyrics to fill it."
         )
+    return "\n".join(lines)
 
 
 def render_one(

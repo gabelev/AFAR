@@ -47,8 +47,16 @@ POSITIVE_STYLE_BUDGET = 7
 # Docs: leaving negatives empty is typical — send only the strongest few bans.
 NEGATIVE_STYLE_BUDGET = 4
 LYRIC_LINE_MAX_CHARS = 180
-LYRIC_MAX_LINES = 8
-TRACK_DURATION_MS = 30_000
+LYRIC_MAX_LINES = 8  # the 30s default's line budget; longer takes derive theirs
+LYRIC_MAX_LINES_CAP = 24  # no take carries more lines than this, however long
+LYRIC_LINES_PER_30S = 8
+TRACK_DURATION_MS = 30_000  # the default take length; the Producer may direct longer
+#: At or under this, one chunk carries the whole take (byte-identical to the
+#: original single-chunk plan at the 30s default — the oracle-parity bar).
+SINGLE_CHUNK_MAX_MS = 45_000
+#: The Producer's direction range (afar.agents.producer clamps to this).
+MIN_TRACK_DURATION_MS = 30_000
+MAX_TRACK_DURATION_MS = 120_000
 
 ContextAdherence = str  # "low" | "medium" | "high"
 
@@ -237,13 +245,22 @@ def context_adherence_for(improvised_structured: float) -> ContextAdherence:
     return "high"
 
 
-def clamp_lyrics(text: str) -> str:
+def lyric_line_budget(duration_ms: int) -> int:
+    """How many lyric lines a take of `duration_ms` can carry: ~8 lines per
+    30 seconds (the singable density the 30s takes established), capped at
+    LYRIC_MAX_LINES_CAP so a two-minute take never becomes a wall of text.
+    At the 30s default this is exactly LYRIC_MAX_LINES — oracle parity."""
+    return min(LYRIC_MAX_LINES_CAP, _js_round(LYRIC_LINES_PER_30S * duration_ms / 30_000))
+
+
+def clamp_lyrics(text: str, max_lines: int = LYRIC_MAX_LINES) -> str:
     """Clamp lyrics line by line: the API's ~200-char limit is per LINE (200/line
     500s; 180 is the verified-safe clamp), and multi-line text is how a 30s
-    chunk carries a singable word count."""
+    chunk carries a singable word count. `max_lines` defaults to the 30s
+    budget; longer takes pass `lyric_line_budget(duration_ms)`."""
     lines = [line.strip() for line in re.split(r"\r?\n", text)]
     return "\n".join(
-        _clamp_line(line) for line in [ln for ln in lines if ln][:LYRIC_MAX_LINES]
+        _clamp_line(line) for line in [ln for ln in lines if ln][:max_lines]
     )
 
 
@@ -264,7 +281,41 @@ class _Candidate:
     source: str
 
 
-def build_composition_plan(intent: Intent, lyrics: str) -> PlanWithProvenance:
+def section_count(duration_ms: int) -> int:
+    """How many chunks a LONG take (over SINGLE_CHUNK_MAX_MS) splits into:
+    2 sections to 60s, 3 to 90s, 4 beyond — an intro/body/outro-ish arc
+    without ever asking the model for more than 4 coherent movements."""
+    if duration_ms <= 60_000:
+        return 2
+    if duration_ms <= 90_000:
+        return 3
+    return 4
+
+
+def _section_durations_ms(duration_ms: int, sections: int) -> list[int]:
+    """Even split; the final section absorbs the integer remainder so the
+    chunk durations always sum exactly to the take's duration."""
+    base = duration_ms // sections
+    durations = [base] * sections
+    durations[-1] += duration_ms - base * sections
+    return durations
+
+
+def _distribute_lines(lines: Sequence[str], sections: int) -> list[str]:
+    """Spread the clamped lyric lines across `sections` chunks, contiguous and
+    in order (a lyric is a sequence, not a deck to shuffle). Early sections
+    may come up empty when the lyric is short — an instrumental intro is an
+    honest reading of a short lyric on a long take."""
+    total = len(lines)
+    return [
+        "\n".join(lines[k * total // sections : (k + 1) * total // sections])
+        for k in range(sections)
+    ]
+
+
+def build_composition_plan(
+    intent: Intent, lyrics: str, duration_ms: int = TRACK_DURATION_MS
+) -> PlanWithProvenance:
     """Build the full composition plan for one track.
 
     `lyrics` comes from the player (driven by lyricalObsessions + mood); it is
@@ -275,7 +326,16 @@ def build_composition_plan(intent: Intent, lyrics: str) -> PlanWithProvenance:
     axes, the solo combo), the rest compete on magnitude for the remaining
     budget. Influence scores are boosted x1.5 because weights sum to 1 across
     four genres while axes reach +-1.
+
+    `duration_ms` (the Producer's session length, default 30s): at or under
+    SINGLE_CHUNK_MAX_MS the plan is one chunk — byte-identical to the original
+    plan at the default, the oracle-parity bar. Longer takes split into 2-4
+    sections (section_count), each chunk carrying the same 7/4-budget style
+    arrays and its contiguous share of the lyric; the lyric line budget itself
+    scales with duration (lyric_line_budget).
     """
+    if duration_ms <= 0:
+        raise ValueError(f"duration_ms must be > 0, got {duration_ms}")
     guaranteed: list[_Candidate] = []
     pool: list[_Candidate] = []
     negatives: list[_Candidate] = []
@@ -360,18 +420,36 @@ def build_composition_plan(intent: Intent, lyrics: str) -> PlanWithProvenance:
         provenance.append("lyricalObsessions")
 
     context_adherence = context_adherence_for(palette.improvisedStructured)
+    positive_tokens_list = [c.token for c in positive]
+    negative_tokens_list = [c.token for c in negative]
+    clamped = clamp_lyrics(lyrics, max_lines=lyric_line_budget(duration_ms))
+
+    if duration_ms <= SINGLE_CHUNK_MAX_MS:
+        chunks = [
+            {
+                "text": clamped,
+                "duration_ms": duration_ms,
+                "positive_styles": positive_tokens_list,
+                "negative_styles": negative_tokens_list,
+                "context_adherence": context_adherence,
+            }
+        ]
+    else:
+        sections = section_count(duration_ms)
+        texts = _distribute_lines(clamped.split("\n") if clamped else [], sections)
+        chunks = [
+            {
+                "text": text,
+                "duration_ms": section_ms,
+                "positive_styles": list(positive_tokens_list),
+                "negative_styles": list(negative_tokens_list),
+                "context_adherence": context_adherence,
+            }
+            for text, section_ms in zip(texts, _section_durations_ms(duration_ms, sections))
+        ]
+
     return PlanWithProvenance(
-        plan={
-            "chunks": [
-                {
-                    "text": clamp_lyrics(lyrics),
-                    "duration_ms": TRACK_DURATION_MS,
-                    "positive_styles": [c.token for c in positive],
-                    "negative_styles": [c.token for c in negative],
-                    "context_adherence": context_adherence,
-                }
-            ],
-        },
+        plan={"chunks": chunks},
         context_adherence=context_adherence,
         provenance=provenance,
     )

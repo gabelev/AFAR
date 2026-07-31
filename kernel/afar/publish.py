@@ -301,7 +301,9 @@ def build_track_rows(
                 "agentId": pid,
                 "title": take_titles.get(pid)
                 or f"{release_title} — {STAGE_NAMES.get(pid, pid)}'s take",
-                "durationSec": 30,  # music_v2 renders 30s takes
+                # The set's take length (the Producer's direction); 30 for
+                # every record written before lengths were variable.
+                "durationSec": int(record.get("set", {}).get("duration_s", 30)),
                 "audioUrl": f"/api/media/{takes[pid]['hash']}",
                 # provenance (stripped by data.ts on read)
                 "titledBy": "the Critic" if take_titles.get(pid) else None,
