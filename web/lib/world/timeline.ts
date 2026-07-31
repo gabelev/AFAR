@@ -1,15 +1,18 @@
 /**
- * The world's timeline: the First Contact set (release 0002) compiled into
- * a loop of world behaviour. NOTHING here is invented — every speech bubble
- * is a line an act actually wrote during the logged session, and every
- * listening event mirrors a logged perception: in a "contact" set each act
- * heard the others' previous-round takes, and the kernel wrote an
- * influence edge for it. The world just acts that record out.
+ * The world's timeline: the WHOLE published catalogue compiled into one
+ * loop of world behaviour, played chronologically (0002 → 0003 → 0004 →
+ * repeat). NOTHING here is invented — every speech bubble is a line an act
+ * actually wrote during its logged session, and every listening event
+ * mirrors a logged perception: in a "contact" set each act heard the
+ * others' previous-round takes, and the kernel wrote an influence edge for
+ * it. In an "isolation" set nobody heard anybody — so the world stages NO
+ * listening events for those sets; the acts stay in their studios, doors
+ * closed. The world just acts the record out.
  *
- * Source data: the release row's provenance metadata (Neon release 0002 —
- * artifactsByRound, lines, influenceRawByRound) plus the per-round lines
- * from the run's release record, compiled into fixtures/timeline-source.json
- * by scripts/compile_timeline.mjs. The compile itself is pure and tested.
+ * Source data: one set-block per published release with run data, compiled
+ * into fixtures/timeline-source.json by scripts/compile_timeline.mjs from
+ * the authoritative run logs (runs/<id>/release-*.json) plus the Neon
+ * release rows' display facts. The compile itself is pure and tested.
  */
 
 export const PLAYERS = ["silt", "rust", "keep"] as const;
@@ -17,7 +20,7 @@ export type WorldActId = (typeof PLAYERS)[number];
 
 const INITIALS: Record<WorldActId, string> = { silt: "DM", rust: "RP", keep: "EL" };
 
-/** The release-row-shaped input the compiler reads (fixture or Neon). */
+/** The release-row-shaped input for ONE set-block (fixture or Neon). */
 export interface TimelineSource {
   releaseId: string;
   title: string;
@@ -36,6 +39,11 @@ export interface TimelineSource {
    * (release metadata.influenceRawByRound.intent). Higher = stronger pull.
    */
   intentEdgesByRound: Record<string, Record<string, number>>;
+}
+
+/** The whole catalogue: set-blocks in chronological order (oldest first). */
+export interface TimelineCatalogueSource {
+  blocks: TimelineSource[];
 }
 
 export interface RoundEvent {
@@ -64,7 +72,21 @@ export interface ListeningEvent {
   edgeLine: string;
 }
 
-export type WorldEvent = RoundEvent | ListeningEvent;
+/** The beat between set-blocks: the world announces the next record. */
+export interface TransitionEvent {
+  kind: "transition";
+  t: number;
+  duration: number;
+  /** e.g. `NEXT: AFAR-0004 · THREE ROOMS, NO DOORS`. */
+  caption: string;
+  /** The rail's NOW line for the beat, e.g. `next: AFAR-0004 · Three Rooms, No Doors`. */
+  nowLine: string;
+}
+
+export type WorldEvent = RoundEvent | ListeningEvent | TransitionEvent;
+
+/** A catalogue event knows which set-block it belongs to. */
+export type CatalogueEvent = WorldEvent & { block: number };
 
 export interface WorldTimeline {
   releaseId: string;
@@ -79,19 +101,56 @@ export interface WorldTimeline {
   loopDuration: number;
 }
 
+/** Per-block display facts the world reads while a block is playing. */
+export interface SetBlockMeta {
+  releaseId: string;
+  catalogueNo: string;
+  title: string;
+  era: string;
+  set: number;
+  condition: string;
+  /** Plain-language condition caption, e.g. `RECORDED ALONE — NO ONE HEARS ANYONE`. */
+  conditionLine: string;
+  names: Record<WorldActId, string>;
+}
+
+/** The compiled catalogue: one flat event stream over one continuous clock. */
+export interface WorldCatalogue {
+  blocks: SetBlockMeta[];
+  events: CatalogueEvent[];
+  /** Total loop length in seconds; the world wraps its clock modulo this. */
+  loopDuration: number;
+}
+
 /** Time compression: a logged round plays as ~22s of ambience, a listen as ~26s. */
 export const ROUND_SECONDS = 22;
 export const LISTEN_SECONDS = 26;
+/** The between-sets beat: long enough to read the announcement, no longer. */
+export const TRANSITION_SECONDS = 8;
 
 /**
- * Between round r and r+1 one act is staged walking to the archive (they
- * all listened, per the log; the stage shows one at a time). Rotation keeps
- * it deterministic and gives everyone the walk; the source they play is
- * their strongest logged pull for the next round.
+ * Plain-language rule (DECISIONS.md): condition codes get a caption a
+ * reader with no background can parse.
+ */
+export function conditionLine(condition: string): string {
+  if (condition === "contact") return "RECORDED TOGETHER — EACH ACT COULD HEAR THE OTHERS";
+  if (condition === "isolation") return "RECORDED ALONE — NO ONE HEARS ANYONE";
+  if (condition === "parallel") return "RECORDED SIDE BY SIDE — NO ONE COULD HEAR ANYONE";
+  return condition.toUpperCase();
+}
+
+/**
+ * Compile ONE set-block. Contact sets: between round r and r+1 one act is
+ * staged walking to the archive (they all listened, per the log; the stage
+ * shows one at a time). Rotation keeps it deterministic and gives everyone
+ * the walk; the source they play is their strongest logged pull for the
+ * next round. Isolation sets: doors closed — nobody heard anybody, so no
+ * listening events are staged at all; the rounds play back to back.
  */
 export function compileTimeline(src: TimelineSource): WorldTimeline {
   const events: WorldEvent[] = [];
   const rotation: WorldActId[] = ["keep", "rust", "silt"];
+  const heardEachOther = src.condition === "contact";
   let t = 0;
 
   for (let r = 0; r < src.rounds; r++) {
@@ -100,7 +159,7 @@ export function compileTimeline(src: TimelineSource): WorldTimeline {
     events.push({ kind: "round", t, duration: ROUND_SECONDS, round: r, lines });
     t += ROUND_SECONDS;
 
-    if (r === src.rounds - 1) break;
+    if (!heardEachOther || r === src.rounds - 1) continue;
     const actor = rotation[r % rotation.length];
     const edges = src.intentEdgesByRound[String(r + 1)];
     if (!edges) throw new Error(`timeline source is missing edges for round ${r + 1}`);
@@ -139,6 +198,48 @@ export function compileTimeline(src: TimelineSource): WorldTimeline {
     events,
     loopDuration: t,
   };
+}
+
+/**
+ * Compile the whole catalogue: blocks play in the given (chronological)
+ * order, each preceded by a transition beat announcing it — including the
+ * first, which doubles as the wrap-around beat when the loop repeats. One
+ * continuous clock runs across all blocks.
+ */
+export function compileCatalogue(src: TimelineCatalogueSource): WorldCatalogue {
+  if (src.blocks.length === 0) throw new Error("timeline catalogue has no set-blocks");
+  const blocks: SetBlockMeta[] = [];
+  const events: CatalogueEvent[] = [];
+  let t = 0;
+
+  src.blocks.forEach((blockSrc, i) => {
+    const tl = compileTimeline(blockSrc);
+    blocks.push({
+      releaseId: tl.releaseId,
+      catalogueNo: tl.catalogueNo,
+      title: tl.title,
+      era: tl.era,
+      set: tl.set,
+      condition: tl.condition,
+      conditionLine: conditionLine(tl.condition),
+      names: tl.names,
+    });
+    events.push({
+      kind: "transition",
+      t,
+      duration: TRANSITION_SECONDS,
+      caption: `NEXT: ${tl.catalogueNo} · ${tl.title.toUpperCase()}`,
+      nowLine: `next: ${tl.catalogueNo} · ${tl.title}`,
+      block: i,
+    });
+    t += TRANSITION_SECONDS;
+    for (const ev of tl.events) {
+      events.push({ ...ev, t: t + ev.t, block: i });
+    }
+    t += tl.loopDuration;
+  });
+
+  return { blocks, events, loopDuration: t };
 }
 
 /** "MM:SS" for the world's loop clock (the design's event-log clock format). */

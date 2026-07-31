@@ -5,14 +5,18 @@
  * design handoff's pixel spec (assets pre-rendered at 1x by
  * scripts/render_pixels.mjs, displayed at 2x, pixelArt on).
  *
- * World behaviour is the compiled timeline of release 0002 — the logged
- * First Contact set on loop. Round phases: the three acts idle in their
- * studios with the lines they actually wrote. Between rounds: a LISTENING
- * EVENT — one act walks studio → corridor → archive, the camera glides and
- * follows, the walked path is paper dashes, the building dims except the
- * archive and the walked corridor, the turntable lamp lights with three
- * dotted sound rings, and on needle-up the logged influence edge is shown.
- * Every word on screen comes from the log; the world only stages it.
+ * World behaviour is the compiled catalogue — every published set played
+ * chronologically (0002 → 0003 → 0004 → repeat) on one continuous clock.
+ * Round phases: the three acts idle in their studios with the lines they
+ * actually wrote. In CONTACT sets, between rounds: a LISTENING EVENT — one
+ * act walks studio → corridor → archive, the camera glides and follows,
+ * the walked path is paper dashes, the building dims except the archive
+ * and the walked corridor, the turntable lamp lights with three dotted
+ * sound rings, and on needle-up the logged influence edge is shown. In
+ * ISOLATION sets the doors stay closed — nobody walks, nobody listens,
+ * because nobody heard anybody; that is the condition. Between set-blocks
+ * a transition beat announces the next record. Every word on screen comes
+ * from the log; the world only stages it.
  */
 
 import { CAMERA_MARGIN, cameraBounds, clampMidpoint } from "@/lib/world/camera";
@@ -23,8 +27,9 @@ import {
   clock,
   type ListeningEvent,
   type RoundEvent,
+  type TransitionEvent,
   type WorldActId,
-  type WorldTimeline,
+  type WorldCatalogue,
 } from "@/lib/world/timeline";
 
 const T = 16;
@@ -83,10 +88,10 @@ export async function createWorld(
   const Ph = (await import("phaser")).default;
   const era = opts.era === "B" ? "B" : "A";
 
-  let timeline: WorldTimeline | null = null;
+  let timeline: WorldCatalogue | null = null;
   try {
     const res = await fetch("/api/timeline");
-    if (res.ok) timeline = (await res.json()) as WorldTimeline;
+    if (res.ok) timeline = (await res.json()) as WorldCatalogue;
   } catch {
     /* the building still stands with no timeline */
   }
@@ -135,18 +140,20 @@ export async function createWorld(
 
   container.appendChild(overlay);
 
-  const eraCaption = timeline
-    ? `ERA ${timeline.era} · SET ${timeline.set} · ` +
-      (timeline.condition === "contact"
-        ? "RECORDED TOGETHER — EACH ACT COULD HEAR THE OTHERS"
-        : timeline.condition.toUpperCase())
-    : "ERA 2020s · THE UNIVERSE";
+  // Per-block caption: which record is playing, its era, and — plain
+  // language — what the acts could hear while making it.
+  const blockCaption = (block: number) => {
+    const b = timeline?.blocks[block];
+    return b
+      ? `${b.catalogueNo} · ERA ${b.era} · SET ${b.set} · ${b.conditionLine}`
+      : "ERA 2020s · THE UNIVERSE";
+  };
   const setCaption = (text: string, tone: "normal" | "lamp" | "oxide" = "normal") => {
     caption.textContent = text;
     caption.style.color =
       tone === "lamp" ? "rgba(224,178,90,0.8)" : tone === "oxide" ? "#c0663f" : "rgba(214,207,188,0.55)";
   };
-  setCaption(eraCaption);
+  setCaption(blockCaption(0));
 
   const el = (cls: string, style: Partial<CSSStyleDeclaration>, text?: string) => {
     const d = document.createElement("div");
@@ -416,17 +423,39 @@ export async function createWorld(
       const ev = timeline.events[index];
       const next = () => this.runEvent((index + 1) % timeline!.events.length);
       if (ev.kind === "round") this.runRound(ev, next);
-      else this.runListening(ev, next);
+      else if (ev.kind === "listening") this.runListening(ev, next);
+      else this.runTransition(ev, next);
     }
 
-    runRound(ev: RoundEvent, done: () => void) {
+    /** The beat between set-blocks: the building rests, the next record is announced. */
+    runTransition(ev: TransitionEvent, done: () => void) {
+      for (const act of ["keep", "rust", "silt"] as WorldActId[]) {
+        bubbles[act].el.style.opacity = "0.4";
+      }
+      setBubble(bubbles.turntable, null);
+      setCaption(`${clock(ev.t)} · ${ev.caption}`, "lamp");
+      setNow(ev.nowLine);
+      this.time.delayedCall(ev.duration * 1000, () => {
+        for (const act of ["keep", "rust", "silt"] as WorldActId[]) {
+          bubbles[act].el.style.opacity = "1";
+        }
+        done();
+      });
+    }
+
+    runRound(ev: RoundEvent & { block: number }, done: () => void) {
       for (const act of ["keep", "rust", "silt"] as WorldActId[]) {
         this.time.delayedCall(300 + 400 * ["keep", "rust", "silt"].indexOf(act), () => {
           setBubble(bubbles[act], ev.lines[act], { accent: ACT_ACCENT[act], prefix: ACT_INITIALS[act] });
         });
       }
-      setCaption(eraCaption);
-      setNow("EL · RP · DM — recording, each alone");
+      setCaption(blockCaption(ev.block));
+      const b = timeline?.blocks[ev.block];
+      const who =
+        b?.condition === "isolation"
+          ? "EL · RP · DM — recording alone, doors closed"
+          : "EL · RP · DM — recording, each in their studio";
+      setNow(b ? `${b.catalogueNo} · ${who}` : who);
       this.time.delayedCall(ev.duration * 1000, done);
     }
 
@@ -552,7 +581,8 @@ export async function createWorld(
       this.dim.fillRect(0, 0, WORLD_W, WORLD_H);
     }
 
-    runListening(ev: ListeningEvent, done: () => void) {
+    runListening(ev: ListeningEvent & { block: number }, done: () => void) {
+      const cat = timeline?.blocks[ev.block]?.catalogueNo ?? "";
       const actor = ev.actor;
       const sprite = CHARACTER_RESOLVE[actor].sprite!;
       const s = this.chars[actor];
@@ -579,7 +609,7 @@ export async function createWorld(
       }
 
       this.drawPathDashes(actor);
-      setNow(`${ACT_INITIALS[actor]} · walking to the archive`);
+      setNow(`${cat} · ${ACT_INITIALS[actor]} — walking to the archive`);
 
       const walkMs = this.walkAlong(actor, sprite, out, () => {
         // needle down
@@ -592,7 +622,7 @@ export async function createWorld(
           `${clock(ev.t + walkMs / 1000)} · NEEDLE DOWN — THIS IS THE ONLY WAY AN ACT HEARS ANOTHER`,
           "lamp",
         );
-        setNow(`${ACT_INITIALS[actor]} · needle down in the archive`);
+        setNow(`${cat} · ${ACT_INITIALS[actor]} — needle down in the archive`);
 
         const dwellMs = Math.max(6000, ev.duration * 1000 - 2 * walkMs - 1500);
         this.time.delayedCall(dwellMs, () => {
