@@ -67,6 +67,41 @@ function loadDatabaseUrl() {
   return null;
 }
 
+/**
+ * The staff's logged rows for the world's staged staff events (the
+ * TimelineStaff shape lib/world/timeline.ts compiles). Every field is a
+ * logged word (the same display shim as the acts' lines); a stage that
+ * degraded or predates the staff simply has no entry, and the world stages
+ * nothing for it. Mirrored 1:1 in kernel/afar/publish.py timeline_staff().
+ */
+function compileStaff(record) {
+  const src = record.staff || {};
+  const staff = {};
+  if (src.producer?.note) staff.producer = { note: normalizeActNames(src.producer.note) };
+  const critic = {};
+  if (src.critic?.release_review) critic.releaseReview = normalizeActNames(src.critic.release_review);
+  const actReviews = {};
+  for (const pid of PLAYER_IDS) {
+    const text = src.critic?.act_reviews?.[pid];
+    if (text) actReviews[pid] = normalizeActNames(text);
+  }
+  if (Object.keys(actReviews).length > 0) critic.actReviews = actReviews;
+  if (Object.keys(critic).length > 0) staff.critic = critic;
+  if (src.muse?.theme || src.muse?.text) {
+    staff.muse = {
+      ...(src.muse.theme ? { theme: normalizeActNames(src.muse.theme) } : {}),
+      ...(src.muse.text ? { text: normalizeActNames(src.muse.text) } : {}),
+    };
+  }
+  if (src.listener?.text) {
+    staff.listener = {
+      ...(src.listener.valence ? { valence: src.listener.valence } : {}),
+      text: normalizeActNames(src.listener.text),
+    };
+  }
+  return Object.keys(staff).length > 0 ? staff : null;
+}
+
 /** One set-block from a release row + its run's newest release record. */
 function compileBlock(releaseId, row, runId) {
   const runDir = path.join(RUNS_ROOT, runId);
@@ -86,7 +121,9 @@ function compileBlock(releaseId, row, runId) {
     })));
   }
 
+  const staff = compileStaff(record);
   return {
+    ...(staff ? { staff } : {}),
     runId,
     releaseRecordId: record.release_id,
     releaseId,

@@ -1,9 +1,24 @@
 "use client";
 
 /**
- * The left pane: the label building as a Phaser 3 world, built from the
- * design handoff's pixel spec (assets pre-rendered at 1x by
- * scripts/render_pixels.mjs, displayed at 2x, pixelArt on).
+ * The left pane: Archive Row as a Phaser 3 world — the AFAR house on its
+ * street corner, the road, and the four resident buildings facing it —
+ * built from the design handoff's pixel spec (assets pre-rendered at 1x
+ * by scripts/render_pixels.mjs, displayed at 2x, pixelArt on). Building
+ * occupancy is DATA: /api/street resolves lease / move-in ready /
+ * occupied from the agents' building metadata, and the occupancy layer is
+ * painted at runtime with the same parity-gated painters the pipeline
+ * uses. Residents idle in their rooms under name plates — no logged
+ * lines, no speech.
+ *
+ * The staff animate from logged rows only: the Producer walks the
+ * direction (the previous boundary's logged brief) office → each studio
+ * at set start; post-set the Critic walks the per-act verdicts to each
+ * studio, the Listener takes the archive armchair with the reaction, and
+ * the Muse leaves the next theme at the window. A resident's listening
+ * event (street door → lamp crossing → the archive; the block dims except
+ * archive + crossing + their building) stages only from logged resident
+ * perceptions — none exist yet, so the machinery waits.
  *
  * The world has two ways of being watched (lib/world/mode.ts owns the
  * pure state). NOW — the default: the acts potter in their studios
@@ -31,21 +46,40 @@
 import { CAMERA_MARGIN, cameraBounds, clampMidpoint } from "@/lib/world/camera";
 import {
   BUBBLES,
+  buildingLabelPx,
   DASHES,
   DIM,
   HOME_CENTER,
+  officeToArchiveChairPath,
+  officeToStudioPath,
   PLACEMENTS,
   PLATTER,
+  readyInterior,
   ROOM_LABELS,
   SHEET_ROW,
+  STREET_BUILDINGS,
+  streetDimRects,
+  streetWalkPath,
   STUDIO_DOOR_X,
   STUDIO_NAME,
+  studioToStudioPath,
+  studioToTurntablePath,
+  tenantInterior,
+  tenantStand,
   TILE,
-  TURNTABLE_STAND,
-  WALK,
   WORLD_H,
   WORLD_W,
+  type StreetBuilding,
+  type TenantProp,
 } from "@/lib/world/geometry";
+// The same painters the asset pipeline uses (world_parity-gated): the
+// street's occupancy layer is painted at runtime from live agents data.
+import { eraPal, paintBuildingState } from "@/lib/world/pixelpaint.mjs";
+import {
+  buildingLabelText,
+  resolveBuildings,
+  type BuildingState,
+} from "@/lib/world/residents";
 import {
   onCommand,
   publishRailState,
@@ -79,10 +113,15 @@ import type { WorldTarget } from "@/lib/world/resolve";
 import { CHARACTER_RESOLVE } from "@/lib/world/resolve";
 import {
   clock,
+  type BriefEvent,
+  type DirectionDeliveredEvent,
   type ListeningEvent,
+  type ReactionEvent,
   type RoundEvent,
   type SetBlockMeta,
+  type StreetListeningEvent,
   type TransitionEvent,
+  type VerdictDeliveredEvent,
   type WorldActId,
   type WorldCatalogue,
 } from "@/lib/world/timeline";
@@ -95,9 +134,13 @@ const ZOOM = 2;
 const DIR_COL: Record<string, number> = { down: 0, left: 1, right: 2, up: 3 };
 
 const ACTS: readonly WorldActId[] = ["keep", "rust", "silt"];
+const STAFF: readonly string[] = ["producer", "critic", "listener", "muse"];
 
 const ACT_ACCENT: Record<WorldActId, string> = { keep: "#a34c2e", rust: "#71917d", silt: "#bd9040" };
 const ACT_INITIALS: Record<WorldActId, string> = { keep: "EL", rust: "RP", silt: "DM" };
+/** Staff bubble register: the office grey, initials like the acts'. */
+const STAFF_ACCENT = "#8b8577";
+const STAFF_INITIALS: Record<string, string> = { producer: "PR", critic: "CR", listener: "LS", muse: "MU" };
 
 export interface WorldHandle {
   flyTo(target: WorldTarget): void;
@@ -132,6 +175,27 @@ export async function createWorld(
   } catch {
     /* the building still stands with no timeline */
   }
+
+  // Archive Row occupancy: who lives where, from the agents' building
+  // metadata (/api/street: Neon when reachable, fixtures otherwise). The
+  // fallback is the unassigned street — FOR LEASE papered over, designed
+  // rooms move-in ready — so the block stands with zero env.
+  let streetStates: BuildingState[] = resolveBuildings(STREET_BUILDINGS, []);
+  try {
+    const res = await fetch("/api/street", { cache: "no-store" });
+    if (res.ok) {
+      const data = (await res.json()) as { buildings?: BuildingState[] };
+      if (
+        Array.isArray(data.buildings) &&
+        data.buildings.every((b) => typeof b?.id === "string" && typeof b?.status === "string")
+      ) {
+        streetStates = data.buildings;
+      }
+    }
+  } catch {
+    /* the street stands as designed */
+  }
+  const stateById = new Map(streetStates.map((s) => [s.id, s]));
 
   // ——— DOM overlay (crisp text; the canvas never draws type) ———
   const overlay = document.createElement("div");
@@ -209,13 +273,26 @@ export async function createWorld(
     ]),
   );
 
-  // Speech bubbles: one per act (near their studio) + one at the turntable.
+  // Archive Row name plates, same register, derived from each shell: the
+  // resident's name when occupied, FOR LEASE / MOVE-IN READY otherwise.
+  // Residents idle without speech — the tunz roster has no logged lines,
+  // and the world never invents one; the plate is what the street says.
+  for (const building of STREET_BUILDINGS) {
+    const state = stateById.get(building.id);
+    if (!state) continue;
+    const [lx, ly] = buildingLabelPx(building);
+    el("world-roomlabel", { left: `${lx}px`, top: `${ly}px` }, buildingLabelText(state));
+  }
+
+  // Speech bubbles: one per act (near their studio), the turntable log
+  // line, the archive armchair (the Listener's seat), the office window
+  // (the Muse's spot).
   const bubbles = Object.fromEntries(
     Object.entries(BUBBLES).map(([key, b]) => [
       key,
       { el: el("world-bubble", { left: `${b.px[0]}px`, top: `${b.px[1]}px`, maxWidth: `${b.maxWidth}px` }) },
     ]),
-  ) as Record<WorldActId, Bubble> & { turntable: Bubble };
+  ) as Record<WorldActId, Bubble> & { turntable: Bubble; archiveChair: Bubble; window: Bubble };
   const setBubble = (
     b: Bubble,
     text: string | null,
@@ -240,6 +317,8 @@ export async function createWorld(
 
   class WorldScene extends Ph.Scene {
     chars: Record<string, InstanceType<typeof Ph.GameObjects.Sprite>> = {};
+    /** Resident sprites by building id (occupied Archive Row rooms only). */
+    residents: Record<string, InstanceType<typeof Ph.GameObjects.Sprite>> = {};
     dim!: InstanceType<typeof Ph.GameObjects.Graphics>;
     litMask!: InstanceType<typeof Ph.GameObjects.Graphics>;
     fx!: InstanceType<typeof Ph.GameObjects.Graphics>; // path dashes + rings + platter light
@@ -373,6 +452,33 @@ export async function createWorld(
     create() {
       this.add.image(0, 0, era === "B" ? "bg-b" : "bg-a").setOrigin(0, 0);
 
+      // The street's occupancy layer, painted from live agents data with
+      // the SAME parity-gated painters the asset pipeline uses: lease
+      // rooms papered over, ready rooms with dust ghosts, occupied rooms
+      // fitted per the tenant system (one accent + one prop).
+      const states = this.textures.createCanvas("street-states", WORLD_W, WORLD_H);
+      if (states) {
+        const ctx = states.getContext();
+        const pal = eraPal(era);
+        for (const building of STREET_BUILDINGS) {
+          const state = stateById.get(building.id);
+          if (!state) continue;
+          const interior =
+            state.status === "occupied"
+              ? tenantInterior(building, {
+                  accent: state.accent,
+                  accentD: state.accentD,
+                  prop: state.prop as TenantProp | null,
+                })
+              : state.status === "ready"
+                ? readyInterior(building)
+                : [];
+          paintBuildingState(ctx, building, pal, { status: state.status, interior }, era);
+        }
+        states.refresh();
+        this.add.image(0, 0, "street-states").setOrigin(0, 0).setDepth(5);
+      }
+
       // Idle/walk animations per character row + direction.
       for (const [sprite, row] of Object.entries(SHEET_ROW)) {
         for (const [dir, col] of Object.entries(DIR_COL)) {
@@ -405,6 +511,20 @@ export async function createWorld(
           if (!this.dragging) opts.onNavigate(entry.route);
         });
         this.chars[id] = s;
+      }
+
+      // Residents: one sprite per OCCUPIED building, idling at the tenant
+      // stand (the design's resident silhouette — flat cap, chest stripe).
+      for (const building of STREET_BUILDINGS) {
+        const state = stateById.get(building.id);
+        if (!state || state.status !== "occupied") continue;
+        const stand = tenantStand(building);
+        const s = this.add
+          .sprite(stand.tx * T, stand.ty * T - 6, "chars", SHEET_ROW.vess * 12 + DIR_COL.up * 3)
+          .setOrigin(0, 0)
+          .setDepth(10);
+        s.play("vess-idle-up");
+        this.residents[building.id] = s;
       }
 
       // Dim overlay with an inverted mask: the lit region stays bright.
@@ -627,17 +747,25 @@ export async function createWorld(
       this.tweens.killAll();
       this.listening = false;
       this.fx.clear();
-      this.setDim(false, null);
+      this.applyDim(null);
       roomLabels.archive.classList.remove("lit");
       this.followTarget = null;
-      for (const act of ACTS) {
-        const s = this.chars[act];
-        const home = PLACEMENTS[act];
+      for (const id of [...ACTS, ...STAFF]) {
+        const s = this.chars[id];
+        const home = PLACEMENTS[id];
         s.setPosition(home.tx * T, home.ty * T - 6);
-        s.play(`${CHARACTER_RESOLVE[act].sprite!}-idle-${home.dir}`);
-        bubbles[act].el.style.opacity = "1";
+        s.play(`${CHARACTER_RESOLVE[id].sprite!}-idle-${home.dir}`);
+      }
+      for (const act of ACTS) bubbles[act].el.style.opacity = "1";
+      for (const [buildingId, s] of Object.entries(this.residents)) {
+        const building = STREET_BUILDINGS.find((b) => b.id === buildingId)!;
+        const stand = tenantStand(building);
+        s.setPosition(stand.tx * T, stand.ty * T - 6);
+        s.play("vess-idle-up");
       }
       setBubble(bubbles.turntable, null);
+      setBubble(bubbles.archiveChair, null);
+      setBubble(bubbles.window, null);
       if (this.camMode === "follow") {
         const cam = this.cameras.main;
         cam.stopFollow();
@@ -741,23 +869,34 @@ export async function createWorld(
     /**
      * Idle ambience: every few seconds one act shifts at the console,
      * turns toward the shelf, or takes a step in place — existing frames,
-     * no claims, no dialogue, and never the camera. Randomized cadence;
-     * `ambienceSeq` retires stale timers when the phase changes.
+     * no claims, no dialogue, and never the camera. The office joins in
+     * occasionally (a staff member shifts at their desk, now that the
+     * staff have real walk frames), and so does an occupied resident room
+     * across the street. Randomized cadence; `ambienceSeq` retires stale
+     * timers when the phase changes.
      */
     startAmbience() {
       const seq = ++this.ambienceSeq;
       const tick = () => {
         if (seq !== this.ambienceSeq || this.phase.kind !== "idle") return;
-        this.idleGesture(ACTS[Math.floor(Math.random() * ACTS.length)]);
+        const roll = Math.random();
+        const residentIds = Object.keys(this.residents);
+        if (roll < 0.6 || (roll < 0.85 && residentIds.length === 0)) {
+          this.idleGesture(ACTS[Math.floor(Math.random() * ACTS.length)]);
+        } else if (roll < 0.85) {
+          this.residentGesture(residentIds[Math.floor(Math.random() * residentIds.length)]);
+        } else {
+          this.idleGesture(STAFF[Math.floor(Math.random() * STAFF.length)]);
+        }
         this.time.delayedCall(3500 + Math.random() * 5500, tick);
       };
       this.time.delayedCall(1200 + Math.random() * 2400, tick);
     }
 
-    idleGesture(act: WorldActId) {
-      const s = this.chars[act];
-      const sprite = CHARACTER_RESOLVE[act].sprite!;
-      const home = PLACEMENTS[act];
+    idleGesture(id: string) {
+      const s = this.chars[id];
+      const sprite = CHARACTER_RESOLVE[id].sprite!;
+      const home = PLACEMENTS[id];
       const settle = (ms: number) =>
         this.time.delayedCall(ms, () => {
           if (this.followTarget !== s) s.play(`${sprite}-idle-${home.dir}`);
@@ -789,6 +928,18 @@ export async function createWorld(
       }
     }
 
+    /** A resident's ambience: a turn at the console, then back. No words —
+     * their rooms carry name plates, not bubbles, until lines are logged. */
+    residentGesture(buildingId: string) {
+      const s = this.residents[buildingId];
+      if (!s || this.followTarget === s) return;
+      const dirs = ["down", "left", "right"] as const;
+      s.play(`vess-idle-${dirs[Math.floor(Math.random() * dirs.length)]}`);
+      this.time.delayedCall(1200 + Math.random() * 1600, () => {
+        if (this.followTarget !== s) s.play("vess-idle-up");
+      });
+    }
+
     runEvent(index: number) {
       if (!timeline) return;
       this.eventIndex = index;
@@ -808,6 +959,11 @@ export async function createWorld(
       if (this.phase.kind === "replay") this.publishRail();
       if (ev.kind === "round") this.runRound(ev, next);
       else if (ev.kind === "listening") this.runListening(ev, next);
+      else if (ev.kind === "direction_delivered") this.runDirection(ev, next);
+      else if (ev.kind === "verdict_delivered") this.runVerdict(ev, next);
+      else if (ev.kind === "reaction") this.runReaction(ev, next);
+      else if (ev.kind === "brief") this.runBrief(ev, next);
+      else if (ev.kind === "street_listening") this.runStreetListening(ev, next);
       else this.runTransition(ev, next);
     }
 
@@ -845,25 +1001,46 @@ export async function createWorld(
 
     /** Waypoints (in sprite coords) for an act's walk studio → turntable (registry). */
     walkPath(actor: WorldActId): { tx: number; ty: number }[] {
-      const start = PLACEMENTS[actor];
-      const doorX = STUDIO_DOOR_X[actor];
-      return [
-        { tx: start.tx, ty: start.ty },
-        { tx: doorX + WALK.doorOffset, ty: start.ty },
-        { tx: doorX + WALK.doorOffset, ty: WALK.corridorY },
-        ...WALK.approach.map(([tx, ty]) => ({ tx, ty })),
-        { tx: TURNTABLE_STAND.tx, ty: TURNTABLE_STAND.ty },
-      ];
+      return studioToTurntablePath(actor);
+    }
+
+    /**
+     * Attach the scripted camera to a walker (glide, then follow — never a
+     * hard cut); a roaming user just gets the chip pulse, no yanks.
+     */
+    followWalker(s: InstanceType<typeof Ph.GameObjects.Sprite>) {
+      this.followTarget = s;
+      if (this.camMode === "follow") {
+        const cam = this.cameras.main;
+        cam.stopFollow();
+        cam.pan(s.x, s.y, 700, "Sine.easeOut", false, (_c: unknown, progress: number) => {
+          if (progress === 1 && this.camMode === "follow" && this.followTarget === s) {
+            cam.startFollow(s, true, 0.08, 0.08);
+          }
+        });
+      } else {
+        pulseChip();
+      }
+    }
+
+    /** The walk is over: release the camera back to the route anchor. */
+    releaseWalker() {
+      this.followTarget = null;
+      if (this.camMode === "follow") {
+        const cam = this.cameras.main;
+        cam.stopFollow();
+        const home = this.anchor ?? HOME_CENTER;
+        cam.pan(home.tx * T, home.ty * T, 800, "Sine.easeOut");
+      }
     }
 
     /** Tween a sprite along waypoints with walk anims; returns total ms. */
     walkAlong(
-      id: string,
+      s: InstanceType<typeof Ph.GameObjects.Sprite>,
       sprite: string,
       path: { tx: number; ty: number }[],
       onDone: () => void,
     ): number {
-      const s = this.chars[id];
       const SPEED = 4.2; // tiles per second (time-compressed ambience)
       let total = 0;
       const legs: { x: number; y: number; ms: number; dir: string }[] = [];
@@ -898,14 +1075,8 @@ export async function createWorld(
       return total;
     }
 
-    drawPathDashes(actor: WorldActId) {
-      const doorX = STUDIO_DOOR_X[actor];
-      // Tile-centre dash path, the design's register (1b: paper dashes every 6px).
-      const pts: [number, number][] = [
-        [doorX + DASHES.doorOffset, DASHES.startY],
-        [doorX + DASHES.doorOffset, DASHES.cornerY],
-        ...DASHES.tail,
-      ];
+    /** Paper-coloured 2px dashes every 6px along tile-centre points (design 1b). */
+    drawDashes(pts: [number, number][]) {
       this.fx.fillStyle(0xa9a290, 0.5);
       for (let i = 0; i < pts.length - 1; i++) {
         const [ax, ay] = pts[i];
@@ -920,6 +1091,21 @@ export async function createWorld(
           );
         }
       }
+    }
+
+    drawPathDashes(actor: WorldActId) {
+      const doorX = STUDIO_DOOR_X[actor];
+      // Tile-centre dash path, the design's register (1b: paper dashes every 6px).
+      this.drawDashes([
+        [doorX + DASHES.doorOffset, DASHES.startY],
+        [doorX + DASHES.doorOffset, DASHES.cornerY],
+        ...DASHES.tail,
+      ]);
+    }
+
+    /** A street listening's dashes: the resident's walked path itself. */
+    drawStreetDashes(building: StreetBuilding) {
+      this.drawDashes(streetWalkPath(building).map((p): [number, number] => [p.tx, p.ty]));
     }
 
     /** The three dotted sound rings off the platter (radii 15/22/30 at 1x). */
@@ -943,24 +1129,35 @@ export async function createWorld(
       });
     }
 
-    setDim(on: boolean, actor: WorldActId | null) {
+    /** Dim the whole block except the given lit rects (tiles: x, y, w, h);
+     * null lifts the dim. The handoff's user-set default opacity, 0.45. */
+    applyDim(litRects: [number, number, number, number][] | null) {
       this.dim.clear();
       this.dim.clearMask();
-      if (!on || !actor) return;
-      const doorX = STUDIO_DOOR_X[actor];
+      if (!litRects) return;
       this.litMask.clear();
       this.litMask.fillStyle(0xffffff, 1);
-      // archive + its walls, and the walked corridor strip (registry dim rects)
-      const [ax, ay, aw, ah] = DIM.archive;
-      this.litMask.fillRect(ax * T, ay * T, aw * T, ah * T);
-      const x1 = Math.min(doorX - DIM.corridor.halfWidth, DIM.corridor.span[0]);
-      const x2 = Math.max(doorX + DIM.corridor.halfWidth, DIM.corridor.span[1]);
-      this.litMask.fillRect(x1 * T, DIM.corridor.y * T, (x2 - x1) * T, DIM.corridor.h * T);
+      for (const [x, y, w, h] of litRects) this.litMask.fillRect(x * T, y * T, w * T, h * T);
       const mask = this.litMask.createGeometryMask();
       mask.invertAlpha = true;
       this.dim.setMask(mask);
       this.dim.fillStyle(0x07090d, 0.45); // the handoff's user-set default dim
       this.dim.fillRect(0, 0, WORLD_W, WORLD_H);
+    }
+
+    setDim(on: boolean, actor: WorldActId | null) {
+      if (!on || !actor) {
+        this.applyDim(null);
+        return;
+      }
+      // archive + its walls, and the walked corridor strip (registry dim rects)
+      const doorX = STUDIO_DOOR_X[actor];
+      const x1 = Math.min(doorX - DIM.corridor.halfWidth, DIM.corridor.span[0]);
+      const x2 = Math.max(doorX + DIM.corridor.halfWidth, DIM.corridor.span[1]);
+      this.applyDim([
+        DIM.archive,
+        [x1, DIM.corridor.y, x2 - x1, DIM.corridor.h],
+      ]);
     }
 
     runListening(ev: ListeningEvent & { block: number }, done: () => void) {
@@ -970,7 +1167,6 @@ export async function createWorld(
       const s = this.chars[actor];
       const out = this.walkPath(actor);
       const back = [...out].reverse();
-      const cam = this.cameras.main;
 
       // away lines dim, they don't disappear; the actor's studio reads empty
       setBubble(bubbles[actor], `studio ${STUDIO_NAME[actor]} — empty`, { opacity: 0.45 });
@@ -980,20 +1176,12 @@ export async function createWorld(
 
       // camera glide, then follow the walker (never hard-cuts) — unless the
       // user is roaming: then the chip pulses and the camera stays theirs.
-      this.followTarget = s;
-      if (this.camMode === "follow") {
-        cam.stopFollow();
-        cam.pan(s.x, s.y, 700, "Sine.easeOut", false, (_c: unknown, progress: number) => {
-          if (progress === 1 && this.camMode === "follow") cam.startFollow(s, true, 0.08, 0.08);
-        });
-      } else {
-        pulseChip();
-      }
+      this.followWalker(s);
 
       this.drawPathDashes(actor);
       setNow(`${cat} · ${ACT_INITIALS[actor]} — walking to the archive`);
 
-      const walkMs = this.walkAlong(actor, sprite, out, () => {
+      const walkMs = this.walkAlong(s, sprite, out, () => {
         // needle down
         s.play(`${sprite}-idle-up`);
         this.listening = true;
@@ -1019,21 +1207,201 @@ export async function createWorld(
             "oxide",
           );
 
-          this.walkAlong(actor, sprite, back, () => {
+          this.walkAlong(s, sprite, back, () => {
             const home = PLACEMENTS[actor];
             s.play(`${sprite}-idle-${home.dir}`);
             for (const other of ["keep", "rust", "silt"] as WorldActId[]) {
               bubbles[other].el.style.opacity = "1";
             }
-            this.followTarget = null;
-            if (this.camMode === "follow") {
-              cam.stopFollow();
-              const target = this.anchor ?? HOME_CENTER;
-              cam.pan(target.tx * T, target.ty * T, 800, "Sine.easeOut");
-            }
+            this.releaseWalker();
             this.time.delayedCall(600, done);
           });
         });
+      });
+    }
+
+    /**
+     * SET START (design + logged brief): the Producer walks office →
+     * each studio in turn and delivers the session's direction — the
+     * previous boundary's logged theme — as a brief line at each door.
+     */
+    runDirection(ev: DirectionDeliveredEvent & { block: number }, done: () => void) {
+      const cat = timeline?.blocks[ev.block]?.catalogueNo ?? "";
+      const s = this.chars.producer;
+      setCaption(`${clock(ev.t)} · SET START — THE PRODUCER WALKS THE DIRECTION TO THE STUDIOS`, "lamp");
+      setNow(`${cat} · PR — delivering the direction`);
+      this.followWalker(s);
+      const stops: WorldActId[] = ["keep", "rust", "silt"];
+      const visit = (i: number) => {
+        if (i >= stops.length) {
+          const back = [...officeToStudioPath(PLACEMENTS.producer, stops[stops.length - 1])].reverse();
+          this.walkAlong(s, "producer", back, () => {
+            s.play(`producer-idle-${PLACEMENTS.producer.dir}`);
+            this.releaseWalker();
+            this.time.delayedCall(400, done);
+          });
+          return;
+        }
+        const act = stops[i];
+        const path =
+          i === 0
+            ? officeToStudioPath(PLACEMENTS.producer, act)
+            : studioToStudioPath(stops[i - 1], act);
+        this.walkAlong(s, "producer", path, () => {
+          s.play("producer-idle-up");
+          setBubble(bubbles[act], ev.line, { accent: STAFF_ACCENT, prefix: STAFF_INITIALS.producer });
+          this.time.delayedCall(2400, () => {
+            setBubble(bubbles[act], null);
+            visit(i + 1);
+          });
+        });
+      };
+      visit(0);
+    }
+
+    /**
+     * POST-SET: the Critic walks to each reviewed act's studio and
+     * delivers the logged verdict to their face (excerpted at compile).
+     */
+    runVerdict(ev: VerdictDeliveredEvent & { block: number }, done: () => void) {
+      const cat = timeline?.blocks[ev.block]?.catalogueNo ?? "";
+      const s = this.chars.critic;
+      const stops = (["keep", "rust", "silt"] as WorldActId[]).filter((act) => ev.reviews[act]);
+      if (stops.length === 0) {
+        done();
+        return;
+      }
+      setCaption(`${clock(ev.t)} · THE CRITIC DELIVERS THE VERDICTS — TO THEIR FACES`, "oxide");
+      setNow(`${cat} · CR — delivering the verdicts`);
+      this.followWalker(s);
+      const visit = (i: number) => {
+        if (i >= stops.length) {
+          const back = [...officeToStudioPath(PLACEMENTS.critic, stops[stops.length - 1])].reverse();
+          this.walkAlong(s, "critic", back, () => {
+            s.play(`critic-idle-${PLACEMENTS.critic.dir}`);
+            this.releaseWalker();
+            this.time.delayedCall(400, done);
+          });
+          return;
+        }
+        const act = stops[i];
+        const path =
+          i === 0
+            ? officeToStudioPath(PLACEMENTS.critic, act)
+            : studioToStudioPath(stops[i - 1], act);
+        this.walkAlong(s, "critic", path, () => {
+          s.play("critic-idle-up");
+          setBubble(bubbles[act], ev.reviews[act]!, { accent: STAFF_ACCENT, prefix: STAFF_INITIALS.critic });
+          this.time.delayedCall(3000, () => {
+            setBubble(bubbles[act], null);
+            visit(i + 1);
+          });
+        });
+      };
+      visit(0);
+    }
+
+    /**
+     * POST-SET: the Listener walks to the archive's armchair and reacts —
+     * the logged reaction, excerpted, from the cheap seats.
+     */
+    runReaction(ev: ReactionEvent & { block: number }, done: () => void) {
+      const cat = timeline?.blocks[ev.block]?.catalogueNo ?? "";
+      const s = this.chars.listener;
+      const out = officeToArchiveChairPath(PLACEMENTS.listener);
+      const back = [...out].reverse();
+      setCaption(`${clock(ev.t)} · THE LISTENER TAKES THE ARCHIVE ARMCHAIR`, "normal");
+      setNow(`${cat} · LS — reacting from the cheap seats`);
+      this.followWalker(s);
+      const walkMs = this.walkAlong(s, "listener", out, () => {
+        s.play("listener-idle-down");
+        setBubble(bubbles.archiveChair, ev.line, { accent: STAFF_ACCENT, prefix: STAFF_INITIALS.listener });
+        const dwellMs = Math.max(4000, ev.duration * 1000 - 2 * walkMs - 1000);
+        this.time.delayedCall(dwellMs, () => {
+          setBubble(bubbles.archiveChair, null);
+          this.walkAlong(s, "listener", back, () => {
+            s.play(`listener-idle-${PLACEMENTS.listener.dir}`);
+            this.releaseWalker();
+            this.time.delayedCall(400, done);
+          });
+        });
+      });
+    }
+
+    /**
+     * POST-SET: the Muse at the office window with the next brief's theme
+     * — the world outside enters through the brief, never the ear.
+     */
+    runBrief(ev: BriefEvent & { block: number }, done: () => void) {
+      setCaption(`${clock(ev.t)} · THE MUSE LEAVES THE NEXT THEME AT THE WINDOW`, "lamp");
+      setNow(`next theme: ${ev.theme}`);
+      setBubble(bubbles.window, ev.line, { accent: STAFF_ACCENT, prefix: STAFF_INITIALS.muse });
+      this.time.delayedCall(ev.duration * 1000, () => {
+        setBubble(bubbles.window, null);
+        done();
+      });
+    }
+
+    /**
+     * A resident's listening event (design 2b): out their own door, across
+     * at the lamp, through the AFAR street door into the archive; the
+     * whole block dims except the archive, the crossing strip, and their
+     * building. Staged only from LOGGED resident perceptions — and only a
+     * building the data actually occupies stages the walk; otherwise the
+     * archive alone tells the story.
+     */
+    runStreetListening(ev: StreetListeningEvent & { block: number }, done: () => void) {
+      const cat = timeline?.blocks[ev.block]?.catalogueNo ?? "";
+      const building = STREET_BUILDINGS.find((b) => b.id === ev.building);
+      if (!building) {
+        done();
+        return;
+      }
+      const s = this.residents[ev.building] ?? null;
+      setCaption(
+        `${clock(ev.t)} · A RESIDENT CROSSES TO THE ARCHIVE — THE ONLY LISTENING ROOM IN TOWN`,
+        "lamp",
+      );
+      setNow(`${cat} · ${ev.residentName} — crossing to the archive`);
+
+      const beginListen = (walkMs: number) => {
+        this.listening = true;
+        this.applyDim(streetDimRects(building));
+        roomLabels.archive.classList.add("lit");
+        setBubble(bubbles.turntable, ev.logLine, { accent: "#e0b25a" });
+        setNow(`${cat} · ${ev.residentName} — needle down in the archive`);
+        const dwellMs = Math.max(6000, ev.duration * 1000 - 2 * walkMs - 1500);
+        this.time.delayedCall(dwellMs, () => {
+          this.listening = false;
+          this.fx.clear();
+          this.applyDim(null);
+          roomLabels.archive.classList.remove("lit");
+          setBubble(bubbles.turntable, null);
+          if (!s) {
+            done();
+            return;
+          }
+          const back = [...streetWalkPath(building)].reverse();
+          this.walkAlong(s, "vess", back, () => {
+            const stand = tenantStand(building);
+            s.setPosition(stand.tx * T, stand.ty * T - 6);
+            s.play("vess-idle-up");
+            this.releaseWalker();
+            this.time.delayedCall(600, done);
+          });
+        });
+      };
+
+      if (!s) {
+        beginListen(0);
+        return;
+      }
+      this.followWalker(s);
+      this.drawStreetDashes(building);
+      const out = streetWalkPath(building);
+      const walkMs = this.walkAlong(s, "vess", out, () => {
+        s.play("vess-idle-left");
+        beginListen(walkMs);
       });
     }
 
@@ -1043,6 +1411,10 @@ export async function createWorld(
         // dashes persist under the rings while the record plays
         const ev = timeline?.events[this.eventIndex];
         if (ev && ev.kind === "listening") this.drawPathDashes(ev.actor);
+        else if (ev && ev.kind === "street_listening") {
+          const building = STREET_BUILDINGS.find((b) => b.id === ev.building);
+          if (building && this.residents[ev.building]) this.drawStreetDashes(building);
+        }
         this.drawRings(time / 1000);
       }
     }

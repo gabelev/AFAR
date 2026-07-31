@@ -1,5 +1,5 @@
 {
-  "$comment": "AFAR world geometry — the single source of truth for every tile coordinate, prop placement, label position, walk waypoint and dim rect in the world. Transcribed from design/handoff/pixel.js + README ('expanded street' handoff). Consumed by BOTH scripts/lib/pixelspec.mjs (asset render) and lib/world/geometry.ts (runtime). Units: tile coords (16px tiles) unless a key says px. Rects are inclusive [x1,y1,x2,y2] except dim/label entries, which say what they are. The 'street' section is data staged for the street build (D3): the world still renders the house-only view.",
+  "$comment": "AFAR world geometry — the single source of truth for every tile coordinate, prop placement, label position, walk waypoint and dim rect in the world. Transcribed from design/handoff/pixel.js + README ('expanded street' handoff). Consumed by BOTH scripts/lib/pixelspec.mjs (asset render) and lib/world/geometry.ts (runtime). Units: tile coords (16px tiles) unless a key says px. Rects are inclusive [x1,y1,x2,y2] except dim/label entries, which say what they are. The 'street' section is live: the world renders the full Archive Row canvas (56×34), with per-building occupancy resolved at runtime from the agents' building metadata.",
   "tile": 16,
   "cameraMarginTiles": 6,
   "spriteOrder": ["evers", "roan", "delta", "producer", "critic", "listener", "muse", "vess"],
@@ -88,9 +88,17 @@
       "keep": { "px": [120, 296], "maxWidth": 230 },
       "rust": { "px": [420, 296], "maxWidth": 230 },
       "silt": { "px": [706, 296], "maxWidth": 260 },
-      "turntable": { "px": [500, 846], "maxWidth": 300 }
+      "turntable": { "px": [500, 846], "maxWidth": 300 },
+      "archiveChair": { "px": [620, 776], "maxWidth": 260 },
+      "window": { "px": [70, 690], "maxWidth": 240 }
     },
-    "walk": { "doorOffset": -0.4, "corridorY": 13, "approach": [[21.9, 13], [21.9, 16.2]] },
+    "walk": {
+      "doorOffset": -0.4,
+      "corridorY": 13,
+      "approach": [[21.9, 13], [21.9, 16.2]],
+      "studioDeliveryY": 9.4,
+      "archiveChairStand": [25.2, 24.9]
+    },
     "dashes": { "doorOffset": 0.5, "startY": 12, "cornerY": 13.5, "tail": [[22.5, 13.5], [22.5, 16], [22.2, 21.5]] },
     "dim": { "archive": [14, 15, 18, 18], "corridor": { "y": 11, "h": 5, "span": [20.5, 24], "halfWidth": 1.5 } }
   },
@@ -138,8 +146,32 @@
     "placements": {
       "vess": { "sprite": "vess", "kind": "resident", "building": "res-03", "tx": 44.4, "ty": 20.6, "dir": "up", "listening": { "tx": 35.5, "ty": 21.4, "dir": "left" } }
     },
-    "walk": { "path": [[40.5, 22], [36, 22], [36, 23.2], [31.6, 23.2], [27, 23.2], [23, 22.3]] },
-    "dim": { "rects": [[14, 15, 18, 18], [31, 19, 9, 6], [40, 18, 14, 7]] },
+    "walk": {
+      "$comment": "path = the design's RES 03 walk (frame 2b). crossing generalizes it: a resident leaves any door at [door.x+0.5, door.y+1], crosses the road at x=36 on that row, joins the crossing row crossingY, and follows the tail through the house street door to the turntable approach. streetWalkPath(res-03) must reproduce `path` exactly (street.test.ts).",
+      "path": [[40.5, 22], [36, 22], [36, 23.2], [31.6, 23.2], [27, 23.2], [23, 22.3]],
+      "crossing": { "roadX": 36, "crossingY": 23.2, "tail": [[31.6, 23.2], [27, 23.2], [23, 22.3]] }
+    },
+    "dim": {
+      "$comment": "rects = archive (house dim register), the crossing strip, and the resident's own building — the third derives from the shell; streetDimRects(res-03) must reproduce `rects` exactly (street.test.ts).",
+      "rects": [[14, 15, 18, 18], [31, 19, 9, 6], [40, 18, 14, 7]],
+      "crossingStrip": [31, 19, 9, 6]
+    },
+    "tenant": {
+      "$comment": "Street-scale tenant staging (ONE accent + ONE prop slot per room). Offsets are relative to a building shell's [x1,y1]: occupied mirrors RES 03's authored interior, ready mirrors RES 02's dust ghosts — street.test.ts pins both derivations against the buildings' interior lists.",
+      "occupied": {
+        "consoleDesk": [3, 1, 2],
+        "chair": [5, 2],
+        "propSlot": [9, 1],
+        "ghost": [9, 1, 1, 1],
+        "crate": [11, 4],
+        "papers": [7, 4],
+        "stand": [4.4, 2.6]
+      },
+      "ready": [
+        { "kind": "ghost", "dx": 4, "dy": 2, "w": 2, "h": 1 },
+        { "kind": "ghost", "dx": 8, "dy": 3, "w": 1, "h": 1 }
+      ]
+    },
     "residentRoom": {
       "canvas": { "w": 16, "h": 11 },
       "windows": [[0, 3], [0, 6]],

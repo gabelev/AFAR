@@ -1,19 +1,29 @@
 import { describe, expect, it } from "vitest";
 import committedSource from "@/fixtures/timeline-source.json";
 import {
+  BRIEF_SECONDS,
   clock,
   compileCatalogue,
   compileTimeline,
   conditionLine,
+  excerptLine,
   LISTEN_SECONDS,
   preferTimelineBlocks,
+  REACTION_SECONDS,
   ROUND_SECONDS,
+  STREET_LISTEN_SECONDS,
   TRANSITION_SECONDS,
+  VERDICT_PER_ACT_SECONDS,
+  type BriefEvent,
+  type DirectionDeliveredEvent,
   type ListeningEvent,
+  type ReactionEvent as ReactionEventT,
   type RoundEvent,
+  type StreetListeningEvent,
   type TimelineCatalogueSource,
   type TimelineSource,
   type TransitionEvent,
+  type VerdictDeliveredEvent,
 } from "@/lib/world/timeline";
 
 const NAMES = { silt: "Delta Marlowe", rust: "Roan Patina", keep: "Evers Lane" };
@@ -201,6 +211,152 @@ describe("compileCatalogue", () => {
     for (let i = 1; i < real.events.length; i++) {
       expect(real.events[i].t).toBeGreaterThan(real.events[i - 1].t);
     }
+  });
+});
+
+describe("staff events compile from logged rows only", () => {
+  /** The contact block with a full staff record (the logged staff rows). */
+  const staffedBlock: TimelineSource = {
+    ...contactBlock,
+    staff: {
+      producer: { note: "kept the takes that held the room" },
+      critic: {
+        releaseReview: "A record that knows what it is.",
+        actReviews: {
+          keep: "Evers Lane held the centre and it shows.",
+          rust: "Roan Patina has been coasting for three sets. The erosion is real but the choices are not.",
+          silt: "Delta Marlowe buried the best phrase again.",
+        },
+      },
+      listener: { valence: "mixed", text: "Played it twice. The second time it was sadder." },
+      muse: { theme: "rooms after rain", text: "The world's music has gone dry; answer with water." },
+    },
+  };
+
+  it("a block with no staff rows stages no staff events (nothing invented)", () => {
+    const tl = compileTimeline(contactBlock);
+    expect(tl.events.map((e) => e.kind)).toEqual(["round", "listening", "round"]);
+  });
+
+  it("post-set staff rows stage verdicts → reaction → brief, in log order", () => {
+    const tl = compileTimeline(staffedBlock);
+    expect(tl.events.map((e) => e.kind)).toEqual([
+      "round", "listening", "round",
+      "verdict_delivered", "reaction", "brief",
+    ]);
+    const verdict = tl.events[3] as VerdictDeliveredEvent;
+    expect(verdict.reviews.keep).toBe("Evers Lane held the centre and it shows.");
+    // excerpted to the first sentence — logged words, fewer of them
+    expect(verdict.reviews.rust).toBe("Roan Patina has been coasting for three sets.");
+    expect(verdict.duration).toBe(3 * VERDICT_PER_ACT_SECONDS);
+    const reaction = tl.events[4] as ReactionEventT;
+    expect(reaction.line).toBe("Played it twice.");
+    expect(reaction.valence).toBe("mixed");
+    const brief = tl.events[5] as BriefEvent;
+    expect(brief.theme).toBe("rooms after rain");
+    expect(brief.line).toBe("rooms after rain");
+  });
+
+  it("the direction delivery opens a set ONLY when the previous brief was logged", () => {
+    // standalone compile with no direction: no delivery
+    expect(compileTimeline(staffedBlock).events[0].kind).toBe("round");
+    // catalogue: block 1 opens with block 0's logged brief as the direction
+    const cat = compileCatalogue({ blocks: [staffedBlock, isolationBlock] });
+    const kinds = cat.events.map((e) => `${e.block}:${e.kind}`);
+    expect(kinds).toEqual([
+      "0:transition", "0:round", "0:listening", "0:round",
+      "0:verdict_delivered", "0:reaction", "0:brief",
+      "1:transition", "1:direction_delivered", "1:round", "1:round",
+    ]);
+    const direction = cat.events.find((e) => e.kind === "direction_delivered") as
+      | (DirectionDeliveredEvent & { block: number })
+      | undefined;
+    expect(direction?.theme).toBe("rooms after rain");
+    expect(direction?.line).toBe("rooms after rain");
+    // the first block has no previous brief — no delivery invented for it
+    expect(cat.events.filter((e) => e.kind === "direction_delivered")).toHaveLength(1);
+  });
+
+  it("partial staff rows stage only what was logged", () => {
+    const partial: TimelineSource = {
+      ...contactBlock,
+      staff: { listener: { text: "Heard it once." } },
+    };
+    const tl = compileTimeline(partial);
+    expect(tl.events.map((e) => e.kind)).toEqual(["round", "listening", "round", "reaction"]);
+  });
+
+  it("the clock stays cumulative through staff events", () => {
+    const tl = compileTimeline(staffedBlock);
+    for (let i = 1; i < tl.events.length; i++) {
+      expect(tl.events[i].t).toBe(tl.events[i - 1].t + tl.events[i - 1].duration);
+    }
+    expect(tl.loopDuration).toBe(
+      2 * ROUND_SECONDS + LISTEN_SECONDS +
+        3 * VERDICT_PER_ACT_SECONDS + REACTION_SECONDS + BRIEF_SECONDS,
+    );
+  });
+
+  // PYTHON PARITY: the staff field itself is compiled by BOTH
+  // web/scripts/compile_timeline.mjs (compileStaff) and
+  // kernel/afar/publish.py (timeline_staff) from the same release-record
+  // staff block; kernel/tests/test_publish.py pins the Python side to the
+  // same oracle fixture shape asserted here (record.staff → TimelineStaff),
+  // so the two source compilers cannot drift. THIS compiler (timeline.ts)
+  // is the only event compiler — Python writes sources, never events.
+});
+
+describe("street listening events (fixture-driven; no logged rows exist yet)", () => {
+  it("stages a resident's crossing from a logged perception row", () => {
+    const withResident: TimelineSource = {
+      ...contactBlock,
+      residentListens: [
+        {
+          resident: "vess",
+          residentName: "Vess Camber",
+          building: "res-03",
+          logLine: "VC  playing AFAR-0002 — FIRST CONTACT · side A",
+        },
+      ],
+    };
+    const tl = compileTimeline(withResident);
+    expect(tl.events.map((e) => e.kind)).toEqual([
+      "round", "listening", "round", "street_listening",
+    ]);
+    const listen = tl.events[3] as StreetListeningEvent;
+    expect(listen).toMatchObject({
+      resident: "vess",
+      residentName: "Vess Camber",
+      building: "res-03",
+      duration: STREET_LISTEN_SECONDS,
+    });
+    expect(listen.logLine).toContain("AFAR-0002");
+  });
+
+  it("refuses a resident listen with missing logged fields", () => {
+    const broken: TimelineSource = {
+      ...contactBlock,
+      residentListens: [{ resident: "vess", residentName: "Vess", building: "res-03", logLine: " " }],
+    };
+    expect(() => compileTimeline(broken)).toThrow(/missing its logged fields/);
+  });
+});
+
+describe("excerptLine", () => {
+  it("keeps a short first sentence whole", () => {
+    expect(excerptLine("Played it twice. The second time it was sadder.")).toBe("Played it twice.");
+  });
+  it("keeps short unpunctuated text whole", () => {
+    expect(excerptLine("rooms after rain")).toBe("rooms after rain");
+  });
+  it("clips long text at a word boundary with an ellipsis", () => {
+    const long = "a".repeat(60) + " " + "b".repeat(60) + " " + "c".repeat(60);
+    const out = excerptLine(long, 100);
+    expect(out.endsWith(" …")).toBe(true);
+    expect(out.length).toBeLessThanOrEqual(103);
+  });
+  it("collapses whitespace", () => {
+    expect(excerptLine("two\n  words")).toBe("two words");
   });
 });
 

@@ -319,6 +319,52 @@ def build_track_rows(
 # --- the timeline (pure port of compile_timeline.mjs) -------------------------
 
 
+def timeline_staff(record: Mapping[str, Any]) -> Optional[dict[str, Any]]:
+    """The staff's logged rows for the world's staged staff events — the
+    TimelineStaff shape web/lib/world/timeline.ts compiles (Producer walks
+    the direction to the studios, Critic delivers verdicts, Listener reacts
+    in the archive armchair, Muse posts the theme at the window). Every
+    field is a logged word, through the same display shim as the acts'
+    lines; a degraded or pre-staff stage has no entry and the world stages
+    nothing for it. Mirrors compileStaff() in compile_timeline.mjs 1:1 —
+    the shared oracle in test_publish.py / publish_set.test.ts pins both.
+    """
+    src = record.get("staff") or {}
+    staff: dict[str, Any] = {}
+    producer_note = (src.get("producer") or {}).get("note")
+    if producer_note:
+        staff["producer"] = {"note": normalize_act_names(str(producer_note))}
+    critic: dict[str, Any] = {}
+    release_review = (src.get("critic") or {}).get("release_review")
+    if release_review:
+        critic["releaseReview"] = normalize_act_names(str(release_review))
+    act_reviews = {
+        pid: normalize_act_names(str(text))
+        for pid, text in ((src.get("critic") or {}).get("act_reviews") or {}).items()
+        if pid in PLAYER_IDS and text
+    }
+    if act_reviews:
+        critic["actReviews"] = act_reviews
+    if critic:
+        staff["critic"] = critic
+    muse = src.get("muse") or {}
+    if muse.get("theme") or muse.get("text"):
+        entry: dict[str, Any] = {}
+        if muse.get("theme"):
+            entry["theme"] = normalize_act_names(str(muse["theme"]))
+        if muse.get("text"):
+            entry["text"] = normalize_act_names(str(muse["text"]))
+        staff["muse"] = entry
+    listener = src.get("listener") or {}
+    if listener.get("text"):
+        entry = {}
+        if listener.get("valence"):
+            entry["valence"] = listener["valence"]
+        entry["text"] = normalize_act_names(str(listener["text"]))
+        staff["listener"] = entry
+    return staff or None
+
+
 def compile_timeline_block(
     release_id: str,
     row: Mapping[str, Any],
@@ -350,7 +396,9 @@ def compile_timeline_block(
 
     era = row.get("era")
     set_number = row.get("set")
+    staff = timeline_staff(record)
     return {
+        **({"staff": staff} if staff else {}),
         "runId": run_id,
         "releaseRecordId": record["release_id"],
         "releaseId": release_id,

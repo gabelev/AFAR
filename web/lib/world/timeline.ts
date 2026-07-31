@@ -20,6 +20,36 @@ export type WorldActId = (typeof PLAYERS)[number];
 
 const INITIALS: Record<WorldActId, string> = { silt: "DM", rust: "RP", keep: "EL" };
 
+/**
+ * The staff's logged rows for one set, as the release record carries them
+ * (selections/reviews/briefs/reactions JSONL → the record's staff block →
+ * the release row's metadata). Optional throughout: a stage that degraded
+ * or predates the staff simply has no entry, and the world stages nothing
+ * for it — logged rows only, nothing invented.
+ */
+export interface TimelineStaff {
+  producer?: { note?: string };
+  critic?: { releaseReview?: string; actReviews?: Partial<Record<WorldActId, string>> };
+  muse?: { theme?: string; text?: string };
+  listener?: { valence?: string; text?: string };
+}
+
+/**
+ * A LOGGED resident listening moment (a guest session's perception row):
+ * a street resident crossed to the archive and played the record. No such
+ * rows exist yet — the staging machinery is built and fixture-tested, and
+ * activates the day guest sessions log real ones.
+ */
+export interface ResidentListenSource {
+  /** Stable resident agent id. */
+  resident: string;
+  residentName: string;
+  /** The street building they live in ("res-03"). */
+  building: string;
+  /** The logged line shown at the turntable while they listen. */
+  logLine: string;
+}
+
 /** The release-row-shaped input for ONE set-block (fixture or Neon). */
 export interface TimelineSource {
   releaseId: string;
@@ -41,6 +71,10 @@ export interface TimelineSource {
    * (release metadata.influenceRawByRound.intent). Higher = stronger pull.
    */
   intentEdgesByRound: Record<string, Record<string, number>>;
+  /** The staff's logged rows for this set, when the record carries them. */
+  staff?: TimelineStaff;
+  /** Logged resident listening moments (guest sessions; none exist yet). */
+  residentListens?: ResidentListenSource[];
 }
 
 /** The whole catalogue: set-blocks in chronological order (oldest first). */
@@ -123,7 +157,80 @@ export interface TransitionEvent {
   nowLine: string;
 }
 
-export type WorldEvent = RoundEvent | ListeningEvent | TransitionEvent;
+/**
+ * Set start: the Producer walks office → each studio and delivers the
+ * session's direction — the previous boundary's logged Muse brief, which
+ * is exactly what ProducerAgent.direct passes through as the direction.
+ * Staged only when that brief was actually logged.
+ */
+export interface DirectionDeliveredEvent {
+  kind: "direction_delivered";
+  t: number;
+  duration: number;
+  /** The logged brief theme (the direction's headline). */
+  theme: string;
+  /** The bubble line shown at each studio (the theme, excerpted if long). */
+  line: string;
+}
+
+/**
+ * Post-set: the Critic walks to each act's studio and delivers their
+ * verdict to their face — an excerpt of the logged per-act review.
+ */
+export interface VerdictDeliveredEvent {
+  kind: "verdict_delivered";
+  t: number;
+  duration: number;
+  /** Excerpted logged review per act; only reviewed acts get a visit. */
+  reviews: Partial<Record<WorldActId, string>>;
+}
+
+/** Post-set: the Listener takes the archive armchair with the reaction. */
+export interface ReactionEvent {
+  kind: "reaction";
+  t: number;
+  duration: number;
+  /** Excerpt of the Listener's logged reaction. */
+  line: string;
+  valence?: string;
+}
+
+/** Post-set: the Muse at the office window with the next brief's theme. */
+export interface BriefEvent {
+  kind: "brief";
+  t: number;
+  duration: number;
+  theme: string;
+  /** The bubble line (the theme, excerpted if long). */
+  line: string;
+}
+
+/**
+ * A street resident's listening event (design frame 2b): out their door,
+ * across at the lamp, through the AFAR street door into the archive; the
+ * block dims except the archive, the crossing, and their own building.
+ * Compiled ONLY from logged resident perceptions — none exist yet.
+ */
+export interface StreetListeningEvent {
+  kind: "street_listening";
+  t: number;
+  duration: number;
+  resident: string;
+  residentName: string;
+  building: string;
+  /** The logged line at the turntable. */
+  logLine: string;
+}
+
+export type WorldEvent =
+  | RoundEvent
+  | ListeningEvent
+  | TransitionEvent
+  | DirectionDeliveredEvent
+  | VerdictDeliveredEvent
+  | ReactionEvent
+  | BriefEvent
+  | StreetListeningEvent;
 
 /** A catalogue event knows which set-block it belongs to. */
 export type CatalogueEvent = WorldEvent & { block: number };
@@ -170,6 +277,31 @@ export const ROUND_SECONDS = 22;
 export const LISTEN_SECONDS = 26;
 /** The between-sets beat: long enough to read the announcement, no longer. */
 export const TRANSITION_SECONDS = 8;
+/** The Producer's set-start delivery round of the studios. */
+export const DIRECTION_SECONDS = 24;
+/** The Critic's post-set verdict walk, per reviewed act. */
+export const VERDICT_PER_ACT_SECONDS = 9;
+/** The Listener's reaction in the archive armchair. */
+export const REACTION_SECONDS = 14;
+/** The Muse's brief at the window. */
+export const BRIEF_SECONDS = 10;
+/** A resident's street listening walk (door → lamp → archive → back). */
+export const STREET_LISTEN_SECONDS = 30;
+
+/**
+ * A logged text as ONE bubble line: the first sentence when it fits,
+ * otherwise a word-boundary clip with an ellipsis. Excerpting, never
+ * rewriting — every shown word is a logged word.
+ */
+export function excerptLine(text: string, max = 140): string {
+  const clean = text.trim().replace(/\s+/g, " ");
+  const sentence = clean.match(/^.*?[.!?](?=\s|$)/)?.[0];
+  if (sentence && sentence.length <= max) return sentence;
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max + 1);
+  const atWord = cut.slice(0, cut.lastIndexOf(" "));
+  return `${atWord.length > 0 ? atWord : clean.slice(0, max)} …`;
+}
 
 /**
  * Plain-language rule (DECISIONS.md): condition codes get a caption a
@@ -182,6 +314,12 @@ export function conditionLine(condition: string): string {
   return condition.toUpperCase();
 }
 
+/** What compileCatalogue passes forward: the previous block's logged brief
+ * IS this set's direction (ProducerAgent.direct passes it through). */
+export interface CompileTimelineOptions {
+  direction?: { theme?: string; text?: string };
+}
+
 /**
  * Compile ONE set-block. Contact sets: between round r and r+1 one act is
  * staged walking to the archive (they all listened, per the log; the stage
@@ -189,12 +327,34 @@ export function conditionLine(condition: string): string {
  * the walk; the source they play is their strongest logged pull for the
  * next round. Isolation sets: doors closed — nobody heard anybody, so no
  * listening events are staged at all; the rounds play back to back.
+ *
+ * Staff rows stage around the rounds, each ONLY when its row was logged:
+ * the Producer's direction delivery opens the set (when the previous
+ * boundary's brief exists — `opts.direction`); after the last round the
+ * Critic delivers the per-act verdicts, the Listener reacts from the
+ * archive armchair, and the Muse posts the next theme at the window.
+ * Logged resident listening moments (none exist yet) stage last.
  */
-export function compileTimeline(src: TimelineSource): WorldTimeline {
+export function compileTimeline(
+  src: TimelineSource,
+  opts: CompileTimelineOptions = {},
+): WorldTimeline {
   const events: WorldEvent[] = [];
   const rotation: WorldActId[] = ["keep", "rust", "silt"];
   const heardEachOther = src.condition === "contact";
   let t = 0;
+
+  const directionLine = opts.direction?.theme?.trim() || opts.direction?.text?.trim();
+  if (directionLine) {
+    events.push({
+      kind: "direction_delivered",
+      t,
+      duration: DIRECTION_SECONDS,
+      theme: opts.direction?.theme?.trim() || excerptLine(directionLine),
+      line: excerptLine(directionLine),
+    });
+    t += DIRECTION_SECONDS;
+  }
 
   for (let r = 0; r < src.rounds; r++) {
     const lines = src.linesByRound[r];
@@ -230,6 +390,67 @@ export function compileTimeline(src: TimelineSource): WorldTimeline {
     t += LISTEN_SECONDS;
   }
 
+  // Post-set staff rows, in the log's own order: the Critic's verdicts,
+  // the Listener's reaction, the Muse's carried-forward brief.
+  const reviews = src.staff?.critic?.actReviews;
+  if (reviews) {
+    const excerpted: Partial<Record<WorldActId, string>> = {};
+    for (const act of rotation) {
+      const text = reviews[act];
+      if (typeof text === "string" && text.trim().length > 0) {
+        excerpted[act] = excerptLine(text);
+      }
+    }
+    const visited = Object.keys(excerpted).length;
+    if (visited > 0) {
+      events.push({
+        kind: "verdict_delivered",
+        t,
+        duration: VERDICT_PER_ACT_SECONDS * visited,
+        reviews: excerpted,
+      });
+      t += VERDICT_PER_ACT_SECONDS * visited;
+    }
+  }
+  const reactionText = src.staff?.listener?.text?.trim();
+  if (reactionText) {
+    events.push({
+      kind: "reaction",
+      t,
+      duration: REACTION_SECONDS,
+      line: excerptLine(reactionText),
+      ...(src.staff?.listener?.valence ? { valence: src.staff.listener.valence } : {}),
+    });
+    t += REACTION_SECONDS;
+  }
+  const briefTheme = src.staff?.muse?.theme?.trim() || src.staff?.muse?.text?.trim();
+  if (briefTheme) {
+    events.push({
+      kind: "brief",
+      t,
+      duration: BRIEF_SECONDS,
+      theme: src.staff?.muse?.theme?.trim() || excerptLine(briefTheme),
+      line: excerptLine(briefTheme),
+    });
+    t += BRIEF_SECONDS;
+  }
+
+  for (const listen of src.residentListens ?? []) {
+    if (!listen.resident || !listen.building || !listen.logLine?.trim()) {
+      throw new Error("resident listen row is missing its logged fields");
+    }
+    events.push({
+      kind: "street_listening",
+      t,
+      duration: STREET_LISTEN_SECONDS,
+      resident: listen.resident,
+      residentName: listen.residentName || listen.resident,
+      building: listen.building,
+      logLine: listen.logLine,
+    });
+    t += STREET_LISTEN_SECONDS;
+  }
+
   return {
     releaseId: src.releaseId,
     runId: src.runId,
@@ -257,7 +478,9 @@ export function compileCatalogue(src: TimelineCatalogueSource): WorldCatalogue {
   let t = 0;
 
   src.blocks.forEach((blockSrc, i) => {
-    const tl = compileTimeline(blockSrc);
+    // The previous block's logged brief is this set's direction (composed
+    // at that boundary, consumed by the Producer at this set's start).
+    const tl = compileTimeline(blockSrc, { direction: src.blocks[i - 1]?.staff?.muse });
     blocks.push({
       releaseId: tl.releaseId,
       runId: tl.runId,
