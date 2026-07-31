@@ -53,6 +53,15 @@ MIN_DURATION_S = 30
 MAX_DURATION_S = 120
 DEFAULT_DURATION_S = 30
 
+#: The session forms the Producer can book, and the run_set condition each
+#: maps to. The vocabulary is deliberately two words — "parallel" (lockstep
+#: without hearing, the lab's control) is NOT in it: the live piece never
+#: books it, whatever a model reply asks for. The log schema keeps
+#: `condition`; only its source changes.
+SESSION_FORMS: tuple[str, str] = ("together", "alone")
+SESSION_FORM_CONDITIONS: dict[str, str] = {"together": "contact", "alone": "isolation"}
+DEFAULT_SESSION_FORM = "together"
+
 _GROUNDINGS: tuple[tuple[str, str], ...] = (
     (
         "intent-fidelity",
@@ -250,7 +259,11 @@ class ProducerAgent(Agent):
     # -- the direction half: where the Muse's brief is consumed ----------------
 
     def direct(
-        self, brief: Any, *, remaining_minutes: Optional[float] = None
+        self,
+        brief: Any,
+        *,
+        remaining_minutes: Optional[float] = None,
+        session: Optional[Mapping[str, Any]] = None,
     ) -> dict[str, Any]:
         """Consume the Muse's brief at SET START — the only door the outside
         world enters through (architecture rule 2: through the brief, never
@@ -259,19 +272,25 @@ class ProducerAgent(Agent):
         forbidden_moves / duration_s) ever reach `build_context`, so nothing
         else from the Muse can enter a player's mid-set perceive context.
 
-        The brief passes through as the direction text; the one creative call
-        made HERE is `duration_s` — the session's take length, 30-120s,
+        The brief passes through as the direction text; the creative calls
+        made HERE are `duration_s` — the session's take length, 30-120s,
         chosen by the model against the brief and the day's remaining audio
         minutes (sketches run short, a session that smells like a single
-        earns length). A duration call that fails after the retry ladder
-        degrades to the 30s default — the direction always ships.
+        earns length) — and, when `session` is given, `session_form`: whether
+        this session records TOGETHER (each act hearing the others) or ALONE
+        (doors closed). Either call failing after the retry ladder degrades
+        to its default (30s / "together") — the direction always ships.
 
         `brief` is an afar.agents.muse.Brief. `remaining_minutes` is the
         day's unspent audio-minute budget (None = unmetered, e.g. a manual
-        run).
+        run). `session` is None when the caller books the room itself (the
+        experiment mode, or a pre-sessions caller — the direction shape is
+        then exactly the pre-booking one); otherwise a mapping with
+        `recent_forms` (the last few sessions' forms, oldest first) and
+        `last_reaction` (the Listener's newest logged reaction row, or None).
         """
         duration_s, duration_why = self._choose_duration(brief, remaining_minutes)
-        return {
+        direction: dict[str, Any] = {
             "stance": brief.stance,
             "theme": brief.theme,
             "text": brief.body,
@@ -280,6 +299,86 @@ class ProducerAgent(Agent):
             "duration_s": duration_s,
             "duration_why": duration_why,
         }
+        if session is not None:
+            form, why = self._choose_session_form(
+                brief,
+                recent_forms=tuple(session.get("recent_forms", ())),
+                last_reaction=session.get("last_reaction"),
+            )
+            direction["session_form"] = form
+            direction["session_why"] = why
+        return direction
+
+    def _choose_session_form(
+        self,
+        brief: Any,
+        *,
+        recent_forms: Sequence[str],
+        last_reaction: Optional[Mapping[str, Any]],
+    ) -> tuple[str, str]:
+        """One model call: does this session record together, or alone?
+
+        A real judgment call, not a draw: the model weighs the Muse's brief
+        and stance, the fan's last word, and what the last few sessions were
+        (the piece's own argument — a band that works together, goes off
+        alone, reconvenes). The reply vocabulary is exactly SESSION_FORMS;
+        anything else (including "parallel") fails parsing, and a call that
+        fails after the retry ladder degrades to "together" — the doors
+        default open.
+        """
+        forms_line = (
+            ", ".join(recent_forms) if recent_forms else "(none yet — this is an early session)"
+        )
+        reaction_line = (
+            f"({last_reaction.get('valence', 'unspoken')}) {str(last_reaction.get('text', '')).strip()}"
+            if last_reaction and str(last_reaction.get("text", "")).strip()
+            else "(the fan has not weighed in yet)"
+        )
+        prompt = (
+            "Before the session starts you book the room: one artistic call, "
+            'yours alone. "together" means the doors are open — every act hears '
+            "the others round by round and the takes answer each other. "
+            '"alone" means the doors are closed — each act works its own thread '
+            "and nobody hears anybody until you make the cut.\n\n"
+            "What to weigh: the Muse's brief and its stance (a hostile era may "
+            "want the doors closed so the acts answer nothing; a porous one "
+            "usually wants the room). The fan's last word. And the shape of the "
+            "run so far — a band that works together, goes off alone, and "
+            "reconvenes makes better records than one that only ever does "
+            "either; if the last few sessions all ran one way, ask whether it "
+            "is time for the other.\n\n"
+            f"THE MUSE'S BRIEF (stance: {brief.stance}):\n"
+            f"theme: {brief.theme}\n{brief.body}\n\n"
+            f"THE LAST FEW SESSIONS, oldest first: {forms_line}\n"
+            f"THE FAN'S LAST WORD: {reaction_line}\n\n"
+            'Reply with ONE JSON object, nothing else: {"session_form": '
+            '"together" or "alone", "why": "<one sentence — it is logged with '
+            'the session>"}'
+        )
+
+        def parse(raw: str) -> tuple[str, str]:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "session_form" not in data:
+                raise ValueError("session reply is not a {session_form, why} object")
+            form = str(data["session_form"]).strip().lower()
+            if form not in SESSION_FORMS:
+                raise ValueError(f"session_form must be one of {SESSION_FORMS}, got {form!r}")
+            return form, str(data.get("why", ""))
+
+        try:
+            return staff_complete(
+                self.model,
+                [
+                    Message(role="system", content=self.persona.base_prompt),
+                    Message(role="user", content=prompt),
+                ],
+                stage="producer/session",
+                parse=parse,
+            )
+        except ValueError:
+            # Degrade, never void: an unusable booking call means the doors
+            # default open — the session still gets its direction.
+            return DEFAULT_SESSION_FORM, "default: the booking call did not file — the doors stay open"
 
     def _choose_duration(
         self, brief: Any, remaining_minutes: Optional[float]

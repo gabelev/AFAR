@@ -8,6 +8,14 @@ answers "what is set N?" — condition, round count, stance, seed — without
 ever touching a network, a filesystem, or a wall clock, so the conductor can
 be restarted anywhere and replan the exact same future from the same seed.
 
+SESSIONS, NOT CONDITIONS: in the live piece the plan's `condition` is NOT
+what books the room — the Producer does that per set (`direct()`'s
+session_form: together/alone). The weighted draw here is the EXPERIMENT
+PARAMETERS, kept whole and deterministic behind AFAR_EXPERIMENT_MODE=1 so
+the controlled experiment (contact : isolation : parallel at 3:1:1) can run
+the same conductor unchanged. The clocks — eras, stance cycle, sets, rounds
+— govern both modes; they are the piece's pacing, not a lab parameter.
+
 Determinism is position-stable, the `player_seed` pattern: every set's plan
 is derived from (schedule seed, set index) by hash offset, never from
 iterator state — asking for set 40 first and set 3 later gives the same two
@@ -37,7 +45,9 @@ class ScheduleConfig:
 
     `condition_bias` weights the per-set condition draw (contact-heavy by
     default: the piece is about hearing each other, isolation and parallel
-    are the controls). `rounds_per_set` is an inclusive range.
+    are the controls). The draw governs EXPERIMENT MODE only — in the live
+    piece the conductor ignores `SetPlan.condition` and the Producer books
+    the session. `rounds_per_set` is an inclusive range.
     `eras_stance_cycle` is authored, not drawn — the Muse's stance toward the
     outside world walks porous -> hostile -> oblivious and wraps.
     """
@@ -70,7 +80,7 @@ class SetPlan:
     era: int
     index_in_era: int
     era_stance: str
-    condition: str
+    condition: str  # the experiment draw — live mode ignores it (the Producer books)
     rounds: int
     seed: int  # the set seed for run_set — derived, position-stable
 
@@ -123,7 +133,8 @@ class Schedule:
     # -- the set clock ---------------------------------------------------------
 
     def next_condition(self, rng: random.Random) -> str:
-        """One weighted condition draw (contact : isolation : parallel)."""
+        """One weighted condition draw (contact : isolation : parallel).
+        Experiment-mode machinery: the live conductor never consumes it."""
         weights = self.config.condition_bias
         pick = rng.randrange(sum(weights))
         for condition, weight in zip(CONDITION_ORDER, weights):

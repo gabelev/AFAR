@@ -1,4 +1,10 @@
-"""The nested clocks: pure, deterministic, seedable. Same seed, same future."""
+"""The nested clocks: pure, deterministic, seedable. Same seed, same future.
+
+The era/sets/rounds clocks pace BOTH modes of the piece. The condition draw
+tested here is experiment-mode machinery (AFAR_EXPERIMENT_MODE=1): in the
+live piece the conductor ignores `SetPlan.condition` — the Producer books
+the session (see test_conductor). The draw stays deterministic and seedable
+so the controlled experiment can replay the exact same future."""
 
 from __future__ import annotations
 
@@ -48,7 +54,7 @@ def test_negative_index_refused():
         Schedule().set_plan(-1)
 
 
-# --- the set clock -------------------------------------------------------------
+# --- the set clock (the condition draw = the experiment parameters, gated) -----
 
 
 def test_rounds_stay_inside_the_inclusive_range():
