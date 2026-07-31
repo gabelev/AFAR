@@ -165,12 +165,15 @@ def player_seed(seed: int, player_id: str, t: int) -> int:
     return seed + offset
 
 
-def _play(player: Player, context: Mapping[str, Any], seed: int) -> dict[str, Any]:
+def _play(
+    player: Player, context: Mapping[str, Any], seed: int, duration_s: int
+) -> dict[str, Any]:
     """One player's full PDE loop for one round. No logging here: this runs on
     a worker thread under fan_out, and the ledger is orchestrator-only."""
     perception = player.perceive(context)
     decision = player.decide(perception)
     player.seed = seed
+    player.duration_s = duration_s
     artifact = player.execute(decision)
     return {"intent": decision.data["intent"], "artifact": artifact}
 
@@ -185,6 +188,7 @@ def run_set(
     embedder: AudioEmbedder,
     seed: int,
     after_round: Optional[Callable[[int], bool]] = None,
+    direction: Optional[Mapping[str, Any]] = None,
 ) -> SetResult:
     """Play one set and return its interaction record. See module docstring.
 
@@ -193,11 +197,18 @@ def run_set(
     counted there). Returning True asks the set to stop: before the last
     round that raises SetAborted (the SIGTERM finish-current-round contract);
     on the last round the set simply completes.
+
+    `direction` is the Producer's set-start direction (the seam rule 2 leaves
+    open): it rides into every round's context as frame — never as peer
+    material — via `build_context`, and its `duration_s` (default 30) is the
+    whole set's take length. None means an undirected set (cold start, or a
+    pre-conductor caller): identical to the pre-direction behavior.
     """
     if condition not in CONDITIONS:
         raise ValueError(f"unknown condition {condition!r}; expected one of {CONDITIONS}")
     ids = [p.persona.metadata["player_id"] for p in players]
     by_id = dict(zip(ids, players))
+    duration_s = int(direction.get("duration_s", 30)) if direction else 30
 
     set_stamps = {"condition": condition, "seed": seed}
     ledger.write(
@@ -208,6 +219,8 @@ def run_set(
             "kind": "set",
             "players": ids,
             "rounds": rounds,
+            "duration_s": duration_s,
+            "directed": direction is not None,
             "live": config.live,
             "renderer": config.renderer.name,
             "embedder": embedder.name,
@@ -226,10 +239,17 @@ def run_set(
     round_hashes: list[dict[str, str]] = []  # per round: pid -> artifact content hash
 
     for t in range(rounds):
-        contexts = {pid: build_context(pid, t, view, condition) for pid in ids}
+        contexts = {
+            pid: build_context(pid, t, view, condition, direction=direction) for pid in ids
+        }
         seeds = {pid: player_seed(seed, pid, t) for pid in ids}
         stages = [
-            Stage(name=pid, fn=lambda _ctx, p=by_id[pid], c=contexts[pid], s=seeds[pid]: _play(p, c, s))
+            Stage(
+                name=pid,
+                fn=lambda _ctx, p=by_id[pid], c=contexts[pid], s=seeds[pid]: _play(
+                    p, c, s, duration_s
+                ),
+            )
             for pid in ids
         ]
         if condition in _SEQUENTIAL_CONDITIONS:
@@ -365,6 +385,7 @@ def run_set(
             "rounds": rounds,
             "players": ids,
             "seed": seed,
+            "duration_s": duration_s,
             "embedder": {"name": embedder.name, "dim": embedder.dim},
             "intent_vector_version": features.INTENT_VECTOR_VERSION,
         },

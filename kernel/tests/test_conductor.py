@@ -34,7 +34,7 @@ from afar.render.base import MockRenderer
 from afar.run import SetAborted
 
 
-def _config(root: Path, *, enabled: bool = True, cap: int = 60) -> AfarConfig:
+def _config(root: Path, *, enabled: bool = True, minutes: float = 110.0) -> AfarConfig:
     return AfarConfig(
         model=MockProvider(responder=_mock_players),
         renderer=MockRenderer(root / "audio"),
@@ -43,14 +43,14 @@ def _config(root: Path, *, enabled: bool = True, cap: int = 60) -> AfarConfig:
         code_sha="test-sha",
         enabled=enabled,
         sets_per_day=3.0,
-        daily_gen_cap=cap,
+        daily_audio_minutes=minutes,
     )
 
 
 def _conductor(root: Path, **kw) -> Conductor:
     kw.setdefault("embedder", MockEmbedder())
     config = kw.pop("config", None) or _config(root, **{
-        k: kw.pop(k) for k in ("enabled", "cap") if k in kw
+        k: kw.pop(k) for k in ("enabled", "minutes") if k in kw
     })
     return Conductor(config, **kw)
 
@@ -193,29 +193,78 @@ def test_cursor_ignores_aborted_and_smoke_rows():
     assert next_set_index(rows) == 4
 
 
-# --- the budget (persistent) --------------------------------------------------
+# --- the budget (persistent, minutes-based) -----------------------------------
 
 
 def test_gen_budget_persists_across_instances(tmp_path: Path):
     path = tmp_path / "gen_budget.json"
-    one = GenBudget(path, cap=10)
-    assert one.spent_today == 0
-    one.add(6)
-    two = GenBudget(path, cap=10)  # a restart
-    assert two.spent_today == 6
-    assert not two.would_exceed(4)
-    assert two.would_exceed(5)
+    one = GenBudget(path, minutes_cap=10.0)
+    assert one.spent_minutes == 0.0
+    assert one.generations_today == 0
+    one.add(generations=6, minutes=6.0)
+    two = GenBudget(path, minutes_cap=10.0)  # a restart
+    assert two.spent_minutes == 6.0
+    assert two.generations_today == 6
+    assert two.remaining_minutes == 4.0
+    assert not two.would_exceed(4.0)
+    assert two.would_exceed(4.5)
 
 
 def test_gen_budget_resets_on_the_next_utc_day(tmp_path: Path):
     path = tmp_path / "gen_budget.json"
     day = [datetime(2026, 7, 31, 12, 0, tzinfo=timezone.utc)]
-    budget = GenBudget(path, cap=10, clock=lambda: day[0])
-    budget.add(9)
-    assert budget.would_exceed(3)
+    budget = GenBudget(path, minutes_cap=10.0, clock=lambda: day[0])
+    budget.add(generations=18, minutes=9.0)
+    assert budget.would_exceed(3.0)
     day[0] = datetime(2026, 8, 1, 0, 1, tzinfo=timezone.utc)
-    assert budget.spent_today == 0
-    assert not budget.would_exceed(3)
+    assert budget.spent_minutes == 0.0
+    assert budget.generations_today == 0
+    assert not budget.would_exceed(3.0)
+
+
+def test_gen_budget_migrates_the_old_generations_only_state_file(tmp_path: Path):
+    """The generation-cap era's {day, generations} file: the count is kept as
+    telemetry and minutes are estimated at 0.5/generation (every old take
+    was 30s) — a deploy mid-day never resets or double-counts spend."""
+    path = tmp_path / "gen_budget.json"
+    day = [datetime(2026, 7, 31, 12, 0, tzinfo=timezone.utc)]
+    path.write_text(json.dumps({"day": "2026-07-31", "generations": 40}) + "\n")
+    budget = GenBudget(path, minutes_cap=110.0, clock=lambda: day[0])
+    assert budget.spent_minutes == 20.0  # 40 x 0.5
+    assert budget.generations_today == 40
+    budget.add(generations=3, minutes=1.5)
+    state = json.loads(path.read_text())
+    assert state["minutes"] == 21.5
+    assert state["generations"] == 43
+
+
+def test_set_minutes_and_fit_duration():
+    from afar.conductor import fit_duration_s, set_minutes
+
+    # 10 rounds x 3 players x 60s = 30 audio-minutes.
+    assert set_minutes(10, 3, 60) == 30.0
+    assert set_minutes(2, 3, 30) == 3.0
+    # The Producer wanted 120s but only 30 minutes remain for a 10x3 set:
+    # 30 min = 1800s across 30 takes -> 60s each.
+    assert fit_duration_s(120, 10, 3, 30.0) == 60
+    # Plenty of budget: the choice stands.
+    assert fit_duration_s(90, 2, 3, 100.0) == 90
+    # Never below the 30s floor (the pre-set gate owns refusing outright).
+    assert fit_duration_s(120, 10, 3, 1.0) == 30
+
+
+def test_top_obsessions_ranks_recurrence_then_first_seen():
+    from afar.conductor import top_obsessions
+
+    tags = [
+        ["sediment", "rooms filling"],
+        ["Sediment", "the flood"],  # case-insensitive fold; first casing wins
+        ["the flood", "rooms filling", "sediment"],
+        ["one-off"],
+    ]
+    assert top_obsessions(tags) == ["sediment", "rooms filling", "the flood"]
+    assert top_obsessions([]) == []
+    assert top_obsessions(tags, limit=1) == ["sediment"]
 
 
 # --- the newest brief ---------------------------------------------------------
@@ -269,8 +318,10 @@ def test_smoke_set_walks_the_full_chain_with_dry_run_publish(tmp_path: Path):
     assert all(count >= 1000 for count in published[0]["media_bytes"].values())
     assert published[0]["timeline_blocks"] == 1
 
-    # The spend was counted and persisted: 2 rounds x 3 players.
-    assert conductor.budget.spent_today == 6
+    # The spend was metered and persisted: 2 rounds x 3 players x 30s = 3 min,
+    # with the generation count riding along as telemetry.
+    assert conductor.budget.spent_minutes == 3.0
+    assert conductor.budget.generations_today == 6
 
     # The direction ran at set start (cold start: no brief yet -> plain note).
     (direction,) = [r for r in _conductor_rows(tmp_path) if r["kind"] == "direction"]
@@ -296,7 +347,7 @@ def test_staff_failure_degrades_and_still_publishes_never_set_failed(tmp_path: P
         code_sha="test-sha",
         enabled=True,
         sets_per_day=3.0,
-        daily_gen_cap=60,
+        daily_audio_minutes=110.0,
     )
     conductor = _conductor(tmp_path, config=config, rounds_override=2, smoke=True)
     outcome = conductor.run_one_set(conductor.schedule.set_plan(0))
@@ -320,10 +371,14 @@ def test_direction_consumes_the_newest_logged_brief(tmp_path: Path):
                             "text": "reach", "palette_notes": [], "forbidden_moves": [],
                             "sources": [], "thin": False, "carried_forward": True})
     conductor = _conductor(tmp_path, rounds_override=2, smoke=True)
-    conductor._direct(conductor.schedule.set_plan(0))
+    returned = conductor._direct(conductor.schedule.set_plan(0), rounds=2)
     (direction,) = [r for r in _conductor_rows(tmp_path) if r["kind"] == "direction"]
     assert direction["has_brief"] is True
     assert direction["direction"]["theme"] == "rooms"
+    # The Producer set the take length (mock chooses the 30s sketch) and the
+    # same direction is what run_set will receive.
+    assert direction["direction"]["duration_s"] == 30
+    assert returned == direction["direction"]
 
 
 def test_sigterm_mid_set_finishes_the_round_and_aborts(tmp_path: Path):
@@ -336,8 +391,9 @@ def test_sigterm_mid_set_finishes_the_round_and_aborts(tmp_path: Path):
     # Exactly one full round was logged, and NO release record was written.
     assert len((run_dirs[0] / "rounds.jsonl").read_text().splitlines()) == 1
     assert not list(run_dirs[0].glob("release-*.json"))
-    # The finished round's spend was still counted.
-    assert conductor.budget.spent_today == 3
+    # The finished round's spend was still metered: 3 takes x 30s = 1.5 min.
+    assert conductor.budget.spent_minutes == 1.5
+    assert conductor.budget.generations_today == 3
 
 
 def test_disabled_conductor_idles_and_heartbeats(tmp_path: Path):
@@ -391,9 +447,12 @@ def test_era_boundary_rolls_taboo_and_bumps_personas(tmp_path: Path):
 
 
 def test_cap_reached_blocks_the_set(tmp_path: Path):
-    conductor = _conductor(tmp_path, cap=5, rounds_override=2, smoke=True)
-    # 2 rounds x 3 players = 6 projected > cap 5.
-    assert conductor.budget.would_exceed(2 * len(conductor.players))
+    from afar.conductor import set_minutes
+
+    conductor = _conductor(tmp_path, minutes=2.5, rounds_override=2, smoke=True)
+    # Even the cheapest projection (2 rounds x 3 players x 30s = 3 min)
+    # overruns a 2.5-minute day.
+    assert conductor.budget.would_exceed(set_minutes(2, len(conductor.players), 30))
 
 
 def test_smoke_cli_runs_in_a_sibling_root_never_the_canonical_log(

@@ -40,10 +40,10 @@ from typing import Any, Optional
 
 from afar.intent import Intent
 from afar.mapping import build_composition_plan
-from afar.render.base import RenderResult, chunk_lyrics
+from afar.render.base import DEFAULT_DURATION_S, RenderResult, chunk_lyrics
 
 _MUSIC_URL = "https://api.elevenlabs.io/v1/music?output_format=mp3_44100_128"
-_TIMEOUT_S = 90.0
+_TIMEOUT_S = 90.0  # the floor; longer takes scale it (see render)
 _MAX_CONCURRENT = 2
 _RETRY_AFTER_429_S = 3.0  # rate weather passes fast; one quick retry
 _TRANSIENT_STATUSES = frozenset({500, 502, 503, 504})
@@ -99,7 +99,12 @@ class ElevenLabsRenderer:
         self.timeout = timeout
 
     def render(
-        self, intent: Intent, *, seed: int, continue_from: Optional[Path] = None
+        self,
+        intent: Intent,
+        *,
+        seed: int,
+        duration_s: int = DEFAULT_DURATION_S,
+        continue_from: Optional[Path] = None,
     ) -> RenderResult:
         if continue_from is not None:
             raise NotImplementedError(
@@ -107,7 +112,7 @@ class ElevenLabsRenderer:
                 "never conditioning_ref"
             )
 
-        built = build_composition_plan(intent, chunk_lyrics(intent))
+        built = build_composition_plan(intent, chunk_lyrics(intent), duration_ms=duration_s * 1000)
         # ONLY model_id + composition_plan: context_adherence rides inside the
         # plan's chunk, and respect_sections_durations is music_v1-only — both
         # used to be sent at the top level, where music_v2 silently ignores them.
@@ -125,13 +130,18 @@ class ElevenLabsRenderer:
         # request was not charged). MusicPromptError is content, not weather,
         # and propagates untouched. Each backoff sleep happens OUTSIDE the
         # semaphore — a slot is never held by a render that is only waiting.
+        # Generation time scales with take length (~5-6s for 30s): the timeout
+        # scales too — never below the configured floor, 3s per requested
+        # second above it (a 120s take waits up to 360s before giving up).
+        timeout = max(self.timeout, 3.0 * duration_s)
+
         retried_429 = 0
         retried_transient = 0
         retry_notes: list[str] = []
         while True:
             with _semaphore:
                 try:
-                    audio, metadata = self._post(body)
+                    audio, metadata = self._post(body, timeout=timeout)
                     break
                 except _RequestFailed as err:
                     if err.status_code == 429 and retried_429 < 1:
@@ -169,7 +179,7 @@ class ElevenLabsRenderer:
 
     # -- internals -------------------------------------------------------------
 
-    def _post(self, body: bytes) -> tuple[bytes, dict[str, Any]]:
+    def _post(self, body: bytes, *, timeout: Optional[float] = None) -> tuple[bytes, dict[str, Any]]:
         req = urllib.request.Request(
             _MUSIC_URL,
             data=body,
@@ -177,7 +187,7 @@ class ElevenLabsRenderer:
             headers={"xi-api-key": self.api_key, "content-type": "application/json"},
         )
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+            with urllib.request.urlopen(req, timeout=timeout or self.timeout) as resp:
                 audio = resp.read()
                 # The body is the audio itself; metadata rides on x-* headers.
                 metadata = {

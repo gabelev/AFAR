@@ -44,10 +44,13 @@ systemctl restart afar
 journalctl -fu afar
 ```
 
-Spend at the defaults: ~3 sets/day (jittered ±20%), 5–12 rounds/set ×3 acts
-≈ 24–54 generations/day, hard-capped at `AFAR_DAILY_GEN_CAP=60`; at the cap
-the conductor sleeps to the next UTC day. The generation counter persists in
-`runs/conductor/gen_budget.json` — restarts do not reset spend.
+Spend at the defaults: ~3 sets/day (jittered ±20%), 5–12 rounds/set ×3 acts,
+take lengths 30–120s at the Producer's discretion — hard-capped at
+`AFAR_DAILY_AUDIO_MINUTES=110` generated audio-minutes/day (the $500/mo
+sizing); at the cap the conductor sleeps to the next UTC day. The minutes
+meter (plus a generation count as telemetry) persists in
+`runs/conductor/gen_budget.json` — restarts do not reset spend, and an old
+`{day, generations}` file migrates in place (minutes estimated at 0.5/gen).
 
 ## Supervised smoke (no money, no Neon writes)
 

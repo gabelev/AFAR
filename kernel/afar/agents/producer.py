@@ -34,7 +34,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Optional, Sequence
 
 from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
@@ -46,6 +46,12 @@ from afar.staff import STAGE_NAMES, SetView, TakeRow, take_digest
 
 #: A judge must score at or above this for its anchor, or the take is out.
 DEFAULT_THRESHOLD = 0.55
+
+#: The Producer's session-length range (seconds). 30 is the sketch floor the
+#: piece was built on; 120 is where a "single" tops out.
+MIN_DURATION_S = 30
+MAX_DURATION_S = 120
+DEFAULT_DURATION_S = 30
 
 _GROUNDINGS: tuple[tuple[str, str], ...] = (
     (
@@ -243,26 +249,89 @@ class ProducerAgent(Agent):
 
     # -- the direction half: where the Muse's brief is consumed ----------------
 
-    def direct(self, brief: Any) -> dict[str, Any]:
+    def direct(
+        self, brief: Any, *, remaining_minutes: Optional[float] = None
+    ) -> dict[str, Any]:
         """Consume the Muse's brief at SET START — the only door the outside
         world enters through (architecture rule 2: through the brief, never
-        the ear). Returns the session direction the conductor will hand to
-        `run_set` when it exists; nothing here reaches `build_context`, so
-        nothing from the Muse can enter a player's mid-set perceive context.
+        the ear). Returns the session direction the conductor hands to
+        `run_set`; only the whitelisted frame fields (text / palette_notes /
+        forbidden_moves / duration_s) ever reach `build_context`, so nothing
+        else from the Muse can enter a player's mid-set perceive context.
 
-        Minimal seam, deliberately: v1 passes the brief through as direction.
-        A later Producer may translate it (tempo targets, a dare per act);
-        the contract that matters is WHERE this runs — set start, frame side.
+        The brief passes through as the direction text; the one creative call
+        made HERE is `duration_s` — the session's take length, 30-120s,
+        chosen by the model against the brief and the day's remaining audio
+        minutes (sketches run short, a session that smells like a single
+        earns length). A duration call that fails after the retry ladder
+        degrades to the 30s default — the direction always ships.
 
-        `brief` is an afar.agents.muse.Brief.
+        `brief` is an afar.agents.muse.Brief. `remaining_minutes` is the
+        day's unspent audio-minute budget (None = unmetered, e.g. a manual
+        run).
         """
+        duration_s, duration_why = self._choose_duration(brief, remaining_minutes)
         return {
             "stance": brief.stance,
             "theme": brief.theme,
             "text": brief.body,
             "palette_notes": list(brief.palette_notes),
             "forbidden_moves": list(brief.forbidden_moves),
+            "duration_s": duration_s,
+            "duration_why": duration_why,
         }
+
+    def _choose_duration(
+        self, brief: Any, remaining_minutes: Optional[float]
+    ) -> tuple[int, str]:
+        """One model call: how long should this session's takes run?"""
+        budget_line = (
+            f"About {remaining_minutes:.0f} audio-minutes remain in today's "
+            "generation budget (every round renders one take per act; the "
+            "budget is why sketches should stay short)."
+            if remaining_minutes is not None
+            else "Today's generation budget is not metered for this session."
+        )
+        prompt = (
+            "Before the session starts you make one more call: how long should "
+            f"each take run? Reply with an integer number of seconds, {MIN_DURATION_S} to "
+            f"{MAX_DURATION_S}.\n\n"
+            "Your cost intuition: a sketch session — trying a stance, testing the "
+            f"room — runs short ({MIN_DURATION_S}-45s and the budget thanks you). A session "
+            "that smells like a single — a brief with a thesis, acts with something "
+            "to prove — earns length (90-120s). Most sessions live in between.\n\n"
+            f"{budget_line}\n\n"
+            "THE MUSE'S BRIEF FOR THIS SESSION:\n"
+            f"theme: {brief.theme}\n{brief.body}\n\n"
+            'Reply with ONE JSON object, nothing else: {"duration_s": <int>, '
+            '"why": "<one sentence>"}'
+        )
+
+        def parse(raw: str) -> tuple[int, str]:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "duration_s" not in data:
+                raise ValueError("duration reply is not a {duration_s, why} object")
+            try:
+                seconds = int(data["duration_s"])
+            except (TypeError, ValueError) as err:
+                raise ValueError(f"duration_s is not an integer: {err!r}") from err
+            clamped = max(MIN_DURATION_S, min(MAX_DURATION_S, seconds))
+            return clamped, str(data.get("why", ""))
+
+        try:
+            return staff_complete(
+                self.model,
+                [
+                    Message(role="system", content=self.persona.base_prompt),
+                    Message(role="user", content=prompt),
+                ],
+                stage="producer/duration",
+                parse=parse,
+            )
+        except ValueError:
+            # Degrade, never void: an unusable duration call means the safe
+            # default — the session still gets its direction.
+            return DEFAULT_DURATION_S, "default: the duration call did not file"
 
     # -- the one decision ------------------------------------------------------
 

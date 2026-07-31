@@ -42,10 +42,11 @@ def test_elevenlabs_posts_a_body_whose_only_keys_are_model_id_and_composition_pl
     # respect_sections_durations — the first is a per-chunk field, the second
     # is music_v1-only; both were silently ignored by the API.
     renderer = ElevenLabsRenderer("test-key", tmp_path / "audio")
-    captured: dict[str, bytes] = {}
+    captured: dict[str, object] = {}
 
-    def fake_post(body: bytes):
+    def fake_post(body: bytes, *, timeout=None):
         captured["body"] = body
+        captured["timeout"] = timeout
         return b"\x01\x02\x03", {"x-song-id": "song-123"}
 
     monkeypatch.setattr(renderer, "_post", fake_post)

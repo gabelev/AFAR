@@ -23,6 +23,16 @@ Conditions:
   the runner, so parallel isolates "being run together" from "hearing each
   other". `others` is present and empty so the logged rows make the absence
   explicit rather than ambiguous.
+
+The direction frame: the Producer's set-start direction (rule 2 — the world
+enters through the brief, never the ear) rides into EVERY round's context of
+EVERY condition, isolation included, as `context["direction"]`. It is frame,
+not peer material — the session all three acts are inside, not something a
+player left in the room — so it does not branch on condition. It passes
+through `direction_frame()`, a hard whitelist of exactly four fields
+(text / palette_notes / forbidden_moves / duration_s): nothing else
+staff-shaped — stance, theme, verdicts, reviews — can ever enter a mid-set
+context, whatever a caller hands in.
 """
 
 from __future__ import annotations
@@ -33,6 +43,27 @@ from typing import Any, Mapping, Optional
 _CONTACT_CONDITIONS: tuple[str, ...] = ("contact", "social")
 _ALONE_CONDITIONS: tuple[str, ...] = ("isolation", "solo", "parallel")
 CONDITIONS: tuple[str, ...] = _CONTACT_CONDITIONS + _ALONE_CONDITIONS
+
+#: The ONLY fields of a Producer direction that may enter a player's context.
+#: A whitelist, not a blacklist: anything not named here (stance, theme, a
+#: future verdict field) is structurally unable to cross the boundary.
+DIRECTION_FRAME_KEYS: tuple[str, ...] = ("text", "palette_notes", "forbidden_moves", "duration_s")
+
+
+def direction_frame(direction: Mapping[str, Any]) -> dict[str, Any]:
+    """Reduce a Producer direction to its context-safe frame shape.
+
+    JSON-safe by construction (strings, lists of strings, an int) so the
+    logged perceptions row shows exactly what the agent saw."""
+    frame: dict[str, Any] = {}
+    if "text" in direction:
+        frame["text"] = str(direction["text"])
+    for key in ("palette_notes", "forbidden_moves"):
+        if key in direction:
+            frame[key] = [str(item) for item in direction[key]]
+    if "duration_s" in direction:
+        frame["duration_s"] = int(direction["duration_s"])
+    return frame
 
 
 @dataclass(frozen=True)
@@ -87,7 +118,13 @@ class RunView:
         return []
 
 
-def build_context(player_id: str, t: int, run: RunView, condition: str) -> dict[str, Any]:
+def build_context(
+    player_id: str,
+    t: int,
+    run: RunView,
+    condition: str,
+    direction: Optional[Mapping[str, Any]] = None,
+) -> dict[str, Any]:
     """Build what `player_id` perceives at the top of round `t`.
 
     THE manipulation. Returns a JSON-serializable dict that is both the
@@ -95,11 +132,18 @@ def build_context(player_id: str, t: int, run: RunView, condition: str) -> dict[
     docstring for what each condition admits. Raises ValueError on a condition
     it does not know: an unrecognized condition silently treated as anything
     would poison a whole run's data.
+
+    `direction` is the Producer's set-start direction: frame, not peer
+    material — present in every round of every condition (isolation hears no
+    other PLAYER, but every act plays the same session), reduced to the
+    whitelisted frame shape by `direction_frame`.
     """
     if condition not in CONDITIONS:
         raise ValueError(f"unknown condition {condition!r}; expected one of {CONDITIONS}")
 
     context: dict[str, Any] = {"round": t, "condition": condition, "others": []}
+    if direction is not None:
+        context["direction"] = direction_frame(direction)
     own = run.entry(player_id, t - 1)
     if own is not None:
         context["own"] = own.to_context()
