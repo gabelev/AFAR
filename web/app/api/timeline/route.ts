@@ -1,39 +1,46 @@
 import { NextResponse } from "next/server";
 import timelineSource from "@/fixtures/timeline-source.json";
-import { compileTimeline, type TimelineSource } from "@/lib/world/timeline";
+import { compileCatalogue, type TimelineSource } from "@/lib/world/timeline";
 
 /**
- * The world's compiled timeline for release 0002 (the First Contact set).
- * The committed fixture carries the per-round lines from the authoritative
- * run log; when Neon is reachable, the release row's live display facts
- * (the Critic's title, era, condition) and its provenance metadata
- * (artifactsByRound, lines, influenceRawByRound) overlay the fixture, so a
- * re-published row shows through without a redeploy. Nothing is invented:
- * fixture and row both derive from the same append-only log.
+ * The world's compiled timeline: the WHOLE published catalogue as an
+ * ordered sequence of set-blocks (oldest release first). The committed
+ * fixture carries each block's per-round lines from the authoritative run
+ * logs; when Neon is reachable, each block's release row overlays its live
+ * display facts (the Critic's title, era, condition) and provenance
+ * metadata (artifactsByRound, influenceRawByRound) — guarded per block by
+ * that block's runId, so a row re-published from a different run leaves
+ * the fixture block authoritative. Nothing is invented: fixture and rows
+ * both derive from the same append-only log.
  */
 export async function GET() {
-  const source = { ...(timelineSource as unknown as TimelineSource) };
+  const fixture = timelineSource as unknown as {
+    blocks: (TimelineSource & { runId?: string })[];
+  };
+  const blocks = fixture.blocks.map((b) => ({ ...b }));
 
   if (process.env.DATABASE_URL) {
     try {
       const { sql } = await import("@/lib/db");
-      const result = (await sql().query("SELECT data FROM releases WHERE id = $1", [
-        source.releaseId,
-      ])) as { rows?: { data: RowData }[] } | { data: RowData }[];
+      const result = (await sql().query("SELECT id, data FROM releases WHERE id = ANY($1)", [
+        blocks.map((b) => b.releaseId),
+      ])) as { rows?: { id: string; data: RowData }[] } | { id: string; data: RowData }[];
       const rows = Array.isArray(result) ? result : (result.rows ?? []);
-      const row = rows[0]?.data;
-      // Same run only — a row published from a different run would not match
-      // the fixture's per-round lines, so the fixture stays authoritative.
-      if (row && row.metadata?.runId === (timelineSource as { runId?: string }).runId) {
-        if (typeof row.title === "string") source.title = row.title;
-        if (typeof row.era === "string") source.era = row.era;
-        if (typeof row.condition === "string") source.condition = row.condition;
-        if (typeof row.set === "number") source.set = row.set;
+      const byId = new Map(rows.map((r) => [r.id, r.data]));
+      for (const block of blocks) {
+        const row = byId.get(block.releaseId);
+        // Same run only — a row published from a different run would not
+        // match this block's per-round lines.
+        if (!row || row.metadata?.runId !== block.runId) continue;
+        if (typeof row.title === "string") block.title = row.title;
+        if (typeof row.era === "string") block.era = row.era;
+        if (typeof row.condition === "string") block.condition = row.condition;
+        if (typeof row.set === "number") block.set = row.set;
         if (Array.isArray(row.metadata?.artifactsByRound)) {
-          source.artifactsByRound = row.metadata.artifactsByRound;
+          block.artifactsByRound = row.metadata.artifactsByRound;
         }
         if (row.metadata?.influenceRawByRound?.intent) {
-          source.intentEdgesByRound = row.metadata.influenceRawByRound.intent;
+          block.intentEdgesByRound = row.metadata.influenceRawByRound.intent;
         }
       }
     } catch {
@@ -41,7 +48,7 @@ export async function GET() {
     }
   }
 
-  return NextResponse.json(compileTimeline(source), {
+  return NextResponse.json(compileCatalogue({ blocks }), {
     headers: {
       // Derived from an immutable log; the mutable bits (title) can lag an hour.
       "cache-control": "public, max-age=3600, stale-while-revalidate=86400",

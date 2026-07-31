@@ -2,23 +2,30 @@ import { describe, expect, it } from "vitest";
 import committedSource from "@/fixtures/timeline-source.json";
 import {
   clock,
+  compileCatalogue,
   compileTimeline,
+  conditionLine,
   LISTEN_SECONDS,
   ROUND_SECONDS,
+  TRANSITION_SECONDS,
   type ListeningEvent,
   type RoundEvent,
+  type TimelineCatalogueSource,
   type TimelineSource,
+  type TransitionEvent,
 } from "@/lib/world/timeline";
 
+const NAMES = { silt: "Delta Marlowe", rust: "Roan Patina", keep: "Evers Lane" };
+
 /** A minimal release-row-shaped fixture: two rounds of a contact set. */
-const fixtureRow: TimelineSource = {
+const contactBlock: TimelineSource = {
   releaseId: "0002",
   title: "First Contact",
   era: "2020s",
   set: 2,
   condition: "contact",
   rounds: 2,
-  names: { silt: "Delta Marlowe", rust: "Roan Patina", keep: "Evers Lane" },
+  names: NAMES,
   linesByRound: [
     { silt: "laying the floor", rust: "finding what is true", keep: "leaving the song where you can reach it" },
     { silt: "everything lands on my floor now", rust: "the missing half is mine", keep: "playing it again, plainly" },
@@ -36,8 +43,36 @@ const fixtureRow: TimelineSource = {
   },
 };
 
+/** Two rounds of an isolation set: doors closed, nobody heard anybody. */
+const isolationBlock: TimelineSource = {
+  releaseId: "0004",
+  title: "Three Rooms, No Doors",
+  era: "2010s",
+  set: 4,
+  condition: "isolation",
+  rounds: 2,
+  names: NAMES,
+  linesByRound: [
+    { silt: "alone with the floor", rust: "alone with the tape", keep: "alone with the chord" },
+    { silt: "still layering", rust: "still stripping", keep: "still holding" },
+  ],
+  artifactsByRound: [
+    { silt: "hash-s0i", rust: "hash-r0i", keep: "hash-k0i" },
+    { silt: "hash-s1i", rust: "hash-r1i", keep: "hash-k1i" },
+  ],
+  // The kernel still measures drift edges in isolation runs, but nobody
+  // PERCEIVED anybody — the compiler must not stage listening from these.
+  intentEdgesByRound: {
+    "1": {
+      "silt<-rust": -0.1, "silt<-keep": -0.2,
+      "rust<-silt": -0.3, "rust<-keep": -0.4,
+      "keep<-silt": -0.5, "keep<-rust": -0.6,
+    },
+  },
+};
+
 describe("compileTimeline", () => {
-  const tl = compileTimeline(fixtureRow);
+  const tl = compileTimeline(contactBlock);
 
   it("alternates rounds and listening events, ending on the final round", () => {
     expect(tl.events.map((e) => e.kind)).toEqual(["round", "listening", "round"]);
@@ -65,26 +100,106 @@ describe("compileTimeline", () => {
   });
 
   it("refuses to invent a missing line", () => {
-    const broken = { ...fixtureRow, rounds: 3 };
+    const broken = { ...contactBlock, rounds: 3 };
     expect(() => compileTimeline(broken)).toThrow(/missing (lines|edges) for round 2/);
   });
 
-  it("compiles the committed fixture (the real First Contact set)", () => {
-    const real = compileTimeline(committedSource as unknown as TimelineSource);
-    const rounds = real.events.filter((e) => e.kind === "round");
-    const listens = real.events.filter((e) => e.kind === "listening") as ListeningEvent[];
-    expect(rounds).toHaveLength(6);
-    expect(listens).toHaveLength(5);
-    for (const r of rounds as RoundEvent[]) {
-      for (const line of Object.values(r.lines)) expect(line.length).toBeGreaterThan(0);
+  it("isolation: doors closed — rounds only, no listening events staged", () => {
+    const iso = compileTimeline(isolationBlock);
+    expect(iso.events.map((e) => e.kind)).toEqual(["round", "round"]);
+    expect(iso.loopDuration).toBe(2 * ROUND_SECONDS);
+    // the logged lines still show; that is all that happened
+    expect((iso.events[1] as RoundEvent).lines.keep).toBe("still holding");
+  });
+});
+
+describe("conditionLine", () => {
+  it("renders every condition in plain language", () => {
+    expect(conditionLine("contact")).toBe("RECORDED TOGETHER — EACH ACT COULD HEAR THE OTHERS");
+    expect(conditionLine("isolation")).toBe("RECORDED ALONE — NO ONE HEARS ANYONE");
+    expect(conditionLine("parallel")).toBe("RECORDED SIDE BY SIDE — NO ONE COULD HEAR ANYONE");
+  });
+});
+
+describe("compileCatalogue", () => {
+  const cat = compileCatalogue({ blocks: [contactBlock, isolationBlock] });
+
+  it("plays the blocks in order, each announced by a transition beat", () => {
+    expect(cat.events.map((e) => e.kind)).toEqual([
+      "transition", "round", "listening", "round", // contact block
+      "transition", "round", "round", // isolation block: no listening
+    ]);
+    expect(cat.events.map((e) => e.block)).toEqual([0, 0, 0, 0, 1, 1, 1]);
+  });
+
+  it("announces each record with its catalogue number and title", () => {
+    const transitions = cat.events.filter((e) => e.kind === "transition") as (TransitionEvent & {
+      block: number;
+    })[];
+    expect(transitions.map((e) => e.caption)).toEqual([
+      "NEXT: AFAR-0002 · FIRST CONTACT",
+      "NEXT: AFAR-0004 · THREE ROOMS, NO DOORS",
+    ]);
+    expect(transitions[1].nowLine).toBe("next: AFAR-0004 · Three Rooms, No Doors");
+  });
+
+  it("runs one continuous clock across the blocks", () => {
+    const contactLen = 2 * ROUND_SECONDS + LISTEN_SECONDS;
+    expect(cat.events.map((e) => e.t)).toEqual([
+      0,
+      TRANSITION_SECONDS,
+      TRANSITION_SECONDS + ROUND_SECONDS,
+      TRANSITION_SECONDS + ROUND_SECONDS + LISTEN_SECONDS,
+      TRANSITION_SECONDS + contactLen,
+      2 * TRANSITION_SECONDS + contactLen,
+      2 * TRANSITION_SECONDS + contactLen + ROUND_SECONDS,
+    ]);
+    expect(cat.loopDuration).toBe(2 * TRANSITION_SECONDS + contactLen + 2 * ROUND_SECONDS);
+  });
+
+  it("carries per-block display facts, condition in plain language", () => {
+    expect(cat.blocks.map((b) => b.catalogueNo)).toEqual(["AFAR-0002", "AFAR-0004"]);
+    expect(cat.blocks[0].conditionLine).toBe("RECORDED TOGETHER — EACH ACT COULD HEAR THE OTHERS");
+    expect(cat.blocks[1].conditionLine).toBe("RECORDED ALONE — NO ONE HEARS ANYONE");
+  });
+
+  it("refuses an empty catalogue", () => {
+    expect(() => compileCatalogue({ blocks: [] })).toThrow(/no set-blocks/);
+  });
+
+  it("compiles the committed fixture (the real catalogue, oldest first)", () => {
+    const src = committedSource as unknown as TimelineCatalogueSource;
+    expect(src.blocks.length).toBeGreaterThanOrEqual(2);
+    const ids = src.blocks.map((b) => b.releaseId);
+    expect([...ids].sort()).toEqual(ids); // chronological: catalogue order
+
+    const real = compileCatalogue(src);
+    expect(real.events.filter((e) => e.kind === "transition")).toHaveLength(src.blocks.length);
+    for (const [i, blockSrc] of src.blocks.entries()) {
+      const events = real.events.filter((e) => e.block === i);
+      const rounds = events.filter((e) => e.kind === "round") as (RoundEvent & { block: number })[];
+      const listens = events.filter((e) => e.kind === "listening") as (ListeningEvent & {
+        block: number;
+      })[];
+      expect(rounds).toHaveLength(blockSrc.rounds);
+      for (const r of rounds) {
+        for (const line of Object.values(r.lines)) expect(line.length).toBeGreaterThan(0);
+      }
+      if (blockSrc.condition === "contact") {
+        // every staged listen plays a take that exists in THIS block's log
+        expect(listens).toHaveLength(blockSrc.rounds - 1);
+        for (const l of listens) {
+          expect(blockSrc.artifactsByRound[l.playedRound][l.source]).toBeTruthy();
+          expect(l.logLine).toContain(`AFAR-${blockSrc.releaseId}`);
+        }
+      } else {
+        expect(listens).toHaveLength(0); // doors closed
+      }
     }
-    // every staged listen plays a take that exists in the log
-    const src = committedSource as unknown as TimelineSource;
-    for (const l of listens) {
-      expect(src.artifactsByRound[l.playedRound][l.source]).toBeTruthy();
+    // the clock never runs backwards across the whole catalogue
+    for (let i = 1; i < real.events.length; i++) {
+      expect(real.events[i].t).toBeGreaterThan(real.events[i - 1].t);
     }
-    // all three acts get a walk across the loop
-    expect(new Set(listens.map((l) => l.actor)).size).toBe(3);
   });
 });
 
