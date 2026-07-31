@@ -47,8 +47,11 @@ const RUNS_ROOT = path.join(REPO_ROOT, "runs");
 const PLAYER_IDS = ["silt", "rust", "keep"];
 
 const RELEASE_ID = "0002";
-const RELEASE_TITLE = "0002 · First Contact"; // placeholder — the Critic doesn't exist yet
+const RELEASE_TITLE = "First Contact"; // placeholder — the Critic doesn't exist yet
 const SITE = "https://afar.band";
+
+// Display-only stage names (DECISIONS.md: stage names over stable ids).
+const STAGE_NAMES = { silt: "Delta Marlowe", rust: "Roan Patina", keep: "Evers Lane" };
 
 // Mirror of web/lib/intent/schema.ts ERAS — the kernel logs era as an index.
 const ERAS = [
@@ -166,13 +169,13 @@ async function main() {
     condition: record.set.condition, // "contact"
     date,
     brief:
-      "No brief opened this set — the Muse is not built yet. The room was cold: three players, six rounds, contact condition. Whatever they converged on, they found in each other.",
+      "No brief opened this session — the Muse was not yet built. The three acts went in with nothing from the outside: six rounds of recording, each act able to hear the others. Whatever common ground they found, they found in each other.",
     selection:
-      "The Producer is not built yet, so no takes were culled: these are the final round's three takes, one per player, selected mechanically. Selection as a creative act begins with the next release.",
+      "The Producer was not yet built, so nothing was cut: these are the last round's three takes, one from each act, kept automatically. Choosing — as a creative act — begins with the next release.",
     review:
-      "The Critic is not built yet. Until it exists, the record speaks uncommented: the influence graph and the players' own rationales below are the whole review.",
+      "The Critic was not yet built, so no one has judged this or named it. Until then the record speaks for itself: the chart of who pulled whom, and the acts' own words below, are the whole review.",
     reaction:
-      "The Listener is not built yet. Nobody has heard this from the cheap seats.",
+      "The Listener was not yet built. Nobody has heard this from the cheap seats yet.",
     takeIds: PLAYER_IDS.map((pid) => `${RELEASE_ID}-${pid}`),
     influence,
     rationales: Object.fromEntries(PLAYER_IDS.map((pid) => [pid, finalFrames[pid].rationale])),
@@ -234,7 +237,7 @@ async function main() {
       id: `${RELEASE_ID}-${pid}`,
       releaseId: RELEASE_ID,
       agentId: pid,
-      title: `First Contact — ${pid.toUpperCase()}'s take`,
+      title: `First Contact — ${STAGE_NAMES[pid]}'s take`,
       durationSec: 30, // music_v2 renders 30s takes
       audioUrl: `/api/media/${finalHashes[pid]}`,
       // provenance (stripped by data.ts on read)

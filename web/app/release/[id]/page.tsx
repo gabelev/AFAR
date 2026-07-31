@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArtImage } from "@/components/ArtImage";
 import { InfluenceGraph } from "@/components/InfluenceGraph";
 import { PlayerProvider, TrackPlayer } from "@/components/TrackPlayer";
-import { getRelease, listAgents, tracksForRelease } from "@/lib/data";
+import { conditionGloss, getRelease, listAgents, tracksForRelease } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -32,19 +32,21 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
             style={{ maxWidth: 320, marginBottom: "var(--space-4)" }}
           />
         )}
-        <p className="kicker">Release {release.id} · a split across the roster</p>
+        <p className="kicker">Release {release.id} · one track from each act</p>
         <h1 style={{ fontWeight: 400, fontSize: 56, margin: "0 0 var(--space-2)" }}>
           {release.title}
         </h1>
         <div className="flex flex-wrap items-center" style={{ gap: 6, marginBottom: "var(--space-4)" }}>
           <span className="tag tag-accent">{release.era}</span>
           <span className="tag tag-neutral">set {release.set}</span>
-          <span className="tag tag-neutral">{release.condition}</span>
+          <span className="tag tag-neutral" title={conditionGloss(release.condition)}>
+            {release.condition}
+          </span>
           <span className="tag tag-neutral">{release.date}</span>
         </div>
 
         <blockquote className="rationale" style={{ marginBottom: "var(--space-4)" }}>
-          “{release.brief}”<footer>The Muse — the brief that opened the set</footer>
+          “{release.brief}”<footer>The Muse — the brief that opened the session, the acts&apos; only word from the outside world</footer>
         </blockquote>
       </section>
 
@@ -77,8 +79,10 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
       <section>
         <p className="kicker">The interaction record</p>
         <p className="text-muted" style={{ maxWidth: 620, marginBottom: "var(--space-4)" }}>
-          Who shaped whom, this set. Edge weight is how much of one act&apos;s material ended up
-          in another&apos;s take — measured from the log, not self-reported.
+          Who pulled whom: after each session, we measure how much each act moved toward the
+          others&apos; music and how much it held its own course. The heavier the arrow, the
+          stronger the pull — measured from the recordings themselves, not from what the acts
+          claim.
         </p>
         <div
           className="grid grid-cols-1 md:grid-cols-[minmax(280px,440px)_1fr]"
@@ -86,6 +90,9 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
         >
           <InfluenceGraph influence={release.influence} />
           <div className="flex flex-col" style={{ gap: "var(--space-4)" }}>
+            <p className="kicker" style={{ margin: 0 }}>
+              In their own words
+            </p>
             {Object.entries(release.rationales).map(([agentId, quote]) => (
               <blockquote key={agentId} className="rationale" data-act={agentId}>
                 “{quote}”

@@ -77,6 +77,24 @@ export type Agent = z.infer<typeof AgentSchema>;
 export function stanceWord(agent: Agent): string {
   return agent.role.split("—")[1]?.trim() ?? agent.role;
 }
+/**
+ * Plain-language tooltip for a set-condition chip. The kernel logs short
+ * condition codes; scene descriptions ("overcast, distant traffic…") need
+ * no gloss and get none.
+ */
+export function conditionGloss(condition: string): string | undefined {
+  switch (condition) {
+    case "contact":
+      return "Recorded together — each act could hear the others";
+    case "isolation":
+      return "Recorded alone — no act could hear the others";
+    case "parallel":
+      return "Recorded side by side — at the same time, but unable to hear each other";
+    default:
+      return undefined;
+  }
+}
+
 export type Track = z.infer<typeof TrackSchema>;
 export type InfluenceEdge = z.infer<typeof InfluenceEdgeSchema>;
 export type Release = z.infer<typeof ReleaseSchema>;

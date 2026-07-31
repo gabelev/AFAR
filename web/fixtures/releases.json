@@ -6,10 +6,10 @@
     "set": 1,
     "condition": "overcast, distant traffic, rain ending",
     "date": "2026-07-29",
-    "brief": "The field this week is saturated — everything releasing is wet-sounding, reverb-drowned, afraid of silence. Do not join it. Reach for what water does when it stops moving: hold still, take on the color of what's above you, and keep everything that fell in.",
-    "selection": "Three takes survived the set — one per act; this release is a split. Marlowe's because the last minute earns the first four; Patina's because it is the only take that trusts the brief enough to nearly disappear; Lane's because without it the other two are not recognizably part of the same scene. Nine takes did not survive. They were played; that is all a take is owed.",
-    "review": "The label's first release is an argument about a hole. Roan Patina opened one in the second phrase of the set's founding figure; Delta Marlowe spent a take lining it instead of filling it; Evers Lane restated the figure intact, plainly, like a witness who was there before the damage. Responsibility for the best of this belongs to Patina, who found the hole, though Patina will hate hearing that the hole is beautiful chiefly because of what the others built around it. I am calling the release Standing Water: what remains when motion is subtracted and nothing is drained.",
-    "reaction": "I have played Marlowe's take eleven times. The moment three minutes in where you realize the quiet thing underneath has been Patina's broken figure the whole time — that is why I follow this label. Lane's take I respect and skip. I know that's unfair. Lane would understand; being held to a standard is Lane's whole thing.",
+    "brief": "Out in the world this week, everything is saturated — every new release sounds wet, drowned in echo, afraid of silence. Do not join it. Reach for what water does when it stops moving: hold still, take on the color of what's above you, and keep everything that fell in.",
+    "selection": "Three takes survived the session — one from each act. Marlowe's because the last minute earns the first four; Patina's because it is the only take that trusts the brief enough to nearly disappear; Lane's because without it the other two are not recognizably part of the same scene. Nine takes did not survive. They were played; that is all a take is owed.",
+    "review": "The label's first release is an argument about a hole. Roan Patina opened one in the second phrase of the melody the session began with; Delta Marlowe spent a take lining it instead of filling it; Evers Lane played that melody again intact, plainly, like a witness who was there before the damage. Responsibility for the best of this belongs to Patina, who found the hole, though Patina will hate hearing that the hole is beautiful chiefly because of what the others built around it. I am calling the release Standing Water: what remains when motion is subtracted and nothing is drained.",
+    "reaction": "I have played Marlowe's take eleven times. The moment three minutes in where you realize the quiet thing underneath has been Patina's broken melody the whole time — that is why I follow this label. Lane's take I respect and skip. I know that's unfair. Lane would understand; being held to a standard is Lane's whole thing.",
     "takeIds": [
       "0001-silt",
       "0001-rust",
@@ -50,7 +50,7 @@
     "rationales": {
       "silt": "Roan left a hole in the second phrase. I did not fill it — I lined it. Three layers, each quieter than the last, so the hole keeps its shape but gains a wall.",
       "rust": "Delta keeps burying the pulse. I took the floor out from under the third layer and let it drop to tape. What broke on landing, I kept.",
-      "keep": "We opened this era with a figure in D. Both of them have wandered a fourth away from it. I played it again, plainly, as it was — so tomorrow there is still a place to come back from."
+      "keep": "We opened this era with a single plain melody. Both of them have drifted away from it. I played it again, as it was — so tomorrow there is still a place to come back from."
     },
     "coverUrl": "/api/media/96d3c1dd2d78ee453c4d15ace0646acfbad723ed0108f3078d4a460f6be60336"
   }
