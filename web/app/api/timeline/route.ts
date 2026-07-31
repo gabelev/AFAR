@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import timelineSource from "@/fixtures/timeline-source.json";
+import { normalizeActNames } from "@/lib/normalize-act-names.mjs";
 import {
   compileCatalogue,
   preferTimelineBlocks,
@@ -61,6 +62,39 @@ export async function GET() {
         if (row.metadata?.influenceRawByRound?.intent) {
           block.intentEdgesByRound = row.metadata.influenceRawByRound.intent;
         }
+        // The staff's logged rows ride the release row's metadata (the
+        // record's staff block); overlaying them here means the staged
+        // staff events — direction walks, verdicts to the face, the
+        // reaction, the brief — reach the world even for releases
+        // published before timeline_source carried a staff field. The
+        // same display shim as the acts' lines applies.
+        const staff: TimelineSource["staff"] = { ...block.staff };
+        const brief = row.metadata?.museBrief;
+        if (brief?.theme || brief?.text) {
+          staff.muse = {
+            ...(brief.theme ? { theme: normalizeActNames(brief.theme) } : {}),
+            ...(brief.text ? { text: normalizeActNames(brief.text) } : {}),
+          };
+        }
+        const reaction = row.metadata?.listenerReaction;
+        if (reaction?.text) {
+          staff.listener = {
+            ...(reaction.valence ? { valence: reaction.valence } : {}),
+            text: normalizeActNames(reaction.text),
+          };
+        }
+        const actReviews = row.metadata?.criticActReviews;
+        if (actReviews && Object.values(actReviews).some((t) => typeof t === "string" && t)) {
+          staff.critic = {
+            ...(staff.critic ?? {}),
+            actReviews: Object.fromEntries(
+              Object.entries(actReviews)
+                .filter(([, t]) => typeof t === "string" && t)
+                .map(([pid, t]) => [pid, normalizeActNames(t as string)]),
+            ),
+          };
+        }
+        if (Object.keys(staff).length > 0) block.staff = staff;
       }
     } catch {
       // Table missing or Neon down — the fixture answers.
@@ -86,5 +120,8 @@ interface RowData {
     runId?: string;
     artifactsByRound?: TimelineSource["artifactsByRound"];
     influenceRawByRound?: { intent?: TimelineSource["intentEdgesByRound"] };
+    museBrief?: { theme?: string; text?: string };
+    listenerReaction?: { valence?: string; text?: string };
+    criticActReviews?: Record<string, string>;
   };
 }

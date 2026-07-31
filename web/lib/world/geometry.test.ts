@@ -6,12 +6,15 @@ import {
   DASHES,
   DIM,
   HOME_CENTER,
+  officeToArchiveChairPath,
+  officeToStudioPath,
   PLACEMENTS,
   PLATTER,
   ROOM_LABELS,
   SHEET_ROW,
   STUDIO_DOOR_X,
   STUDIO_NAME,
+  studioToStudioPath,
   TILE,
   TURNTABLE_STAND,
   WALK,
@@ -28,9 +31,9 @@ import {
  */
 
 describe("geometry registry: derived values match the world as shipped", () => {
-  it("canvas + camera", () => {
+  it("canvas + camera (the world canvas is the 56×34 street)", () => {
     expect(TILE).toBe(16);
-    expect(WORLD_W).toBe(528);
+    expect(WORLD_W).toBe(896);
     expect(WORLD_H).toBe(544);
     expect(CAMERA_MARGIN).toBe(96);
     expect(HOME_CENTER).toEqual({ tx: 16.5, ty: 17 });
@@ -73,13 +76,42 @@ describe("geometry registry: derived values match the world as shipped", () => {
     });
   });
 
-  it("speech-bubble anchors", () => {
+  it("speech-bubble anchors (acts + turntable + the staff's two spots)", () => {
     expect(BUBBLES).toEqual({
       keep: { px: [120, 296], maxWidth: 230 },
       rust: { px: [420, 296], maxWidth: 230 },
       silt: { px: [706, 296], maxWidth: 260 },
       turntable: { px: [500, 846], maxWidth: 300 },
+      archiveChair: { px: [620, 776], maxWidth: 260 },
+      window: { px: [70, 690], maxWidth: 240 },
     });
+  });
+
+  it("staff walk routes derive from the registry's doors + corridor", () => {
+    // office → studio A (the Producer's direction delivery), verbatim pieces:
+    expect(officeToStudioPath({ tx: 5, ty: 22 }, "keep")).toEqual([
+      { tx: 5, ty: 22 },
+      { tx: 6.6, ty: 22 }, // office door column 7 − 0.4
+      { tx: 6.6, ty: 13 }, // down the office, through the door, to the corridor
+      { tx: 5.6, ty: 13 }, // along the corridor to studio A's door column
+      { tx: 5.6, ty: 9.4 }, // just inside the studio: the delivery spot
+    ]);
+    // studio → studio: out to the corridor, along, back in
+    expect(studioToStudioPath("keep", "rust")).toEqual([
+      { tx: 5.6, ty: 9.4 },
+      { tx: 5.6, ty: 13 },
+      { tx: 15.6, ty: 13 },
+      { tx: 15.6, ty: 9.4 },
+    ]);
+    // office → the archive armchair (the Listener's reaction seat)
+    expect(officeToArchiveChairPath({ tx: 4.4, ty: 26.2 })).toEqual([
+      { tx: 4.4, ty: 26.2 },
+      { tx: 6.6, ty: 26.2 },
+      { tx: 6.6, ty: 13 },
+      { tx: 21.9, ty: 13 },
+      { tx: 21.9, ty: 16.2 },
+      { tx: 25.2, ty: 24.9 },
+    ]);
   });
 
   it("walk waypoints assemble to the shipped listening-event path", () => {

@@ -4,9 +4,12 @@
  * pixel.js data). The Phaser world displays them at 2x with pixelArt on.
  *
  * Outputs (committed, under web/public/world/):
- *   bg-era-a.png / bg-era-b.png — the whole building, 528×544 (33×34 tiles
- *     of 16px), rooms + props + office pets, NO characters (era B = LUT +
- *     prop diff).
+ *   bg-era-a.png / bg-era-b.png — the whole block, 896×544 (the street's
+ *     56×34 tiles of 16px): house rooms + props + office pets, sidewalks,
+ *     road, Archive Row shells, street furniture. NO characters (the scene
+ *     places them) and NO building occupancy dressing (the runtime paints
+ *     lease / move-in ready / occupied from live agents data). Era B = LUT
+ *     + prop diff.
  *   characters.png — 8 characters × 12 frames of 16×16 (rows in
  *     pixelspec CHARACTERS order — acts, staff, then vess the street
  *     resident; cols = 4 directions × 3 frames, the handoff's frames()
@@ -26,7 +29,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  PAL, eraPal, T, W, H, S, dict, drawMap, frames, paintWorld,
+  PAL, eraPal, T, SW, SH, S, dict, drawMap, frames, paintStreet,
   CHARACTERS, DIRECTIONS,
   consoleDesk, reels, shelf, turntable, chair, armchair, lampPool,
   crate, ghost, puddle, windowV,
@@ -37,10 +40,13 @@ const OUT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..',
 const png = (canvas) => canvas.toBuffer('image/png', { compressionLevel: 9, filters: canvas.PNG_ALL_FILTERS });
 
 function renderBackground(era) {
-  const cv = createCanvas(W * T, H * T);
+  // The full Archive Row canvas (56×34 tiles): house + street, NO people
+  // (the scene places every character) and NO building occupancy dressing
+  // (the runtime paints lease / ready / occupied from live agents data).
+  const cv = createCanvas(SW * T, SH * T);
   const c = cv.getContext('2d');
   c.imageSmoothingEnabled = false;
-  paintWorld(c, eraPal(era), { era, people: false, playing: false });
+  paintStreet(c, eraPal(era), era, 'normal', { people: false, buildingStates: false });
   return png(cv);
 }
 

@@ -36,6 +36,7 @@ from afar.publish import (
     publish_run,
     reaction_prose,
     selected_takes,
+    timeline_staff,
 )
 from afar.render.base import MockRenderer
 from afar.run import run_set
@@ -206,6 +207,16 @@ def test_compile_timeline_block_matches_the_world_shape(staffed_run: Path):
     assert block["intentEdgesByRound"] == record["influence"]["intent"]
     assert block["names"] == {"silt": "Delta Marlowe", "rust": "Roan Patina", "keep": "Evers Lane"}
 
+    # The staff-walked run carries its logged staff rows into the block —
+    # the TimelineStaff shape the world's staff events compile from.
+    staff = block["staff"]
+    assert staff["producer"]["note"] == record["staff"]["producer"]["note"]
+    assert staff["critic"]["releaseReview"] == record["staff"]["critic"]["release_review"]
+    assert set(staff["critic"]["actReviews"]) == set(PLAYER_IDS)
+    assert staff["muse"]["theme"] == record["staff"]["muse"]["theme"]
+    assert staff["listener"]["text"] == record["staff"]["listener"]["text"]
+    assert staff["listener"]["valence"] == record["staff"]["listener"]["valence"]
+
     # Rows without a runId (the seeded 0001) or a missing run dir are skipped.
     compiled = compile_timeline_blocks(
         [("0001", {"title": "Seeded"}),
@@ -214,6 +225,54 @@ def test_compile_timeline_block_matches_the_world_shape(staffed_run: Path):
         runs_root,
     )
     assert [b["releaseId"] for b in compiled["blocks"]] == ["0003"]
+
+
+def test_timeline_staff_same_oracle_as_compile_staff_in_mjs():
+    """The SHARED oracle with web (compile_timeline.mjs compileStaff /
+    timeline.test.ts "staff events compile from logged rows only"): the same
+    record staff block must yield the same TimelineStaff, display shim
+    applied, absent stages absent."""
+    record = {
+        "staff": {
+            "producer": {"note": "kept the takes that held the room"},
+            "critic": {
+                "release_review": "A record that knows what it is.",
+                "act_reviews": {
+                    "keep": "Keep held the centre.",  # display shim: Keep -> Evers
+                    "rust": "Rust has been coasting.",
+                    "silt": "Silt buried the best phrase.",
+                    "ghost": "not a player",  # unknown ids never ride along
+                },
+            },
+            "muse": {"theme": "rooms after rain", "text": "Answer with water."},
+            "listener": {"valence": "mixed", "text": "Played it twice."},
+        }
+    }
+    staff = timeline_staff(record)
+    assert staff == {
+        "producer": {"note": "kept the takes that held the room"},
+        "critic": {
+            "releaseReview": "A record that knows what it is.",
+            "actReviews": {
+                "keep": "Evers held the centre.",
+                "rust": "Roan has been coasting.",
+                "silt": "Delta buried the best phrase.",
+            },
+        },
+        "muse": {"theme": "rooms after rain", "text": "Answer with water."},
+        "listener": {"valence": "mixed", "text": "Played it twice."},
+    }
+
+
+def test_timeline_staff_absent_stages_stay_absent():
+    assert timeline_staff({}) is None
+    assert timeline_staff({"staff": {}}) is None
+    assert timeline_staff({"staff": {"producer": {}}}) is None  # no note logged
+    partial = timeline_staff({"staff": {"listener": {"text": "Heard it once."}}})
+    assert partial == {"listener": {"text": "Heard it once."}}
+    # a degraded critic (no rows) stages nothing even beside a live muse
+    mixed = timeline_staff({"staff": {"critic": {}, "muse": {"theme": "dust"}}})
+    assert mixed == {"muse": {"theme": "dust"}}
 
 
 def test_publish_dry_run_touches_nothing_external(staffed_run: Path):

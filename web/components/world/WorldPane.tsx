@@ -40,6 +40,9 @@ export function WorldPane() {
         return;
       }
       handleRef.current = handle;
+      // Headless-drive hook: lets the CI/manual headless pass (and the
+      // console) exercise fly-to targets without a UI affordance.
+      (window as unknown as { __afarWorld?: WorldHandle }).__afarWorld = handle;
       // centre on whatever route we loaded into (deep link / hard refresh)
       handle.setAnchor(routeTarget(pathnameRef.current), true);
     });
@@ -49,6 +52,7 @@ export function WorldPane() {
       cancelled = true;
       offFly();
       handleRef.current = null;
+      delete (window as unknown as { __afarWorld?: WorldHandle }).__afarWorld;
       handle?.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -71,7 +75,7 @@ export function WorldPane() {
       ref={containerRef}
       className="world-container"
       role="img"
-      aria-label="The AFAR universe, drawn in pixels. The three acts record in separate studios; the archive below is the only room where one act can hear another."
+      aria-label="The AFAR universe, drawn in pixels: the label building on its street corner, with Archive Row's resident buildings across the road. The three acts record in separate studios; the archive is the only room in town where anyone hears anyone."
     />
   );
 }

@@ -126,6 +126,20 @@ describe("the shelf: latest block + its once-through order", () => {
     expect(arrivalPlayOrder(cat.events, 4)).toEqual([5]);
     expect(arrivalPlayOrder(cat.events, cat.events.length)).toEqual([]);
   });
+
+  it("staff events ride once-throughs at their log positions (only transitions stay out)", () => {
+    const events = [
+      { kind: "transition", block: 0 },
+      { kind: "direction_delivered", block: 0 },
+      { kind: "round", block: 0 },
+      { kind: "verdict_delivered", block: 0 },
+      { kind: "reaction", block: 0 },
+      { kind: "brief", block: 0 },
+      { kind: "street_listening", block: 0 },
+    ] as const;
+    expect(blockPlayOrder(events, 0)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(arrivalPlayOrder(events, 0)).toEqual([1, 2, 3, 4, 5, 6]);
+  });
 });
 
 describe("picker → block resolution", () => {

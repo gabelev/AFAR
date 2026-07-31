@@ -8,7 +8,7 @@
  * camera anchor is its placement, centred on the sprite (+half a tile).
  */
 
-import { ARCHIVE_TARGET, PLACEMENTS } from "@/lib/world/geometry";
+import { ARCHIVE_TARGET, PLACEMENTS, STREET_TARGETS } from "@/lib/world/geometry";
 import type { WorldTarget } from "@/lib/world/geometry";
 
 export type { WorldTarget };
@@ -33,9 +33,19 @@ export const CHARACTER_RESOLVE: Record<string, ResolveEntry> = Object.fromEntrie
   ]),
 );
 
+/**
+ * Street landmarks and resident buildings: fly-to anchors on Archive Row.
+ * The street has no right-pane pages (yet) — the route is the world view
+ * itself; the fly is the point.
+ */
+export const STREET_RESOLVE: Record<string, ResolveEntry> = Object.fromEntries(
+  Object.entries(STREET_TARGETS).map(([id, target]) => [id, { route: "/world", target }]),
+);
+
 /** id → route + world target; release ids ("0001", "0002", …) hit the archive. */
 export function resolveWorld(id: string): ResolveEntry | null {
   if (id in CHARACTER_RESOLVE) return CHARACTER_RESOLVE[id];
+  if (id in STREET_RESOLVE) return STREET_RESOLVE[id];
   if (/^\d{4}$/.test(id)) return { route: `/release/${id}`, target: ARCHIVE_TARGET };
   return null;
 }
