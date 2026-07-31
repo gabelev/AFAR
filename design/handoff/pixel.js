@@ -12,7 +12,10 @@ export const PAL = {
   staff:'#8b8577', staffD:'#5e5a4f',
   evers:'#a34c2e', eversD:'#6e3220',
   roan:'#71917d', roanD:'#4b6355',
-  delta:'#bd9040', deltaD:'#7c5e2a'
+  delta:'#bd9040', deltaD:'#7c5e2a',
+  asph:'#2b2e34', asphD:'#262a2f',
+  pave:'#4a463d', paveD:'#403c34', curb:'#5a5449',
+  guest:'#8a6f9e', guestD:'#5e4a6c'
 };
 // Era B = same world through a LUT: 8 entries remapped, everything else untouched
 export function eraPal(era){
@@ -20,7 +23,9 @@ export function eraPal(era){
   return Object.assign({}, PAL, {
     void:'#13100b', rain:'#13100b', glass:'#4d4026',
     floor:'#4b4033', floorD:'#403629', conc:'#3d3a33', concD:'#37342d',
-    wallFace:'#55503f', lamp:'#d8a248'
+    wallFace:'#55503f', lamp:'#d8a248',
+    asph:'#302d27', asphD:'#2a2722',
+    pave:'#4d4536', paveD:'#423b2e', curb:'#5c5240'
   });
 }
 export const SWATCHES=[
@@ -80,28 +85,83 @@ up:["................","................",".....ohhho......",".....ohhho......",
 "..occdccdcco....","..occcccccco....","..odccccccdo....","..occcccccco....",
 "..odccccccdo....","...occ..cco.....","...oo....oo.....","................"]},
 producer:{down:[
-"................","................",".....oooo.......","....omhhmo......",
-"....omssmo......",".....osso.......","....occcco......","...occcccco.....",
-"...occcccco.....","...occcccco.....","....occcco......","....oo..oo......",
-"................","................","................","................"]},
+"................","......oooo......",".....ommmmo.....","....omhhhhmo....",
+"....omssssmo....","....omsossmo....",".....osssso.....","....occccco.....",
+"...occccccco....","...occcmccco....","...occccccco....","...odcccccdo....",
+"....occccco.....","....occccco.....","....oo...oo.....","................"],
+side:[
+"................","......oooo......",".....ommmmo.....","....omhhhho.....",
+"....omsssso.....","....omsosso.....",".....ossso......","....occcco......",
+"....occccco.....","....ocmccco.....","....occccco.....","....odcccdo.....",
+"....occcco......","....occcco......",".....oo.oo......","................"],
+up:[
+"................","......oooo......",".....ommmmo.....","....omhhhhmo....",
+"....omhhhhmo....","....omhhhhmo....",".....ohhhho.....","....occccco.....",
+"...occccccco....","...occccccco....","...occccccco....","...odcccccdo....",
+"....occccco.....","....occccco.....","....oo...oo.....","................"]},
 critic:{down:[
-"................","................","......ohho......","......ohho......",
-".....oomoo......","......osso......","......occo......","......occo......",
-"....ppocco......","....ppocco......","......occo......","......o..o......",
-"......o..o......","................","................","................"]},
+"................","................","......ohho......",".....ohhhho.....",
+".....ommmmo.....","......osso......",".....occcco.....",".....occcco.....",
+"...ppocccco.....","...ppocccco.....",".....occcco.....",".....occcco.....",
+".....occcco.....",".....occcco.....",".....oo..oo.....","................"],
+side:[
+"................","................","......ohho......",".....ohhho......",
+".....ommo.......",".....osso.......",".....occco......",".....occco......",
+"...ppoccco......","...ppoccco......",".....occco......",".....occco......",
+".....occco......",".....occco......",".....oo.oo......","................"],
+up:[
+"................","................","......ohho......",".....ohhhho.....",
+".....ohhhho.....","......ohho......",".....occcco.....",".....occcco.....",
+".....occcco.....",".....occcco.....",".....occcco.....",".....occcco.....",
+".....occcco.....",".....occcco.....",".....oo..oo.....","................"]},
 listener:{down:[
-"................","................","................","......ohho......",
-".....ossso......",".....ososo......",".....occcco.....","....occcccco....",
-"....occcccco....","....occcccco....",".....occcco.....",".....oo..oo.....",
-"................","................","................","................"]},
+"................","................","......ohho......",".....ossso......",
+".....ososo......","....occccco.....","...occccccco....","...occccccco....",
+"...occccccco....","...occccccco....","...occccccco....","....occccco.....",
+"....occccco.....","....occccco.....","....oo...oo.....","................"],
+side:[
+"................","................","......ohho......",".....ossso......",
+".....oosso......","....occcco......","...occcccco.....","...occcccco.....",
+"...occcccco.....","...occcccco.....","...occcccco.....","....occcco......",
+"....occcco......","....occcco......","....oo..oo......","................"],
+up:[
+"................","................","......ohho......",".....ohhho......",
+".....ohhho......","....occccco.....","...occccccco....","...occccccco....",
+"...occccccco....","...occccccco....","...occccccco....","....occccco.....",
+"....occccco.....","....occccco.....","....oo...oo.....","................"]},
 muse:{down:[
-"................","................",".....ohhho......","....ohhhhho.....",
-"....ohsssho.....","....ohsssho.....",".....opppo......",".....opppo......",
-".....opppo......",".....opppo......",".....opppo......",".....oo.oo......",
-"................","................","................","................"]}
+"................",".....ohhho......","....ohhhhho.....","....ohsssho.....",
+"....ohsosho.....","....ohsssho.....","....ohpppho.....","....ohpppho.....",
+"....ohpppho.....",".....opppo......",".....opppo......",".....opppo......",
+".....opppo......",".....opppo......",".....oo.oo......","................"],
+side:[
+"................",".....ohhho......","....ohhhho......","....ohssso......",
+"....ohsoso......","....ohssso......","....ohpppo......","....ohpppo......",
+"....ohpppo......",".....oppo.......",".....oppo.......",".....oppo.......",
+".....oppo.......",".....oppo.......",".....oo.oo......","................"],
+up:[
+"................",".....ohhho......","....ohhhhho.....","....ohhhhho.....",
+"....ohhhhho.....","....ohhhhho.....","....ohpppho.....","....ohpppho.....",
+"....ohpppho.....",".....opppo......",".....opppo......",".....ohhho......",
+".....opppo......",".....opppo......",".....oo.oo......","................"]},
+vess:{down:[
+"................","......oooo......",".....oddddo.....","....oddddddo....",
+"....osssssso....","....osossoso....",".....osssso.....","....occccco.....",
+"...occccccco....","...ocpcccpco....","...occccccco....","...odcccccdo....",
+"...odcccccdo....","...odcccccdo....","....oo...oo.....","................"],
+side:[
+"................","......oooo......",".....oddddo.....","....odddddo.....",
+"....osssso......","....ososso......",".....ossso......","....occcco......",
+"....occccco.....","....ocpccco.....","....occccco.....","....odcccdo.....",
+"....occccco.....","....odcccdo.....",".....oo.oo......","................"],
+up:[
+"................","......oooo......",".....oddddo.....","....oddddddo....",
+"....oddddddo....","....oddddddo....",".....odddo......","....occccco.....",
+"...occccccco....","...occccccco....","...occccccco....","...odcccccdo....",
+"...odcccccdo....","...odcccccdo....","....oo...oo.....","................"]}
 };
 function dict(p,who){
-  const acc={evers:[p.evers,p.eversD],roan:[p.roan,p.roanD],delta:[p.delta,p.deltaD]}[who]||[p.staff,p.staffD];
+  const acc={evers:[p.evers,p.eversD],roan:[p.roan,p.roanD],delta:[p.delta,p.deltaD],vess:[p.guest,p.guestD]}[who]||[p.staff,p.staffD];
   return {o:p.ink,c:acc[0],d:acc[1],s:p.skin,h:p.hair,p:p.paper,m:p.metal};
 }
 function drawMap(c,map,px,py,dk,flip){
@@ -198,6 +258,8 @@ function paint(c,p,scene,era){
   // people
   sprite(c,'producer',5,22,'up',p);sprite(c,'critic',10.4,18.4,'down',p);
   sprite(c,'listener',4.4,26.2,'down',p);sprite(c,'muse',2,23.4,'side',p);
+  cat(c,9.6,19.6,p); // the critic's cat, on the desk papers
+  deerhound(c,2.6,24.2,p,'right'); // the muse's deerhound at the window
   if(scene==='listening'){
     sprite(c,'roan',15.5,7,'down',p);sprite(c,'delta',24.5,7,'down',p);
     sprite(c,'evers',21.4,24.6,'up',p);
@@ -280,4 +342,173 @@ export function drawDrift(cv){
     }).join(''));
     drawMap(c,m,set*20+2,1,dk);
   }
+}
+
+// ---- THE STREET: AFAR house on the corner + Archive Row ----
+const SW=56,SH=34;
+export function streetGrid(){
+  const g=Array.from({length:SH},()=>Array(SW).fill('V'));
+  const fill=(x1,y1,x2,y2,t)=>{for(let y=y1;y<=y2;y++)for(let x=x1;x<=x2;x++)g[y][x]=t;};
+  fill(0,0,31,SH-1,'H');                 // AFAR house region, painted by paint()
+  fill(32,2,33,32,'P');fill(38,2,39,32,'P'); // sidewalks
+  fill(34,2,37,32,'D');                  // road
+  const bld=(y1,y2,t)=>{fill(40,y1,53,y2,'W');fill(41,y1+1,52,y2-1,t);};
+  bld(2,8,'L');bld(10,16,'F');bld(18,24,'F');bld(26,32,'L');
+  g[13][40]='F';g[21][40]='F';           // resident doors onto the sidewalk
+  g[5][40]='L';g[29][40]='L';            // lease doors, papered
+  return g;
+}
+function windowW(c,tx,ty,p){P(c,tx*T+1,ty*T+1,5,14,p.ink);P(c,tx*T+2,ty*T+2,3,12,p.glass);P(c,tx*T+2,ty*T+8,3,1,p.ink);}
+function paperWin(c,tx,ty,p){P(c,tx*T+1,ty*T+1,5,14,p.ink);P(c,tx*T+2,ty*T+2,3,12,p.paperD);P(c,tx*T+2,ty*T+5,3,1,p.ink);P(c,tx*T+2,ty*T+10,3,1,p.ink);}
+function signPlate(c,tx,ty,p,col){P(c,tx*T+5,ty*T+4,7,9,p.ink);P(c,tx*T+6,ty*T+5,5,7,col);P(c,tx*T+7,ty*T+7,3,1,p.ink);P(c,tx*T+7,ty*T+9,3,1,p.ink);}
+function amp(c,tx,ty,p){box(c,tx*T,ty*T,15,14,p.metalD,p.ink);disc(c,tx*T+7,ty*T+8,3,p.metal);P(c,tx*T+2,ty*T+2,11,2,p.metal);}
+function bench(c,tx,ty,p){box(c,tx*T+1,ty*T+4,26,8,p.wood,p.ink);P(c,tx*T+2,ty*T+7,24,1,p.woodD);P(c,tx*T+3,ty*T+12,2,3,p.ink);P(c,tx*T+23,ty*T+12,2,3,p.ink);}
+function mailbox(c,tx,ty,p){P(c,tx*T+7,ty*T+8,2,7,p.metalD);box(c,tx*T+4,ty*T+2,9,7,p.metal,p.ink);P(c,tx*T+5,ty*T+4,7,1,p.ink);P(c,tx*T+12,ty*T+1,1,4,p.evers);}
+function dustPatch(c,tx,ty,p){c.globalAlpha=0.5;P(c,tx*T+3,ty*T+6,6,2,p.paperD);P(c,tx*T+8,ty*T+9,4,2,p.paperD);c.globalAlpha=1;}
+function tree(c,tx,ty,p){
+  P(c,tx*T+6,ty*T+10,4,8,'#3a2e1f');P(c,tx*T+5,ty*T+16,6,2,p.paveD); // trunk + pit
+  const lv='#3f4a38',lvD='#333d2e',lvL='#4a5741';
+  disc(c,tx*T+8,ty*T+2,8,lvD);disc(c,tx*T+8,ty*T+1,7,lv);
+  disc(c,tx*T+5,ty*T-1,4,lvL);disc(c,tx*T+11,ty*T+3,3,lvD);
+  P(c,tx*T+4,ty*T,2,2,lvL);P(c,tx*T+10,ty*T-3,2,2,lvL);
+}
+function car(c,tx,ty,p,col){
+  // parked car, top-down, nose north, 2 tiles long
+  box(c,tx*T+2,ty*T+1,12,30,col,p.ink);
+  P(c,tx*T+4,ty*T+7,8,5,p.glass);P(c,tx*T+4,ty*T+21,8,4,p.glass); // windshield + rear
+  P(c,tx*T+4,ty*T+13,8,7,shade2(col,0.12)); // roof
+  P(c,tx*T+3,ty*T+2,2,2,p.paperD);P(c,tx*T+11,ty*T+2,2,2,p.paperD); // headlights
+  P(c,tx*T+3,ty*T+28,2,2,p.eversD);P(c,tx*T+11,ty*T+28,2,2,p.eversD); // taillights
+  P(c,tx*T+2,ty*T+5,1,4,p.ink);P(c,tx*T+13,ty*T+5,1,4,p.ink);P(c,tx*T+2,ty*T+23,1,4,p.ink);P(c,tx*T+13,ty*T+23,1,4,p.ink); // wheels
+}
+function shade2(hex,f){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);const t=f<0?0:255,a=Math.abs(f);
+  return 'rgb('+Math.round(r+(t-r)*a)+','+Math.round(g+(t-g)*a)+','+Math.round(b+(t-b)*a)+')';}
+function subway(c,tx,ty,p){
+  // NY subway stair entrance, 2x3 tiles: railed stairwell descending south
+  P(c,tx*T,ty*T,2*T,3*T,p.pave);
+  P(c,tx*T+2,ty*T+8,28,38,p.ink); // stair void
+  for(let i=0;i<5;i++)P(c,tx*T+4,ty*T+10+i*7,24,3,shade2(p.asph,-(0.1+i*0.12))); // steps darkening down
+  P(c,tx*T,ty*T+6,2,42,p.metalD);P(c,tx*T+30,ty*T+6,2,42,p.metalD); // railings
+  P(c,tx*T,ty*T+6,32,2,p.metalD);
+  // globe lamp on post (green = entrance)
+  P(c,tx*T+30,ty*T-6,2,12,p.metalD);disc(c,tx*T+31,ty*T-8,3,'#3f4a38');P(c,tx*T+30,ty*T-9,1,1,'#4a5741');
+  // R bullet sign on the rail head
+  disc(c,tx*T+8,ty*T+3,5,'#e0b25a');ring(c,tx*T+8,ty*T+3,5,p.ink,30);
+  P(c,tx*T+7,ty*T+1,1,5,p.ink);P(c,tx*T+8,ty*T+1,2,1,p.ink);P(c,tx*T+8,ty*T+3,2,1,p.ink);P(c,tx*T+10,ty*T+2,1,1,p.ink);P(c,tx*T+9,ty*T+4,1,2,p.ink); // pixel R
+}
+function deerhound(c,tx,ty,p,dir){
+  // scottish deerhound: tall, wiry grey, long muzzle + tail. ~20x14 px
+  const g1='#6a6f78',g2='#43474e',x=tx*T,y=ty*T,f=dir==='right';
+  const X=(dx,dy,w,h,col)=>P(c,x+(f?20-dx-w:dx),y+dy,w,h,col);
+  X(3,4,13,5,g1); // body
+  X(3,3,13,1,g2); // wiry back
+  X(14,1,4,4,g1);X(18,2,3,2,g1); // neck+head raised, long muzzle
+  X(15,0,2,2,g2); // ear
+  X(20,3,1,1,p.ink); // nose
+  X(0,2,4,2,g2); // long tail low
+  X(4,9,2,5,g1);X(8,9,2,5,g2);X(11,9,2,5,g1);X(14,9,2,5,g2); // long legs
+  X(4,13,2,1,g2);X(14,13,2,1,g2);
+  X(16,3,1,1,p.ink); // eye
+}
+function cat(c,tx,ty,p){
+  // small ink cat, curled ~8x6
+  const x=tx*T,y=ty*T;
+  disc(c,x+4,y+4,3,p.ink);P(c,x+6,y+1,3,3,p.ink); // body + head
+  P(c,x+6,y,1,1,p.ink);P(c,x+8,y,1,1,p.ink); // ears
+  P(c,x+0,y+4,2,1,p.ink);P(c,x+1,y+3,1,1,p.ink); // tail wrap
+  P(c,x+7,y+2,1,1,p.lamp); // one open eye
+}
+function lampPost(c,tx,ty,p){
+  c.globalAlpha=0.12;disc(c,tx*T+8,ty*T+4,20,p.lamp);c.globalAlpha=0.25;disc(c,tx*T+8,ty*T+4,11,p.lamp);c.globalAlpha=1;
+  P(c,tx*T+7,ty*T-8,2,12,p.metalD);P(c,tx*T+5,ty*T-11,6,4,p.ink);P(c,tx*T+6,ty*T-10,4,2,p.lamp);
+}
+function paintStreet(c,p,era,scene){
+  paint(c,p,'normal',era);
+  const g=streetGrid();
+  for(let y=0;y<SH;y++)for(let x=32;x<SW;x++){
+    const t=g[y][x],px=x*T,py=y*T;
+    if(t==='V'){P(c,px,py,T,T,p.void);
+      if(era!=='B'&&(x*13+y*29)%31<2){P(c,px+3,py+2,1,4,p.rain);P(c,px+9,py+9,1,4,p.rain);}
+    }else if(t==='P'){P(c,px,py,T,T,p.pave);if(y%2===0)P(c,px,py,T,1,p.paveD);
+      if((x*5+y*7)%11===0)P(c,px+4,py+9,4,1,p.paveD);
+      if(g[y][x+1]==='D')P(c,px+14,py,2,T,p.curb);
+      if(g[y][x-1]==='D')P(c,px,py,2,T,p.curb);
+    }else if(t==='D'){P(c,px,py,T,T,p.asph);
+      if((x*11+y*5)%13===0)P(c,px+3,py+6,6,1,p.asphD);
+      if(x===35&&y%3!==2){c.globalAlpha=0.3;P(c,px+15,py+3,2,9,p.paperD);c.globalAlpha=1;}
+    }else if(t==='W'){P(c,px,py,T,T,p.wallCap);
+      const below=g[y+1]&&g[y+1][x];
+      if(below&&below!=='W'&&below!=='V'&&below!=='H'){P(c,px,py+6,T,10,p.wallFace);P(c,px,py+15,T,1,p.ink);P(c,px,py+5,T,1,p.ink);}
+    }else if(t==='L'){P(c,px,py,T,T,'#191b1f');if((x*7+y*3)%9===0)P(c,px+5,py+8,5,1,p.concD);
+    }else if(t==='F'){P(c,px,py,T,T,p.floor);P(c,px,py+(y%2?7:15),T,1,p.floorD);P(c,px+((x*7+y*3)%3)*5+2,py,1,7,p.floorD);}
+  }
+  // AFAR street door: east wall, straight into the archive
+  P(c,31*T,22*T,T,2*T,p.floor);P(c,31*T,22*T,2,2*T,p.woodD);P(c,31*T+14,22*T,2,2*T,p.woodD);
+  // resident door thresholds
+  [[40,13],[40,21]].forEach(([x,y])=>{P(c,x*T+1,y*T,2,T,p.woodD);P(c,x*T+13,y*T,2,T,p.woodD);});
+  // lease doors, papered over + FOR LEASE sign plates
+  [[40,5],[40,29]].forEach(([x,y])=>{P(c,x*T+3,y*T+2,10,12,p.paperD);P(c,x*T+4,y*T+4,8,1,p.ink);P(c,x*T+4,y*T+7,8,1,p.ink);});
+  paperWin(c,40,3,p);paperWin(c,40,7,p);paperWin(c,40,27,p);paperWin(c,40,31,p);
+  signPlate(c,40,4,p,p.paperD);signPlate(c,40,28,p,p.paperD);
+  // resident windows to the street + name plates
+  windowW(c,40,11,p);windowW(c,40,15,p);windowW(c,40,19,p);windowW(c,40,23,p);
+  signPlate(c,40,12,p,p.paper);signPlate(c,40,20,p,p.paper);
+  // RES 02 — move-in ready: dust ghosts where furniture will go
+  ghost(c,44,12,2,1,p);ghost(c,48,13,1,1,p);
+  // RES 03 — Vess Camber
+  consoleDesk(c,43,19,2,p,p.guest);chair(c,45,20,p);amp(c,49,19,p);crate(c,51,22,p);papers(c,47,22,p);
+  // street furniture
+  bench(c,38,24,p);mailbox(c,32,20,p);
+  // trees in sidewalk pits
+  tree(c,32,5,p);tree(c,38,10,p);tree(c,32,29,p);tree(c,38,30,p);
+  // R train entrance on the wide sidewalk, north end
+  subway(c,38,4,p);
+  // parked cars along the west curb
+  car(c,34,8,p,'#4b4f57');car(c,34,17,p,'#5c4b37');car(c,34,25,p,'#43474e');
+  if(era==='B'){dustPatch(c,35,6,p);dustPatch(c,36,30,p);}
+  else{puddle(c,35,6,p);puddle(c,36,14,p);puddle(c,34,27,p);puddle(c,36,30,p);}
+  lampPost(c,33,8,p);lampPost(c,38,16,p);lampPost(c,33,26,p);
+  if(scene==='listening')sprite(c,'vess',35.5,21.4,'side',p);
+  else sprite(c,'vess',44.4,20.6,'up',p);
+}
+export function drawStreet(cv,opts){
+  opts=opts||{};const era=opts.era||'A',scene=opts.scene||'normal',dim=opts.dim==null?0.62:opts.dim;
+  cv.width=SW*T;cv.height=SH*T;
+  const c=cv.getContext('2d');c.imageSmoothingEnabled=false;
+  const p=eraPal(era);
+  paintStreet(c,p,era,scene);
+  if(scene==='listening'){
+    c.fillStyle='rgba(7,9,13,'+dim+')';c.fillRect(0,0,cv.width,cv.height);
+    c.save();c.beginPath();
+    c.rect(14*T,15*T,18*T,18*T);   // the archive, destination
+    c.rect(31*T,19*T,9*T,6*T);     // the crossing
+    c.rect(40*T,18*T,14*T,7*T);    // Vess's building, door left open
+    c.clip();paintStreet(c,p,era,scene);c.restore();
+    lampPost(c,33,8,p);lampPost(c,38,16,p);lampPost(c,33,26,p); // lamp pools stay lit
+    const path=[[40.5,22],[36,22],[36,23.2],[31.6,23.2],[27,23.2],[23,22.3]];
+    c.globalAlpha=0.5;
+    for(let i=0;i<path.length-1;i++){const a=path[i],b=path[i+1];
+      const n=Math.round(Math.hypot(b[0]-a[0],b[1]-a[1])*T/6)||1;
+      for(let k=0;k<n;k++)P(c,Math.round((a[0]+(b[0]-a[0])*k/n)*T),Math.round((a[1]+(b[1]-a[1])*k/n)*T),2,2,p.paperD);}
+    c.globalAlpha=1;
+  }
+}
+export function drawResidentRoom(cv,opts){
+  opts=opts||{};const acc=opts.acc||PAL.guest,accD=opts.accD||PAL.guestD,prop=opts.prop||'none',occ=!!opts.occupied;
+  const W2=16,H2=11;cv.width=W2*T;cv.height=H2*T;
+  const c=cv.getContext('2d');c.imageSmoothingEnabled=false;const p=PAL;
+  for(let y=0;y<H2;y++)for(let x=0;x<W2;x++){
+    const px=x*T,py=y*T,wall=x===0||x===W2-1||y===0||y===H2-1;
+    if(wall){P(c,px,py,T,T,p.wallCap);if(y===0){P(c,px,py+6,T,10,p.wallFace);P(c,px,py+5,T,1,p.ink);P(c,px,py+15,T,1,p.ink);}}
+    else{P(c,px,py,T,T,p.floor);P(c,px,py+(y%2?7:15),T,1,p.floorD);P(c,px+((x*7+y*3)%3)*5+2,py,1,7,p.floorD);}
+  }
+  windowW(c,0,3,p);windowW(c,0,6,p); // windows to the street — sightline to the corner
+  P(c,7*T,(H2-1)*T,2*T,T,p.floor);P(c,7*T,(H2-1)*T,2,T,p.woodD);P(c,9*T-2,(H2-1)*T,2,T,p.woodD);
+  consoleDesk(c,2,2,3,p,acc);chair(c,5,3,p);lampPool(c,11,3,p);
+  ghost(c,10,6,3,3,p); // the character prop slot
+  if(prop==='amp')amp(c,11,6.5,p);
+  if(prop==='reels')reels(c,10.5,7,p);
+  signPlate(c,14,0,p,occ?p.paper:p.paperD);
+  if(occ){crate(c,13,8,p);papers(c,3,5,p);
+    sprite(c,'vess',6,5,'down',Object.assign({},p,{guest:acc,guestD:accD}));}
 }

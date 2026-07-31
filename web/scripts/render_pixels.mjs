@@ -5,10 +5,13 @@
  *
  * Outputs (committed, under web/public/world/):
  *   bg-era-a.png / bg-era-b.png — the whole building, 528×544 (33×34 tiles
- *     of 16px), rooms + props, NO characters (era B = LUT + prop diff).
- *   characters.png — 7 characters × 12 frames of 16×16 (rows in
- *     pixelspec CHARACTERS order; cols = 4 directions × 3 frames, the
- *     handoff's frames() convention: idle / step L / step R).
+ *     of 16px), rooms + props + office pets, NO characters (era B = LUT +
+ *     prop diff).
+ *   characters.png — 8 characters × 12 frames of 16×16 (rows in
+ *     pixelspec CHARACTERS order — acts, staff, then vess the street
+ *     resident; cols = 4 directions × 3 frames, the handoff's frames()
+ *     convention: idle / step L / step R; staff now carry real side/up
+ *     maps + walk rows from the street handoff).
  *   tiles.png — the 16×16 base tiles at 1x, one per column (reference +
  *     any future Tiled use).
  *   props.png — the 32×32 props at 1x, one per column.
@@ -41,7 +44,7 @@ function renderBackground(era) {
   return png(cv);
 }
 
-/** 7 rows × 12 cols of 16×16: [down,left,right,up] × [idle, step L, step R]. */
+/** 8 rows × 12 cols of 16×16: [down,left,right,up] × [idle, step L, step R]. */
 function renderCharacters() {
   const cv = createCanvas(12 * 16, CHARACTERS.length * 16);
   const c = cv.getContext('2d');
@@ -49,7 +52,7 @@ function renderCharacters() {
   CHARACTERS.forEach((who, row) => {
     const dk = dict(PAL, who);
     DIRECTIONS.forEach((dir, d) => {
-      // side map serves left (as-is) and right (flipped); staff fall back to down.
+      // side map serves left (as-is) and right (flipped).
       const base = S[who][dir === 'left' || dir === 'right' ? 'side' : dir] || S[who].down;
       const flip = dir === 'right';
       frames(base).forEach((m, f) => drawMap(c, m, (d * 3 + f) * 16, row * 16, dk, flip));
