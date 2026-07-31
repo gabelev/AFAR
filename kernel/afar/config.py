@@ -145,12 +145,58 @@ _MOCK_INTENTS: dict[str, dict] = {
 
 
 def _mock_players(messages: Sequence[Message]) -> str:
-    """Deterministic offline stand-in for the players' model calls."""
+    """Deterministic offline stand-in for the players' AND staff's model calls."""
     system = messages[0].content if messages else ""
     for player_id, marker in (("silt", "You are SILT"), ("rust", "You are RUST"), ("keep", "You are KEEP")):
         if marker in system:
             return json.dumps(_MOCK_INTENTS[player_id])
+    staff = _mock_staff(messages)
+    if staff is not None:
+        return staff
     return "[mock]"
+
+
+def _mock_staff(messages: Sequence[Message]) -> str | None:
+    """Deterministic offline stand-ins for the staff's model calls.
+
+    Detects which staff prompt is being answered by its machine-readable
+    lines (ROUNDS: / ACTS:) and reply-shape markers, and returns valid JSON
+    (or prose for the Producer's note). Flat 0.9 judge scores mean the
+    Producer's tie-break (the later round at equal merit) selects the final
+    round offline — matching the pre-staff interim behavior.
+    """
+    text = "\n".join(m.content for m in messages)
+
+    def _listed(prefix: str) -> list[str]:
+        for line in text.splitlines():
+            if line.startswith(prefix):
+                return [tok.strip() for tok in line[len(prefix):].split(",") if tok.strip()]
+        return []
+
+    if '"scores"' in text and "ROUNDS:" in text:
+        return json.dumps(
+            {"scores": {r: {"score": 0.9, "why": f"[mock] round {r} holds."} for r in _listed("ROUNDS:")}}
+        )
+    if '"release_title"' in text and "ACTS:" in text:
+        return json.dumps(
+            {
+                "release_title": "Mock Pressing",
+                "take_titles": {pid: f"Mock Take ({pid})" for pid in _listed("ACTS:")},
+            }
+        )
+    if '"release"' in text and '"acts"' in text and "ACTS:" in text:
+        return json.dumps(
+            {
+                "release": "[mock] The set holds together and the cut is defensible.",
+                "acts": {pid: f"[mock] {pid} did what {pid} does." for pid in _listed("ACTS:")},
+            }
+        )
+    if "Write the public selection note" in text:
+        return (
+            "[mock] One take from each act made the release; each was the round "
+            "the panel could not argue with."
+        )
+    return None
 
 
 @dataclass

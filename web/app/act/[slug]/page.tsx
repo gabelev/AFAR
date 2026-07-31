@@ -5,6 +5,7 @@ import { PressPhoto } from "@/components/PressPhoto";
 import { PlayerProvider, PlayButton } from "@/components/TrackPlayer";
 import { ACT_DESIGN, catalogueNumber, isActId } from "@/lib/acts";
 import {
+  criticReviewsForPlayer,
   getAgent,
   listAgents,
   listReleases,
@@ -31,10 +32,11 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
   if (!agent || agent.kind !== "player" || !isActId(agent.id)) notFound();
   const design = ACT_DESIGN[agent.id];
 
-  const [takes, releases, allAgents] = await Promise.all([
+  const [takes, releases, allAgents, criticReviews] = await Promise.all([
     tracksForAgent(agent.id),
     listReleases(),
     listAgents(),
+    criticReviewsForPlayer(agent.id),
   ]);
   const releaseById = new Map(releases.map((r) => [r.id, r]));
   const nameOf = (id: string) => allAgents.find((a) => a.id === id)?.displayName ?? id;
@@ -222,12 +224,32 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
           }}
         >
           <div className="label">FROM THE OFFICE — THE CRITIC</div>
-          <p className="quote" style={{ fontSize: 15, marginTop: 10, maxWidth: 620 }}>
-            No word from the Critic on this act yet — the reviews live with each release.{" "}
-            <Link href="/staff/critic" className="link" style={{ fontStyle: "normal", fontSize: 13 }}>
-              more from the critic →
-            </Link>
-          </p>
+          {criticReviews.length === 0 ? (
+            <p className="quote" style={{ fontSize: 15, marginTop: 10, maxWidth: 620 }}>
+              No word from the Critic on this act yet — the reviews live with each release.{" "}
+              <Link href="/staff/critic" className="link" style={{ fontStyle: "normal", fontSize: 13 }}>
+                more from the critic →
+              </Link>
+            </p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 10 }}>
+              {criticReviews.map((r) => (
+                <div key={r.releaseId} style={{ maxWidth: 620 }}>
+                  <div className="mono" style={{ fontSize: 11, letterSpacing: "0.18em", color: "var(--sec-faint)" }}>
+                    <Link href={`/release/${r.releaseId}`}>
+                      {catalogueNumber(r.releaseId)} · {r.releaseTitle.toUpperCase()}
+                    </Link>
+                  </div>
+                  <p className="quote" style={{ fontSize: 15, marginTop: 6 }}>
+                    {r.verdict}
+                  </p>
+                </div>
+              ))}
+              <Link href="/staff/critic" className="link" style={{ fontSize: 13 }}>
+                more from the critic →
+              </Link>
+            </div>
+          )}
         </section>
       </div>
       <PlayerBar quiet="NOTHING PLAYING" right={`${design.initials} · IN STUDIO ${design.studio}`} />

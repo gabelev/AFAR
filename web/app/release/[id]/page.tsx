@@ -118,8 +118,15 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
               </span>
               <PlayButton
                 audioUrl={take.audioUrl}
-                label={`${release.title} — ${displayName(take.agentId)}`}
+                label={`${take.title} — ${displayName(take.agentId)}`}
               />
+              {/* The Critic titles takes; interim "<release> — <act>'s take"
+                  placeholders would just repeat the sleeve, so they stay quiet. */}
+              {!take.title.startsWith(release.title) && (
+                <span className="quote" style={{ fontSize: 13 }}>
+                  “{take.title}”
+                </span>
+              )}
               <span className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
                 {take.audioUrl
                   ? take.durationSec
