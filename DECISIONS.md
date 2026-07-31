@@ -4,6 +4,8 @@ Architecture and art-direction decisions, newest first. Each entry: what was dec
 
 ## 2026-07-31
 
+- **Naming register:** staff/press prose uses surnames (Marlowe / Patina / Lane); the acts use first names for each other in rationales. *(PR #7.)*
+- **Per-act accent tones** scoped via `data-act` CSS custom-property override: silt keeps the house ochre; rust `#94512e`; keep `#5f7261`. The Radar silhouette in a framed "specimen plate" is each act's portrait until AI portraits land. *(PR #7.)*
 - **Each personality is its own band.** Delta Marlowe, Roan Patina, and Evers Lane are three independent acts; **AFAR is the label/scene around them**, not a band name. The staff (Muse/Producer/Critic/Listener) are the label's masthead. The acts still perceive and influence each other — three acts on one label responding to each other's work. *(Override of the spec's "band" framing — Gabe.)*
 - **Album covers are AI-image covers** (Tunz-style, prompt-driven from era + palette + visualStyle). *(Override of the spec §2 "the cover is the drawn interaction record / no image model in the loop" conceit — Gabe. The interaction record remains a first-class release artifact on the page; it's no longer the cover itself.)*
 - **Stage names are display-only.** silt → Delta Marlowe, rust → Roan Patina, keep → Evers Lane. Entity IDs, URLs (`/agent/silt`), log keys, and DB keys never change — the display name is a presentation layer. Mineral slugs remain visible as sub-identities.
