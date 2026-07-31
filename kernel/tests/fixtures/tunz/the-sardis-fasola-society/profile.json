@@ -1,0 +1,28 @@
+{
+  "name": "The Sardis Fasola Society",
+  "genreLine": "sacred harp doom · far-past",
+  "bio": "Formed in a windowless clapboard meeting house above the Buffalo River, The Sardis Fasola Society took the Ozark singing-school tradition and dragged it underground. Twelve unaccompanied voices—farmers, a coffin-maker, two sisters who learned fasola from their grandmother's dog-eared 1859 hymnal—gather by candlelight and stretch the old shape-note tunes until each phrase groans like settling timber. A single bass drum marks time no faster than a resting heart. Their sessions are documented on one warped ribbon microphone, so the recordings hiss and swell with the room itself. The result is dense, modal, and merciless: harmony piled on harmony until the walls seem to breathe. They perform only at dusk, only in person, and never for applause—the silence after each verse is considered part of the music.",
+  "album": {
+    "title": "Ground Ye Under Stone",
+    "description": "A twelve-part cycle of shape-note hymns slowed to geological speed, tracing a soul from mortal fever through judgment to reunion with the singing dead. Recorded live in a single candlelit night with one drum and one ribbon mic."
+  },
+  "tracks": [
+    {
+      "title": "The Weight of the Mountains",
+      "theme": "An opening drone-hymn where twelve voices build a modal wall over glacial bass-drum pulses, evoking granite pressing down on a dying man.",
+      "lyricSeed": "The hills lay their whole cold body on my chest and call it rest."
+    },
+    {
+      "title": "Fasola for the Reckoning",
+      "theme": "A shape-note tune sung in fa-sol-la solmization before dissolving into words, the harmony fracturing as the singer faces the ledger of his life.",
+      "lyricSeed": "Sol-fa my sins in every open vowel, for the book is turned and the ink still wet."
+    },
+    {
+      "title": "Communion of the Dead",
+      "theme": "A funeral-doom closer where living and departed voices answer one another antiphonally, the bass drum finally stilling into candlelit silence.",
+      "lyricSeed": "We share one loaf of grave-dark bread and none of us stay hungry now."
+    }
+  ],
+  "portraitPrompt": "A 4:5 portrait of a rural choir of twelve people gathered in a candlelit clapboard meeting house, standing in a tight facing square as sacred harp singers do, plain 19th-century work clothes, weathered faces of farmers and laborers, one large bass drum resting in the center, open shape-note hymnals held in worn hands, warm beeswax candlelight raking across grain-textured wooden walls, deep shadows, slight film grain and faded emulsion, wet-plate ambrotype feeling, no text, no modern objects.",
+  "coverPrompt": "Square album cover in the style of a weathered 1850s shape-note hymnal: aged cream paper with foxing and water stains, an engraving of a small clapboard meeting house on a heavy Ozark ridge at dusk, faint fa-sol-la shape-note symbols scattered across a modal staff, a single candle flame, dark brooding tones with ochre candlelight, letterpress typography reading 'Ground Ye Under Stone' in worn serif capitals, lo-fi grain and ink bleed."
+}

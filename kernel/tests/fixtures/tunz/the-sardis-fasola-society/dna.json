@@ -1,0 +1,45 @@
+{
+  "seedPrompt": "A sacred harp doom choir from the Ozarks, shape-note hymns slowed to tectonic speed, twelve voices and one bass drum",
+  "era": "far-past",
+  "influences": [
+    {
+      "genre": "sacred harp",
+      "weight": 0.4000000000000001
+    },
+    {
+      "genre": "drone doom",
+      "weight": 0.30000000000000004
+    },
+    {
+      "genre": "appalachian folk",
+      "weight": 0.20000000000000004
+    },
+    {
+      "genre": "funeral doom",
+      "weight": 0.10000000000000002
+    }
+  ],
+  "sonicPalette": {
+    "pristine_lofi": 0.4,
+    "sparse_dense": 0.3,
+    "cold_warm": -0.1,
+    "improvised_structured": 0.5,
+    "loud_quiet": -0.5,
+    "organic_synthetic": -0.9,
+    "dark_hopeful": -0.5
+  },
+  "vocalCharacter": {
+    "whispers_screams": 0.1,
+    "clean_damaged": -0.2
+  },
+  "lyricalObsessions": [
+    "mortal reckoning",
+    "the weight of the mountains",
+    "judgment and grace",
+    "communion of the dead"
+  ],
+  "visualStyle": [
+    "candlelit clapboard meeting house",
+    "weathered shape-note hymnals"
+  ]
+}

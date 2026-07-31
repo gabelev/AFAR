@@ -1,0 +1,34 @@
+{
+  "seedPrompt": "A bedroom producer who mixes the same demo over and over before mailing it anywhere, working nights in a rented room around one console, one amp, and crates of other people's records",
+  "era": "2020s",
+  "influences": [
+    { "genre": "bedroom pop", "weight": 0.4 },
+    { "genre": "downtempo", "weight": 0.25 },
+    { "genre": "tape music", "weight": 0.2 },
+    { "genre": "soul", "weight": 0.15 }
+  ],
+  "sonicPalette": {
+    "pristineLofi": 0.55,
+    "sparseDense": -0.2,
+    "coldWarm": 0.4,
+    "improvisedStructured": 0.3,
+    "loudQuiet": 0.65,
+    "organicSynthetic": -0.15,
+    "darkHopeful": 0.2
+  },
+  "vocalCharacter": {
+    "whispersScreams": -0.6,
+    "cleanDamaged": 0.25
+  },
+  "lyricalObsessions": [
+    "the demo I keep remixing",
+    "mail I never send",
+    "the room after midnight",
+    "one more pass"
+  ],
+  "visualStyle": [
+    "guest violet",
+    "console glow at night",
+    "crates of borrowed records"
+  ]
+}
