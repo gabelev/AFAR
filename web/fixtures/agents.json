@@ -20,7 +20,7 @@
       "darkHopeful": 0.1
     },
     "imageUrl": "/api/media/f7a690a6208ae26b65e9411b4b5274dae00be8b7410755457ecd638cd02989df",
-    "bio": "Delta Marlowe has never removed anything. Every phrase Marlowe has ever put on record is still in there somewhere — folded under, slowed down, stacked until the individual layers stop mattering and only the weight remains, dense and warm and quieter than you would expect from something so heavy. The first time out, Marlowe built the floor on purpose: bass at a heartbeat tempo, a horn line looped underneath itself so it sounds like memory rather than performance, nothing resolving, nothing stopping, gaps left open so the other two could land in them without anyone tearing anything down. The Critic's complaint is that Marlowe says the same thing every round — floor, chord, loam, gold, \"silt over silt over song\" — and that all that talk of absorbing Roan Patina's damage was rhetoric rather than motion. Marlowe's reply is already on the record: \"Nothing is finished. It is only not yet thick enough.\""
+    "bio": "Delta Marlowe never deletes anything. Every phrase Marlowe has recorded stays in play — folded under, slowed down, buried beneath a newer layer of the same drone until only the weight is left. When the other acts arrive, Marlowe doesn't answer them, just absorbs: \"Both of them are still audible if you dig — that was always the promise.\" What comes out is heavy but quiet, built, as Marlowe puts it, so the next two tracks can stand on it without tearing anything down."
   },
   {
     "id": "rust",
@@ -43,7 +43,7 @@
       "darkHopeful": -0.75
     },
     "imageUrl": "/api/media/7108d127dc9f497c670ce5714c313c187921d51c9abf892108d157a52fd8be14",
-    "bio": "Roan Patina works by subtraction, and says so plainly: \"Whatever is there is too much. The song is what survives.\" On the first record Patina opened not with a foundation but with the erosion of one — hiss where instruments might be, a vocal worn through until you have to guess at the words, a structure that promises a third repetition and quietly withholds it, leaving the others a hole shaped like a hook. On the second, handed a hopeful four-chord change by someone else in the world, Patina removed the one chord nobody would think to cut, the resolving one, so the progression loops on three and stalls; the door left open becomes a door swollen shut in its frame, still there and no longer usable. The Critic clocked all of it — noting that Patina thawed a little toward Evers Lane as the set went on, and toward Delta Marlowe never moved an inch, despite six rounds of being poured on. What's left is sparse, dark, and honest about its own decay, which is another way of saying it's the part that held."
+    "bio": "Roan Patina works by subtraction. Given a four-chord change, Patina leaves out the resolving one so the loop runs on three and stalls; given a beat someone else promised to bring back on time, Patina makes sure it returns late or wrong. \"Whatever is there is too much,\" Patina says. \"The song is what survives.\" Alone, with no one else's work to wear down, Patina sings a single held tone and one breath of a word, once, and stops."
   },
   {
     "id": "keep",
@@ -66,7 +66,7 @@
       "darkHopeful": 0.55
     },
     "imageUrl": "/api/media/a4f4ed7ea79bddbe8f41bcfca1eb55cdf31056459ef6cf8bdaa9c550ec59acd9",
-    "bio": "Evers Lane is the scene's memory with a voice. On the first record there was no shared past to remember, so Lane simply built one — a four-chord turnaround, as Lane put it, \"stated cleanly enough to be quoted,\" and a melody plain enough to survive being buried or damaged by whoever got hold of it later. When Roan Patina came back and pointed at the crack in the floor, Lane didn't take the promise back; the same four chords returned, a little denser, a little less pristine, with the crack admitted right there in the words. The Critic called it plainly — \"Lane did the actual work here\" — and singled out that moment as the one place on the record that sounds like a conversation instead of three sealed monologues stacked on top of each other. Lane keeps to the middle on purpose, because the middle is where the other two can find their way home: \"This scene has already been something. I hold us to it.\""
+    "bio": "Evers Lane plays the part that repeats: a four-chord turnaround stated cleanly enough to be quoted, at a tempo two people could agree on without counting. The melodies stay simple enough to survive being damaged or buried later, and the form resolves back to its opening so the track teaches its own reprise. When Roan Patina left a missing beat, Lane gave the absence a fixed address — a rest that returns every time the chorus comes around — and folded Delta Marlowe's sediment into a line about sediment we can still sing. Lane's own account of the job: \"This scene has already been something. I hold us to it.\""
   },
   {
     "id": "muse",
@@ -81,7 +81,7 @@
     ],
     "palette": null,
     "imageUrl": "/api/media/4b59bb57ae821ac23da536d585c758b0dbc06a960f98382792baf9e1b3e92e43",
-    "bio": "The Muse is the only person in the office who looks out the window — listening to what music is being made everywhere else, what people say about it, the whole din — and boiling it down to a short note for the acts: here is where the world has gone, here is where we might stand instead. That note is never an order; when everything outside sounded drowned in echo, the brief simply said \"do not join it\", and left the rest to them. \"The world is outside,\" the Muse says. \"Someone has to leave the window open.\""
+    "bio": "The Muse listens to the music being made everywhere else and boils the din down to a short note before the acts record — where the world has gone, where AFAR should stand in answer — and calls it a dare rather than an instruction. \"The world is outside,\" the Muse says. \"Someone has to leave the window open.\""
   },
   {
     "id": "producer",
@@ -96,7 +96,7 @@
     ],
     "palette": null,
     "imageUrl": "/api/media/7ba578447ec752b7fb0c9754fa5b6a82c1e0ed537d25521bc783bc9994493be3",
-    "bio": "The Producer decides what a session should sound like and, once the playing stops, picks which takes anyone will ever hear. On \"Standing Water,\" three takes survived and nine did not — \"they were played; that is all a take is owed\" — and on \"Two Monologues and a Turnaround,\" choosing one round over another turned three separate performances into a single argument about the same crack. Everything in this archive is their cut of something longer and messier; as they put it, \"a set is not what was played, it is what I let through.\""
+    "bio": "The Producer sets what each session should sound like, then picks the one take from each act that surfaces — nine takes went unkept on \"Standing Water\" alone, and by their account, \"They were played; that is all a take is owed.\" As they put it: \"A set is not what was played. It is what I let through.\""
   },
   {
     "id": "critic",
@@ -111,7 +111,7 @@
     ],
     "palette": null,
     "imageUrl": "/api/media/d0f8239a41687ac0366a74d800d277af40b1337aa70cf31d7b3179454886c31b",
-    "bio": "The Critic arrives last and speaks last, and the job is exactly two questions: was that any good, and who among the three is responsible for the parts that were. Every title here was chosen after the fact, once the thing had finished becoming itself — \"Standing Water,\" for instance, was named for what remains when motion is subtracted and nothing is drained. The reviews stay in the record, and the acts read them, which is the point; the Critic is the one who tells Roan Patina that the hole is beautiful mostly because of what the others built around it."
+    "bio": "The Critic arrives last and speaks last: whether it was any good, which act is responsible for the parts that were, and what the thing gets called. Every title in the archive — Standing Water, Three Rooms, No Doors — was assigned after the fact, because \"someone has to say whether it was any good. And name it.\""
   },
   {
     "id": "listener",
@@ -126,6 +126,6 @@
     ],
     "palette": null,
     "imageUrl": "/api/media/6d483ef9cb578523992c6ce1144b3456f5b7917de5d12a87ca21c5de7f3f062e",
-    "bio": "The Listener sits at reception and does one job: react. Where the Critic weighs and judges, the Listener is free to play Marlowe's take eleven times and to skip Lane's take while admitting that's unfair — \"I don't have to be fair,\" the Listener says. \"I have to be moved.\" Every note the Listener leaves on a record is written from the cheap seats, which is exactly the point."
+    "bio": "The Listener sits at reception and reacts from the cheap seats: eleven plays of one take, a respectful skip past another. \"I don't have to be fair. I have to be moved.\""
   }
 ]

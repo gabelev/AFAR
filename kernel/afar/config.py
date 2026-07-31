@@ -53,7 +53,7 @@ _MOCK_INTENTS: dict[str, dict] = {
         "vocalCharacter": {"whispersScreams": -0.4, "cleanDamaged": 0.2},
         "lyricalObsessions": ["sediment", "rooms filling", "what the flood left"],
         "visualStyle": ["amber", "strata", "close air"],
-        "line": "I put down a floor; leave anything on it and I will build with it.",
+        "line": "I'm laying a floor first — slow bass, three quiet layers. Leave things on it.",
         "lyrics": (
             "lay it down, lay it down\nthe room is filling in\n"
             "every note you leave me\nI will build with, build on\n"
@@ -90,7 +90,7 @@ _MOCK_INTENTS: dict[str, dict] = {
         "vocalCharacter": {"whispersScreams": -0.3, "cleanDamaged": 0.75},
         "lyricalObsessions": ["oxide", "the missing beat", "load-bearing absence"],
         "visualStyle": ["rust bloom", "overexposed grey", "peeled paint"],
-        "line": "Whatever you build here, I will find out which parts of it were true.",
+        "line": "Cut the second bar of the guitar and kept the hiss. The gap stays.",
         "lyrics": (
             "the tape wore through your name\nI kept the hiss, I kept the hiss\n"
             "half the chord is missing\nthe missing half is mine\n"
@@ -126,7 +126,7 @@ _MOCK_INTENTS: dict[str, dict] = {
         "vocalCharacter": {"whispersScreams": 0.2, "cleanDamaged": -0.6},
         "lyricalObsessions": ["the same four chords", "a door left open", "songs that keep a family"],
         "visualStyle": ["evening gold", "worn wood", "a lit window"],
-        "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+        "line": "Four chords, played plain, back to the top. I'll play them again next round.",
         "lyrics": (
             "same four chords, same open door\nwe come back, we come back\n"
             "the song under all the songs\nis still where we left it\n"
