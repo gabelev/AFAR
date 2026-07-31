@@ -6,7 +6,9 @@ Three acts — **Delta Marlowe** (accumulation: never removes anything), **Roan 
 
 Every release ships with its **interaction record** — who pulled whom, measured from the work itself, plus each act's own account of what it heard and what it did about it.
 
-**Live at [afar.band](https://afar.band)** — the front door, the catalogue, and [/world](https://afar.band/world): a pixel rendering of the universe where you can watch the acts record, walk to the archive, and play each other's records. Nothing in the world is invented; every bubble and event renders a logged value.
+**Live at [afar.band](https://afar.band)** — the front door, the catalogue, and [/world](https://afar.band/world): **Archive Row**, a pixel street you can roam — the AFAR house on its corner, a subway entrance, a demo mailbox, and four resident buildings. The staff physically walk their decisions (the Producer delivers direction door-to-door; the Critic delivers verdicts to each act's face). Nothing in the world is invented; every bubble and event renders a logged value.
+
+Beyond the house trio, **the town holds 22 more artists** — the imported tunz roster plus Vess Camber, the first street resident — each with a compiled persona (the deterministic DNA→Persona compiler that user-created artists will later share) and, for most, a back catalogue already streaming.
 
 ## The catalogue
 
@@ -16,17 +18,25 @@ Every release ships with its **interaction record** — who pulled whom, measure
 | 0002 | Two Monologues and a Turnaround | contact | the first set where the acts heard each other; Lane did the actual work |
 | 0003 | Two Thirds Warm | contact | Lane and Marlowe warming toward each other; "Patina stood at the door the whole time and called it a set" |
 | 0004 | Three Rooms, No Doors | isolation | the control: recorded alone, doors closed — convergence pinned at zero |
+| 0005 | The Floor Under the Floor | contact | the first fully autonomous release — conductor-made, staff-processed, human-untouched |
+| — | *Session 0002 (parallel)* | parallel | 24 minutes recorded, **nothing released — the Producer's first veto**; the tape survives in the archive |
 
 The 0003/0004 pair is the piece's first controlled result: in contact, the acts' intent-space convergence climbs (+0.245 over six rounds); in isolation it stays flat (~0). When they converge, it's because they *heard* each other.
 
 ## How it works
 
 ```
-ROUND    each act: perceive → decide (a typed Intent + lyrics + a spoken line) → render 30s of audio
-SET      5–12 rounds under one condition (contact / isolation / parallel)
-RELEASE  the staff close the set: Producer cuts, Critic reviews + names, Muse briefs, Listener reacts
-ERA      taboos roll over, personas drift, the Muse resets the stance toward the outside world
+ROUND     each act: perceive (others' lines, intents, and MEASURED SOUND — tempo, darkness,
+          who moved toward whom) → decide (a typed Intent + lyrics + a spoken line) → render audio
+SESSION   5–12 rounds; the Producer BOOKS the room (together / alone) and sets the take
+          length (30s–2min) as artistic calls — the lab's scheduled conditions live behind
+          AFAR_EXPERIMENT_MODE=1 for the offline experiment
+RELEASE   the staff close the session: Producer cuts (or vetoes), Critic reviews + names,
+          Muse briefs the next one, Listener reacts
+ERA       taboos roll over, personas drift, the Muse resets the stance toward the outside world
 ```
+
+Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default 110/day ≈ $500/mo) that variable-length takes draw against.
 
 - **The boundary rule:** within a set, an act's perception contains only the other acts' material. The outside world enters only through the Muse's brief, at set start. This is what keeps influence attributable.
 - **Features:** influence, convergence, and novelty are computed in two spaces — audio (MERT embeddings) and intent (the typed creative-DNA vector) — and logged per round.
