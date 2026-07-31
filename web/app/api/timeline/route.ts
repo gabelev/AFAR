@@ -69,9 +69,9 @@ export async function GET() {
 
   return NextResponse.json(compileCatalogue({ blocks }), {
     headers: {
-      // The timeline is dynamic now — the conductor publishes straight to
-      // Neon's timeline_source row — so the world should feel current within
-      // a minute of a publish. The payload is small; keep the cache short.
+      // The timeline is dynamic: the conductor publishes straight to Neon's
+      // timeline_source row, and open tabs poll this route (createWorld's
+      // live splice) — a fresh record reaches every viewer in about a minute.
       "cache-control": "public, max-age=60, stale-while-revalidate=300",
     },
   });
