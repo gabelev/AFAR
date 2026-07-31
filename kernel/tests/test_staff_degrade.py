@@ -190,7 +190,7 @@ def test_muse_failure_leaves_the_brief_absent(played_run: Path):
 
     record = _newest_record(played_run)
     assert "muse" not in record["staff"] and "listener" in record["staff"]
-    assert record["provenance"]["staff"] == ["producer", "critic", "listener"]
+    assert record["provenance"]["staff"] == ["producer", "critic", "listener", "archivist"]
     row = _release_row(played_run)
     assert "The Muse did not file" in row["brief"]
     publish_run(played_run, dry_run=True, release_id="0005")
@@ -224,9 +224,11 @@ def test_every_stage_failing_still_publishes_with_honest_gaps(played_run: Path):
     assert result.released
     assert result.degraded == ("producer", "critic", "muse", "listener")
     record = _newest_record(played_run)
-    assert record["staff"] == {}
+    # The Archivist (unbroken here) still shelved the wreckage — its whole
+    # job is believing exactly this material is worth keeping.
+    assert set(record["staff"]) == {"archivist"}
     assert set(record["staff_degraded"]) == {"producer", "critic", "muse", "listener"}
-    assert record["provenance"]["staff"] == []
+    assert record["provenance"]["staff"] == ["archivist"]
 
     row = _release_row(played_run, "0005")
     assert row["title"] == "Untitled Session 0005"

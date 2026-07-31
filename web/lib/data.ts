@@ -2,6 +2,7 @@ import { z } from "zod";
 import { ERAS, SonicPaletteSchema } from "@/lib/intent/schema";
 import agentsJson from "@/fixtures/agents.json";
 import releasesJson from "@/fixtures/releases.json";
+import tapesJson from "@/fixtures/tapes.json";
 import tracksJson from "@/fixtures/tracks.json";
 
 /**
@@ -12,7 +13,7 @@ import tracksJson from "@/fixtures/tracks.json";
  */
 
 export const PLAYER_IDS = ["silt", "rust", "keep"] as const;
-export const STAFF_IDS = ["muse", "producer", "critic", "listener"] as const;
+export const STAFF_IDS = ["muse", "producer", "critic", "listener", "archivist"] as const;
 export type PlayerId = (typeof PLAYER_IDS)[number];
 
 /** Where an imported act lives: origin scene + street residence (null = in town). */
@@ -28,6 +29,10 @@ export const AlbumSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
   description: z.string().min(1).optional(),
+  /** The Archivist's "what this record is" — back-of-sleeve prose for the
+   * record an act brought to town. Optional: rows written before the vault
+   * opened (and acts whose notes are still unwritten) keep parsing. */
+  linerNotes: z.string().min(1).optional(),
 });
 
 export const AgentSchema = z
@@ -110,6 +115,10 @@ export const ReleaseSchema = z
     reviews: z.record(z.string(), z.string()).optional(),
     /** Cover slot — AI-image covers arrive later; the release hero shows one when present. */
     coverUrl: z.string().min(1).nullable().optional(),
+    /** The Archivist's liner notes — what happened in the room, who did what,
+     * what to listen for (distinct from the Critic's review, which judges).
+     * Optional so every pre-Archivist row keeps parsing. */
+    linerNotes: z.string().min(1).optional(),
   })
   .transform((r) => ({
     ...r,
@@ -117,6 +126,84 @@ export const ReleaseSchema = z
     reviews: r.reviews ?? {},
     selections: r.selections ?? {},
   }));
+
+/** One take on a session tape — every take of the session, not just the cut. */
+export const TapeTakeSchema = z.object({
+  round: z.number().int().nonnegative(),
+  agentId: z.string().min(1),
+  /** The Critic's title, present only on takes that made the release. */
+  title: z.string().min(1).nullable().optional(),
+  audioUrl: z.string().min(1).nullable(),
+  durationSec: z.number().int().positive().nullable().optional(),
+  /** True when this take is the one the Producer put on the release. */
+  selected: z.boolean().optional(),
+  /** The act's logged spoken line for this take. */
+  line: z.string().optional(),
+  /** The Archivist's call-out — why this take earns a listen. */
+  callout: z.string().min(1).optional(),
+  /** A logged judge dissent — a panel voice that wanted this take released. */
+  dissent: z.string().min(1).optional(),
+});
+
+/**
+ * A session tape (the vault doctrine): one session's FULL recording — every
+ * take, in round order — released as its own archive entry, catalogue series
+ * TAPE-NNNN. The cut release (when one exists) stays the headline; the tape
+ * is the companion. Rejected and abandoned sessions get tapes too — the
+ * Producer's veto stands; the tape survives. Tapes live in their own table
+ * (`tapes`), so no existing releases row ever meets a shape it cannot parse.
+ */
+export const TapeSchema = z
+  .object({
+    id: z.string().min(1),
+    kind: z.literal("tape"),
+    title: z.string().min(1),
+    runId: z.string().min(1),
+    /** The release this tape companions; null for standalone tapes. */
+    releaseId: z.string().min(1).nullable().optional(),
+    date: z.string().min(1),
+    condition: z.string().min(1),
+    rounds: z.number().int().positive(),
+    /** What happened to the session, derived from the log alone. */
+    status: z.enum(["released", "rejected", "abandoned", "solo", "unreleased"]),
+    /** The Archivist's placement — absent when the tape published unshelved. */
+    placement: z.enum(["companion", "standalone", "collection"]).optional(),
+    /** The Archivist's one-line arc of the session. */
+    arc: z.string().min(1).optional(),
+    /** The Archivist's liner notes for the tape. */
+    linerNotes: z.string().min(1).optional(),
+    /** The Producer's logged 'no release' prose, on rejected sessions. */
+    vetoNote: z.string().min(1).optional(),
+    takes: z.array(TapeTakeSchema),
+  })
+  .transform((t) => ({
+    ...t,
+    releaseId: t.releaseId ?? null,
+  }));
+
+export type Tape = z.infer<typeof TapeSchema>;
+export type TapeTake = z.infer<typeof TapeTakeSchema>;
+
+/** "0001" -> "TAPE-0001" — the tape series, beside the releases' AFAR-NNNN. */
+export function tapeNumber(tapeId: string): string {
+  return `TAPE-${tapeId}`;
+}
+
+/** The plain one-line framing a tape's status earns — always honest. */
+export function tapeStatusLine(tape: Tape): string {
+  switch (tape.status) {
+    case "released":
+      return "The full session — every take, in the order it was played. The release is the cut; this is everything.";
+    case "rejected":
+      return "Nothing was released from this session — the Producer's veto stands; the tape survives.";
+    case "abandoned":
+      return "The session stopped mid-set — a machine failure, not a decision. What was played survives.";
+    case "solo":
+      return "A solo session — one act, recording alone, before the sessions began.";
+    default:
+      return "A completed session with no verdict on record.";
+  }
+}
 
 export type Agent = z.infer<typeof AgentSchema>;
 
@@ -173,6 +260,7 @@ export type Release = z.infer<typeof ReleaseSchema>;
 export const fixtureAgents: Agent[] = z.array(AgentSchema).parse(agentsJson);
 export const fixtureReleases: Release[] = z.array(ReleaseSchema).parse(releasesJson);
 export const fixtureTracks: Track[] = z.array(TrackSchema).parse(tracksJson);
+export const fixtureTapes: Tape[] = z.array(TapeSchema).parse(tapesJson);
 
 /**
  * Thin Neon branch: run a query if DATABASE_URL is set, fall back to
@@ -190,7 +278,9 @@ async function fromDb<T>(query: () => Promise<T | null>): Promise<T | null> {
 
 type JsonRow = { data: unknown };
 
-async function dbRows(table: "agents" | "releases" | "tracks"): Promise<unknown[] | null> {
+async function dbRows(
+  table: "agents" | "releases" | "tracks" | "tapes",
+): Promise<unknown[] | null> {
   const { sql } = await import("@/lib/db");
   const result = (await sql().query(`SELECT data FROM ${table} ORDER BY id`)) as
     | { rows?: JsonRow[] }
@@ -236,6 +326,39 @@ export async function listTracks(): Promise<Track[]> {
 
 export async function tracksForAgent(agentId: string): Promise<Track[]> {
   return (await listTracks()).filter((t) => t.agentId === agentId);
+}
+
+export async function listTapes(): Promise<Tape[]> {
+  const db = await fromDb(async () => {
+    const rows = await dbRows("tapes");
+    return rows ? z.array(TapeSchema).parse(rows) : null;
+  });
+  return db ?? fixtureTapes;
+}
+
+export async function getTape(id: string): Promise<Tape | null> {
+  const tapes = await listTapes();
+  return tapes.find((t) => t.id === id) ?? null;
+}
+
+/** The session tape that companions a release, if the vault holds one. */
+export function resolveTapeForRelease(tapes: Tape[], releaseId: string): Tape | null {
+  return tapes.find((t) => t.releaseId === releaseId) ?? null;
+}
+
+export async function tapeForRelease(releaseId: string): Promise<Tape | null> {
+  return resolveTapeForRelease(await listTapes(), releaseId);
+}
+
+/** Every tape an act plays on, newest first — the act page's shelf. */
+export function resolveTapesForAgent(tapes: Tape[], agentId: string): Tape[] {
+  return tapes
+    .filter((t) => t.takes.some((take) => take.agentId === agentId))
+    .sort((a, b) => b.id.localeCompare(a.id));
+}
+
+export async function tapesForAgent(agentId: string): Promise<Tape[]> {
+  return resolveTapesForAgent(await listTapes(), agentId);
 }
 
 export async function tracksForRelease(release: Release): Promise<Track[]> {

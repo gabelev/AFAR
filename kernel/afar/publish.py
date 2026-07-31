@@ -151,6 +151,13 @@ def next_release_id(existing_ids: Iterable[str]) -> str:
     return f"{(max(numeric) + 1) if numeric else 1:04d}"
 
 
+def next_tape_id(existing_ids: Iterable[str]) -> str:
+    """The next number in the TAPE-NNNN catalogue series (ids in the tapes
+    table are the plain 4 digits; the web prefixes TAPE- for display, the
+    same way releases wear AFAR-)."""
+    return next_release_id(existing_ids)
+
+
 # --- the rows (pure ports of publish_set.mjs main()) --------------------------
 
 
@@ -269,6 +276,12 @@ def build_release_row(
             "publishedBy": "afar.publish (conductor)",
         },
     }
+    # The Archivist's liner notes — back-of-sleeve prose, first-class on the
+    # page, optional in the schema so every pre-Archivist row keeps parsing.
+    archivist = (staff or {}).get("archivist") or {}
+    if archivist.get("liner_notes"):
+        row["linerNotes"] = normalize_act_names(str(archivist["liner_notes"]))
+        row["metadata"]["linerNotesBy"] = "the Archivist"
     valence = (staff or {}).get("listener", {}).get("valence")
     if valence:
         row["reactionValence"] = valence
@@ -435,6 +448,225 @@ def compile_timeline_blocks(
     return {"blocks": blocks}
 
 
+# --- the tape (the vault doctrine: the session's FULL tape releases) ----------
+
+
+def build_tape_row(
+    tape_id: str,
+    view: Any,  # afar.archive.TapeView (typed loose to keep this module light)
+    shelving: Optional[Mapping[str, Any]],
+    *,
+    release_id: Optional[str] = None,
+) -> dict[str, Any]:
+    """The tapes-row jsonb — the shape web/lib/data.ts TapeSchema parses.
+
+    `view` is the session read whole from the log; `shelving` is the
+    Archivist's newest logged `archives` row (placement, arc, callouts, liner
+    notes). A tape can publish unshelved (Archivist degraded): the takes
+    stand, the framing fields stay absent, honestly. Display shim: logged
+    lines and quoted prose go through normalize_act_names (pre-voice-fix
+    sessions say "Rust"/"Keep"/"Silt"; the tape shows first names)."""
+    shelving = shelving or {}
+    staff = (view.record or {}).get("staff") or {}
+    take_titles = staff.get("critic", {}).get("take_titles", {})
+
+    # The Archivist's callouts, keyed back to (player, round) — the row may
+    # name the act by stage name or by id; both resolve.
+    names_to_ids = {name: pid for pid, name in STAGE_NAMES.items()}
+    callout_by: dict[tuple[str, int], str] = {}
+    for c in shelving.get("callouts", ()):
+        pid = names_to_ids.get(str(c.get("act", "")), str(c.get("act", "")))
+        if c.get("round") is not None and c.get("note"):
+            callout_by[(pid, int(c["round"]))] = normalize_act_names(str(c["note"]))
+
+    takes: list[dict[str, Any]] = []
+    for t in view.takes:
+        selected = view.selected.get(t.player) == t.round
+        entry: dict[str, Any] = {
+            "round": t.round,
+            "agentId": t.player,
+            "title": take_titles.get(t.player) if selected else None,
+            "audioUrl": f"/api/media/{t.take_id}",
+            "durationSec": int(view.duration_s),
+            "selected": selected,
+            "line": normalize_act_names(t.line),
+        }
+        callout = callout_by.get((t.player, t.round))
+        if callout:
+            entry["callout"] = callout
+        dissents = [
+            f"the {d.get('judge', 'panel')} judge wanted this one on the release"
+            for d in view.dissents.get(t.player, ())
+            if d.get("preferred_round") == t.round
+        ]
+        if dissents:
+            entry["dissent"] = "; ".join(dissents)
+        takes.append(entry)
+
+    row: dict[str, Any] = {
+        "id": tape_id,
+        "kind": "tape",
+        "title": normalize_act_names(str(shelving.get("tape_title") or f"Session Tape {tape_id}")),
+        "runId": view.run_id,
+        "releaseId": release_id,
+        "date": view.date,
+        "condition": view.condition,
+        "rounds": int(view.rounds),
+        "status": view.status,
+        "takes": takes,
+        "metadata": {
+            "players": list(view.players),
+            "complete": view.complete,
+            "releaseRecordId": (view.record or {}).get("release_id"),
+            "publishedBy": "afar.publish (the Archivist's shelf)",
+        },
+    }
+    if shelving.get("placement"):
+        row["placement"] = str(shelving["placement"])
+    if shelving.get("arc"):
+        row["arc"] = normalize_act_names(str(shelving["arc"]))
+    if shelving.get("liner_notes"):
+        row["linerNotes"] = normalize_act_names(str(shelving["liner_notes"]))
+    if view.veto_note:
+        row["vetoNote"] = normalize_act_names(str(view.veto_note))
+    return row
+
+
+def _read_all_audio(run_dir: Path, runs_root: Path) -> dict[str, bytes]:
+    """EVERY take's bytes for this run, keyed by content hash — the vault
+    doctrine's media upload (all takes, not just the cut; ~23MB/set)."""
+    audio: dict[str, bytes] = {}
+    for a in read_jsonl(Path(run_dir) / "artifacts.jsonl"):
+        data = _resolve_audio(a["path"], runs_root).read_bytes()
+        if len(data) < 1000:
+            raise ValueError(f"suspiciously small mp3 for take {a['hash']}: {len(data)} bytes")
+        audio[a["hash"]] = data
+    return audio
+
+
+def _tape_id_for_run(conn: Any, run_id: str) -> Optional[str]:
+    """A run's already-published tape id, if any — republish stays idempotent."""
+    rows = conn.execute("SELECT id, data FROM tapes").fetchall()
+    for row_id, data in rows:
+        if _as_mapping(data).get("runId") == run_id:
+            return str(row_id)
+    return None
+
+
+@dataclass(frozen=True)
+class TapeOutcome:
+    """What one tape publish did (or, dry, would have done)."""
+
+    tape_id: str
+    run_id: str
+    title: str
+    dry_run: bool
+    takes: int = 0
+    media_bytes: int = 0
+    shelved: bool = True  # False when the tape published unshelved (degraded)
+
+
+def publish_tape(
+    run_dir: Path,
+    *,
+    release_id: Optional[str] = None,
+    tape_id: Optional[str] = None,
+    db_url: Optional[str] = None,
+    dry_run: bool = False,
+    connection: Any = None,
+) -> TapeOutcome:
+    """Publish one session's FULL tape: every take's audio (content-addressed
+    upserts) plus the tapes row. Works for ANY run — released (pass its
+    release_id so the tape points home), vetoed, abandoned, or solo. The tape
+    publishes even unshelved (no `archives` row yet): the framing fields stay
+    absent, the takes stand. Idempotent: a run's tape keeps its id."""
+    from afar.archive import load_tape_view, newest_shelving
+
+    run_dir = Path(run_dir)
+    runs_root = run_dir.parent
+    view = load_tape_view(run_dir)
+    shelving = newest_shelving(run_dir)
+    audio = _read_all_audio(run_dir, runs_root)
+
+    if dry_run:
+        row = build_tape_row(tape_id or "0000", view, shelving, release_id=release_id)
+        return TapeOutcome(
+            tape_id=row["id"],
+            run_id=view.run_id,
+            title=row["title"],
+            dry_run=True,
+            takes=len(row["takes"]),
+            media_bytes=sum(len(b) for b in audio.values()),
+            shelved=shelving is not None,
+        )
+
+    conn = connection
+    if conn is None:
+        import psycopg
+
+        url = db_url or load_database_url()
+        if not url:
+            raise RuntimeError("DATABASE_URL not set and not found in kernel/.env")
+        if url.startswith("postgres://"):
+            url = "postgresql://" + url[len("postgres://"):]
+        conn = psycopg.connect(url)
+    try:
+        jsonb = _jsonb_for(conn)
+        outcome = _write_tape(
+            conn, jsonb, view, shelving, audio, release_id=release_id, tape_id=tape_id
+        )
+        conn.commit()
+    finally:
+        if connection is None:
+            conn.close()
+    return outcome
+
+
+def _write_tape(
+    conn: Any,
+    jsonb: Any,
+    view: Any,
+    shelving: Optional[Mapping[str, Any]],
+    audio: Mapping[str, bytes],
+    *,
+    release_id: Optional[str] = None,
+    tape_id: Optional[str] = None,
+) -> TapeOutcome:
+    """The tape write, on an open connection (shared by publish_run)."""
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS media "
+        "(id text PRIMARY KEY, content_type text NOT NULL, bytes bytea NOT NULL)"
+    )
+    conn.execute("CREATE TABLE IF NOT EXISTS tapes (id text PRIMARY KEY, data jsonb NOT NULL)")
+    for content_hash, data in audio.items():
+        conn.execute(
+            "INSERT INTO media (id, content_type, bytes) VALUES (%s, %s, %s) "
+            "ON CONFLICT (id) DO UPDATE SET content_type = EXCLUDED.content_type, "
+            "bytes = EXCLUDED.bytes",
+            (content_hash, "audio/mpeg", data),
+        )
+    if tape_id is None:
+        tape_id = _tape_id_for_run(conn, view.run_id)
+    if tape_id is None:
+        rows = conn.execute("SELECT id FROM tapes").fetchall()
+        tape_id = next_tape_id(r[0] for r in rows)
+    row = build_tape_row(tape_id, view, shelving, release_id=release_id)
+    conn.execute(
+        "INSERT INTO tapes (id, data) VALUES (%s, %s) "
+        "ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data",
+        (tape_id, jsonb(row)),
+    )
+    return TapeOutcome(
+        tape_id=tape_id,
+        run_id=view.run_id,
+        title=row["title"],
+        dry_run=False,
+        takes=len(row["takes"]),
+        media_bytes=sum(len(b) for b in audio.values()),
+        shelved=shelving is not None,
+    )
+
+
 # --- publish ------------------------------------------------------------------
 
 
@@ -449,6 +681,7 @@ class PublishOutcome:
     media: dict[str, int] = field(default_factory=dict)  # pid -> byte count
     track_ids: tuple[str, ...] = ()
     timeline_blocks: int = 0
+    tape: Optional[TapeOutcome] = None  # the session tape (the vault doctrine)
 
 
 def _resolve_audio(path_str: str, runs_root: Path) -> Path:
@@ -525,6 +758,7 @@ def publish_run(
             media={pid: len(audio[pid]) for pid in PLAYER_IDS},
             track_ids=tuple(t["id"] for t in track_rows),
             timeline_blocks=1 if block else 0,
+            tape=publish_tape(run_dir, release_id=rid, dry_run=True),
         )
 
     conn = connection
@@ -539,7 +773,7 @@ def publish_run(
         conn = psycopg.connect(url)
 
     try:
-        jsonb = _jsonb_wrapper(connection is None)
+        jsonb = _jsonb_for(conn)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS media "
             "(id text PRIMARY KEY, content_type text NOT NULL, bytes bytea NOT NULL)"
@@ -584,6 +818,20 @@ def publish_run(
             "ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data",
             (jsonb(timeline),),
         )
+
+        # The vault opens: EVERY take's audio and the session's full tape ride
+        # the same publish (the Archivist may have degraded — the tape still
+        # ships, unshelved and honest).
+        from afar.archive import load_tape_view, newest_shelving
+
+        tape_outcome = _write_tape(
+            conn,
+            jsonb,
+            load_tape_view(run_dir),
+            newest_shelving(run_dir),
+            _read_all_audio(run_dir, runs_root),
+            release_id=release_id,
+        )
         conn.commit()
     finally:
         if connection is None:
@@ -597,15 +845,24 @@ def publish_run(
         media={pid: len(audio[pid]) for pid in PLAYER_IDS},
         track_ids=tuple(t["id"] for t in track_rows),
         timeline_blocks=len(timeline["blocks"]),
+        tape=tape_outcome,
     )
 
 
-def _jsonb_wrapper(live: bool):
-    """psycopg needs dicts wrapped in Jsonb; injected test connections take raw."""
-    if live:
+def _jsonb_for(conn: Any):
+    """The jsonb wrapper for a connection of UNKNOWN provenance: a real
+    psycopg connection (whoever opened it) gets Jsonb; injected test fakes
+    take raw dicts. The retrospective script passes its own psycopg
+    connection into publish_tape — the `connection is None` heuristic alone
+    mis-classified it (the observed 'cannot adapt type dict' crash)."""
+    try:
+        import psycopg
         from psycopg.types.json import Jsonb
 
-        return Jsonb
+        if isinstance(conn, psycopg.Connection):
+            return Jsonb
+    except ImportError:
+        pass
     return lambda value: value
 
 

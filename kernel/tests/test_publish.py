@@ -284,6 +284,9 @@ def test_publish_dry_run_touches_nothing_external(staffed_run: Path):
     assert all(size >= 1000 for size in outcome.media.values())
     assert outcome.track_ids == tuple(f"0000-{pid}" for pid in PLAYER_IDS)
     assert outcome.timeline_blocks == 1
+    # The tape half is computed dry too — all 9 takes, nothing written.
+    assert outcome.tape is not None and outcome.tape.dry_run is True
+    assert outcome.tape.takes == 9 and outcome.tape.shelved is True
 
 
 class _FakeCursor:
@@ -325,10 +328,14 @@ def test_publish_live_upserts_everything_and_writes_timeline_source(staffed_run:
     assert conn.committed
 
     statements = [sql for sql, _ in conn.executed]
-    assert sum(1 for s in statements if s.startswith("CREATE TABLE IF NOT EXISTS")) == 4
-    assert sum(1 for s in statements if s.startswith("INSERT INTO media")) == 3
+    # media + tracks/releases/timeline_source, then the tape half re-ensures
+    # media and creates tapes (the vault doctrine rides the same publish).
+    assert sum(1 for s in statements if s.startswith("CREATE TABLE IF NOT EXISTS")) == 6
+    # 3 selected takes + ALL 9 takes (content-addressed; selected upsert twice).
+    assert sum(1 for s in statements if s.startswith("INSERT INTO media")) == 12
     assert sum(1 for s in statements if s.startswith("INSERT INTO tracks")) == 3
     assert sum(1 for s in statements if s.startswith("INSERT INTO releases")) == 1
+    assert sum(1 for s in statements if s.startswith("INSERT INTO tapes")) == 1
 
     # Media rows are content-addressed and carry real bytes.
     media_params = [p for sql, p in conn.executed if sql.startswith("INSERT INTO media")]
@@ -344,3 +351,17 @@ def test_publish_live_upserts_everything_and_writes_timeline_source(staffed_run:
     assert [b["releaseId"] for b in timeline["blocks"]] == ["0002"]
     assert timeline["blocks"][0]["runId"] == _RUN_ID
     assert outcome.timeline_blocks == 1
+
+    # The session tape rode the same publish: TAPE-0001, every take, shelved
+    # (the staffed fixture ran the full chain, Archivist included), pointing
+    # home at the release it companions.
+    assert outcome.tape is not None and outcome.tape.tape_id == "0001"
+    (tape_params,) = [p for sql, p in conn.executed if sql.startswith("INSERT INTO tapes")]
+    tape_row = tape_params[1]
+    assert tape_row["kind"] == "tape" and tape_row["releaseId"] == "0002"
+    assert tape_row["runId"] == _RUN_ID
+    assert len(tape_row["takes"]) == 9
+    assert [t["round"] for t in tape_row["takes"]] == sorted(t["round"] for t in tape_row["takes"])
+    assert sum(1 for t in tape_row["takes"] if t["selected"]) == 3
+    assert tape_row["status"] == "released" and tape_row["placement"]
+    assert tape_row["linerNotes"]

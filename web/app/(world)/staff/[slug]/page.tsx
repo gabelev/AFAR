@@ -3,7 +3,15 @@ import { notFound } from "next/navigation";
 import { PlayerBar } from "@/components/PlayerBar";
 import { PressPhoto } from "@/components/PressPhoto";
 import { catalogueNumber } from "@/lib/acts";
-import { getAgent, listReleases, stanceWord, type Release } from "@/lib/data";
+import {
+  getAgent,
+  listReleases,
+  listTapes,
+  stanceWord,
+  tapeNumber,
+  tapeStatusLine,
+  type Release,
+} from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +46,13 @@ const STAFF_WORK: Record<
     empty: "No reactions in the archive yet. Nobody has been moved.",
     pick: (r) => r.reaction,
   },
+  archivist: {
+    heading: "LINER NOTES",
+    blurb:
+      "The Archivist writes the prose on the back of every sleeve — what happened in the room, who did what, what to listen for. The Critic judges; the Archivist contextualizes.",
+    empty: "No liner notes in the archive yet. The vault has just opened.",
+    pick: (r) => r.linerNotes ?? "",
+  },
 };
 
 export default async function StaffPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -46,7 +61,14 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
   if (!agent || agent.kind !== "staff") notFound();
   const work = STAFF_WORK[agent.id];
   const releases = await listReleases();
-  const releasesDesc = [...releases].sort((a, b) => b.id.localeCompare(a.id));
+  // Only releases where this staff member actually filed (the Archivist's
+  // notes are optional per row; everyone else's slices always exist).
+  const releasesDesc = [...releases]
+    .sort((a, b) => b.id.localeCompare(a.id))
+    .filter((r) => (work ? work.pick(r) : false));
+  // The Archivist's other body of work: the shelf itself.
+  const tapes = agent.id === "archivist" ? await listTapes() : [];
+  const tapesDesc = [...tapes].sort((a, b) => b.id.localeCompare(a.id));
 
   return (
     <>
@@ -70,8 +92,11 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
               “{agent.stance}”
             </div>
           </div>
+          {/* The Archivist has no sprite/press art yet (flagged for the next
+              design round — DECISIONS.md); a quiet paper plate holds the
+              spot rather than a broken image. */}
           <PressPhoto
-            pressSrc={`/press/press-${agent.id}.png`}
+            pressSrc={agent.id === "archivist" ? undefined : `/press/press-${agent.id}.png`}
             imageUrl={agent.imageUrl}
             alt={`${agent.displayName} press photo`}
             className="presscard"
@@ -132,6 +157,47 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
                     </Link>
                   </div>
                 </div>
+              ))
+            )}
+          </section>
+        )}
+
+        {/* THE SHELF — the Archivist's tapes, every session on record. */}
+        {agent.id === "archivist" && (
+          <section
+            style={{ padding: "0 var(--gutter) 28px", display: "flex", flexDirection: "column" }}
+          >
+            <div className="label" style={{ paddingBottom: 6 }}>
+              THE SHELF
+            </div>
+            <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 12 }}>
+              Every session&apos;s full tape, shelved public — releases, vetoes, breakdowns,
+              solo runs. Nothing recorded sits in a drawer.
+            </p>
+            {tapesDesc.length === 0 ? (
+              <p className="mono" style={{ fontSize: 12, color: "var(--sec-deep)" }}>
+                No tapes on the shelf yet. The next session&apos;s tape lands here.
+              </p>
+            ) : (
+              tapesDesc.map((tape, i) => (
+                <Link
+                  key={tape.id}
+                  href={`/tape/${tape.id}`}
+                  className={`rule-row${i === tapesDesc.length - 1 ? " rule-row-last" : ""}`}
+                  style={{ display: "flex", gap: 14, alignItems: "baseline", padding: "10px 0" }}
+                >
+                  <span className="mono" style={{ fontSize: 11, width: 84, flex: "none", color: "var(--sec)" }}>
+                    {tapeNumber(tape.id)}
+                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 600, flex: 1 }}>{tape.title}</span>
+                  <span
+                    className="mono"
+                    style={{ fontSize: 10, letterSpacing: "0.14em", color: "var(--sec)", textTransform: "uppercase" }}
+                    title={tapeStatusLine(tape)}
+                  >
+                    {tape.status}
+                  </span>
+                </Link>
               ))
             )}
           </section>

@@ -3,8 +3,8 @@
 Architecture rule 1 (the boundary rule): staff act on the FRAME between sets,
 never inside one. This module is that frame. `run_staff` takes a COMPLETED
 run's append-only log, walks the full staff over it in order — Producer,
-Critic, Muse, Listener — appends their decisions as new `selections` /
-`reviews` / `briefs` / `reactions` rows, and writes new content-addressed
+Critic, Muse, Listener, Archivist — appends their decisions as new
+`selections` / `reviews` / `briefs` / `reactions` / `archives` rows, and writes new content-addressed
 release records that supersede the previous one — the same append-only
 correction pattern as `scripts/reembed.py`. Nothing here ever edits a logged
 row, and nothing here ever feeds forward into a player's context: the loop
@@ -17,7 +17,11 @@ release exists — the Muse reads what actually shipped (plus the Listener's
 logged reactions from earlier boundaries) into the next brief, and the
 Listener reacts to the finished, titled release like any fan would. The
 Listener's reaction row is what the NEXT boundary's Muse reads: the reception
-loop closes here, at the frame, never inside a set.
+loop closes here, at the frame, never inside a set. LAST comes the ARCHIVIST
+(the vault doctrine): once the room has emptied — release or no release —
+the session's full tape is shelved (`run_archivist`), its placement and
+liner notes logged as an `archives` row; a vetoed session gets no release
+but its tape SURVIVES, shelved with the veto framed honestly.
 """
 
 from __future__ import annotations
@@ -205,6 +209,8 @@ class StaffRecord:
     release_record: Optional[dict[str, Any]]
     release_path: Optional[Path]
     superseded_release_id: str
+    shelving: Optional[Any] = None  # afar.agents.archivist.Shelving (the tape's place)
+    liner_notes: Optional[str] = None  # the Archivist's release liner notes
     degraded: tuple[str, ...] = ()
 
 
@@ -231,6 +237,10 @@ STAGE_DEGRADED_NOTES: dict[str, str] = {
     "critic": "The Critic did not file this time.",
     "muse": "The Muse did not file this time — no brief carries forward from this release.",
     "listener": "The Listener did not file this time.",
+    "archivist": (
+        "The Archivist did not file this time — the session tape stands unshelved; "
+        "the takes speak for themselves."
+    ),
 }
 
 
@@ -487,11 +497,123 @@ def run_muse_listener(
     )
 
 
+@dataclass(frozen=True)
+class ArchiveOutcome:
+    """What the Archivist's pass over one session produced. Either piece may
+    be None when the stage degraded (named in `degraded`)."""
+
+    shelving: Optional[Any]  # afar.agents.archivist.Shelving
+    liner_notes: Optional[str]  # release liner notes (released sessions only)
+    release_record: Optional[dict[str, Any]]  # the archivist-enriched record, when written
+    release_path: Optional[Path] = None
+    degraded: tuple[str, ...] = ()
+
+
+def run_archivist(run_dir: Path, config: AfarConfig) -> ArchiveOutcome:
+    """The vault half of the frame: the Archivist shelves the session's FULL
+    tape — release or no release — and, when a release exists, writes its
+    liner notes.
+
+    Appends one `archives` row (kind "shelving": placement, tape title, arc,
+    callouts, liner notes — the tape's authoritative home; the published tape
+    row mirrors it). For a released session the newest release record gains
+    `staff.archivist` (liner notes + the tape block) via the same supersede
+    pattern as every other staff stage. THE DEGRADATION DOCTRINE: a failed
+    Archivist logs a `staff_stage_failed` row in `archives` and everything
+    publishes without notes — the material always outranks the commentary.
+    """
+    from afar.agents.archivist import ArchivistAgent
+    from afar.archive import load_tape_view
+
+    run_dir = Path(run_dir)
+    view = load_tape_view(run_dir)
+    ledger = JsonlLedger(run_dir.parent, run_dir.name, context=RunContext(code_sha=config.code_sha))
+    set_stamps: dict[str, Any] = {"condition": view.condition}
+    record = dict(view.record) if view.record is not None else None
+    basis = {"basis_release_id": record["release_id"]} if record else {}
+
+    try:
+        archivist = ArchivistAgent(config.model)
+        liner_notes: Optional[str] = None
+        if view.released and record is not None:
+            liner_notes = archivist.release_liner_notes(record, stage_names=STAGE_NAMES)
+        shelving = archivist.shelve(view, stage_names=STAGE_NAMES)
+    except Exception as err:  # noqa: BLE001 — the material outranks the commentary
+        ledger.write(
+            "archives",
+            {
+                **set_stamps,
+                "kind": "staff_stage_failed",
+                "agent": "archivist",
+                "stage": "archivist",
+                "error": _short_error(err),
+                "note": STAGE_DEGRADED_NOTES["archivist"],
+                **basis,
+            },
+        )
+        return ArchiveOutcome(
+            shelving=None, liner_notes=None, release_record=record, degraded=("archivist",)
+        )
+
+    ledger.write(
+        "archives",
+        {
+            **set_stamps,
+            "kind": "shelving",
+            "agent": "archivist",
+            "status": view.status,
+            "placement": shelving.placement,
+            "tape_title": shelving.tape_title,
+            "arc": shelving.arc,
+            "callouts": list(shelving.callouts),
+            "liner_notes": shelving.notes,
+            "release_liner_notes": liner_notes,
+            **basis,
+        },
+    )
+
+    if not (view.released and record is not None):
+        # No release to enrich (a veto, an abandoned set, a solo run): the
+        # archives row IS the shelving; the tape publishes from it directly.
+        return ArchiveOutcome(shelving=shelving, liner_notes=None, release_record=record)
+
+    record_body = {key: value for key, value in record.items() if key != "release_id"}
+    staff_block = dict(record_body.get("staff", {}))
+    staff_block["archivist"] = {
+        "liner_notes": liner_notes,
+        "tape": {
+            "placement": shelving.placement,
+            "tape_title": shelving.tape_title,
+            "arc": shelving.arc,
+            "callouts": list(shelving.callouts),
+            "notes": shelving.notes,
+        },
+    }
+    record_body["staff"] = staff_block
+    prior_staff = list(record.get("provenance", {}).get("staff", []))
+    provenance: dict[str, Any] = {
+        "staff": [*prior_staff, "archivist"],
+        "supersedes_release_id": record["release_id"],
+    }
+    if record.get("staff_degraded"):
+        provenance["staff_degraded"] = sorted(record["staff_degraded"])
+    record_body["provenance"] = provenance
+    release_record, release_path = _append_release_record(
+        run_dir, ledger, {**set_stamps, "seed": record.get("set", {}).get("seed")}, record_body
+    )
+    return ArchiveOutcome(
+        shelving=shelving,
+        liner_notes=liner_notes,
+        release_record=release_record,
+        release_path=release_path,
+    )
+
+
 def run_staff(
     run_dir: Path, config: AfarConfig, *, stance: str | None = None, taboo: Any = None
 ) -> StaffRecord:
     """Run the full staff retrospectively on one completed set — Producer,
-    Critic, Muse, Listener, in that order. See module docstring.
+    Critic, Muse, Listener, Archivist, in that order. See module docstring.
 
     Appends `selections` / `reviews` / `briefs` / `reactions` rows to the
     run's log and, when the Producer releases, writes NEW content-addressed
@@ -579,7 +701,10 @@ def run_staff(
         if not selection.released:
             # 'No release this set' is the Producer's DECISION — only a panel
             # that actually convened may refuse a release. A failed Producer
-            # never voids the material (the degraded path above).
+            # never voids the material (the degraded path above). The vault
+            # doctrine holds even here — ESPECIALLY here: the Archivist still
+            # shelves the session's tape; the veto stands, the tape survives.
+            archive = run_archivist(run_dir, config)
             return StaffRecord(
                 released=False,
                 selection=selection,
@@ -590,6 +715,8 @@ def run_staff(
                 release_record=None,
                 release_path=None,
                 superseded_release_id=old_record["release_id"],
+                shelving=archive.shelving,
+                degraded=archive.degraded,
             )
 
     # --- the Critic's word, then the name (last) ------------------------------
@@ -683,6 +810,9 @@ def run_staff(
     # `taboo` (the conductor's era-scoped FieldTabooMemory) rides through so a
     # hostile era's observed field moves accumulate across its boundaries.
     boundary = run_muse_listener(run_dir, config, stance=stance, taboo=taboo)
+
+    # --- the Archivist, last: the vault opens (release AND tape) --------------
+    archive = run_archivist(run_dir, config)
     return StaffRecord(
         released=True,
         selection=selection,
@@ -690,12 +820,14 @@ def run_staff(
         names=names,
         brief=boundary.brief,
         reaction=boundary.reaction,
-        release_record=boundary.release_record,
-        release_path=boundary.release_path,
+        release_record=archive.release_record or boundary.release_record,
+        release_path=archive.release_path or boundary.release_path,
         superseded_release_id=old_record["release_id"],
+        shelving=archive.shelving,
+        liner_notes=archive.liner_notes,
         degraded=tuple(
             stage
-            for stage in ("producer", "critic", "muse", "listener")
-            if stage in degraded or stage in boundary.degraded
+            for stage in ("producer", "critic", "muse", "listener", "archivist")
+            if stage in degraded or stage in boundary.degraded or stage in archive.degraded
         ),
     )

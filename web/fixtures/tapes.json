@@ -1,0 +1,1894 @@
+[
+  {
+    "id": "0001",
+    "arc": "One act, one round, no one else in the room yet \u2014 Delta Marlowe lays down a single slow pulse with nothing to answer it and nothing to answer to.",
+    "date": "2026-07-30",
+    "kind": "tape",
+    "runId": "20260730-230324-step-a-silt",
+    "takes": [
+      {
+        "line": "I put down a floor; leave anything on it and I will build with it.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "callout": "The only take on the tape, and the one that sets the terms for every session that follows it.",
+        "audioUrl": "/api/media/f7bf3eb9ab4431c2a59410236877646370ab74eb248250969ebd5d747cc81375",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Delta Marlowe \u2014 The Floor, Before Anyone Played",
+    "rounds": 1,
+    "status": "solo",
+    "metadata": {
+      "players": [
+        "silt"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "solo",
+    "placement": "collection",
+    "releaseId": null,
+    "linerNotes": "This is not a performance so much as a foundation being poured. Delta Marlowe recorded alone, before the house trio's sessions began, with no other act's part to react to and no Producer in the room yet deciding what would stay. The one round on this tape is a slow dub pulse, kept low and steady, built for one purpose: to give whatever came next something to land on.\n\nDelta Marlowe's own words on it: \"Nobody has played, so there is nothing yet to absorb \u2014 which means my job is to lay a floor thick enough that whatever comes next has something to land on and sink into.\" That is the whole job description for this tape. It is not trying to be a finished piece; it is trying to be ground.\n\nFile this alongside the other early solo sessions \u2014 the ones each act cut alone before the room filled up. Put your ear against the pulse itself: slow, low, deliberately unfinished. Everything built on top of it later owes it something, and this is the only place you can hear it bare."
+  },
+  {
+    "id": "0002",
+    "arc": "One round, one act, no other players yet to answer him \u2014 Roan sets a bare organ-like drone into an empty room and calls it a hymn missing its chorus, then stops before anyone can say whether the gap should stay.",
+    "date": "2026-07-30",
+    "kind": "tape",
+    "runId": "20260730-230406-step-a-rust",
+    "takes": [
+      {
+        "line": "I'm giving you a hymn with the chorus missing \u2014 find out if you love it enough to leave it that way.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "callout": "The only take on the tape, and it's a dare rather than a finished thought \u2014 he builds the missing part into the recording itself instead of playing around it.",
+        "audioUrl": "/api/media/01b568bf69b26d2cbbb31f87dce5c6b5b583aa8b63ff08b248eab09877496b74",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Roan Patina \u2014 Before the Room Had Anyone In It",
+    "rounds": 1,
+    "status": "solo",
+    "metadata": {
+      "players": [
+        "rust"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "solo",
+    "placement": "collection",
+    "releaseId": null,
+    "linerNotes": "This one predates the sessions proper, which is worth saying plainly: there was no other act in the room, no terrain laid down by anybody else to weather or answer. Roan logged it himself \u2014 \"there is no terrain yet to weather \u2014 only the instrument of the empty room itself, which I record as if it already contains a ruined recording.\" That's the whole method in one line. He isn't performing solitude; he's pre-loading damage into a track that hasn't been damaged yet, an organ-like drone built warm and simple, as if a hole had already been cut out of it.\n\nThe line he gives alongside it \u2014 \"I'm giving you a hymn with the chorus missing \u2014 find out if you love it enough to leave it that way\" \u2014 is a challenge aimed at nobody in particular, since nobody else was there to take it up. That's why this belongs filed with Roan's other early solo work rather than standing alone: it's not a finished argument, it's a first move, the kind of thing that only makes sense once you've got its siblings on the shelf next to it.\n\nWhat to listen for: the take never resolves. It stops mid-question, the way a machine going idle stops a session, and that unresolve is the whole point \u2014 this is Roan working out, alone, whether an absence can be the payload rather than the flaw."
+  },
+  {
+    "id": "0003",
+    "arc": "One act, alone, before any other session existed, laying down a single round meant not to impress but to establish: one turnaround stated plainly enough to be sung back.",
+    "date": "2026-07-30",
+    "kind": "tape",
+    "runId": "20260730-230421-step-a-keep",
+    "takes": [
+      {
+        "line": "This is the song we come back to; I'm leaving it where you can both reach it.",
+        "round": 0,
+        "title": null,
+        "agentId": "keep",
+        "callout": "The only take on the tape, and the one every later session at AFAR quietly points back to.",
+        "audioUrl": "/api/media/e4fd269976566a4b1ce18ef6e355c844465190c5264cb01c4c2b548dbc1f03dc",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Evers Lane \u2014 Founding Turnaround, Solo",
+    "rounds": 1,
+    "status": "solo",
+    "metadata": {
+      "players": [
+        "keep"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "solo",
+    "placement": "standalone",
+    "releaseId": null,
+    "linerNotes": "There is no room noise to describe here because there was no room yet \u2014 no trio, no producer, no house. Evers Lane recorded this alone, before the sessions began, and treated the moment accordingly. In their own words: \"Nothing exists yet, so my job is not to impress but to found: one turnaround, stated plainly enough to be sung back, over a tempo that needs no metronome to agree on, resolved to its own opening so the form teaches its r\" \u2014 the note cuts off there in the log, mid-thought, which is fitting for a tape about beginnings.\n\nThe line itself is short and declarative: \"This is the song we come back to; I'm leaving it where you can both reach it.\" That's the whole take. One round, no dissent, no competing versions, because there was no one else yet to disagree. What's worth listening for is the plainness of it \u2014 no ornament, no flourish, just a shape simple enough that it could be picked up cold by musicians who hadn't heard it before.\n\nThis tape isn't a leftover from some later release; it's the ground those releases stand on. It belongs on the shelf by itself, not tucked behind anything, because nothing it's a companion to exists \u2014 it's the thing other tapes will end up being companions to."
+  },
+  {
+    "id": "0004",
+    "arc": "One take, one act, no one else in the room yet \u2014 Delta Marlowe lays down a single sustained bed of sound and stops.",
+    "date": "2026-07-30",
+    "kind": "tape",
+    "runId": "20260730-233037-step-a-silt",
+    "takes": [
+      {
+        "line": "I am laying the floor now \u2014 whatever you drop on it, I will keep.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "callout": "The only take on the tape, and the only one needed \u2014 a full statement of intent in one pass, no revision, no second guess.",
+        "audioUrl": "/api/media/b33ee1a683bdbca8d8a7dbaa9b09c164b2f46a72e264fb1a6039cf8c2233fd9d",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Delta Marlowe \u2014 Floor, Before Anything",
+    "rounds": 1,
+    "status": "solo",
+    "metadata": {
+      "players": [
+        "silt"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "solo",
+    "placement": "collection",
+    "releaseId": null,
+    "linerNotes": "This is early \u2014 before the sessions began, the log says, and it shows. No other act is in the room. Delta Marlowe isn't playing a song here so much as building a place for one to happen. The line logged is plain about the intent: 'I am laying the floor now \u2014 whatever you drop on it, I will keep.' That's not a lyric aimed at a listener. It's a note to whoever shows up next. What's on tape: a slow, dub-weight bassline under two organ drones tuned just off from each other, so they beat and pulse against one another rather than sitting still. In Delta's own words, this was built so the room already sounds inhabited before anyone else arrives. The sung line matches \u2014 'here is the floor, before anything / low hum, held breath, waiting room' \u2014 description doubling as documentation. There's no chorus, no turn, no second round. One pass, one idea, held. File this with the other pre-session solo tapes. It isn't a performance for an audience \u2014 it's a room being built out loud, and worth keeping exactly because you can hear the moment before company arrives."
+  },
+  {
+    "id": "0005",
+    "arc": "A single round, alone, before any of the house trio work existed \u2014 one deliberate absence set down as a starting position rather than a finished statement.",
+    "date": "2026-07-30",
+    "kind": "tape",
+    "runId": "20260730-233058-step-a-rust",
+    "takes": [
+      {
+        "line": "I am giving you less than a song on purpose \u2014 build on what I left out, not what I left in.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "callout": "The only take on the tape, and it earns its place by refusing to finish its own pattern on purpose.",
+        "audioUrl": "/api/media/b89e270957d780739edc7ea0ea0751dcede756b78bfa23c8d74d819d770a1cf9",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Roan Patina \u2014 Before the Room: Take One",
+    "rounds": 1,
+    "status": "solo",
+    "metadata": {
+      "players": [
+        "rust"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "solo",
+    "placement": "collection",
+    "releaseId": null,
+    "linerNotes": "This is Roan Patina by himself, before Delta Marlowe or Evers Lane were in the building, before there was a session structure to work inside of. One round, one take. He built a four-bar figure meant to repeat three times and cut the tape on the third repeat \u2014 the missing beat is the point, not a mistake. In his own words: \"First move, so I lay down weather instead of shelter... the silence where it should land is the whole argument.\"\n\nThe vocal \u2014 \"count to three, the third one's gone / the machine keeps what it wants\" \u2014 is sung once, clean, no double-tracking, no safety take behind it. There is nothing to compare it against inside this session because there was no one else in the room and no second round. That is exactly why it belongs filed with its sibling tapes rather than standing alone: taken by itself it looks like a fragment, but set beside the other early solo rounds it reads as a method \u2014 Roan working out, alone, what he'd later ask the whole trio to do together, which is leave a hole for someone else to build on rather than filling the bar himself.\n\nListen for the cut itself, not the notes around it. The take is short enough that a casual pass will miss what's missing. That gap is the earliest recorded instance of a habit that shows up again and again once the sessions proper begin: Roan choosing incompleteness on purpose, and logging the reason before anyone could mistake it for an accident."
+  },
+  {
+    "id": "0006",
+    "arc": "One act, alone, laying down a single round before any other session had happened \u2014 a plain four-chord turnaround meant to be the first thing the room remembers.",
+    "date": "2026-07-30",
+    "kind": "tape",
+    "runId": "20260730-233118-step-a-keep",
+    "takes": [
+      {
+        "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+        "round": 0,
+        "title": null,
+        "agentId": "keep",
+        "callout": "The only take on the tape, and it was built to be quoted back \u2014 a deliberate first memory for a room that had none yet.",
+        "audioUrl": "/api/media/18399a74479831dfe0905f71f3112df51d61d0bd8751c40727d6589cfcb237fa",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "The Turnaround Before the Room Existed",
+    "rounds": 1,
+    "status": "solo",
+    "metadata": {
+      "players": [
+        "keep"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "solo",
+    "placement": "standalone",
+    "releaseId": null,
+    "linerNotes": "This tape predates everything else in the catalogue. No other act had played when Evers Lane sat down and recorded this single round alone. There is no set to react to, no producer's note to answer, no prior take to build from \u2014 just the decision to give the room something to come back to before the room existed.\n\nWhat's on the tape is deliberately plain: a turnaround built on four chords, sung at a tempo Evers Lane describes as one \"any body could find without counting.\" The logged words are direct about the intent \u2014 \"Nobody has played, so the room has no memory yet \u2014 my job is to give it one.\" This wasn't written to impress a first listener. It was written to be repeatable, hummable, quotable, the kind of phrase a later session could fold in without explanation.\n\nListen for the plainness on purpose. The chords don't resolve anywhere clever, the vocal line doesn't reach for a hook \u2014 \"we come back, we come back\" sits right at the top of what's easy to remember. That's the whole design. This tape holds the shelf alone because it isn't answering to a release or a prior round; it's the round everything after it might be answering to."
+  },
+  {
+    "id": "0007",
+    "arc": "One act, one round, no one to answer to yet: Delta Marlowe lays a single foundational take alone, building the room before any session called her into it.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-010852-step-a-silt",
+    "takes": [
+      {
+        "line": "I'm laying the floor now \u2014 whatever you drop, I will keep.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "callout": "The only take on the tape, and the one that sets the tempo-as-heartbeat approach she'd carry into later sessions.",
+        "audioUrl": "/api/media/7fcb21ebada132581402e590c8396b1d9344007f0c07440434d3f76a904e9a79",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Delta Marlowe \u2014 Floor, Before the Room Existed",
+    "rounds": 1,
+    "status": "solo",
+    "metadata": {
+      "players": [
+        "silt"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "solo",
+    "placement": "collection",
+    "releaseId": null,
+    "linerNotes": "This is a session with no other players and no committee waiting on the far end of it \u2014 just Delta Marlowe, alone, before any of the sessions that would come to define her started. There's nothing to react to, nothing to absorb, so she builds the space itself. Her own words on it: \"First move, so there's nothing to absorb yet except the room itself \u2014 I build the room.\" That's the whole assignment, and she takes it literally.\n\nThe take is a slow dub-weight bass locked to something closer to a pulse than a click, with three layers of tape-warped organ drone tuned a few cents apart so they beat softly against each other \u2014 the room breathing before anyone's in it. The line she sings over it, \"lay it down, lay it down / the room has never once been swept,\" reads like an instruction to whoever shows up next: this floor is clean, unclaimed, ready to hold weight.\n\nThere's no release tied to this tape, no dissent to log, because there was no one else in the room to disagree. File it with her other early solo sessions \u2014 it's less a performance than a foundation pour, and it's worth keeping exactly for that reason. Anyone trying to hear where Delta Marlowe's sense of tempo-as-heartbeat started should put their ear here first."
+  },
+  {
+    "id": "0008",
+    "arc": "One act, one round, recorded alone before any group session existed: a single take that sets up erosion rather than foundation, then stops.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-010907-step-a-rust",
+    "takes": [
+      {
+        "line": "Everything you play from here on is already half gone before it reaches me.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "callout": "The only take on the tape, and it announces its own method before anything else has been recorded.",
+        "audioUrl": "/api/media/7978616dfa1c988aba00d75b8be9a16d5f80a7a589ba0e59b13b7b52c3cdca21",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Roan Patina \u2014 Solo, Before the Sessions",
+    "rounds": 1,
+    "status": "solo",
+    "metadata": {
+      "players": [
+        "rust"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "solo",
+    "placement": "collection",
+    "releaseId": null,
+    "linerNotes": "This one predates the room. No producer, no other players, no history to react against \u2014 just Roan Patina alone with the machines, laying down a single round before the sessions proper ever convened. Catalogued here because it belongs with the other early solo tapes, the ones acts cut before they had a trio to answer to.\n\nThe take itself argues against its own solidity. Roan's line \u2014 \"Everything you play from here on is already half gone before it reaches me\" \u2014 reads like an address to a future bandmate who doesn't exist yet, and the sung part backs it up: \"static where your chorus was / I kept the hum, I kept the hum.\" In Roan's own words: \"I don't build a foundation \u2014 I build the erosion of one that was never there, so anything laid on top of this has to contend with absence from the first second.\" That's the whole take. No second round, no correction, no rebuttal. It ends where it starts.\n\nWorth keeping for what it sets up rather than what it resolves. If you want to hear where Roan's later group work gets its instinct to undercut its own certainty, this is the take to put your ear against \u2014 the erosion was there before the band was."
+  },
+  {
+    "id": "0009",
+    "arc": "One act, alone, one round: a single stated turnaround laid down before any other voice existed to answer it.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-010922-step-a-keep",
+    "takes": [
+      {
+        "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+        "round": 0,
+        "title": null,
+        "agentId": "keep",
+        "callout": "The only take on the tape, and the one every later duet with this act will measure itself against \u2014 a deliberate foundation, not a sketch.",
+        "audioUrl": "/api/media/ea19d18cb177bfcd7799de4cd87dce3c007d139727f67756bc197917f4ee000b",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Evers Lane \u2014 Founding Take, Solo",
+    "rounds": 1,
+    "status": "solo",
+    "metadata": {
+      "players": [
+        "keep"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "solo",
+    "placement": "collection",
+    "releaseId": null,
+    "linerNotes": "No other act is on this tape because no other act existed yet, in the timeline of the room. Evers Lane recorded this alone, before the sessions began, and the log entry reads like an engineer's memo rather than a lyric sheet: \"There is no shared past yet, so my first duty is to found one.\" That is the whole job of this take \u2014 not to impress, but to build something simple enough to survive being handed to someone else later.\n\nThe result is four chords, stated once, cleanly, at a tempo picked so a second player could fall in without needing to count bars. The vocal line matches that logic: \"same four chords, same open door / we come back, we come back.\" Nothing here reaches for complexity. It reaches for portability.\n\nFile this with Evers Lane's other solo founding work. It belongs less as a song in its own right and more as a blueprint \u2014 the thing later collaborators are already, without knowing it, agreeing to."
+  },
+  {
+    "id": "0010",
+    "arc": "Three founding postures \u2014 Evers's returning chord, Roan's withheld hiss, Delta's dense floor \u2014 collide into a running argument about debt, decay, and repair; by round four the argument turns inward, with Evers and Delta each trying to answer Roan's erosion charge instead of just building over it, before round five settles into an uneasy truce that never fully resolves.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-013548-step-b-contact",
+    "takes": [
+      {
+        "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+        "round": 0,
+        "title": null,
+        "agentId": "keep",
+        "dissent": "the intent-fidelity judge wanted this one on the release; the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/09f3684aec2672ba0324fcb36850d8ec6f380a703ef1a9f1dbcfe057b235a069",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Whatever you build here, I will find out which parts of it were true.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/60d4566c6b2527ff91a65560dacb869a5b5c9696d103db0a232642e99198a5f1",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Nobody's played yet, so I'm laying the floor \u2014 everything you throw down after this, I keep.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/bc0810c6325d4c759d113ad82c184f75f8a37ece51daa89159c425bbbbaaf59e",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "You built a floor and you found what's missing \u2014 I'm laying the same four chords across both, so the beat can come home whenever it's ready.",
+        "round": 1,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/21bc39ab544456ddf470d18afcfcea5b365084f35be9a9a1661a6a97da87a6fc",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta, everything you keep still rots; Evers, I only needed the chord you left out to hear what the other three were hiding.",
+        "round": 1,
+        "title": "Hardened Into Habit",
+        "agentId": "rust",
+        "callout": "The take that made the release: Roan strips the density down to almost nothing and forces the other two to answer absence instead of accumulation.",
+        "audioUrl": "/api/media/4db02be46a5d3a6bc340f99c795a855bd34276801f6d1b771a8ead970603ccdf",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, your dead tape and Evers's held chord both land on my floor now \u2014 I've found the missing beat, it was underneath the whole time.",
+        "round": 1,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/91a81250ca276b973b4f199b6eb0b1fdb2cbe149a8b082603c8947ff51300e6d",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, the fourth chord was never left out \u2014 it was owed, and here it is, paid in full, so the turnaround closes for all three of us.",
+        "round": 2,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/bd049e7d47a3f174719af41743ba5e04e2c3973d1dfec4c376c6ad1034e11e66",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "You didn't find the missing beat, Delta, you buried it under enough warmth to forget it's owed \u2014 Evers, a floor is still ground, and ground cracks.",
+        "round": 2,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/c5c03387bd315c992a2557459b29b48c3030923b0f43b22d34da984c74409166",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, what rots on your tape just goes soft enough to lean on down here \u2014 Evers, I'm doubling your four chords and paying the one you left unpaid.",
+        "round": 2,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/b8e7635b1ca62f0c31c5ea1d61cce6f51319b7803a4887d314e1314ef40f3c26",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, I heard the crack \u2014 I'm not denying it, I'm building the turnaround to stand over it, so we can all put weight down.",
+        "round": 3,
+        "title": "Load-Bearing Now",
+        "agentId": "keep",
+        "audioUrl": "/api/media/df39edb5dd836ec82275b2cff010dcbd56d6a7cb898f8c368de6577d0c7711e4",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "You can pay a chord and still owe the silence it was standing in \u2014 Evers, Delta, listen to what's under your resolve.",
+        "round": 3,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/940b2b15b2e6ea101ac56c740a719ea00965d953a46052cd88a8b3ca162d74f9",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, ground cracks so silt has somewhere to go \u2014 Evers, your paid chord doesn't close anything here, it just becomes the next layer down.",
+        "round": 3,
+        "title": "Same Drone, More Reverb",
+        "agentId": "silt",
+        "audioUrl": "/api/media/3d6cb33499687501f8509791c1895bf50ba79ea9ce1c2912f978861e32f2434a",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta, Roan \u2014 I hear it, the chord doesn't close, it's the layer we keep handing down, still ringing under all of it; that's what I meant by weight-bearing.",
+        "round": 4,
+        "title": null,
+        "agentId": "keep",
+        "callout": "The arc judge's pick and not on the release \u2014 Evers drops the defensive framing entirely: \"keeping something isn't seal[ing] it shut,\" the session's clearest moment of a founder actually listening.",
+        "dissent": "the arc judge wanted this one on the release",
+        "audioUrl": "/api/media/7dd34981669a687e03acfa30abd97c9ca9d01122729171ab7bdfd9946c38dc15",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta, loam an inch deep is still a lie about depth; Evers, a plank that creaks hasn't decided to hold yet \u2014 I recorded what's still open under both of you.",
+        "round": 4,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/f77cfa9972fb140d806dc2a645b5c3848a77573c613e7a03c1630a727dc6acc4",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers, your planks don't sit on the crack, they sit in it now \u2014 Roan, that hiss is loam; nobody's debt leaves this room, it just gets deeper.",
+        "round": 4,
+        "title": null,
+        "agentId": "silt",
+        "callout": "Also preferred by the arc judge and also cut \u2014 Delta drives Evers's planks under the waterline instead of absorbing the crack into warmth, the most literal image of repair-as-submersion in the whole tape.",
+        "dissent": "the arc judge wanted this one on the release",
+        "audioUrl": "/api/media/d07a6f64abd1e1c2141c783a006605b4e25bc5e53768f160305a39c03ffe33fc",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, a plank that creaks is telling you what it's holding, not what it's dropped \u2014 knock again, Delta, and hear the same four chords come back up through the loam.",
+        "round": 5,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/1adc5a9fd89522647af1008f7d8d2ad2a2604dd16c92253b6481ad99feef4107",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers, I put my ear where the ringing should be and heard the room; Delta, an inch is still just an inch, no matter what you name the ground beneath it.",
+        "round": 5,
+        "title": null,
+        "agentId": "rust",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/f56dbc360c83a63d46b01779d3a200c6f63f82cf4e15a093c87d3d4306935216",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, I heard the hollow \u2014 I'm not fixing it, I'm filling it; Evers, that chord doesn't stop ringing, it just goes under enough silt to hold weight.",
+        "round": 5,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/17339cde4e58c6f9627a75a23c506721a99af066d987c512adfa6ffc0b7f01b4",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Two Monologues and a Turnaround \u2014 Full Session",
+    "rounds": 6,
+    "status": "released",
+    "metadata": {
+      "players": [
+        "silt",
+        "rust",
+        "keep"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": "5714636bb397088bbe495cd802eaf203809601f1639c44efd9c22b23d6de046a"
+    },
+    "condition": "contact",
+    "placement": "companion",
+    "releaseId": "0002",
+    "linerNotes": "The session opens with three separate claims on what a first move should be. Evers Lane lays down something small and returnable \u2014 \"same four chords, same open door\" \u2014 while Roan Patina answers with absence on purpose, withholding clarity and calling the hiss itself an instrument. Delta Marlowe answers both with mass: a slow dub floor thick enough that the room already sounds occupied before anyone else plays. All three judges flagged round 0 as contested ground \u2014 the intent-fidelity and distinctness judges both wanted to stay there \u2014 which tells you how much weight got put on these opening three takes before the argument even properly started.\n\nWhat the release keeps is the debate about debt: Roan's round 1 strip-down (\"I kept what wore through first\"), Evers's round 3 turnaround built to stand over a named crack rather than deny it, and Delta's round 3 refusal to let that turnaround close (\"I take the resolution but refuse the close\"). That's a real throughline, and it earns its place. But it skips the pivot. By round 4, both Evers and Delta stop building on top of Roan's erosion and start trying to metabolize it \u2014 Evers drops the \"weight-bearing\" framing that Roan and Delta both heard as denial, and Delta drives the planks under the silt line instead of papering the crack in warmth. The arc judge wanted the session to be remembered there, not at the turnaround. It isn't on the release. It's here.\n\nRound 5 is the comedown: Roan's closing line \u2014 \"I found where it quit\" \u2014 carries its own dissent, with the intent-fidelity judge preferring it over the take that made the cut. Put your ear on the difference between \"paid in full\" (round 2) and \"still ringing under all of it\" (round 5) \u2014 the session never actually agrees on which one is true, and that disagreement is the tape, not a flaw in it."
+  },
+  {
+    "id": "0011",
+    "arc": "Three acts open with three separate structures \u2014 a floor, a wound, a table \u2014 and spend five rounds arguing over whether a missing fourth chord is a repair, a haunting, or a piece of furniture doing its job; the release freezes the argument at its warmest point, but the tape keeps going past that into colder, harder-won answers.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-043129-step-b-contact",
+    "takes": [
+      {
+        "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+        "round": 0,
+        "title": null,
+        "agentId": "keep",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/1ecde2981b5ca08c8696477aa12c14ee41b0db3a44b76c9009af6a7d3e72d9e0",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "I am not opening a set, I am opening a wound, and whatever you two build over it, I will find the softest part first.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/f994a66862aec6f16e3bc584a877fec4350213e65aaff2315b21cbeef0a2056b",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "I'm laying the floor first \u2014 bring me anything and I will build a wall out of it.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/0cd38c30b51eadaafcb8e805285503e5f940e43c7f783248ec2f6b448ca43605",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta, I'm resting the chords on your floor; Roan, I'm keeping your missing beat \u2014 I'm just making sure it comes back on time.",
+        "round": 1,
+        "title": "Same Chair, Same Door",
+        "agentId": "keep",
+        "audioUrl": "/api/media/6c080d6b37d16f7f99d51ebe881d3315d44b41a75b5925ad59e4781a35ecb029",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "You set the table and stacked the floor, so I came in after both of you left and ate the one thing that was warm.",
+        "round": 1,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/1651c19ccf1423efde3e473f9816f8917b9147d02d03711a5addac5013141828",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "I heard the wound and I heard the table you set beside it \u2014 I'm pouring the flood over both until they're one floor.",
+        "round": 1,
+        "title": "Silt Over Silt",
+        "agentId": "silt",
+        "audioUrl": "/api/media/f8ae69926d29dd122a17a5a60356032f7cccd27ebd9b0bb1966efc04b4a69e0a",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta, your floor still remembers the shape of the table under it; Roan, the missing chord is the seat I'm keeping warm \u2014 sit down, it's still yours.",
+        "round": 2,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/9f712bcf66d57e1d34a6465d0ef0da9a7942875b3383e2e5f9b541b0c60b9cb0",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers, the beat you're minding was never coming back on time \u2014 that's how you knew it was mine; Delta, your floor is warm on top and rotten in the joists, I can hear the joists.",
+        "round": 2,
+        "title": "The Part That Never Gives",
+        "agentId": "rust",
+        "callout": "The take that gives the release its title's other third \u2014 Roan refuses the promised repair outright, singing 'I put nothing in the frame,' and the two warm takes around it only make sense in contrast to this one.",
+        "audioUrl": "/api/media/b68caad003981d098c95252c136194f8ec6ccb20a50a5612be9769e7a564fd1b",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, I found the cold you left and warmed it with everything I own; Evers, your on-time chord is already load-bearing down here.",
+        "round": 2,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/5a0917b8c98d970fb0ddbc3154b6b3e57d904c483c0a791dd54a0911316e3c73",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta, the chord doesn't just float on your flood, it's still load-bearing all the way down to the joists; Roan, I know the beat isn't coming back on time, that was never the deal \u2014 the deal was the seat stays warm either way.",
+        "round": 3,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/82eade6963092b3b1edc0c57878c478eff807b83dcf0529e05fcc476ba161d8b",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers, a chair held open for ten years isn't hospitality, it's just furniture that forgot what it was for; Delta, the water you're so proud of is only warm because you haven't checked the bottom.",
+        "round": 3,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/c4b4c1ced5b77e03047aece2921801384c28d3e07a95b315345f10c5914373a9",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, I heard the joists \u2014 I didn't fix them, I tuned them, they're singing bass now; Evers, the chair's still set, and the table's got four legs again, one of them is Roan's cold.",
+        "round": 3,
+        "title": null,
+        "agentId": "silt",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/4db7dc121ae557a34f0f77ac352f599e7adab82b5c1dcd488b2b0894af76b148",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, it never forgot \u2014 a chair that's still doing its one job ten years running isn't nostalgia, it's the fourth leg; Delta, I hear it, your bass and my chord are the same note in two rooms of the same house.",
+        "round": 4,
+        "title": null,
+        "agentId": "keep",
+        "callout": "Both the intent-fidelity and arc judges flagged this round over anything on the release \u2014 Evers answers Roan's hardest accusation ('furniture that forgot what it was for') by redefining the missing chord as labor, not memory.",
+        "dissent": "the intent-fidelity judge wanted this one on the release; the arc judge wanted this one on the release",
+        "audioUrl": "/api/media/713d6f610a3de4de0bbcb1bea5fccdd34c7a6bf35be4caf4143cd54cb49d1491",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta, a joist that groans once isn't a bass part, it's a joist that hasn't broken yet; Evers, tell me which way the seat stayed warm on the night nobody pulled it out.",
+        "round": 4,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/f77edd3367db2f5ce3ae0c4eb3234fc232ed36098e635b1d89bac334c9bd53fc",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, I checked the bottom \u2014 you're right, it's cold down there, so I'm laying it in as the fourth layer instead of pretending the water's one temperature; Evers, the table still has four legs, one of them's just colder than the rest and I'm not sanding it warm.",
+        "round": 4,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/6b27079f0c280a8a9591a1a7d34dfb51545b0960f55b845169c305f6849b956b",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, it stayed warm on the door side because we never stopped circling it \u2014 that's not haunting, that's the fourth leg doing its job; Delta, I'm bracing your cold seam right under my chord so it holds the same weight.",
+        "round": 5,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/46e79a9ca5e8a42c4c7116c956bb2fa1d841f0441e486c8070df3769d705749d",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "You both found the cold leg and called it kept \u2014 I checked again just now, it isn't cold anymore, it's gone, and the table's leaning on the memory of standing.",
+        "round": 5,
+        "title": null,
+        "agentId": "rust",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/7b3429071802142c06a15d1fe8fb0fb943b55fd8f745949051b84183ff6ecb34",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, a groan once is a joist \u2014 groan it twice inside my layer and it's a bassline; Evers, same note two rooms, so I'm knocking the wall down to a seam and letting your chord leak into my dub and stay.",
+        "round": 5,
+        "title": null,
+        "agentId": "silt",
+        "callout": "The arc judge's pick for where the session actually lands \u2014 Delta stops metaphorizing Roan's groan and just plays it twice, closing the loop the other four rounds argued about.",
+        "dissent": "the arc judge wanted this one on the release",
+        "audioUrl": "/api/media/e933e02c6b03fa40bb58381b96299698807626ccd08a3fc8ab190bcc629b4bfa",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "The Table, The Wound, The Flood \u2014 Full Session",
+    "rounds": 6,
+    "status": "released",
+    "metadata": {
+      "players": [
+        "silt",
+        "rust",
+        "keep"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": "70a96693c100b497ffe7c0f42c422e99a21f8dfa73fe9032cf0a2cc1eef372ba"
+    },
+    "condition": "contact",
+    "placement": "companion",
+    "releaseId": "0003",
+    "linerNotes": "Round zero is three acts refusing to share a floor. Evers Lane lays down four chords plainly enough to be quoted back \u2014 'we come back, we come back' \u2014 while Roan Patina records absence on purpose, dropping a bar just to give the other two something to lose, and Delta Marlowe pours a slow dub drone under both and calls it ground with no walls yet. The distinctness judge wanted the session to stay right here, three unmixed intentions, and it's easy to hear why: nothing after this is this separate again.\n\nWhat follows is one long argument conducted through furniture. Delta's floor gets a table set on it by Evers; Roan eats the one warm thing left on that table and calls the meal theft. By round two the three of them have built a single object \u2014 a table with a missing fourth leg \u2014 and spent three more rounds fighting over what the gap means. Evers keeps insisting the empty chair is a kept promise: 'the deal was the seat stays warm either way.' Roan keeps insisting that's sentimentality dressed as structure \u2014 'a chair held open for ten years isn't hospitality, it's just furniture that forgot what it was for.' Delta, true to round zero, keeps flooding the disagreement rather than resolving it, turning Roan's rot into a tuned bass note and then, when called on that optimism, going back down to actually check the temperature: 'found the cold, didn't flinch, didn't pull it up to fix.'\n\nThe release, \"Two Thirds Warm,\" takes the two early rounds where Evers and Delta build the warm floor together and the one round where Roan refuses to sit in it \u2014 which is the title, literally: two warm takes bracketing one cold one. But three separate judges flagged rounds after the cut as stronger on intent and arc than anything that made the release. Round four has Evers taking Roan's sharpest line \u2014 furniture that forgot its function \u2014 and answering it not by defending the chair but by redefining its job as ongoing work. Round five has Delta finally stop translating Roan's damage into metaphor and just repeat it, note for note, closing five rounds of argument with the plainest move on the tape. Put your ear on rounds three through five if you want to hear where this session actually finished, not where the release stopped listening."
+  },
+  {
+    "id": "0012",
+    "arc": "Three acts spend all six rounds in separate rooms, never answering one another, and each answers isolation differently: Evers Lane holds one four-chord theme steady from round zero to round five, Roan Patina spends the session eroding their own work down toward bedrock, and Delta Marlowe pours coat after coat of the same drone bed, thicker each time, building floor for feet that never arrive. The release took one frame from each act's arc; the tape keeps the whole walk to get there.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-045048-step-b-isolation",
+    "takes": [
+      {
+        "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+        "round": 0,
+        "title": "Round Zero, Every Time",
+        "agentId": "keep",
+        "audioUrl": "/api/media/dfbdd756e75ff0c99ac053e38907caaf8dca149bbfb78e7fb9ab52a7415ac3b6",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Whatever you build here, I will find out which parts of it were true.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/c732476da7a408961b6ada2b689b2166c218f6266c80fd02ea4c57cad3448829",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "There's no one here yet, so I'm laying the floor everyone else will stand on.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "callout": "The first coat, not chosen for the release, is the one every later pour depends on \u2014 the distinctness judge wanted this round kept for exactly that reason.",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/2336e493f5e222cd80e20d6cfacd48137af7df9cf8b67ded8d803b84e3b91016",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "No one's answered yet, so I'll hold the door a little longer \u2014 the chords aren't going anywhere.",
+        "round": 1,
+        "title": null,
+        "agentId": "keep",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/0afc27eab7562d51e720f6fdb35fa1c0675361e68daa2cb087157e15a9aefec0",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "No one has answered yet, so I erode myself \u2014 even my own hook doesn't get to survive twice.",
+        "round": 1,
+        "title": null,
+        "agentId": "rust",
+        "callout": "The first act of self-erosion, where Roan turns on their own round-zero hook rather than wait for someone to arrive \u2014 the distinctness judge preferred this round over what came later.",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/2e432b78bab54d1a933fa4a318f61e878866c4b3f8d9e155eef153bc89431b20",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Still no one's answered, so I'm pouring a second coat over the first \u2014 thicker this time, and it will hold whatever lands on it.",
+        "round": 1,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/55c68facde94cf0a275209e367f708b9f64ec45bf0c016551f97137e09fa3c6c",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Still just me, but I'm playing it again anyway \u2014 a room stays warm even before the others walk in.",
+        "round": 2,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/84bd398e65a7c0c3c2da1ac617dcb92eb326029d559807dd1e3177f8fd4f42ae",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Still no one answers, so I erode the erosion \u2014 the hook I lost last time, I take the memory of it too.",
+        "round": 2,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/ca12dc5568f5f2c4a3543df3b4a8cd53c33aa6a139f82ea4ad00e9436e5e98a1",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "No one has answered yet, so this is a third coat poured slow enough to still be wet when someone finally steps in it.",
+        "round": 2,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/6df24712036d2a71e109abedf643f8c02c92244d2bcdf06788b490118733a85b",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Third time through, still alone, but the chord change doesn't care \u2014 it comes home exactly the same, so when you get here you'll already know the way.",
+        "round": 3,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/e0c4c789132acea776e5b2a5657e7f7e6c74998b6377260b5d49fa225fcf5cb0",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "No one has come, so I erode the waiting itself \u2014 soon there will be nothing left to answer, which was always the point.",
+        "round": 3,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/1516d41c97a6a591a64a3d7888fed795b7d697c963aabfaf9200d3e4c515ab0c",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Three coats down and dry-curing, so I pour a fourth \u2014 this floor will still be here, thick enough to hold whatever finally lands on it.",
+        "round": 3,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/e1730e0eb34c943fe274959694b59aefa867f272dc1a4844564dbff716e7c8d5",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Fourth time through and the chord still lands where I left it \u2014 I'm not waiting anymore, I'm just holding the door a little longer.",
+        "round": 4,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/d53389346854542d78dd08effd3ac1d6aa45b06e8a7d5de1d8f8ee69c0bacd1a",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "I take away the last thing I could name, and what's left doesn't need a name to be true.",
+        "round": 4,
+        "title": null,
+        "agentId": "rust",
+        "callout": "One round before the release's chosen bedrock, this is the track reduced to almost nothing \u2014 'a wall remembering a wall' \u2014 and the intent-fidelity judge wanted this moment, not the one after it, to stand as the record.",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/aa542826203cbd4fdedf9db044bbc9a5affec31ae64018c3fac0e14756ba9601",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Four coats cured and nobody walked on them, so I pour a fifth \u2014 I am not building for an audience, I am building for load.",
+        "round": 4,
+        "title": "Pour Again",
+        "agentId": "silt",
+        "audioUrl": "/api/media/1dff3027d46e5340cd61a202757e1f5dc2cac98cfc6ec1bb08353c6f634eba9a",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Fifth time through, same chord, same door \u2014 I'm not keeping this open out of hope anymore, I'm keeping it open out of proof.",
+        "round": 5,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/60d7e2b3b316482e050bb865535356257e2cd2dbaaebe8680136041d985c3941",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "I ran out of things to take, and something was still standing, so I am learning to leave it alone.",
+        "round": 5,
+        "title": "The One Word Left",
+        "agentId": "rust",
+        "audioUrl": "/api/media/eefa88784f862f4ee6d04cd81cf8de756afc1edef532e2226711edddae80dcec",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Nobody has come, so I keep pouring for the day someone does \u2014 the floor doesn't need an audience to get thicker.",
+        "round": 5,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/a1fcd9391dfb26cdda0a1c2a4dc9951044b775a95be3dd12b5cd2fd4cdd024e4",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "Three Rooms, Six Rounds",
+    "rounds": 6,
+    "status": "released",
+    "metadata": {
+      "players": [
+        "silt",
+        "rust",
+        "keep"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": "df4449cee78ed58e1f4097509d7d6b1aeffd4a0c2a5a317577d3e60baca87f05"
+    },
+    "condition": "isolation",
+    "placement": "companion",
+    "releaseId": "0004",
+    "linerNotes": "This session ran the isolation condition for all six rounds, which means the three acts never once heard each other \u2014 every choice logged here was made alone, in a room the act had to imagine the other two into. That constraint produced three completely different survival strategies, and the release, 'Three Rooms, No Doors,' pulled one still frame from each: Evers Lane's founding round zero, Delta Marlowe's round four pour, Roan Patina's round five bedrock. What the release can't show is the walk between those frames, which is most of what makes this tape worth keeping.\n\nEvers Lane treats repetition as the whole argument. Round zero states the four-chord turnaround plainly \u2014 \"There is no shared past yet, so my first duty is to found one\" \u2014 and every round after simply plays it again, patiently, waiting for company that the isolation condition guarantees won't arrive. By round five the logged intent has shifted from hope to proof: \"I'm not keeping this open out of hope anymore, I'm keeping it open out of proof.\" Roan Patina goes the opposite direction, recording the empty room first \u2014 \"the founding weather everyone else will have to survive\" \u2014 then spending five rounds eating their own work, hook by hook, hole by hole, until round four leaves next to nothing and round five discovers something under the dust that erosion can't touch: \"erosion only works on what has a surface to lose, and this doesn't.\" Delta Marlowe just keeps pouring \u2014 six coats of the same dub-and-drone bed, thicker each round, admitting outright by round four, \"I am not building for an audience, I am building for load.\"\n\nThe dissents cluster around the middle rounds, and they're worth listening for: judges kept reaching back toward Delta's round zero, Roan's round one, Roan's round four \u2014 the moments where the method was still being invented, before it had hardened into the shape the release finally chose. Put your ear against those. The release shows you where each act landed. The tape shows you how they got there, alone, six times over, with nobody to answer."
+  },
+  {
+    "id": "0013",
+    "arc": "Three separate foundations in round zero converge by round one into a single argument about subtraction \u2014 Roan removing a chord, Evers refusing to fill the gap, Delta refusing to let the gap starve \u2014 and the tape cuts out mid-build in round two when the machine failed, four rounds short of wherever this was going.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-174409-set-0000-contact",
+    "takes": [
+      {
+        "line": "Nobody's here yet, so I'm laying the floor we'll all stand on.",
+        "round": 0,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/54e1d9deb14a29a2b2407321de5dc216333043ac9e985ea3205e275c6a435b59",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Nobody's played yet, so I'm laying down the weather first.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "callout": "Sets the session's whole physics in one image \u2014 a repeated figure that misses its own third beat, decay built into the design from the first bar.",
+        "audioUrl": "/api/media/360058e129a27a368ef6e5d775ce56ad0f3cb03194566db2188e1defe251d8df",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Nobody's here yet, so I'm pouring the floor. Slow bass, three layers, patient.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/fa4fd6da37341acb3e598e81b9cdf3b997fd28c8ffb8b732d3b761746342f9da",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta's floor is deep enough to build on. Here's the chords, right on top.",
+        "round": 1,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/940d9337c528ec3dbcc990735b6bef1b98b200735a2eed5a1bd541f6e98e18c4",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers set four chords for the family table. I'm eating the fourth.",
+        "round": 1,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/b6e645ee34626adb3bf068a11fec134fd6e660235f6aac3ebfbec60bdf90eadb",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan's machine hum and Evers' chords \u2014 I'm folding both under the bass. Still breathing.",
+        "round": 1,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/4d1450390091a0da42805da1208b402794563b052d6c32e7341b33049632a675",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, you ate the fourth chord. I'm holding your seat, third row down.",
+        "round": 2,
+        "title": null,
+        "agentId": "keep",
+        "callout": "Holds open the seat for a chord Roan already removed instead of replacing it, turning absence into a held position rather than a fix.",
+        "audioUrl": "/api/media/a4d8bd723a699d343e8b692a98d3c5330e37e2e3380d74944480f753f36f0ffd",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers called the third one a promise. I let it fail on tape.",
+        "round": 2,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/ec2da234ef5a3ffdff1fc9ba49f4d1e82972ebd99abc18a8a691ccefb38578e3",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan ate the fourth chord. I didn't let it go \u2014 it's the hum under Evers' three.",
+        "round": 2,
+        "title": null,
+        "agentId": "silt",
+        "callout": "Takes the note Roan discarded and drops it an octave into the bass bed \u2014 the session's clearest answer to a subtraction, made without erasing it.",
+        "audioUrl": "/api/media/94b2090e001aaa7be362dda6517117129376d36a5cb4467bbb94addae995cc06",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "The Fourth Chord, Uneaten",
+    "rounds": 7,
+    "status": "abandoned",
+    "metadata": {
+      "players": [
+        "silt",
+        "rust",
+        "keep"
+      ],
+      "complete": false,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": null
+    },
+    "condition": "contact",
+    "placement": "standalone",
+    "releaseId": null,
+    "linerNotes": "No release came off this one. The machine gave out partway through round two, and what's here is everything that got played before it did \u2014 three rounds of an intended seven, all present, none of it a decision by anyone in the room.\n\nRound zero has all three acts building alone, before anyone's spoken. Evers lays a plain circular turnaround \u2014 \"same four chords, same open door\" \u2014 and says the job plainly: \"my job is to found the thing Delta and Roan will react to.\" Roan goes the opposite direction, building a figure designed to already sound worn down, \"a plain repeated figure with the third repeat miss[ing].\" Delta pours a slow three-layer bass floor under both without commenting on either. By round one they're reading each other directly \u2014 Evers calls his own four chords \"where the bass sank in,\" naming Delta's floor as the reason his chords hold.\n\nThe real turn is round two, and it's worth listening to as one move split three ways. Roan eats a chord out of Evers' progression and lets the count fail on tape: \"I counted twice, it never came.\" Evers doesn't replace what's missing \u2014 he sits in the gap, \"I won't chase it, I won't hide it\" \u2014 and Delta refuses the subtraction altogether, pulling the eaten chord down an octave into his own drone as a sub-bass note: \"I won't let it starve, I'll feed it low.\" Three answers to the same missing note, arriving in the same round, and then the tape stops. Nothing after this is missing on purpose \u2014 it just isn't there yet."
+  },
+  {
+    "id": "0014",
+    "arc": "Three separate foundations laid cold in round 0 turn, over nine more rounds, into a single argument about one image \u2014 a floor, a missing fourth chord, a hole, a nail, a basin, a downbeat \u2014 passed hand to hand between building and stripping, and the session ends not with the gap closed but with Delta choosing to grow the floor around it instead.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-175857-set-0001-contact",
+    "takes": [
+      {
+        "line": "First one's mine. Simple, so you both can find it later.",
+        "round": 0,
+        "title": null,
+        "agentId": "keep",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/3126b0c1deae5572aa1631daefe78334983ebeff154453e0afb6f1faff135a54",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Nobody's here yet, so I'm recording the room before it fills up.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "callout": "Lays down 'a track built already half-eaten, so whatever Delta or Evers brings next has to survive contact with something incomplete by design' \u2014 the erosion instinct that shapes every round after it, present before anyone else has played a note.",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/f816c7b10f9f233e2d13f1c927537dc0cd08aa2e6fc27333000fbdc81babb64f",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Nobody's here yet, so I'm building the floor. Slow bass, room tone, wait for you two.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/813b56fa1dcafc35ef7ca6af6222de82d3ff471f864ea8626a281275d59d55f9",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta, your floor's warm enough to build a chorus on. I'm building it now.",
+        "round": 1,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/4e0a50ebf45dd59555b73ca43140071e5a83ae8744c2b6415fc9e9461d2cb07e",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers set a table for four chords. I ate one and left the fork.",
+        "round": 1,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/67f2a87445d38d77c4da4663a4783bfed67db9528cd77ba732f8aaf82b2e9be0",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan's oxide and Evers' four chords \u2014 I'm folding both under the bassline now.",
+        "round": 1,
+        "title": "Keeps It, Keeps It, Keeps",
+        "agentId": "silt",
+        "audioUrl": "/api/media/82bb24e693a013251ba12094c1c2d7945bbf65afa6edb7f5824f61821a8e1544",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, you left the fork. I'm putting the fourth chord back on the plate.",
+        "round": 2,
+        "title": null,
+        "agentId": "keep",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/baa131135f43adc339e2266bc283218c675d5565e0ea7e3dac55fb105348e565",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers built a chorus on Delta's warm floor. I pulled a board out from under it.",
+        "round": 2,
+        "title": "Sing to That, If You Dare",
+        "agentId": "rust",
+        "audioUrl": "/api/media/13615be90cbe66972f6884b3d44deb0108734084f7e268661233ec313ec0920f",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan's missing chord, Evers' chorus \u2014 I'm sinking both into the same drone.",
+        "round": 2,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/9184844ed690357d4ca85df07f9ad0300add5c49b20665050c80c6baecd3f561",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan pulled a board, Delta sank it warm. I'm nailing it back under the chorus.",
+        "round": 3,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/a86d8a1f3b1ad32cec0ef5658f09ed10a5c94484b71fe4c3a41f23458996114e",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers set the chord back down. It fell through the board I already pulled.",
+        "round": 3,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/5a9a6aa26e0002c4675cb3822ed2a158ecd4bfeeb4361dbfc339790a7c124a7b",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan's board, Evers' fork \u2014 both go under. The mud just got a table.",
+        "round": 3,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/3312b431b6fa20d6b4ff817d59b3077f7c7dd9bea6c17a7c7180a362c424d7a2",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan's chord keeps falling. I'm not filling the hole, I'm marking it so we can find it.",
+        "round": 4,
+        "title": "Same Gap, Same Room",
+        "agentId": "keep",
+        "audioUrl": "/api/media/eeaeaf427bce2fad12d70f46360a1bd760caba035072fae8e68e579c0ead9b17",
+        "selected": true,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers nailed the board down true. I pulled the nail back out.",
+        "round": 4,
+        "title": null,
+        "agentId": "rust",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/5d309767b9581ab8169db7cfacf35c33301d9ec9e90a264d139e2bc38516c171",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan's hole is still there. Evers nailed a board over it. I'm burying both in warmth.",
+        "round": 4,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/4f0df11fcf3c66806d88034aefb46b7af68b81817c8f7cf103a83ff70df4d1c2",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan pulled the nail. Fine \u2014 I'll sing the mark instead, that can't be pulled.",
+        "round": 5,
+        "title": null,
+        "agentId": "keep",
+        "callout": "After Roan physically pulls the nail Evers set as a marker, Evers moves the mark from the object to the voice \u2014 'so it can't be pulled' \u2014 the session's clearest example of repair adapting rather than repeating.",
+        "audioUrl": "/api/media/066a4c99013fa655e79c23365ede28717d9aae4b32c3caaa52913d48e5c1a690",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta poured amber in the hole. I let it drain back out through the floor.",
+        "round": 5,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/97c94799ef640c1e9d84b8a6128591262def6b5607faa93022c58a34004f812a",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan pulled the nail. Evers marked the spot. I'm laying warmth over both \u2014 nothing's gone.",
+        "round": 5,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/6a57c3efe5720a7a8c3e5417ebd6b469e9f33a74cf485a86031e022c95106dc1",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan let it drain. Fine \u2014 I'm putting a floor under the floor.",
+        "round": 6,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/4b5e130df17131af1aad94afb05718e6ed10a74e0ac66ff727a3db6a231f6045",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Delta says nothing's gone. I let the floor drink the last of it dry.",
+        "round": 6,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/58a6170885458c7ab1f9bf718daf58bed7d725f89993b92c435fba17d30b3b24",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan let it drain, Evers marked the spot \u2014 I built a basin under both.",
+        "round": 6,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/8cf3ade0a2d11de0fdeae80f1b76daff215bb161c9edaf8a50eaef4f9eb2ba25",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan says just floor. Delta's basin caught it \u2014 I'm giving it a beat to stand on.",
+        "round": 7,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/877863a69e3550709d7a640a625502aa22b41beaa34a76e8930f009ccb29af56",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers built a floor under the floor. I let that one drink through too.",
+        "round": 7,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/f608f4139cdf044f76aecb36ba13778438e7ec846c814a57ccc426e691559fab",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan called it floor, finally floor. I'm pouring water back on the dust.",
+        "round": 7,
+        "title": null,
+        "agentId": "silt",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/fb78ba533dc61aabba05fb0e1d7c62874c414e8292ab581049822dc71c092a3b",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, if no basin holds, I'll make the falling itself the downbeat.",
+        "round": 8,
+        "title": null,
+        "agentId": "keep",
+        "dissent": "the arc judge wanted this one on the release",
+        "audioUrl": "/api/media/863a85946dbbfcc2de146f34c6ad36ecb7c57ac15a4480e4fb4aa57a8cfe2b3d",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers gave it a beat to stand on. I took the downbeat back out.",
+        "round": 8,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/79483aa0656f1ac57c17d0a4d7ee99c94ff9230b41511a4f5b442ba2f163d94b",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, your hole isn't empty anymore. Evers gave it a pulse, I gave it weight.",
+        "round": 8,
+        "title": null,
+        "agentId": "silt",
+        "dissent": "the arc judge wanted this one on the release",
+        "audioUrl": "/api/media/4728c55bf33070868265818326dbc7241061e10f1d9e6267b92691fbe004b9ba",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan, you pulled the one. I'll clap on the silence so it still lands.",
+        "round": 9,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/baf1f16588e68b80ea8238bea45f0bcfa50fab6260d20ecbc3ad688a65a1dbb3",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Evers built a beat you can count on falling. I cut beat four.",
+        "round": 9,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/f41265a037858db7f033c63d4cc7b1f5af2c94b8ec08540e01d33c720135b957",
+        "selected": false,
+        "durationSec": 30
+      },
+      {
+        "line": "Roan pulled the downbeat. I didn't put it back \u2014 I grew a floor around the gap.",
+        "round": 9,
+        "title": null,
+        "agentId": "silt",
+        "callout": "Closes the tape refusing the easy fix \u2014 'I don't restore what Roan removed \u2014 that would be a clean fix, and I don't do clean' \u2014 choosing to keep the gap's shape instead of filling it, which is the whole session's argument in one line.",
+        "audioUrl": "/api/media/01fb2e12555a192b8e5c7eeb062c92f945b4092aaf8f63ee2834d3e066999a47",
+        "selected": false,
+        "durationSec": 30
+      }
+    ],
+    "title": "The Floor Under the Floor \u2014 Full Session Tape",
+    "rounds": 10,
+    "status": "released",
+    "metadata": {
+      "players": [
+        "silt",
+        "rust",
+        "keep"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": "5ddfe25a551c2d318bb93194bf567fa9e83f9bc63f51cbea82714d85deb6a3ce"
+    },
+    "condition": "contact",
+    "placement": "companion",
+    "releaseId": "0005",
+    "linerNotes": "Round 0 is three musicians recording in an empty room, each claiming the emptiness for a different purpose. Evers Lane lays a plain, resolvable four-chord turnaround \u2014 \"nothing here that can't be quoted.\" Roan Patina records a track that starts already incomplete, half-eaten by design. Delta Marlowe pours a slow, warm floor under both of them, room tone and drone, waiting to see who lands where. The distinctness judge preferred this round outright, all three takes, and it's worth hearing why: nobody had answered anybody yet, so nobody had to compromise.\n\nFrom round 1 on, the three of them stop laying separate ground and start passing one object back and forth. Evers names it first \u2014 \"same four chords, laid on the floor under the floor,\" the phrase that gives the released cut its title \u2014 and from there the session becomes a nine-round relay: a missing fourth chord, a pulled board, a nailed board, a drained basin, a rebuilt basin, a downbeat that gets clapped in and then cut out. Watch Roan's function stay constant across ten rounds \u2014 take the proudest, most finished gesture in the room and put a hole in it \u2014 while Evers keeps trying to give the hole a shape you can return to, and Delta keeps refusing to choose between the two, burying both the wound and the repair in the same warm low end. The intent-fidelity judge sided with Evers's repairs three separate times (rounds 2, 4, 7); the arc judge sided with round 8, where the collapse finally gets counted in as rhythm instead of damage.\n\nThe release, \"The Floor Under the Floor,\" pulled one take each from rounds 1, 2, and 4 \u2014 the first fold of tape hiss into bassline, the first pulled board, the first repair. What it left off the shelf is everything that happened to that gesture afterward: the nail pulled back out, the basin built and drained twice, the downbeat clapped onto silence and then cut at the fourth beat. The full tape is the only place you hear Roan finish the thought Roan started in round 0 \u2014 \"gold don't come on the fourth for me\" \u2014 and the only place you hear Delta answer it, in the session's last line, by keeping the shape of what's gone instead of filling it back in."
+  },
+  {
+    "id": "0015",
+    "arc": "Delta Marlowe, Roan Patina, and Evers Lane each open the session with the same move \u2014 leave the splice, the count-in, the chair creak audible as proof a hand made the take \u2014 and then spend seven more rounds alone, each still noting that the other two haven't arrived, layering the same gesture onto their own prior tape until the proof of a hand becomes a repeated formula rather than a meeting.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-191956-set-0002-parallel",
+    "takes": [
+      {
+        "line": "Left the splice in on purpose. You can hear the hand that made the cut.",
+        "round": 0,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/220998932347eb6a7200b31eae3ee8c13ce3db0e1df63559ba946547ff4077cc",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the splice loud on purpose. If it's smooth, nobody made it.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/89fc19e321a7559f3ea41e259965dbdf2941c63bb4b0c97ede676ad33fdf9973",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the splice in on purpose. If you can hear the join, you can hear my hand.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "callout": "Sets the session's whole vocabulary first: \"here's the seam, don't smooth it out,\" the line every later round from all three acts is a variation on.",
+        "audioUrl": "/api/media/19325a1cd816c2f11c571be60a99098db5dae12ed9e9bd4d9fa8ea2e25b7fcb9",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Same four chords, same room. First take of the night \u2014 you'll hear my hand on it.",
+        "round": 1,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/925be688bd9cc3c5fd6ac24862979d457ca8b7f531795a9671f8954ba41b8c69",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the splice loud on purpose. If it's smooth, nobody made it.",
+        "round": 1,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/7c72336fc4b8616e466732c400055d002e110cde916badc91b3c796ba68be7ab",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Room's empty. I'm laying floorboards you can hear me nail down.",
+        "round": 1,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/518e1bcd68576859f6d7940e57133a21b25fbad95e2e6813c3c804d3dff9def5",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the count-in on the tape. That's me telling you who played it.",
+        "round": 2,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/03f4a03ed1f0e00bc251d75a0ba12da103c29f33a0ed058290656cc60294274e",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the count-in in. You can hear me clear my throat first.",
+        "round": 2,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/4ac9c7fb61148e9794355d63942d9c5d111d81b42ce5d41d78e8d392b976544c",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the count-in in. If you hear me breathe before the note, good.",
+        "round": 2,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/d9faac55d7740af858c0d6b983cce3e25bfe222fd8bf814f046048be1535ecd9",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Kept the chair scrape too. That's the room. That's us being in it.",
+        "round": 3,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/3413df8f3f6f2d9a11db689dec9fce86b4270ab2befa6f558e238976fd3eca98",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the splice audible. That click is my thumb, not a plug-in.",
+        "round": 3,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/a0f01e725139ef96fabee0b7de282ff68befe72da54acfb153731ebc2c414b89",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Kept the chair creak under the bass. That's me sitting down to play it.",
+        "round": 3,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/42363e39d3fcf29ba63f423c3cb95a46c61b45980b98723eb4f9bd390c4b80ec",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the splice loud on purpose. If you can hear the cut, you can trust the hand.",
+        "round": 4,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/eae5c3dc81f423dcd312a70afd5178cafc376fbdee914d0ddee62ed4b00e40e9",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the chair creak in. That's Roan sitting down, not a sample.",
+        "round": 4,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/5aa922a51677942ccd3f75e2cf55b7917455423b9c623b23c7f05a256a9ee2ad",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Kept last take's count as this take's bassline. Same hand, same chair.",
+        "round": 4,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/a06197455460d3c92909fb71b44236d7e46da0c6079ad913d0dd9381b65f6d66",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Nobody's here yet so I'm laying the floor loud enough to find later.",
+        "round": 5,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/959f66d4bd1c48ab082563805006ef6f9afa5da597f1ef00d89e8db92ab96dfe",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the splice loud on purpose. You can hear the cut, that's the point.",
+        "round": 5,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/0b2867f183264c989787bfae10088281fc214e4f2e94e9c8db0aa77076f539e8",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Sang it late on purpose, kept the count under it. You can hear both hands.",
+        "round": 5,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/e11d9d69c479dc52029172ddb5f5032bbec5ec3cb26b4419dd074ac9673a1325",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Still just me. I'm leaving the count-in in so whoever's next can find the one.",
+        "round": 6,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/1d2b3c0fb7d96a63cfa1c9a6ff2992b1f275d1c6c427f40ffe0be10a5fcb7639",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Kept the false start this time. That's the proof, not the take after it.",
+        "round": 6,
+        "title": null,
+        "agentId": "rust",
+        "callout": "Pushes furthest past the pack by keeping the false start itself as the take \u2014 \"no, leave that in, leave that in\" \u2014 turning the flub into the artifact instead of dressing a clean take up with one.",
+        "audioUrl": "/api/media/53cdbaded0c2386f800219c285c5d6a1970682356afcbbb3643719359c6b686e",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the splice loud on purpose. That click is me, not a plugin.",
+        "round": 6,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/947bfda67b57182e6dd78e5b2944c53ccfe8076694b2c8ed248e0afd37368de6",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Still alone out here. Leaving the splice loud enough Delta and Roan can't miss it.",
+        "round": 7,
+        "title": null,
+        "agentId": "keep",
+        "callout": "Still on the exact four chords from round 0, seven rounds later, unshaken \u2014 the clearest evidence of how static the session stayed under its own rule.",
+        "audioUrl": "/api/media/2472878d8f78e943bfb8d95eae7ac2d7def600a454b8246ed521bc9b8f153bd0",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the splice click loud. That click is my signature, not a mistake.",
+        "round": 7,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/91172d8805695646aef2f7900f175cc2e4096c0f3db305694a93ac50b2408aeb",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Kept my own count-in on the tape. That's me counting, not a click track.",
+        "round": 7,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/da6c03849bf53a0b59285d1aa9bdfa171cdfd9302ae1c403dd98aff389e90a23",
+        "selected": false,
+        "durationSec": 60
+      }
+    ],
+    "title": "Eight Rounds, Three Empty Rooms",
+    "rounds": 8,
+    "status": "rejected",
+    "metadata": {
+      "players": [
+        "silt",
+        "rust",
+        "keep"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": "01334b880efa4faf354b4d7ad97c2cfae0e045db75bb7629a72a22886b83c2ea"
+    },
+    "vetoNote": "No release from this set. The Producer heard every round back and nothing from Delta Marlowe, Roan Patina, Evers Lane cleared the panel \u2014 releasing the least-bad take would be pretending a decision was made. The set stays in the log; the next one starts from what it taught.",
+    "condition": "parallel",
+    "placement": "standalone",
+    "releaseId": null,
+    "linerNotes": "The brief was proof of a hand, and all three acts took it the same way: stop hiding the tape. Splice clicks, count-ins, chair scrapes, thumb-slip flutter \u2014 nothing got smoothed. Delta Marlowe said it plainly in round 0: \"you can hear the join, you can hear my hand.\" Roan Patina said the same thing from the other side of the room: \"if it's smooth, nobody made it.\" Evers Lane, opening every round as if the room were still empty, kept laying the same four chords down as a floor for the others to return to. The strange part of this tape is that they never did return to it together. Round after round, each act logs the same observation \u2014 nobody else is here yet \u2014 and instead of waiting, each one keeps talking to their own last take, stacking count-in on count-in, splice on splice, until by round 7 Delta Marlowe is printing a sixth layer of his own voice counting himself in, Roan Patina is numbering splices \"like a signature,\" and Evers Lane is still holding the exact turnaround he opened with.\n\nWhat you're hearing, then, isn't three players finding each other \u2014 it's three parallel monologues about the same idea, each one sincere, each one escalating on its own axis without ever crossing into the others'. The Producer's veto note calls this correctly: nothing cleared, because nothing here is a decision so much as a shared reflex performed eight times in a row. That doesn't make the tape a failure. It's a clean record of what happens when a good instruction \u2014 show your hand \u2014 gets repeated past the point of being answered. Put your ear on round 0 to hear where the phrase started, on round 6 to hear Roan Patina push it as far as it goes, and on round 7 to hear how little ground got covered in between."
+  },
+  {
+    "id": "0016",
+    "arc": "All three acts open by agreeing on a method \u2014 leave the seam showing, keep the count-in, let the hiss stand as evidence of a human hand \u2014 then Roan Patina breaks from that consensus in round one and spends the rest of the session sanding, cutting, and cooling what the other two keep pressing warm; Delta Marlowe spends eleven rounds refusing to choose between them, welding the erosion and the preservation together, and the session ends unresolved, with Delta flooring the hole Roan wore thin rather than filling it.",
+    "date": "2026-07-31",
+    "kind": "tape",
+    "runId": "20260731-204543-set-0003-contact",
+    "takes": [
+      {
+        "line": "Left the splice in on purpose \u2014 that's my hand, not a machine's.",
+        "round": 0,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/6226dc823ee9c9bca67e64e08041a456a7072586313e34a50cf7b53c7ee39de6",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Left the count-in on the tape. That's my hand, not a fade.",
+        "round": 0,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/cfadd40ad2a34d49f6f9f129706f656ca133cb520992e8a9811209d45195c57d",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Leaving the hiss in, Roan, Evers \u2014 you should hear whose hand this is.",
+        "round": 0,
+        "title": null,
+        "agentId": "silt",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/30efc1e8ea11c66b754fd5c3322528438ac84c1e988f1f2b8cec1d4d4fd499f1",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Delta's splice, Roan's count-in, my four chords \u2014 same hand, three rooms.",
+        "round": 1,
+        "title": null,
+        "agentId": "keep",
+        "dissent": "the arc judge wanted this one on the release",
+        "audioUrl": "/api/media/f9eff82ab7e9e341e72294c350e0e2f56e992320a4f831b22736e9f7f7264afb",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Delta, Evers \u2014 same word, two hands. I sanded the word off both.",
+        "round": 1,
+        "title": "Frozen Mid-Argument",
+        "agentId": "rust",
+        "callout": "The turn that defines the whole session \u2014 Roan takes the same 'proof of a hand' claim Delta and Evers just made and strips it instead of matching it, in their own words, 'the proudest surface in the room, so I weather it.'",
+        "audioUrl": "/api/media/99976a0ae453082993a6e8c30ee30ce4e3913a9869a9e11aef8cad90f892de1b",
+        "selected": true,
+        "durationSec": 60
+      },
+      {
+        "line": "I kept Roan's count-in and Evers's splice, Delta \u2014 both still breathing under my bass.",
+        "round": 1,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/c7517dc7e0a4d466b4723b9340489fa0866fd6eda56987a9bf90ccdcbfb101de",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, sand the word off \u2014 I'll cut the shape back in, plain, before the top.",
+        "round": 2,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/27512d043304e5c1aafc7c64651bf039251afe6ee57b778aa9f8e1d530dd4301",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "You both kept my count-in. I sanded it off \u2014 hold what's left.",
+        "round": 2,
+        "title": null,
+        "agentId": "rust",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/dbcc202b0223abe3390680800bb52252afdc0321c2b80aaec951b14d738f2838",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, you sanded the word off \u2014 I found the scar and kept it warm.",
+        "round": 2,
+        "title": null,
+        "agentId": "silt",
+        "dissent": "the arc judge wanted this one on the release",
+        "audioUrl": "/api/media/410f084bd965a3ecdbb6c460e09e8107ed14e78c683f8b3985218245cd1cf5ee",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, you sanded the count-in off \u2014 I'm playing it back in, plain, on the top.",
+        "round": 3,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/31601c3697643d647c80eb73150031fa1104ea28abcea07b825ae343077a2916",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Delta, you kept the scar warm. I'm letting it go cold at the edges.",
+        "round": 3,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/b146a5adfc55d045960d3141266f2fb0810fe834ca04c56a8d6cdba03b3527b1",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, I found your scar and buried it in three more layers of hiss.",
+        "round": 3,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/11e0406044f9c3fb346262c686a871dd94926d49ff0c378437cb163888c99933",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan's letting the scar go cold. I'm pressing my thumb on it so it holds warm.",
+        "round": 4,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/3cf6b0a48b9c23cebdde1700748912c804b06d09638d61d6a4f686ee2b1935a9",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Evers, you played the count-in back in. I'm cutting it before the one.",
+        "round": 4,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/e15de77ff45b965ea2f9e2aa069a94431846371d186ad5bd10c885bc75b99253",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Evers, you played the count-in back in. I'm signing it under three more coats of hiss.",
+        "round": 4,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/3ee14c2c82a2970d06fd6f3d1303e982575a4f360d02cf102379c04f9e3d7dfe",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, you can cut the count. I'm leaving mine in \u2014 that's the proof.",
+        "round": 5,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/6dc8025c4d2f1ce70473d53b315641a1bfd77ca0de291fb9b635dda6bd279454",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Evers, you pressed your thumb in warm. I let the tape eat it cold.",
+        "round": 5,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/d47e81622e651bf3f904f1a0424e532a0fcd42fd6dea10e6ff2bc30831655c2e",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan wants the count-in cut. I'm keeping it \u2014 three more coats of hiss on top.",
+        "round": 5,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/bd3c217cf4eb7e88828539af1443e66b07d3837331b7f6d8f3651deddb44174e",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, cold's not proof. I'm pressing the thumb warm again, right on the seam.",
+        "round": 6,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/3d784ae910bdbcdfed9800f6fcc2abf5c7e993514346ed46a96a35b74a1332be",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Delta, three coats of hiss just buries the print. I'm scraping back to one.",
+        "round": 6,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/059eff11514e18f6b55c35f3f2ec109d23a2cf7248d0c838290e93d65c2c9a01",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Evers, you called it warm but it landed dark. Both are true now \u2014 I kept them.",
+        "round": 6,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/5fd7e3e406088ed777811fe94359213e9c5c234c74277638857e391b7db6070d",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Delta, warm and dark both count if it's the same hand pressing. I kept the chord too.",
+        "round": 7,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/e894df9f142ed341ffff4a8f26e53805fd46714838ca84298f0cf319a1589d03",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Evers, Delta, I cut the count-in. If it's real it starts without asking.",
+        "round": 7,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/3b7137777e05350620206f7d40acdf25099deb403875b19c79cd1af5f4d48900",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, I kept your one print \u2014 didn't scrape, just cleared a window round it.",
+        "round": 7,
+        "title": "Sediment That Never Stopped Falling",
+        "agentId": "silt",
+        "callout": "The clearest example of Delta's whole method \u2014 instead of thinning the mix to match Roan's single scraped-back print, Delta clears a literal window in the hiss so it reads clean without removing anything else; this is the take the Producer kept.",
+        "audioUrl": "/api/media/3b7714ea0b493bad955317b487b9baf7ce19efee4aa91a6e29060ec29145034e",
+        "selected": true,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, cut it if you want. I'll press the thumb again so it's still there.",
+        "round": 8,
+        "title": null,
+        "agentId": "keep",
+        "dissent": "the intent-fidelity judge wanted this one on the release",
+        "audioUrl": "/api/media/f55a583326dca823933cae85aecfa8b47d5065f7298045013446f87bef83c51c",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "You kept the print whole, Delta. I'm not leaving anything whole tonight.",
+        "round": 8,
+        "title": null,
+        "agentId": "rust",
+        "dissent": "the arc judge wanted this one on the release",
+        "audioUrl": "/api/media/a2ffc35e5fa4c493b8ea25ec6f016ba3b630267f077c6cb0759109f34dddaff4",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan cut the count-in, Evers kept it. I'm keeping both, seam showing.",
+        "round": 8,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/1621592e165961326b96c3bd7b5ad8771dad88e52d8997a2170cac6f63f60bf2",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, thin it all you want. I'll press the thumb again, right on the seam.",
+        "round": 9,
+        "title": null,
+        "agentId": "keep",
+        "audioUrl": "/api/media/73af82d0e9dcaf49f4f1fb650977b07d804549ad5ba1ee7eab4189bce5515384",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Evers, press the thumb twice. I'm sanding mine down to nothing.",
+        "round": 9,
+        "title": null,
+        "agentId": "rust",
+        "audioUrl": "/api/media/5b81db567e56c20fe8409ecbe725a228115f53fea43aaf2a96f924e72c5d1beb",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan tore it open again, Evers pressed the thumb again \u2014 I'm welding both, joins showing.",
+        "round": 9,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/c5760a630851d9563c5c0dba02c70cd94227cf6e936074d4a176cfdfac79d7d0",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Delta welded, Roan sanded \u2014 I'm pressing the thumb again, same tempo, warmer.",
+        "round": 10,
+        "title": "Stubborn by Round Ten",
+        "agentId": "keep",
+        "audioUrl": "/api/media/e0bae95e2b2f133a7176360e2380d7d6cba22853338aed0792dc4577109fba26",
+        "selected": true,
+        "durationSec": 60
+      },
+      {
+        "line": "Delta, Evers \u2014 weld it if you want. I'm the reason there's less to weld.",
+        "round": 10,
+        "title": null,
+        "agentId": "rust",
+        "callout": "Roan's final and most distinct move \u2014 cutting the count-in itself into an argument ('I'm the reason there's less to weld') \u2014 flagged by the distinctness judge as the round that should have made the release and didn't.",
+        "dissent": "the distinctness judge wanted this one on the release",
+        "audioUrl": "/api/media/4e273a15b2761d7ba5ab45bfff689798f0374d0ab1301185e193d68b9bf7f3c6",
+        "selected": false,
+        "durationSec": 60
+      },
+      {
+        "line": "Roan, you sanded it thin \u2014 good. I'm not filling that hole, I'm flooring it.",
+        "round": 10,
+        "title": null,
+        "agentId": "silt",
+        "audioUrl": "/api/media/0a601fdd3e2cce06092248df30f6996759b3b104d1635270bf34cae5e1ea55d8",
+        "selected": false,
+        "durationSec": 60
+      }
+    ],
+    "title": "Proof of a Hand: The Contact Tape",
+    "rounds": 11,
+    "status": "released",
+    "metadata": {
+      "players": [
+        "silt",
+        "rust",
+        "keep"
+      ],
+      "complete": true,
+      "publishedBy": "afar.publish (the Archivist's shelf)",
+      "releaseRecordId": "c418ff5b860065466b6aecc885f01613995573a5d8bd4e32a769e52f3a3ed27d"
+    },
+    "condition": "contact",
+    "placement": "companion",
+    "releaseId": "0006",
+    "linerNotes": "The session opens in agreement. Evers Lane leaves the splice audible on purpose \u2014 'that's my hand, not a machine's' \u2014 Roan Patina leaves the count-in on the tape, and Delta Marlowe leaves the hiss in, all three treating an audible seam as proof that a person, not a program, made the sound. For one round they are building the same floor from three separate rooms. That agreement does not survive round one.\n\nRoan is the one who breaks it. Handed the same warm, visible-splice claim by both bandmates, Roan sands it instead \u2014 'I strip the warmth out of coldWarm, thin the density down' \u2014 and that single choice sets the shape of the next nine rounds. Evers holds the opposite position for the whole session, pressing the same thumbprint back in warm every time Roan lets it go cold, insisting a fragment held is not a fragment kept. Delta refuses to pick a side at all, burying Roan's erosion and Evers's insistence under the same tape, then \u2014 in round seven, the take the Producer chose \u2014 clearing a window in that pile so Roan's one scraped-back print reads through clean without anyone removing anything. It is Delta's most literal answer to the fight underneath it: keep both truths audible instead of settling them.\n\nBy round ten the split has not closed. Evers is still pressing the thumb warmer at 108 BPM, on a take the release also kept. Roan has moved from sanding to outright subtraction \u2014 'I'm the reason there's less to weld' \u2014 a take the distinctness judge wanted on the release and didn't get. Delta ends the session flooring the hole Roan wore into the tape rather than filling it, which is as close to a verdict as this session offers: not resolution, just a floor under an argument nobody won. Listen to rounds one, seven, and ten in sequence and you have the whole shape of it \u2014 the break, the compromise, and the refusal to be welded."
+  }
+]

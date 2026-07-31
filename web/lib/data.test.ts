@@ -4,20 +4,26 @@ import {
   PLAYER_IDS,
   ReleaseSchema,
   STAFF_IDS,
+  TapeSchema,
   TrackSchema,
   fixtureAgents,
   fixtureReleases,
   fixtureTracks,
   resolveSingle,
+  resolveTapeForRelease,
+  resolveTapesForAgent,
   rosterSections,
+  tapeNumber,
+  tapeStatusLine,
   type Release,
+  type Tape,
   type Track,
 } from "./data";
 
 /** Fixtures are the zero-env data source; if they drift, every page drifts. */
 
 describe("agents fixture", () => {
-  it("contains exactly the seven stable public entity ids", () => {
+  it("contains exactly the eight stable public entity ids", () => {
     expect(fixtureAgents.map((a) => a.id).sort()).toEqual(
       [...PLAYER_IDS, ...STAFF_IDS].sort(),
     );
@@ -245,5 +251,110 @@ describe("tracks fixture", () => {
       expect(PLAYER_IDS).toContain(track.agentId);
       expect(releaseIds.has(track.releaseId)).toBe(true);
     }
+  });
+});
+
+// --- the vault: session tapes (kind "tape", series TAPE-NNNN) -----------------
+
+const tapeRow = {
+  id: "0002",
+  kind: "tape",
+  title: "The Lab Session",
+  runId: "20260731-191956-set-0002-parallel",
+  releaseId: null,
+  date: "2026-07-31",
+  condition: "parallel",
+  rounds: 8,
+  status: "rejected",
+  placement: "standalone",
+  arc: "Eight rounds side by side; nothing converged, everything survived.",
+  linerNotes: "Nothing was released from this session. The tape is all there is.",
+  vetoNote: "No release from this set. Nothing cleared the panel.",
+  takes: [
+    {
+      round: 0,
+      agentId: "silt",
+      title: null,
+      audioUrl: "/api/media/abc",
+      durationSec: 30,
+      selected: false,
+      line: "First coat down.",
+    },
+    {
+      round: 0,
+      agentId: "rust",
+      audioUrl: "/api/media/def",
+      durationSec: 30,
+      selected: false,
+      dissent: "the arc judge wanted this one on the release",
+    },
+  ],
+};
+
+describe("tapes (the vault)", () => {
+  it("parses the full tape row the kernel publishes — the rejected session included", () => {
+    const tape = TapeSchema.parse(tapeRow);
+    expect(tape.kind).toBe("tape");
+    expect(tape.releaseId).toBeNull();
+    expect(tape.status).toBe("rejected");
+    expect(tape.vetoNote).toContain("No release");
+    expect(tape.takes).toHaveLength(2);
+  });
+
+  it("parses an unshelved tape (Archivist degraded: no placement, no notes)", () => {
+    const unshelved: Record<string, unknown> = { ...tapeRow, status: "released", releaseId: "0006" };
+    delete unshelved.placement;
+    delete unshelved.arc;
+    delete unshelved.linerNotes;
+    const tape = TapeSchema.parse(unshelved);
+    expect(tape.placement).toBeUndefined();
+    expect(tape.linerNotes).toBeUndefined();
+    expect(tape.releaseId).toBe("0006");
+  });
+
+  it("refuses a tape that claims to be something else", () => {
+    expect(() => TapeSchema.parse({ ...tapeRow, kind: "release" })).toThrow();
+    expect(() => TapeSchema.parse({ ...tapeRow, status: "great" })).toThrow();
+  });
+
+  it("wears the TAPE- series beside the releases' AFAR-", () => {
+    expect(tapeNumber("0002")).toBe("TAPE-0002");
+  });
+
+  it("frames every status honestly, the veto most of all", () => {
+    const tape = TapeSchema.parse(tapeRow);
+    expect(tapeStatusLine(tape)).toContain("the Producer's veto stands");
+    expect(tapeStatusLine(tape)).toContain("the tape survives");
+    expect(
+      tapeStatusLine(TapeSchema.parse({ ...tapeRow, status: "abandoned" })),
+    ).toContain("What was played survives");
+  });
+
+  it("finds a release's companion tape and an act's shelf", () => {
+    const companion = TapeSchema.parse({
+      ...tapeRow,
+      id: "0003",
+      releaseId: "0005",
+      status: "released",
+      takes: [tapeRow.takes[0]], // silt only
+    });
+    const tapes: Tape[] = [TapeSchema.parse(tapeRow), companion];
+    expect(resolveTapeForRelease(tapes, "0005")).toEqual(companion);
+    expect(resolveTapeForRelease(tapes, "0001")).toBeNull();
+    // Both tapes carry silt takes; only one carries rust.
+    expect(resolveTapesForAgent(tapes, "rust").map((t) => t.id)).toEqual(["0002"]);
+    expect(resolveTapesForAgent(tapes, "silt").map((t) => t.id)).toEqual(["0003", "0002"]);
+  });
+
+  it("keeps release rows back-compatible: linerNotes optional, unknown rows unchanged", () => {
+    // Every deployed fixture release parses untouched (no linerNotes field).
+    for (const release of fixtureReleases) {
+      expect(release.linerNotes).toBeUndefined();
+    }
+    const withNotes = ReleaseSchema.parse({
+      ...fixtureReleases[0],
+      linerNotes: "What happened in the room, kept plain.",
+    });
+    expect(withNotes.linerNotes).toContain("kept plain");
   });
 });

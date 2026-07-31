@@ -237,15 +237,18 @@ def test_run_staff_appends_rows_and_supersedes_the_record(played_run: Path):
     assert reaction_row["valence"] in ("loved", "liked", "mixed", "cold")
     assert reaction_row["text"]
 
-    # The supersede CHAIN: base -> producer/critic record -> muse/listener record.
+    # The supersede CHAIN: base -> producer/critic -> muse/listener -> archivist.
     record = result.release_record
     assert result.released
-    assert record["provenance"]["staff"] == ["producer", "critic", "muse", "listener"]
+    assert record["provenance"]["staff"] == ["producer", "critic", "muse", "listener", "archivist"]
     assert record["release_id"] != old_record["release_id"]
     assert result.release_path.exists()
     assert newest_release_path(run_dir) == result.release_path
-    assert len(list(run_dir.glob("release-*.json"))) == 3
-    mid_id = record["provenance"]["supersedes_release_id"]
+    assert len(list(run_dir.glob("release-*.json"))) == 4
+    ml_id = record["provenance"]["supersedes_release_id"]
+    ml_record = json.loads((run_dir / f"release-{ml_id[:12]}.json").read_text())
+    assert ml_record["provenance"]["staff"] == ["producer", "critic", "muse", "listener"]
+    mid_id = ml_record["provenance"]["supersedes_release_id"]
     mid_path = run_dir / f"release-{mid_id[:12]}.json"
     mid_record = json.loads(mid_path.read_text())
     assert mid_record["provenance"]["staff"] == ["producer", "critic"]
@@ -255,9 +258,16 @@ def test_run_staff_appends_rows_and_supersedes_the_record(played_run: Path):
     # The interaction facts are untouched — staff adds, never edits.
     for key in ("influence", "convergence", "novelty", "asymmetry", "rounds", "artifacts", "set"):
         assert record[key] == old_record[key]
-    # The staff block carries the cut, the word, the brief, and the reception.
+    # The staff block carries the cut, the word, the brief, the reception,
+    # and the Archivist's sleeve (liner notes + the tape's place).
     staff = record["staff"]
-    assert set(staff) == {"producer", "critic", "muse", "listener"}
+    assert set(staff) == {"producer", "critic", "muse", "listener", "archivist"}
+    assert staff["archivist"]["liner_notes"]
+    assert staff["archivist"]["tape"]["placement"] in ("companion", "standalone", "collection")
+    (shelving_row,) = [r for r in _rows(run_dir, "archives") if r["kind"] == "shelving"]
+    assert shelving_row["agent"] == "archivist"
+    assert shelving_row["liner_notes"] == staff["archivist"]["tape"]["notes"]
+    assert shelving_row["status"] == "released"
     assert set(staff["producer"]["selected"]) == set(_PLAYERS)
     for pid in _PLAYERS:
         sel = staff["producer"]["selected"][pid]
@@ -296,6 +306,13 @@ def test_run_staff_logs_the_no_release_verdict_and_writes_no_record(played_run: 
     assert not (run_dir / "briefs.jsonl").exists()  # nothing shipped: no brief
     assert not (run_dir / "reactions.jsonl").exists()  # …and nothing to hear
     assert len(list(run_dir.glob("release-*.json"))) == 1  # nothing superseded
+    # The vault doctrine: the veto stands — and the TAPE SURVIVES. The
+    # Archivist still shelved the rejected session, honestly framed.
+    archives = _rows(run_dir, "archives")
+    (shelving_row,) = [r for r in archives if r["kind"] == "shelving"]
+    assert shelving_row["status"] == "rejected"
+    assert shelving_row["liner_notes"]
+    assert result.shelving is not None
 
 
 # --- the Muse + Listener half of the frame -------------------------------------
@@ -325,7 +342,7 @@ def test_run_muse_listener_enriches_an_already_cut_record(played_run: Path):
     assert len(_rows(played_run, "briefs")) == 2
     assert len(_rows(played_run, "reactions")) == 2
     assert boundary.release_record["provenance"]["staff"] == [
-        "producer", "critic", "muse", "listener", "muse", "listener",
+        "producer", "critic", "muse", "listener", "archivist", "muse", "listener",
     ]
     assert newest_release_path(played_run) == boundary.release_path
 
