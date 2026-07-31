@@ -41,6 +41,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Optional, Sequence
 
+from afar.display import normalize_act_names
 from afar.intent import ERAS
 from afar.staff import STAGE_NAMES
 
@@ -321,7 +322,9 @@ def compile_timeline_block(
             line = (frames.get(pid) or {}).get("line")
             if not line:
                 raise ValueError(f"run {run_id} round {r} is missing {pid}'s line")
-            entry[pid] = line
+            # Display shim: pre-voice-fix sets say "Rust"/"Keep"/"Silt"; show
+            # first names (mirrors compile_timeline.mjs; no-op post-fix).
+            entry[pid] = normalize_act_names(line)
         lines_by_round.append(entry)
 
     era = row.get("era")
