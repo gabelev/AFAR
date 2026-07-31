@@ -15,7 +15,7 @@
  * Every word on screen comes from the log; the world only stages it.
  */
 
-import { CAMERA_MARGIN, clampScroll } from "@/lib/world/camera";
+import { CAMERA_MARGIN, cameraBounds, clampMidpoint } from "@/lib/world/camera";
 import { setNow } from "@/lib/world/now";
 import type { WorldTarget } from "@/lib/world/resolve";
 import { CHARACTER_RESOLVE } from "@/lib/world/resolve";
@@ -211,19 +211,36 @@ export async function createWorld(
     dragging = false;
     dragDist = 0;
 
-    /** Clamp-and-set scroll through the pure camera math. */
+    /**
+     * Clamp-and-set scroll through the pure camera math. Clamps the camera
+     * MIDPOINT, never raw scrollX/Y: Phaser's scroll values are offset from
+     * the view origin by `canvas·(1 − 1/zoom)/2` once zoomed, so clamping
+     * them directly shifts (rail open) or empties (wide canvas) the pan
+     * range. `centerOn` converts the clamped midpoint back for us.
+     */
     scrollBy(dx: number, dy: number) {
       const cam = this.cameras.main;
-      const next = clampScroll(
-        cam.scrollX + dx,
-        cam.scrollY + dy,
+      const next = clampMidpoint(
+        cam.midPoint.x + dx,
+        cam.midPoint.y + dy,
         cam.width / cam.zoom,
         cam.height / cam.zoom,
         WORLD_W,
         WORLD_H,
         CAMERA_MARGIN,
       );
-      cam.setScroll(next.x, next.y);
+      cam.centerOn(next.x, next.y);
+    }
+
+    /**
+     * Camera bounds from the CURRENT canvas size — called at create, on
+     * every scale resize (window resize AND rail toggle, via WorldPane's
+     * ResizeObserver → game.scale.resize), and through zoom tweens.
+     */
+    applyCameraBounds() {
+      const cam = this.cameras.main;
+      const b = cameraBounds(cam.width / cam.zoom, cam.height / cam.zoom, WORLD_W, WORLD_H, CAMERA_MARGIN);
+      cam.setBounds(b.x, b.y, b.w, b.h);
     }
 
     /** User interaction takes the camera: stop follows/pans, flip the chip. */
@@ -303,14 +320,12 @@ export async function createWorld(
       this.dim = this.add.graphics().setDepth(20);
       this.fx = this.add.graphics().setDepth(30);
 
-      // Bounds include the roaming margin of night void around the building.
-      this.cameras.main.setBounds(
-        -CAMERA_MARGIN,
-        -CAMERA_MARGIN,
-        WORLD_W + 2 * CAMERA_MARGIN,
-        WORLD_H + 2 * CAMERA_MARGIN,
-      );
+      // Bounds include the roaming margin of night void around the building
+      // and follow the canvas: the rail toggle and window resizes both land
+      // here as scale resize events.
       this.cameras.main.setZoom(ZOOM);
+      this.applyCameraBounds();
+      this.scale.on("resize", () => this.applyCameraBounds());
       this.cameras.main.centerOn(HOME_CENTER.tx * T, HOME_CENTER.ty * T);
       this.cameras.main.setBackgroundColor("#0e1013");
 
@@ -360,7 +375,9 @@ export async function createWorld(
         else this.detachCamera();
       };
       const setZoomLevel = (level: 2 | 3) => {
-        this.cameras.main.zoomTo(level, 250, "Sine.easeOut");
+        // the view size changes with the zoom: keep the bounds in step
+        // through the tween, not just at its end
+        this.cameras.main.zoomTo(level, 250, "Sine.easeOut", false, () => this.applyCameraBounds());
         zoomIn.disabled = level === 3;
         zoomOut.disabled = level === 2;
       };
