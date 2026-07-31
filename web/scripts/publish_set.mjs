@@ -50,6 +50,7 @@
  */
 
 import { neon } from "@neondatabase/serverless";
+import { spawnSync } from "node:child_process";
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -397,6 +398,19 @@ async function main() {
     }
   }
   console.log("done.");
+
+  // Keep the world fresh: recompile the timeline fixture so the new release
+  // joins the world's catalogue loop. NOTE the fixture is baked into the
+  // deployed bundle — commit the regenerated fixture and redeploy/rebuild
+  // for production to pick it up (follow-up for M0/conductor: serve the
+  // timeline dynamically instead of from a build-time fixture).
+  console.log("recompiling the world timeline fixture…");
+  const compile = spawnSync(
+    process.execPath,
+    [path.join(WEB_ROOT, "scripts", "compile_timeline.mjs")],
+    { stdio: "inherit" },
+  );
+  if (compile.status !== 0) throw new Error("compile_timeline.mjs failed after publish");
 }
 
 // Import-safe (tests import the record-selection helpers); run only as a CLI.
