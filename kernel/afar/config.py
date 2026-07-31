@@ -9,6 +9,13 @@ mold/config.py). Bindings are env-driven so the same code runs offline
     AFAR_RENDERER       -> mock | elevenlabs (default mock)
     ELEVENLABS_API_KEY  -> required when AFAR_RENDERER=elevenlabs
     AFAR_RUNS_ROOT      -> where the JSONL log + audio land (default ../runs)
+
+Conductor knobs (the spend controls — see afar/conductor.py):
+
+    AFAR_ENABLED        -> "1" runs the piece; anything else idles + heartbeats
+                           (default "0": the master switch ships OFF)
+    AFAR_SETS_PER_DAY   -> pacing target, float (default 3.0)
+    AFAR_DAILY_GEN_CAP  -> hard ceiling on generations per UTC day (default 60)
 """
 
 from __future__ import annotations
@@ -224,6 +231,10 @@ class AfarConfig:
     runs_root: Path
     live: bool  # True when running against the real model API
     code_sha: str
+    # Conductor spend controls (defaults keep every existing caller working).
+    enabled: bool = False  # AFAR_ENABLED — the master switch; ships OFF
+    sets_per_day: float = 3.0  # AFAR_SETS_PER_DAY — pacing target
+    daily_gen_cap: int = 60  # AFAR_DAILY_GEN_CAP — hard per-UTC-day ceiling
 
 
 def _kernel_root() -> Path:
@@ -273,10 +284,19 @@ def build_config() -> AfarConfig:
     """Wire the adapters for one run (see module docstring for env knobs)."""
     runs_root = Path(os.environ.get("AFAR_RUNS_ROOT", str(_kernel_root() / ".." / "runs"))).resolve()
     model, live = _build_model()
+    sets_per_day = float(os.environ.get("AFAR_SETS_PER_DAY", "3"))
+    if sets_per_day <= 0:
+        raise ValueError(f"AFAR_SETS_PER_DAY must be > 0, got {sets_per_day}")
+    daily_gen_cap = int(os.environ.get("AFAR_DAILY_GEN_CAP", "60"))
+    if daily_gen_cap < 0:
+        raise ValueError(f"AFAR_DAILY_GEN_CAP must be >= 0, got {daily_gen_cap}")
     return AfarConfig(
         model=model,
         renderer=_build_renderer(runs_root),
         runs_root=runs_root,
         live=live,
         code_sha=_code_sha(),
+        enabled=os.environ.get("AFAR_ENABLED", "0") == "1",
+        sets_per_day=sets_per_day,
+        daily_gen_cap=daily_gen_cap,
     )

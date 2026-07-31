@@ -12,9 +12,13 @@ The order of work. DECISIONS.md holds the why; this holds the what-next. Maintai
 
 - **Staff: Muse + Listener — SHIPPED (v1)** with the schedule (nested clocks). Discourse-only briefs (field-audio MERT ear is a wired seam), one-fan reception (audience panel is a seam, reads M0 data when it exists). See DECISIONS 2026-07-31.
 
+## Now (in flight)
+
+- **The conductor — SHIPPED (switch off).** Continuous loop under systemd on the droplet (`kernel/afar/conductor.py` + `kernel/ops/`), Python publish path with the timeline served from Neon (`timeline_source`), canonical log moved to the droplet. Idles until `AFAR_ENABLED=1`. See DECISIONS 2026-07-31.
+
 ## Next (Step C close)
 
-- **The conductor** — continuous unattended running under systemd, driven by `afar.schedule` (droplet move at a set boundary; the JSONL log moves with it and the droplet becomes the only kernel writer). Wires `producer.direct(brief)` into set start and rolls taboo/persona drift at era boundaries.
+- **Flip the switch** — choose cadence (`AFAR_SETS_PER_DAY`/`AFAR_DAILY_GEN_CAP`), set `AFAR_ENABLED=1`, restart `afar.service`, watch the first live boundary.
 - **The Muse's field-audio ear** — implement `FieldAudioClusterer` (MERT over field audio, transient reads, features only).
 - **The Listener's panel** — N fan judges over afar.band audience data (after M0).
 
