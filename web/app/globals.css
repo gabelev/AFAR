@@ -30,6 +30,7 @@
   --oxide-bright: #c0663f;
   --verdigris: #71917d; /* Roan Patina (rust) */
   --ochre: #bd9040; /* Delta Marlowe (silt) */
+  --guest-violet: #86749b; /* residents / in-town acts (the street's guest tone) */
 
   --gutter: 48px;
 
@@ -41,6 +42,9 @@
    darkened variant the design uses for stance text ON PAPER (the handoff's
    roster/interaction-record rows: EROSION #4b6355, ACCUMULATION #7c5e2a;
    CONTINUITY's oxide already reads on paper). Keyed by stable mineral id. */
+/* Imported acts (residents / in town) wear the street's guest violet; the
+   three house rules below override for the founding acts. */
+[data-act] { --act-accent: var(--guest-violet); --act-ink: #5f5273; }
 [data-act="keep"] { --act-accent: var(--oxide); --act-ink: #a34c2e; }
 [data-act="rust"] { --act-accent: var(--verdigris); --act-ink: #4b6355; }
 [data-act="silt"] { --act-accent: var(--ochre); --act-ink: #7c5e2a; }
@@ -457,6 +461,10 @@ a { color: inherit; text-decoration: none; }
   object-fit: cover;
   object-position: top;
   image-rendering: pixelated;
+}
+/* Imported acts' portraits are photographic, not pixel art — no crunch. */
+.photo-smooth {
+  image-rendering: auto;
 }
 @media (max-width: 720px) {
   .roster-grid {

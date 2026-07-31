@@ -13,15 +13,19 @@ export function PressPhoto({
   alt,
   className,
 }: {
-  /** The checked-in static fallback under /press/. */
-  pressSrc: string;
+  /** The checked-in static fallback under /press/. Imported acts have no
+   * static copy — their portrait lives only in media, so the fallback is a
+   * quiet paper plate instead of a broken image. */
+  pressSrc?: string;
   imageUrl: string | null;
   alt: string;
   className?: string;
 }) {
-  const fallback = (
+  const fallback = pressSrc ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={pressSrc} alt={alt} className={className} />
+  ) : (
+    <div aria-label={alt} className={className} style={{ background: "var(--paper-2)" }} />
   );
   if (!imageUrl || imageUrl === pressSrc) return fallback;
   return <ArtImage src={imageUrl} alt={alt} className={className} fallback={fallback} />;

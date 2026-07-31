@@ -1,0 +1,28 @@
+{
+  "name": "HOHLRAUM",
+  "genreLine": "dub techno · 2020s",
+  "bio": "HOHLRAUM is the alias of a recluse who converted a decommissioned brutalist water tower in Berlin's outer east into a studio and a home. For three years they have refused interviews, communicating only through low-resolution photographs of dripping concrete and stark loop-based EPs pressed in tiny runs. The music is built entirely from the building itself: contact mics clamped to iron pipes, the low groan of the tank at night, the drip and knock of expanding metal at 4am. These captures are looped, drenched in submerged reverb, and driven forward by a clinical 124 bpm pulse. Tape hiss coats everything like frost. Whispered, half-buried vocals surface occasionally, more breath than words. The result is dub techno as architecture — cold, hypnotic, and unmistakably a portrait of one structure and one person inside it.",
+  "album": {
+    "title": "Standpipe",
+    "description": "A ten-chamber descent through a single water tower, each track sampled from a different fixture of the building. It plays as one continuous cold-current loop, echoes folding back on themselves until the machine itself seems to breathe."
+  },
+  "tracks": [
+    {
+      "title": "Tank at Four AM",
+      "theme": "A submerged dub chord stab decays over a minimal 124 bpm pulse while the low groan of the water tank is looped into the room's own tidal rhythm.",
+      "lyricSeed": "the machine breathes slow beneath my floor, cold and patient in the dark"
+    },
+    {
+      "title": "Rust Ledger",
+      "theme": "Industrial-tinged minimal techno built from knocking pipes and flaking iron textures, tightly structured and clinical over hissing tape.",
+      "lyricSeed": "concrete and rust keep count of every year I never left"
+    },
+    {
+      "title": "Empty Pipes",
+      "theme": "An ambient techno drift where whispered breath echoes down endless reverberant corridors, sparse and glacially cold.",
+      "lyricSeed": "I hear my own voice come back from the pipes, hollow and alone"
+    }
+  ],
+  "portraitPrompt": "A solitary figure standing inside a cavernous brutalist water tower interior, wet grey concrete walls and rusted iron pipes receding into shadow, dressed in a plain dark high-collared coat, face half-obscured in deep industrial shadow, single shaft of cold diffuse daylight from above, grayscale monochrome, 4:5 aspect ratio, grainy 35mm film texture, high-contrast documentary photography, no text, no logos",
+  "coverPrompt": "Square album cover, extreme grayscale close-up of a weathered concrete standpipe and dripping rusted valve inside a dark cavernous tower, condensation and mineral streaks on the surface, deep industrial shadow with a faint cold highlight, heavy film grain and tape-hiss texture, brutalist minimalist composition, stark sans-serif typography reading STANDPIPE in the lower corner, no other text"
+}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArtImage } from "@/components/ArtImage";
 import { PlayerBar } from "@/components/PlayerBar";
 import { PressPhoto } from "@/components/PressPhoto";
 import { PlayerProvider, PlayButton } from "@/components/TrackPlayer";
@@ -41,11 +42,24 @@ function edgeLine(
   return `${arrow} ${displayName(otherId)} · set ${release.set} · ${catalogueNumber(release.id)}`;
 }
 
+/** "RES-03" -> "RES 03"; the street address chip for imported residents. */
+function buildingLabel(building: string): string {
+  return building.replace(/-/g, " ").toUpperCase();
+}
+
 export default async function ActPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const agent = await getAgent(slug);
-  if (!agent || agent.kind !== "player" || !isActId(agent.id)) notFound();
-  const design = ACT_DESIGN[agent.id];
+  if (!agent || agent.kind !== "player") notFound();
+  // House acts carry full design metadata; imported acts derive their line
+  // from their own data (descriptor, genreLine, resident block).
+  const design = isActId(agent.id) ? ACT_DESIGN[agent.id] : null;
+  const eraName = agent.genreLine?.split("·")[1]?.trim() ?? "2020s";
+  const locationChip = design
+    ? `STUDIO ${design.studio}`
+    : agent.resident?.building
+      ? buildingLabel(agent.resident.building)
+      : "IN TOWN";
 
   const [takes, releases, allAgents, criticReviews, single] = await Promise.all([
     tracksForAgent(agent.id),
@@ -94,7 +108,7 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
           <span>
             <Link href="/world">ROSTER</Link> / {agent.displayName}
           </span>
-          <span>STUDIO {design.studio}</span>
+          <span>{locationChip}</span>
         </div>
 
         {/* 1 — a person: the photo leads, then the name and a plain line. */}
@@ -103,10 +117,10 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
           style={{ padding: "36px var(--gutter) 0", display: "flex", gap: 32, alignItems: "flex-start" }}
         >
           <PressPhoto
-            pressSrc={design.press}
+            pressSrc={design?.press}
             imageUrl={agent.imageUrl}
             alt={`${agent.displayName} press photo`}
-            className="presscard-lg"
+            className={design ? "presscard-lg" : "presscard-lg photo-smooth"}
           />
           <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: 1, minWidth: 260 }}>
             <div
@@ -119,9 +133,9 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
               {agent.displayName}
             </h1>
             <p style={{ fontSize: 16, color: "var(--sec-deep)", textWrap: "pretty" }}>
-              {design.descriptor}.{" "}
+              {design?.descriptor ?? agent.descriptor ?? stanceWord(agent)}.{" "}
               <span className="mono" style={{ fontSize: 11, color: "var(--sec)", whiteSpace: "nowrap" }}>
-                EST. ERA 2020s
+                EST. ERA {eraName.toUpperCase()}
               </span>
             </p>
 
@@ -152,6 +166,13 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
               }}
             >
               <div className="wrap-sm" style={{ display: "flex", alignItems: "center", gap: 18 }}>
+                {!design && agent.coverUrl && (
+                  <ArtImage
+                    src={agent.coverUrl}
+                    alt={agent.album ? `"${agent.album.title}" cover` : `${agent.displayName} record cover`}
+                    style={{ width: 72, height: 72, objectFit: "cover", flex: "none", outline: "1px solid var(--hairline-frame)" }}
+                  />
+                )}
                 <PlayButton
                   audioUrl={featured.audioUrl}
                   label={`${takeTitle(featured, featuredRelease)} — ${agent.displayName}`}
@@ -168,7 +189,9 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
               <div className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
                 {single
                   ? "Chosen by the Producer from the last session."
-                  : "The newest take in the archive — the Producer has not picked a single yet."}
+                  : agent.album
+                    ? `From "${agent.album.title}" — the record they brought to town.`
+                    : "The newest take in the archive — the Producer has not picked a single yet."}
                 {featuredRelease && (
                   <>
                     {" "}
@@ -216,13 +239,19 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
                   <span className="mono" style={{ fontSize: 11, color: "var(--sec)", width: 34, flex: "none" }}>
                     {duration(take)}
                   </span>
-                  <Link
-                    href={`/release/${take.releaseId}`}
-                    className="mono"
-                    style={{ fontSize: 11, color: "var(--sec)", flex: "none" }}
-                  >
-                    {catalogueNumber(take.releaseId)}
-                  </Link>
+                  {release ? (
+                    <Link
+                      href={`/release/${take.releaseId}`}
+                      className="mono"
+                      style={{ fontSize: 11, color: "var(--sec)", flex: "none" }}
+                    >
+                      {catalogueNumber(take.releaseId)}
+                    </Link>
+                  ) : (
+                    <span className="mono" style={{ fontSize: 11, color: "var(--sec)", flex: "none" }}>
+                      {agent.album ? agent.album.title.toUpperCase() : take.releaseId.toUpperCase()}
+                    </span>
+                  )}
                 </div>
               );
             })}
@@ -301,6 +330,7 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
           </div>
         </section>
 
+        {design && (
         <section
           style={{
             margin: "24px var(--gutter) 0",
@@ -331,8 +361,12 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
             </div>
           </div>
         </section>
+        )}
       </div>
-      <PlayerBar quiet="NOTHING PLAYING" right={`${design.initials} · IN STUDIO ${design.studio}`} />
+      <PlayerBar
+        quiet="NOTHING PLAYING"
+        right={design ? `${design.initials} · IN STUDIO ${design.studio}` : `${agent.displayName.toUpperCase()} · ${locationChip}`}
+      />
     </PlayerProvider>
   );
 }

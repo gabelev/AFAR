@@ -1,0 +1,45 @@
+{
+  "seedPrompt": "A small-town country-pop crossover singer with arena-sized choruses, truck-stop poetry polished into radio gold, homesick and headlining at the same time",
+  "era": "2020s",
+  "influences": [
+    {
+      "genre": "country pop",
+      "weight": 0.4000000000000001
+    },
+    {
+      "genre": "pop",
+      "weight": 0.30000000000000004
+    },
+    {
+      "genre": "contemporary country",
+      "weight": 0.20000000000000004
+    },
+    {
+      "genre": "heartland rock",
+      "weight": 0.10000000000000002
+    }
+  ],
+  "sonicPalette": {
+    "pristine_lofi": -0.6,
+    "sparse_dense": 0.4,
+    "cold_warm": 0.6,
+    "improvised_structured": 0.7,
+    "loud_quiet": -0.4,
+    "organic_synthetic": 0.1,
+    "dark_hopeful": 0.5
+  },
+  "vocalCharacter": {
+    "whispers_screams": 0.2,
+    "clean_damaged": -0.5
+  },
+  "lyricalObsessions": [
+    "dusty hometown streets",
+    "two-lane highways at midnight",
+    "homesick under bright lights",
+    "chasing the big dream"
+  ],
+  "visualStyle": [
+    "neon-lit small-town Americana",
+    "stadium spotlights over open fields"
+  ]
+}

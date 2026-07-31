@@ -4,10 +4,12 @@ import {
   PLAYER_IDS,
   ReleaseSchema,
   STAFF_IDS,
+  TrackSchema,
   fixtureAgents,
   fixtureReleases,
   fixtureTracks,
   resolveSingle,
+  rosterSections,
   type Release,
   type Track,
 } from "./data";
@@ -68,6 +70,79 @@ describe("agents fixture", () => {
     const players = fixtureAgents.filter((a) => a.kind === "player");
     const signatures = players.map((a) => JSON.stringify(a.palette));
     expect(new Set(signatures).size).toBe(players.length);
+  });
+});
+
+describe("imported acts (the town)", () => {
+  const importRow: Record<string, unknown> = {
+    id: "hohlraum",
+    kind: "player",
+    name: "HOHLRAUM",
+    displayName: "HOHLRAUM",
+    role: "Act — the cold",
+    stance: "What survives a cold room is true.",
+    description: ["A recluse in a Berlin water tower."],
+    bio: "A recluse in a Berlin water tower.",
+    palette: {
+      pristineLofi: 0.35,
+      sparseDense: -0.3,
+      coldWarm: -0.8,
+      improvisedStructured: 0.4,
+      loudQuiet: -0.1,
+      organicSynthetic: 0.3,
+      darkHopeful: -0.6,
+    },
+    imageUrl: "/api/media/abc",
+    coverUrl: "/api/media/def",
+    genreLine: "dub techno · 2020s",
+    descriptor: "Cold, dark dub techno",
+    resident: { origin: "tunz", building: "res-01" },
+    album: { id: "T-hohlraum", title: "Standpipe", description: "A ten-chamber descent." },
+  };
+
+  it("parses the full import row shape the roster script writes", () => {
+    const parsed = AgentSchema.parse(importRow);
+    expect(parsed.resident).toEqual({ origin: "tunz", building: "res-01" });
+    expect(parsed.coverUrl).toBe("/api/media/def");
+    expect(parsed.album?.id).toBe("T-hohlraum");
+    expect(parsed.genreLine).toBe("dub techno · 2020s");
+  });
+
+  it("keeps parsing rows without any of the new fields (house acts, staff)", () => {
+    for (const agent of fixtureAgents) {
+      const parsed = AgentSchema.parse(agent);
+      expect(parsed.resident).toBeUndefined();
+      expect(parsed.coverUrl).toBeNull();
+    }
+  });
+
+  it("splits the roster into house / residents / in town by the resident block", () => {
+    const inTownRow = AgentSchema.parse({
+      ...importRow,
+      id: "josie-ryland",
+      resident: { origin: "tunz", building: null },
+    });
+    const agents = [...fixtureAgents, AgentSchema.parse(importRow), inTownRow];
+    const { house, residents, inTown } = rosterSections(agents);
+    expect(house.map((a) => a.id).sort()).toEqual([...PLAYER_IDS].sort());
+    expect(residents.map((a) => a.id)).toEqual(["hohlraum"]);
+    expect(inTown.map((a) => a.id)).toEqual(["josie-ryland"]);
+    // staff never appear in any roster section
+    for (const section of [house, residents, inTown]) {
+      for (const a of section) expect(a.kind).toBe("player");
+    }
+  });
+
+  it("parses import tracks (releaseId T-<slug>, no releases row required)", () => {
+    const parsed = TrackSchema.parse({
+      id: "T-hohlraum-1",
+      releaseId: "T-hohlraum",
+      agentId: "hohlraum",
+      title: "Tank at Four AM",
+      durationSec: 31,
+      audioUrl: "/api/media/0ff",
+    });
+    expect(parsed.releaseId).toBe("T-hohlraum");
   });
 });
 

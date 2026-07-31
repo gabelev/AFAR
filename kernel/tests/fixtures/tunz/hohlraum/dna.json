@@ -1,0 +1,45 @@
+{
+  "seedPrompt": "A Berlin techno hermit who lives in a brutalist water tower and samples the building's pipes, cold and cavernous like deep, hypnotic dub techno built on submerged reverberant chords, tape hiss, and endlessly echoing minimal loops.",
+  "era": "2020s",
+  "influences": [
+    {
+      "genre": "dub techno",
+      "weight": 0.45000000000000007
+    },
+    {
+      "genre": "minimal techno",
+      "weight": 0.25000000000000006
+    },
+    {
+      "genre": "ambient techno",
+      "weight": 0.20000000000000004
+    },
+    {
+      "genre": "industrial",
+      "weight": 0.10000000000000002
+    }
+  ],
+  "sonicPalette": {
+    "pristine_lofi": 0.35,
+    "sparse_dense": -0.3,
+    "cold_warm": -0.8,
+    "improvised_structured": 0.4,
+    "loud_quiet": -0.1,
+    "organic_synthetic": 0.3,
+    "dark_hopeful": -0.6
+  },
+  "vocalCharacter": {
+    "whispers_screams": -0.7,
+    "clean_damaged": 0.4
+  },
+  "lyricalObsessions": [
+    "concrete and rust",
+    "isolation in towers",
+    "echoes in empty pipes",
+    "the machine breathing"
+  ],
+  "visualStyle": [
+    "brutalist grayscale concrete",
+    "cavernous industrial shadow"
+  ]
+}
