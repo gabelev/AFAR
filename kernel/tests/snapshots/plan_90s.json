@@ -1,0 +1,58 @@
+{
+  "chunks": [
+    {
+      "text": "line 01 of the long take\nline 02 of the long take\nline 03 of the long take\nline 04 of the long take\nline 05 of the long take\nline 06 of the long take\nline 07 of the long take\nline 08 of the long take",
+      "duration_ms": 30000,
+      "positive_styles": [
+        "122 BPM",
+        "2020s contemporary production",
+        "synthpop",
+        "synthpop instrumentation",
+        "powerful belted vocals",
+        "structured songwriting",
+        "lo-fi"
+      ],
+      "negative_styles": [
+        "improvised feel",
+        "whispered vocals"
+      ],
+      "context_adherence": "high"
+    },
+    {
+      "text": "line 09 of the long take\nline 10 of the long take\nline 11 of the long take\nline 12 of the long take\nline 13 of the long take\nline 14 of the long take\nline 15 of the long take\nline 16 of the long take",
+      "duration_ms": 30000,
+      "positive_styles": [
+        "122 BPM",
+        "2020s contemporary production",
+        "synthpop",
+        "synthpop instrumentation",
+        "powerful belted vocals",
+        "structured songwriting",
+        "lo-fi"
+      ],
+      "negative_styles": [
+        "improvised feel",
+        "whispered vocals"
+      ],
+      "context_adherence": "high"
+    },
+    {
+      "text": "line 17 of the long take\nline 18 of the long take\nline 19 of the long take\nline 20 of the long take\nline 21 of the long take\nline 22 of the long take\nline 23 of the long take\nline 24 of the long take",
+      "duration_ms": 30000,
+      "positive_styles": [
+        "122 BPM",
+        "2020s contemporary production",
+        "synthpop",
+        "synthpop instrumentation",
+        "powerful belted vocals",
+        "structured songwriting",
+        "lo-fi"
+      ],
+      "negative_styles": [
+        "improvised feel",
+        "whispered vocals"
+      ],
+      "context_adherence": "high"
+    }
+  ]
+}

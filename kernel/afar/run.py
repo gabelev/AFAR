@@ -5,7 +5,10 @@ round it builds every player's context (`build_context`, the single condition
 chokepoint), runs all three PERCEIVE -> DECIDE -> EXECUTE loops, embeds every
 rendered track in BOTH spaces (audio via the injected AudioEmbedder, intent
 via `features.intent_vector`), and logs perceptions / intents / artifacts /
-embeddings as first-class rows. After the last round it computes the
+embeddings as first-class rows. In contact sets each round's takes are also
+MEASURED (`afar.perception.ear`, right after embedding — DSP facts plus
+relations over the very vectors just logged), so next round's contexts can
+tell each act what the other takes actually sounded like. After the last round it computes the
 interaction features — influence graph per round, convergence curve, novelty,
 asymmetry, in both spaces — logs them, and emits a content-addressed release
 record: the set reduced to the facts a cover, a listener, or an analysis can
@@ -30,10 +33,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import combinations
 from pathlib import Path
-from typing import Any, Callable, Mapping, Optional
+from typing import Any, Callable, Mapping, Optional, Sequence
 
 from ensemble.agent import Artifact
 from ensemble.pipeline import Stage, fan_out
@@ -43,7 +46,14 @@ from afar.agents.player import Player
 from afar.config import AfarConfig
 from afar.intent import Intent
 from afar.log import JsonlLedger
-from afar.perception.context import CONDITIONS, RoundEntry, RunView, build_context
+from afar.perception import ear
+from afar.perception.context import (
+    CONDITIONS,
+    RoundEntry,
+    RunView,
+    build_context,
+    hears_others,
+)
 from afar.perception.embedder import AudioEmbedder
 
 _SEQUENTIAL_CONDITIONS = ("isolation", "solo")
@@ -165,12 +175,65 @@ def player_seed(seed: int, player_id: str, t: int) -> int:
     return seed + offset
 
 
-def _play(player: Player, context: Mapping[str, Any], seed: int) -> dict[str, Any]:
+def _hear_round(
+    entries: Mapping[str, RoundEntry],
+    audio_paths: Mapping[str, Path],
+    audio_vecs: Mapping[str, Sequence[Sequence[float]]],
+    t: int,
+    rms_pool: list[float],
+    centroid_pool: list[float],
+) -> dict[str, RoundEntry]:
+    """Measure this round's takes for next round's ears (contact sets only).
+
+    DSP runs ONCE per take (`ear.dsp_facts`; both listeners share the result,
+    and a failed measurement degrades that take to the embedding relations —
+    it never blocks the round). The pools are extended BEFORE bucketing so
+    "quiet"/"dark" mean quiet/dark vs. the whole set so far, this round
+    included. Then one `ear.hear` per (take, listener) — the relations use
+    EXACTLY the audio vectors this round just logged, so what the acts are
+    told they heard and what features.py later computes cannot drift apart.
+    Returns the entries re-made with `heard_by` attached; `build_context`
+    decides who receives it.
+    """
+    ids = list(entries)
+    dsp_by: dict[str, Optional[dict[str, float]]] = {}
+    for pid in ids:
+        facts = ear.dsp_facts(audio_paths[pid])
+        dsp_by[pid] = facts
+        if facts is not None:
+            rms_pool.append(facts["rms"])
+            centroid_pool.append(facts["centroid_hz"])
+    heard_entries: dict[str, RoundEntry] = {}
+    for pid in ids:
+        listeners: dict[str, dict[str, Any]] = {}
+        for listener in ids:
+            if listener == pid:
+                continue
+            listeners[listener] = ear.hear(
+                audio_paths[pid],
+                audio_vecs[pid][t],
+                {
+                    "your_vec": audio_vecs[listener][t],
+                    "your_prev_vec": audio_vecs[listener][t - 1] if t >= 1 else None,
+                    "their_prev_vec": audio_vecs[pid][t - 1] if t >= 1 else None,
+                    "rms_pool": list(rms_pool),
+                    "centroid_pool": list(centroid_pool),
+                    "dsp": dsp_by[pid],
+                },
+            )
+        heard_entries[pid] = replace(entries[pid], heard_by=listeners)
+    return heard_entries
+
+
+def _play(
+    player: Player, context: Mapping[str, Any], seed: int, duration_s: int
+) -> dict[str, Any]:
     """One player's full PDE loop for one round. No logging here: this runs on
     a worker thread under fan_out, and the ledger is orchestrator-only."""
     perception = player.perceive(context)
     decision = player.decide(perception)
     player.seed = seed
+    player.duration_s = duration_s
     artifact = player.execute(decision)
     return {"intent": decision.data["intent"], "artifact": artifact}
 
@@ -185,6 +248,7 @@ def run_set(
     embedder: AudioEmbedder,
     seed: int,
     after_round: Optional[Callable[[int], bool]] = None,
+    direction: Optional[Mapping[str, Any]] = None,
 ) -> SetResult:
     """Play one set and return its interaction record. See module docstring.
 
@@ -193,11 +257,18 @@ def run_set(
     counted there). Returning True asks the set to stop: before the last
     round that raises SetAborted (the SIGTERM finish-current-round contract);
     on the last round the set simply completes.
+
+    `direction` is the Producer's set-start direction (the seam rule 2 leaves
+    open): it rides into every round's context as frame — never as peer
+    material — via `build_context`, and its `duration_s` (default 30) is the
+    whole set's take length. None means an undirected set (cold start, or a
+    pre-conductor caller): identical to the pre-direction behavior.
     """
     if condition not in CONDITIONS:
         raise ValueError(f"unknown condition {condition!r}; expected one of {CONDITIONS}")
     ids = [p.persona.metadata["player_id"] for p in players]
     by_id = dict(zip(ids, players))
+    duration_s = int(direction.get("duration_s", 30)) if direction else 30
 
     set_stamps = {"condition": condition, "seed": seed}
     ledger.write(
@@ -208,6 +279,8 @@ def run_set(
             "kind": "set",
             "players": ids,
             "rounds": rounds,
+            "duration_s": duration_s,
+            "directed": direction is not None,
             "live": config.live,
             "renderer": config.renderer.name,
             "embedder": embedder.name,
@@ -224,12 +297,23 @@ def run_set(
     }
     round_frames: list[dict[str, dict[str, str]]] = []  # per round: pid -> line/lyrics/rationale
     round_hashes: list[dict[str, str]] = []  # per round: pid -> artifact content hash
+    # Measured hearing (contact sets): the set-so-far DSP pools the loudness/
+    # brightness terciles compare against — one value per measurable take.
+    rms_pool: list[float] = []
+    centroid_pool: list[float] = []
 
     for t in range(rounds):
-        contexts = {pid: build_context(pid, t, view, condition) for pid in ids}
+        contexts = {
+            pid: build_context(pid, t, view, condition, direction=direction) for pid in ids
+        }
         seeds = {pid: player_seed(seed, pid, t) for pid in ids}
         stages = [
-            Stage(name=pid, fn=lambda _ctx, p=by_id[pid], c=contexts[pid], s=seeds[pid]: _play(p, c, s))
+            Stage(
+                name=pid,
+                fn=lambda _ctx, p=by_id[pid], c=contexts[pid], s=seeds[pid]: _play(
+                    p, c, s, duration_s
+                ),
+            )
             for pid in ids
         ]
         if condition in _SEQUENTIAL_CONDITIONS:
@@ -326,6 +410,15 @@ def run_set(
             player = by_id[pid]
             player.memory.remember({"persona": player.persona.name, "artifact_kind": artifact.kind})
 
+        if hears_others(condition):
+            # Measure what this round's takes SOUNDED like while the audio is
+            # at hand — next round's build_context hands each listener their
+            # heard dict. Alone conditions skip the measurement entirely: no
+            # one would ever receive it.
+            audio_paths = {pid: Path(results[pid]["artifact"].body) for pid in ids}
+            entries = _hear_round(
+                entries, audio_paths, vectors["audio"], t, rms_pool, centroid_pool
+            )
         view.append_round(entries)
         round_frames.append(frames)
         round_hashes.append(hashes)
@@ -365,6 +458,7 @@ def run_set(
             "rounds": rounds,
             "players": ids,
             "seed": seed,
+            "duration_s": duration_s,
             "embedder": {"name": embedder.name, "dim": embedder.dim},
             "intent_vector_version": features.INTENT_VECTOR_VERSION,
         },
