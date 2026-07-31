@@ -3,7 +3,15 @@ import { notFound } from "next/navigation";
 import { GraphCover } from "@/components/GraphCover";
 import { PlayerProvider, PlayButton } from "@/components/TrackPlayer";
 import { ACT_DESIGN, catalogueNumber, interactionRows, isActId, sideLabel } from "@/lib/acts";
-import { conditionGloss, getRelease, listAgents, tracksForRelease } from "@/lib/data";
+import {
+  conditionGloss,
+  getRelease,
+  listAgents,
+  tapeForRelease,
+  tapeNumber,
+  tracksForRelease,
+} from "@/lib/data";
+import { TapeTakes } from "@/components/TapeTakes";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +28,11 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
   const release = await getRelease(id);
   if (!release) notFound();
 
-  const [takes, agents] = await Promise.all([tracksForRelease(release), listAgents()]);
+  const [takes, agents, tape] = await Promise.all([
+    tracksForRelease(release),
+    listAgents(),
+    tapeForRelease(release.id),
+  ]);
   const displayName = (agentId: string) =>
     agents.find((a) => a.id === agentId)?.displayName ?? agentId;
   const initials = (agentId: string) =>
@@ -66,7 +78,9 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
         </div>
       </section>
 
-      {/* Sleeve order: cover, then the music, then the liner notes. */}
+      {/* Sleeve order: cover, then the music, then the liner notes. One
+          PlayerProvider owns the page's audio — SIDES and the session tape
+          share it (exactly one audio owner, always). */}
       <PlayerProvider>
         <section style={{ padding: "22px var(--gutter)", display: "flex", flexDirection: "column", fontSize: 13 }}>
           <div className="label" style={{ paddingBottom: 6 }}>
@@ -112,7 +126,41 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
             </div>
           ))}
         </section>
-      </PlayerProvider>
+
+      {/* THE LINER NOTES — the Archivist's back-of-sleeve prose, first-class:
+          what happened in the room, who did what, what to listen for. The
+          Critic judges elsewhere on this page; this contextualizes. */}
+      {release.linerNotes && (
+        <section
+          style={{
+            margin: "0 var(--gutter)",
+            borderTop: "1px solid var(--hairline-strong)",
+            padding: "22px 0 24px",
+          }}
+        >
+          <div className="label" style={{ paddingBottom: 4 }}>
+            LINER NOTES
+          </div>
+          <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 8 }}>
+            From the back of the sleeve — the Archivist on what happened in the room.
+          </p>
+          {release.linerNotes.split(/\n\s*\n/).map((para, i) => (
+            <p
+              key={i}
+              className="quote"
+              style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 680, marginTop: i === 0 ? 2 : 12 }}
+            >
+              {para}
+            </p>
+          ))}
+          <div
+            className="mono"
+            style={{ fontSize: 10, letterSpacing: "0.18em", color: "var(--sec)", marginTop: 14 }}
+          >
+            — THE ARCHIVIST
+          </div>
+        </section>
+      )}
 
       {/* Liner notes from here down: the measured record first, then the office. */}
       <section
@@ -183,6 +231,40 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
         </section>
       ))}
 
+      {/* THE SESSION TAPE — the vault doctrine: the release is the cut; the
+          tape is everything, all takes in round order, dissents included. */}
+      {tape && (
+        <section
+          style={{
+            margin: "0 var(--gutter)",
+            borderTop: "1px solid var(--hairline-strong)",
+            padding: "20px 0 24px",
+          }}
+        >
+          <div className="label" style={{ paddingBottom: 6 }}>
+            THE SESSION TAPE ·{" "}
+            <Link href={`/tape/${tape.id}`} className="link" style={{ letterSpacing: "0.1em" }}>
+              {tapeNumber(tape.id)}
+            </Link>
+          </div>
+          <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 4 }}>
+            The release above is the cut. This is the whole session — every take, in the
+            order it was recorded. ● marks the takes that made the release.
+          </p>
+          {tape.arc && (
+            <p className="quote" style={{ fontSize: 13, maxWidth: 620, paddingBottom: 8 }}>
+              “{tape.arc}” <span className="mono" style={{ fontSize: 10, fontStyle: "normal" }}>— THE ARCHIVIST</span>
+            </p>
+          )}
+          <TapeTakes tape={tape} displayName={displayName} />
+          <div style={{ fontSize: 12, marginTop: 10 }}>
+            <Link href={`/tape/${tape.id}`} className="link">
+              the full tape, with the Archivist&apos;s notes →
+            </Link>
+          </div>
+        </section>
+      )}
+
       <div
         className="mono"
         style={{
@@ -195,6 +277,7 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
       >
         THE GRAPH IS THE COVER. NOTHING IS ILLUSTRATED TWICE.
       </div>
+      </PlayerProvider>
     </div>
   );
 }

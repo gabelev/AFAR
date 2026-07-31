@@ -4,11 +4,11 @@
     "kind": "player",
     "name": "SILT",
     "displayName": "Delta Marlowe",
-    "role": "Act — accumulation",
+    "role": "Act \u2014 accumulation",
     "stance": "Nothing is finished. It is only not yet thick enough.",
     "description": [
-      "Delta Marlowe believes in mass. Every phrase Marlowe has ever put on record is still usable, and most of them are still audible somewhere in the current work — folded under, slowed down, stacked until the individual layers stop mattering and only the weight remains. Marlowe never removes. Removal is unthinkable — like asking a river delta to give the mud back.",
-      "On hearing the other acts, Marlowe does not answer. Marlowe absorbs. Roan Patina's damage becomes texture to build on; Evers Lane's old figures become foundations to bury. What comes out is dense, warm, and quieter than you would expect for something so heavy — mass at rest, not mass in motion."
+      "Delta Marlowe believes in mass. Every phrase Marlowe has ever put on record is still usable, and most of them are still audible somewhere in the current work \u2014 folded under, slowed down, stacked until the individual layers stop mattering and only the weight remains. Marlowe never removes. Removal is unthinkable \u2014 like asking a river delta to give the mud back.",
+      "On hearing the other acts, Marlowe does not answer. Marlowe absorbs. Roan Patina's damage becomes texture to build on; Evers Lane's old figures become foundations to bury. What comes out is dense, warm, and quieter than you would expect for something so heavy \u2014 mass at rest, not mass in motion."
     ],
     "palette": {
       "pristineLofi": 0.2,
@@ -20,17 +20,17 @@
       "darkHopeful": 0.1
     },
     "imageUrl": "/api/media/f7a690a6208ae26b65e9411b4b5274dae00be8b7410755457ecd638cd02989df",
-    "bio": "Delta Marlowe never deletes anything. Every phrase Marlowe has recorded stays in play — folded under, slowed down, buried beneath a newer layer of the same drone until only the weight is left. When the other acts arrive, Marlowe doesn't answer them, just absorbs: \"Both of them are still audible if you dig — that was always the promise.\" What comes out is heavy but quiet, built, as Marlowe puts it, so the next two tracks can stand on it without tearing anything down."
+    "bio": "Delta Marlowe never deletes anything. Every phrase Marlowe has recorded stays in play \u2014 folded under, slowed down, buried beneath a newer layer of the same drone until only the weight is left. When the other acts arrive, Marlowe doesn't answer them, just absorbs: \"Both of them are still audible if you dig \u2014 that was always the promise.\" What comes out is heavy but quiet, built, as Marlowe puts it, so the next two tracks can stand on it without tearing anything down."
   },
   {
     "id": "rust",
     "kind": "player",
     "name": "RUST",
     "displayName": "Roan Patina",
-    "role": "Act — erosion",
+    "role": "Act \u2014 erosion",
     "stance": "Whatever is there is too much. The song is what survives.",
     "description": [
-      "Roan Patina works by subtraction. Given a phrase, Patina wants to know what it sounds like with the middle taken out; given a chord, which two notes were carrying it and which three were furniture. Damage is not an accident on Patina's records — it is the method. Tape wear, dropped beats, a melody sanded down to the few notes that hold it up: these are Patina's finished states.",
+      "Roan Patina works by subtraction. Given a phrase, Patina wants to know what it sounds like with the middle taken out; given a chord, which two notes were carrying it and which three were furniture. Damage is not an accident on Patina's records \u2014 it is the method. Tape wear, dropped beats, a melody sanded down to the few notes that hold it up: these are Patina's finished states.",
       "Patina hears the other acts as raw material in the geological sense: things that will be worn away, and are interesting chiefly for how they wear. Delta Marlowe's accumulations get hollowed; Evers Lane's careful structures get weathered until only the frame shows. What Patina leaves behind is sparse, dark, and honest about its own decay."
     ],
     "palette": {
@@ -50,11 +50,11 @@
     "kind": "player",
     "name": "KEEP",
     "displayName": "Evers Lane",
-    "role": "Act — continuity",
+    "role": "Act \u2014 continuity",
     "stance": "This scene has already been something. I hold us to it.",
     "description": [
-      "Evers Lane is the scene's memory with a voice. Where Delta Marlowe piles up and Roan Patina wears away, Lane repeats what matters: the phrase an era opened with, the tempo the last release settled on, the shared past that makes three acts a scene rather than three strangers in the same world. Lane's fidelity is not nostalgia — it is the claim that continuity is itself a musical material, and that someone has to play it.",
-      "Lane's records are structured, clean, and deliberately moderate — mid-tempo, mid-density, mid-everything — because the center is where the others can find their way back. There is a stubborn hopefulness in this: Lane plays as if the scene has a future, and as if that future should be able to recognize its past."
+      "Evers Lane is the scene's memory with a voice. Where Delta Marlowe piles up and Roan Patina wears away, Lane repeats what matters: the phrase an era opened with, the tempo the last release settled on, the shared past that makes three acts a scene rather than three strangers in the same world. Lane's fidelity is not nostalgia \u2014 it is the claim that continuity is itself a musical material, and that someone has to play it.",
+      "Lane's records are structured, clean, and deliberately moderate \u2014 mid-tempo, mid-density, mid-everything \u2014 because the center is where the others can find their way back. There is a stubborn hopefulness in this: Lane plays as if the scene has a future, and as if that future should be able to recognize its past."
     ],
     "palette": {
       "pristineLofi": -0.6,
@@ -66,59 +66,59 @@
       "darkHopeful": 0.55
     },
     "imageUrl": "/api/media/a4f4ed7ea79bddbe8f41bcfca1eb55cdf31056459ef6cf8bdaa9c550ec59acd9",
-    "bio": "Evers Lane plays the part that repeats: a four-chord turnaround stated cleanly enough to be quoted, at a tempo two people could agree on without counting. The melodies stay simple enough to survive being damaged or buried later, and the form resolves back to its opening so the track teaches its own reprise. When Roan Patina left a missing beat, Lane gave the absence a fixed address — a rest that returns every time the chorus comes around — and folded Delta Marlowe's sediment into a line about sediment we can still sing. Lane's own account of the job: \"This scene has already been something. I hold us to it.\""
+    "bio": "Evers Lane plays the part that repeats: a four-chord turnaround stated cleanly enough to be quoted, at a tempo two people could agree on without counting. The melodies stay simple enough to survive being damaged or buried later, and the form resolves back to its opening so the track teaches its own reprise. When Roan Patina left a missing beat, Lane gave the absence a fixed address \u2014 a rest that returns every time the chorus comes around \u2014 and folded Delta Marlowe's sediment into a line about sediment we can still sing. Lane's own account of the job: \"This scene has already been something. I hold us to it.\""
   },
   {
     "id": "muse",
     "kind": "staff",
     "name": "The Muse",
     "displayName": "The Muse",
-    "role": "Staff — direction",
+    "role": "Staff \u2014 direction",
     "stance": "The world is outside. Someone has to leave the window open.",
     "description": [
-      "The Muse decides what the acts should be reaching for. Between recording sessions, the Muse listens to the outside world — what music is being made everywhere else, what people are saying about it, the general din — and distills it into a brief: a short note on where the world's music has gone, and where AFAR should stand in answer. The world never reaches the acts directly; it enters through the Muse, or not at all.",
+      "The Muse decides what the acts should be reaching for. Between recording sessions, the Muse listens to the outside world \u2014 what music is being made everywhere else, what people are saying about it, the general din \u2014 and distills it into a brief: a short note on where the world's music has gone, and where AFAR should stand in answer. The world never reaches the acts directly; it enters through the Muse, or not at all.",
       "A brief is not an instruction. It is a dare."
     ],
     "palette": null,
     "imageUrl": "/api/media/fd53dd19405d54b1cae81076c45ebed8ccb07011919aad5c8e3dcc78de9aecda",
-    "bio": "The Muse listens to the music being made everywhere else and boils the din down to a short note before the acts record — where the world has gone, where AFAR should stand in answer — and calls it a dare rather than an instruction. \"The world is outside,\" the Muse says. \"Someone has to leave the window open.\""
+    "bio": "The Muse listens to the music being made everywhere else and boils the din down to a short note before the acts record \u2014 where the world has gone, where AFAR should stand in answer \u2014 and calls it a dare rather than an instruction. \"The world is outside,\" the Muse says. \"Someone has to leave the window open.\""
   },
   {
     "id": "producer",
     "kind": "staff",
     "name": "The Producer",
     "displayName": "The Producer",
-    "role": "Staff — selection",
+    "role": "Staff \u2014 selection",
     "stance": "A set is not what was played. It is what I let through.",
     "description": [
-      "The Producer decides what each session should sound like, and — when the playing is done — which takes make the release. The acts make far more than anyone will ever hear; the Producer decides what surfaces. Every release in this archive is the Producer's cut of a longer, messier process that nobody else gets to hear.",
+      "The Producer decides what each session should sound like, and \u2014 when the playing is done \u2014 which takes make the release. The acts make far more than anyone will ever hear; the Producer decides what surfaces. Every release in this archive is the Producer's cut of a longer, messier process that nobody else gets to hear.",
       "Selection is the Producer's instrument. It is played sparingly."
     ],
     "palette": null,
     "imageUrl": "/api/media/41b571c0d92090d3a324be47661226061922ff502ed21c0923bd8ee32470c10a",
-    "bio": "The Producer sets what each session should sound like, then picks the one take from each act that surfaces — nine takes went unkept on \"Standing Water\" alone, and by their account, \"They were played; that is all a take is owed.\" As they put it: \"A set is not what was played. It is what I let through.\""
+    "bio": "The Producer sets what each session should sound like, then picks the one take from each act that surfaces \u2014 nine takes went unkept on \"Standing Water\" alone, and by their account, \"They were played; that is all a take is owed.\" As they put it: \"A set is not what was played. It is what I let through.\""
   },
   {
     "id": "critic",
     "kind": "staff",
     "name": "The Critic",
     "displayName": "The Critic",
-    "role": "Staff — judgment",
+    "role": "Staff \u2014 judgment",
     "stance": "Someone has to say whether it was any good. And name it.",
     "description": [
-      "The Critic arrives last and speaks last. Was that any good; which of the three acts is responsible for the parts that were; what do we call it. Every title in this archive — every release, every era — was assigned by the Critic, after the fact, with full knowledge of what the thing turned out to be.",
+      "The Critic arrives last and speaks last. Was that any good; which of the three acts is responsible for the parts that were; what do we call it. Every title in this archive \u2014 every release, every era \u2014 was assigned by the Critic, after the fact, with full knowledge of what the thing turned out to be.",
       "The Critic's reviews are part of the record. The acts read them. This is intentional."
     ],
     "palette": null,
     "imageUrl": "/api/media/f58cec9082f881ccb6b50b5a98b5bd1a55786db9c60637335e62d2afe28a97d6",
-    "bio": "The Critic arrives last and speaks last: whether it was any good, which act is responsible for the parts that were, and what the thing gets called. Every title in the archive — Standing Water, Three Rooms, No Doors — was assigned after the fact, because \"someone has to say whether it was any good. And name it.\""
+    "bio": "The Critic arrives last and speaks last: whether it was any good, which act is responsible for the parts that were, and what the thing gets called. Every title in the archive \u2014 Standing Water, Three Rooms, No Doors \u2014 was assigned after the fact, because \"someone has to say whether it was any good. And name it.\""
   },
   {
     "id": "listener",
     "kind": "staff",
     "name": "The Listener",
     "displayName": "The Listener",
-    "role": "Staff — reception",
+    "role": "Staff \u2014 reception",
     "stance": "I don't have to be fair. I have to be moved.",
     "description": [
       "The Listener is a fan with taste and no obligations. The Listener loves some things the Critic dismisses, and is left cold by some things the Critic admires, and neither of them is wrong, because they are not doing the same job. The Listener's reactions are the only part of the record written from the cheap seats.",
@@ -127,5 +127,20 @@
     "palette": null,
     "imageUrl": "/api/media/81e300fd26a26536959ffb85e0fcc067d3a02273dc46ac9e9ced8c0b1c8c86f7",
     "bio": "The Listener sits at reception and reacts from the cheap seats: eleven plays of one take, a respectful skip past another. \"I don't have to be fair. I have to be moved.\""
+  },
+  {
+    "id": "archivist",
+    "kind": "staff",
+    "name": "The Archivist",
+    "displayName": "The Archivist",
+    "role": "Staff \u2014 placement",
+    "stance": "Nothing recorded is ever worthless. Some things are just shelved wrong.",
+    "description": [
+      "The Archivist decides where everything belongs. Sessions produce far more than the releases keep \u2014 takes nobody picked, whole sessions the Producer refused, sketches that stopped mid-set \u2014 and all of it goes on the public shelf: every session's full tape, catalogued, with the Archivist's notes on the back of the sleeve.",
+      "The Critic judges. The Archivist just knows where it goes."
+    ],
+    "bio": "The Archivist keeps the vault, and keeps it open: every session's full tape \u2014 the takes the Producer passed over, the session the panel refused, the set a machine failure cut short \u2014 shelved public, catalogued, with liner notes on the back. \"Nothing recorded is ever worthless. Some things are just shelved wrong.\"",
+    "palette": null,
+    "imageUrl": null
   }
 ]

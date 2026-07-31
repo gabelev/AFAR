@@ -16,9 +16,16 @@ describe("resolve map", () => {
     }
   });
 
-  it("covers every agent in the fixtures", () => {
+  it("covers every agent in the fixtures (the Archivist has no world body yet)", () => {
     for (const agent of fixtureAgents) {
       const entry = resolveWorld(agent.id);
+      if (agent.id === "archivist") {
+        // Deliberate: the Archivist's sprite/press art is flagged for the
+        // next design round (DECISIONS.md) — page exists, world presence
+        // later. WorldLink falls back to a plain navigation on null.
+        expect(entry).toBeNull();
+        continue;
+      }
       expect(entry, `no resolve entry for agent ${agent.id}`).toBeTruthy();
       expect(entry!.route).toBe(`/${agent.kind === "player" ? "act" : "staff"}/${agent.id}`);
     }

@@ -5,7 +5,15 @@ import { RailModes } from "@/components/world/RailModes";
 import { RailNow } from "@/components/world/RailNow";
 import { WorldLink } from "@/components/world/WorldLink";
 import { catalogueNumber } from "@/lib/acts";
-import { listAgents, listReleases, rosterSections, stanceWord } from "@/lib/data";
+import {
+  listAgents,
+  listReleases,
+  listTapes,
+  rosterSections,
+  stanceWord,
+  tapeNumber,
+  tapeStatusLine,
+} from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +24,12 @@ export const dynamic = "force-dynamic";
  * links to the full page; the detailed copy lives there, not here.
  */
 export default async function WorldCataloguePage() {
-  const [agents, releases] = await Promise.all([listAgents(), listReleases()]);
+  const [agents, releases, tapes] = await Promise.all([
+    listAgents(),
+    listReleases(),
+    listTapes(),
+  ]);
+  const tapesDesc = [...tapes].sort((a, b) => b.id.localeCompare(a.id));
   const { house, residents, inTown } = rosterSections(agents);
   const acts = house; // the acts in the building — the rail's NOW line and counts
   const staff = agents.filter((a) => a.kind === "staff");
@@ -190,6 +203,52 @@ export default async function WorldCataloguePage() {
                 </span>
               </span>
             </WorldLink>
+          </section>
+        )}
+
+        {/* THE TAPES — the vault's shelf: every session whole, vetoes and
+            breakdowns included ("no reason to sit on it"). */}
+        {tapesDesc.length > 0 && (
+          <section style={{ padding: sectionPad, borderTop: "1px solid var(--hairline)" }}>
+            <div style={headRow}>
+              <Link href="/staff/archivist" className="label" style={{ color: "var(--sec)" }}>
+                THE TAPES →
+              </Link>
+              <span className="mono" style={{ fontSize: 10, color: "var(--sec)" }}>
+                EVERY SESSION, WHOLE
+              </span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {tapesDesc.slice(0, 6).map((tape, i, shown) => (
+                <Link
+                  key={tape.id}
+                  href={`/tape/${tape.id}`}
+                  className={`rule-row${i === shown.length - 1 && tapesDesc.length <= 6 ? " rule-row-last" : ""}`}
+                  style={{ display: "flex", gap: 12, alignItems: "baseline", padding: "8px 0" }}
+                >
+                  <span className="mono" style={{ fontSize: 11, width: 78, flex: "none", color: "var(--sec)" }}>
+                    {tapeNumber(tape.id)}
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 600, flex: 1 }}>{tape.title}</span>
+                  <span
+                    className="mono"
+                    style={{ fontSize: 10, letterSpacing: "0.12em", color: "var(--sec)", textTransform: "uppercase" }}
+                    title={tapeStatusLine(tape)}
+                  >
+                    {tape.status}
+                  </span>
+                </Link>
+              ))}
+              {tapesDesc.length > 6 && (
+                <Link
+                  href="/staff/archivist"
+                  className="mono rule-row rule-row-last"
+                  style={{ fontSize: 11, color: "var(--sec)", padding: "8px 0", display: "block" }}
+                >
+                  and {tapesDesc.length - 6} more on the shelf →
+                </Link>
+              )}
+            </div>
           </section>
         )}
 

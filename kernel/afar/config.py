@@ -234,6 +234,29 @@ def _mock_staff(messages: Sequence[Message]) -> str | None:
                 "palette_notes": ["[mock] keep it close-mic'd", "[mock] slow is fine"],
             }
         )
+    if '"placement"' in text and "Shelve this session's tape" in text:
+        return json.dumps(
+            {
+                "placement": "companion",
+                "tape_title": "Mock Session Tape",
+                "arc": "[mock] Started sparse, ended settled.",
+                "callouts": [],
+                "liner_notes": (
+                    "[mock] Everything played in this room is on this tape, in the "
+                    "order it was played. Nothing recorded is ever worthless."
+                ),
+            }
+        )
+    if "Write the liner notes for this release" in text:
+        return (
+            "[mock] Three acts, one room, and the cut you are holding. What the "
+            "sleeve does not show, the session tape keeps."
+        )
+    if "brought one record with them" in text:
+        return (
+            "[mock] The record they brought to town: made elsewhere, kept whole, "
+            "shelved here where it belongs."
+        )
     if '"valence"' in text and '"disagreements_with_critic"' in text:
         return json.dumps(
             {

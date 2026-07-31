@@ -10,8 +10,9 @@ and `run_staff` already walks the frame. The conductor only WALKS the plan —
 per set: the Producer consumes the Muse's newest logged brief
 (`ProducerAgent.direct`, set start, frame side — the only door the world
 enters through) and BOOKS THE SESSION, `run_set` plays the rounds, the staff
-chain runs at the boundary (Producer -> Critic -> Muse -> Listener), the
-release is PUBLISHED
+chain runs at the boundary (Producer -> Critic -> Muse -> Listener ->
+Archivist), the release is PUBLISHED — session tape included (the vault
+doctrine; a vetoed set publishes its tape alone) —
 to Neon (afar.publish; forced dry-run under a mock renderer), and then the
 loop paces itself to AFAR_SETS_PER_DAY. The boundary rule holds throughout:
 `build_context` remains the only perceive path; nothing the conductor
@@ -678,7 +679,7 @@ class Conductor:
             direction=direction,
         )
 
-        # The frame: Producer -> Critic -> Muse -> Listener (existing machinery).
+        # The frame: Producer -> Critic -> Muse -> Listener -> Archivist.
         # run_staff degrades per stage internally — a staff failure can no
         # longer void this completed, fully-paid set (the doctrine: the
         # material always outranks the commentary).
@@ -703,6 +704,10 @@ class Conductor:
                 run_id=run_id,
                 reason="no release this set (the Producer's verdict stands)",
             )
+            # The vault doctrine: the veto stands; the tape survives. A
+            # rejected session's FULL tape still publishes (dry under mock —
+            # mock bytes never land in the public media table).
+            self._publish_tape(set_ledger.run_dir)
         return SetOutcome(
             set_index=plan.index,
             run_id=run_id,
@@ -729,7 +734,37 @@ class Conductor:
             "track_ids": list(outcome.track_ids),
             "timeline_blocks": outcome.timeline_blocks,
         }
+        if outcome.tape is not None:
+            row["tape_id"] = outcome.tape.tape_id
+            row["tape_takes"] = outcome.tape.takes
         self._log("published", run_id=run_dir.name, **row)
+        return row
+
+    def _publish_tape(self, run_dir: Path) -> Optional[dict[str, Any]]:
+        """Publish a session tape ALONE — the no-release path (the Producer's
+        veto). Same dry-run guard as _publish; a tape publish failure is
+        logged and swallowed (the set already completed honestly)."""
+        from afar.publish import publish_tape
+
+        dry = self.smoke or self.config.renderer.name == "mock"
+        try:
+            outcome = publish_tape(run_dir, dry_run=dry)
+        except Exception as err:  # noqa: BLE001 — the tape must never void the set
+            self._log(
+                "tape_publish_failed",
+                run_id=run_dir.name,
+                error=f"{type(err).__name__}: {err}"[:300],
+            )
+            return None
+        row = {
+            "tape_id": outcome.tape_id,
+            "tape_title": outcome.title,
+            "dry_run": outcome.dry_run,
+            "takes": outcome.takes,
+            "media_bytes": outcome.media_bytes,
+            "shelved": outcome.shelved,
+        }
+        self._log("tape_published", run_id=run_dir.name, **row)
         return row
 
     # -- the loop --------------------------------------------------------------

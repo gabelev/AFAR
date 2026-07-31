@@ -13,6 +13,9 @@ import {
   listReleases,
   singleForAct,
   stanceWord,
+  tapeNumber,
+  tapeStatusLine,
+  tapesForAgent,
   tracksForAgent,
   type Release,
   type Track,
@@ -61,12 +64,13 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
       ? buildingLabel(agent.resident.building)
       : "IN TOWN";
 
-  const [takes, releases, allAgents, criticReviews, single] = await Promise.all([
+  const [takes, releases, allAgents, criticReviews, single, tapes] = await Promise.all([
     tracksForAgent(agent.id),
     listReleases(),
     listAgents(),
     criticReviewsForPlayer(agent.id),
     singleForAct(agent.id),
+    tapesForAgent(agent.id),
   ]);
   const releaseById = new Map(releases.map((r) => [r.id, r]));
   const nameOf = (id: string) => allAgents.find((a) => a.id === id)?.displayName ?? id;
@@ -211,6 +215,34 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
           )}
         </section>
 
+        {/* The Archivist on the record an imported act brought to town —
+            "what this record is", from the back of the sleeve. */}
+        {agent.album?.linerNotes && (
+          <section style={{ padding: "24px var(--gutter) 0" }}>
+            <div className="label" style={{ paddingBottom: 4 }}>
+              LINER NOTES · &ldquo;{agent.album.title.toUpperCase()}&rdquo;
+            </div>
+            <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 8 }}>
+              The Archivist on the record they brought to town.
+            </p>
+            {agent.album.linerNotes.split(/\n\s*\n/).map((para, i) => (
+              <p
+                key={i}
+                className="quote"
+                style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 680, marginTop: i === 0 ? 2 : 12 }}
+              >
+                {para}
+              </p>
+            ))}
+            <div
+              className="mono"
+              style={{ fontSize: 10, letterSpacing: "0.18em", color: "var(--sec)", marginTop: 12 }}
+            >
+              — THE ARCHIVIST
+            </div>
+          </section>
+        )}
+
         {/* 4 — the rest of the archive. */}
         {catalogue.length > 0 && (
           <section style={{ padding: "28px var(--gutter) 0", display: "flex", flexDirection: "column" }}>
@@ -255,6 +287,41 @@ export default async function ActPage({ params }: { params: Promise<{ slug: stri
                 </div>
               );
             })}
+          </section>
+        )}
+
+        {/* SESSION TAPES — every full session this act played on, from the
+            vault (the vault doctrine: the releases are the cuts; the tapes
+            are everything, vetoed and abandoned sessions included). */}
+        {tapes.length > 0 && (
+          <section style={{ padding: "28px var(--gutter) 0", display: "flex", flexDirection: "column" }}>
+            <div className="label" style={{ paddingBottom: 6 }}>
+              SESSION TAPES
+            </div>
+            <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 8 }}>
+              The full sessions behind the releases — every take they played, kept whole in
+              the vault, including the sessions nothing was released from.
+            </p>
+            {tapes.map((tape, i) => (
+              <Link
+                key={tape.id}
+                href={`/tape/${tape.id}`}
+                className={`wrap-sm rule-row${i === tapes.length - 1 ? " rule-row-last" : ""}`}
+                style={{ display: "flex", gap: 14, alignItems: "baseline", padding: "9px 0" }}
+              >
+                <span className="mono" style={{ fontSize: 11, width: 84, flex: "none", color: "var(--sec)" }}>
+                  {tapeNumber(tape.id)}
+                </span>
+                <span style={{ fontSize: 14, fontWeight: 600, flex: 1 }}>{tape.title}</span>
+                <span
+                  className="mono"
+                  style={{ fontSize: 10, letterSpacing: "0.14em", color: "var(--sec)", textTransform: "uppercase" }}
+                  title={tapeStatusLine(tape)}
+                >
+                  {tape.status}
+                </span>
+              </Link>
+            ))}
           </section>
         )}
 
