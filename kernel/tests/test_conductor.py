@@ -277,6 +277,43 @@ def test_smoke_set_walks_the_full_chain_with_dry_run_publish(tmp_path: Path):
     assert direction["has_brief"] is False
 
 
+def test_staff_failure_degrades_and_still_publishes_never_set_failed(tmp_path: Path):
+    """The stranded-set doctrine: run_set success + staff failure => per-stage
+    degradation and a published release — `set_failed` (and its backoff) is
+    reserved for run_set itself failing."""
+
+    def critic_dead(messages):
+        text = "\n".join(m.content for m in messages)
+        if "The set is finished and cut. Review it." in text or "Name it — the last word." in text:
+            return ""  # the observed failure mode: an empty staff reply, every time
+        return _mock_players(messages)
+
+    config = AfarConfig(
+        model=MockProvider(responder=critic_dead),
+        renderer=MockRenderer(tmp_path / "audio"),
+        runs_root=tmp_path,
+        live=False,
+        code_sha="test-sha",
+        enabled=True,
+        sets_per_day=3.0,
+        daily_gen_cap=60,
+    )
+    conductor = _conductor(tmp_path, config=config, rounds_override=2, smoke=True)
+    outcome = conductor.run_one_set(conductor.schedule.set_plan(0))
+
+    assert outcome.completed and outcome.released
+    assert outcome.staff_degraded == ("critic",)
+    rows = _conductor_rows(tmp_path)
+    (degraded_row,) = [r for r in rows if r["kind"] == "staff_degraded"]
+    assert degraded_row["stages"] == ["critic"]
+    assert degraded_row["run_id"] == outcome.run_id
+    assert not [r for r in rows if r["kind"] == "set_failed"]
+    # The release still published (dry — smoke), title honestly placeholdered.
+    (published,) = [r for r in rows if r["kind"] == "published"]
+    assert published["release_title"].startswith("Untitled Session")
+    assert published["dry_run"] is True
+
+
 def test_direction_consumes_the_newest_logged_brief(tmp_path: Path):
     ledger = JsonlLedger(tmp_path, "prior-run", context=RunContext())
     ledger.write("briefs", {"kind": "brief", "stance": "porous", "theme": "rooms",

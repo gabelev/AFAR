@@ -51,6 +51,7 @@ from ensemble.ledger import Fragment, KeywordClusterer, precipitate_theme
 from ensemble.perceive import Perceiver
 from ensemble.providers.model import Message, ModelProvider
 
+from afar.agents.robust import staff_complete
 from afar.intent import _loads_lenient
 from afar.perception.field import (
     BEAT_FIELD,
@@ -384,24 +385,23 @@ class MuseAgent(Agent):
             '"palette_notes": ["<2-4 short working notes for the Producer: textures, '
             "tempo feels, moods to reach for — plain words>\"]}"
         )
-        messages = [
-            Message(role="system", content=self.persona.base_prompt),
-            Message(role="user", content=prompt),
-        ]
-        # One retry on a broken reply: live models occasionally return
-        # truncated JSON, and a whole boundary should not die on one bad turn.
-        last_error: Exception | None = None
-        for _attempt in range(2):
-            raw = self.model.complete(messages)
-            try:
-                data = _loads_lenient(raw)
-                if not isinstance(data, Mapping) or "brief" not in data or "palette_notes" not in data:
-                    raise ValueError("muse brief reply is not the expected JSON object")
-                break
-            except ValueError as err:
-                last_error = err
-        else:
-            raise ValueError(f"muse brief reply failed twice: {last_error}")
+        def parse(raw: str) -> Mapping[str, Any]:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "brief" not in data or "palette_notes" not in data:
+                raise ValueError("muse brief reply is not the expected JSON object")
+            return data
+
+        # The staff retry ladder (afar.agents.robust): empty re-request, then
+        # one nudged re-prompt — a whole boundary should not die on one bad turn.
+        data = staff_complete(
+            self.model,
+            [
+                Message(role="system", content=self.persona.base_prompt),
+                Message(role="user", content=prompt),
+            ],
+            stage="muse/brief",
+            parse=parse,
+        )
         body = str(data["brief"]).strip()
         return Artifact(
             kind="brief",

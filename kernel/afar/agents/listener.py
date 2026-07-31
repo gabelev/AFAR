@@ -31,6 +31,7 @@ from typing import Any, Mapping
 from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
 
+from afar.agents.robust import staff_complete
 from afar.intent import _loads_lenient
 
 #: The only verdict words the reception speaks in.
@@ -153,28 +154,26 @@ class ListenerAgent(Agent):
             '"disagreements_with_critic": ["<each place you think the Critic is '
             'wrong, in one short sentence — empty list if you happen to agree>"]}'
         )
-        messages = [
-            Message(role="system", content=self.persona.base_prompt),
-            Message(role="user", content=prompt),
-        ]
-        # One retry on a broken reply: live models occasionally return
-        # truncated JSON, and a whole boundary should not die on one bad turn.
-        # A second failure is a real contract problem and raises.
-        last_error: Exception | None = None
-        for _attempt in range(2):
-            raw = self.model.complete(messages)
-            try:
-                data = _loads_lenient(raw)
-                if not isinstance(data, Mapping) or "valence" not in data or "reaction" not in data:
-                    raise ValueError("listener reaction reply is not the expected JSON object")
-                break
-            except ValueError as err:
-                last_error = err
-        else:
-            raise ValueError(f"listener reaction reply failed twice: {last_error}")
+        def parse(raw: str) -> Mapping[str, Any]:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "valence" not in data or "reaction" not in data:
+                raise ValueError("listener reaction reply is not the expected JSON object")
+            if str(data["valence"]).strip().lower() not in VALENCES:
+                raise ValueError(f"listener valence {data['valence']!r} is not one of {VALENCES}")
+            return data
+
+        # The staff retry ladder (afar.agents.robust): empty re-request, then
+        # one nudged re-prompt — a whole boundary should not die on one bad turn.
+        data = staff_complete(
+            self.model,
+            [
+                Message(role="system", content=self.persona.base_prompt),
+                Message(role="user", content=prompt),
+            ],
+            stage="listener/reaction",
+            parse=parse,
+        )
         valence = str(data["valence"]).strip().lower()
-        if valence not in VALENCES:
-            raise ValueError(f"listener valence {valence!r} is not one of {VALENCES}")
         text = str(data["reaction"]).strip()
         disagreements = [str(s).strip() for s in data.get("disagreements_with_critic", []) if str(s).strip()]
         return Artifact(
