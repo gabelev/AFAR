@@ -3,8 +3,11 @@
  * Contact"), the first real three-player set (contact condition, 6 rounds,
  * live ElevenLabs renderer, MERT embedder).
  *
- * (Note: the first published run used the MOCK audio embedder — its audio-space
- * feature rows are placeholders pending a MERT re-embed; intent-space is real.)
+ * (History: the first published run used the MOCK audio embedder — its
+ * audio-space features were placeholders. kernel/scripts/reembed.py appended
+ * corrected MERT rows and a NEW release-*.json; that is why this script picks
+ * the NEWEST release record by mtime — the newest is the corrected one, and
+ * its `provenance` block rides along in the release metadata.)
  *
  * Modeled on seed.mjs (same tables, same idempotent upserts). Sources of
  * truth (architecture rule 3: the JSONL log is authoritative, Neon is a
@@ -37,9 +40,9 @@
  */
 
 import { neon } from "@neondatabase/serverless";
-import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const WEB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REPO_ROOT = path.resolve(WEB_ROOT, "..");
@@ -90,20 +93,33 @@ function readJsonl(file) {
     .map((l) => JSON.parse(l));
 }
 
+/**
+ * The run dir's release record to publish: the NEWEST release-*.json by mtime.
+ * A run can carry several — the kernel's append-only correction path
+ * (kernel/scripts/reembed.py) writes a new content-addressed record next to
+ * the superseded one — and the newest is always the corrected/current one.
+ * Returns the file name, or undefined when the dir has no record.
+ */
+export function newestReleaseRecordFile(runDir) {
+  return readdirSync(runDir)
+    .filter((f) => f.startsWith("release-") && f.endsWith(".json"))
+    .map((f) => ({ f, mtimeMs: statSync(path.join(runDir, f)).mtimeMs }))
+    .sort((a, b) => b.mtimeMs - a.mtimeMs)
+    .map(({ f }) => f)[0];
+}
+
 /** The run to publish: argv[2], or the newest step-b-contact run with a release record. */
-function findRun(runIdArg) {
+export function findRun(runIdArg, runsRoot = RUNS_ROOT) {
   const candidates = runIdArg
     ? [runIdArg]
-    : readdirSync(RUNS_ROOT)
+    : readdirSync(runsRoot)
         .filter((d) => d.endsWith("step-b-contact"))
         .sort()
         .reverse();
   for (const runId of candidates) {
-    const runDir = path.join(RUNS_ROOT, runId);
+    const runDir = path.join(runsRoot, runId);
     if (!existsSync(runDir)) continue;
-    const recordFile = readdirSync(runDir).find(
-      (f) => f.startsWith("release-") && f.endsWith(".json"),
-    );
+    const recordFile = newestReleaseRecordFile(runDir);
     if (recordFile) return { runId, runDir, record: JSON.parse(readFileSync(path.join(runDir, recordFile), "utf8")) };
   }
   throw new Error("no step-b-contact run with a release-*.json found under runs/");
@@ -142,10 +158,11 @@ async function main() {
   }
   const era = [...eraCounts.entries()].sort((a, b) => b[1] - a[1])[0][0];
 
-  // Influence triangle: the FINAL round's INTENT-space graph. This run's audio
-  // embeddings are mock (embedder defaulted to mock — recompute later), and per
-  // DECISIONS.md the interaction record leads with intent space anyway. Kernel
-  // edges are zero-centred and, with near-orthogonal personas, all negative
+  // Influence triangle: the FINAL round's INTENT-space graph — per DECISIONS.md
+  // the interaction record leads with intent space (audio-space features are
+  // real MERT since the re-embed, but flagged weak until the persona gate
+  // passes in audio). Kernel edges are zero-centred and, with near-orthogonal
+  // personas, all negative
   // (identity held); the legible signal is RELATIVE pull, so min-max normalize
   // the six final-round edges into the display schema's [0, 1]. Raw signed
   // values (both spaces, every round) ride along in metadata.
@@ -189,8 +206,11 @@ async function main() {
       runId,
       releaseRecordId: record.release_id,
       set: record.set,
+      // The kernel's correction trail (e.g. {audio_reembedded_from: "mock",
+      // embedder: "mert", supersedes_release_id}) — absent on first-take records.
+      recordProvenance: record.provenance ?? null,
       influenceDisplay:
-        "final-round INTENT-space graph, min-max normalized to [0,1] for InfluenceEdgeSchema (audio space was mock-embedded this run; re-embed pending)",
+        `final-round INTENT-space graph, min-max normalized to [0,1] for InfluenceEdgeSchema (audio-space embedder: ${record.set.embedder.name})`,
       influenceRawByRound: record.influence, // both spaces, every round, signed
       convergence: record.convergence, // both spaces, full curves
       novelty: record.novelty,
@@ -281,7 +301,10 @@ async function main() {
   console.log("done.");
 }
 
-main().catch((err) => {
-  console.error(err.message);
-  process.exit(1);
-});
+// Import-safe (tests import the record-selection helpers); run only as a CLI.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error(err.message);
+    process.exit(1);
+  });
+}
