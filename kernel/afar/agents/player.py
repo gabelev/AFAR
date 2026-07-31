@@ -111,20 +111,28 @@ class Player(Agent):
 
     def _decision_prompt(self, perception: Perception) -> str:
         """The decide-turn user message: the Producer's direction (frame, when
-        the set has one), the player's own drifted self-state, then the room.
+        the set has one), the player's own drifted self-state, what the other
+        takes measurably SOUNDED like, then the room.
 
         The direction is rendered apart from the peer material on purpose —
         it is the frame the session happens inside, not something another act
         played. The self-state line comes from the player itself (SelfState is
-        the player's own residue, never part of the built context)."""
+        the player's own residue, never part of the built context). The heard
+        facts are rendered as their own plain-language block and stripped from
+        the room's JSON dump — one fact, said once; the LOGGED context still
+        carries the full heard dict, because the log records what was built,
+        not how the prompt phrased it."""
         data = dict(perception.data)
         direction = data.pop("direction", None)
+        heard_block = self._extract_heard(data)
         parts: list[str] = []
         if direction:
             parts.append(_render_direction(direction))
         state_line = self._self_state_line()
         if state_line:
             parts.append(state_line)
+        if heard_block:
+            parts.append(heard_block)
         if not data:
             parts.append(
                 "The room is empty — no one has played yet. You open the set. "
@@ -137,6 +145,36 @@ class Player(Agent):
                 + "\n\nMake your track. Reply with your Intent JSON."
             )
         return "\n\n".join(parts)
+
+    def _extract_heard(self, data: dict[str, Any]) -> Optional[str]:
+        """Pop each other-act entry's `heard` dict out of `data` (in place)
+        and render the WHAT YOU HEARD block, or None when nothing was heard.
+
+        First names come from the persona's addresses map — the block speaks
+        the way the room does. Own take carries no heard facts by design (the
+        act made it), so this only ever describes the others."""
+        others = data.get("others")
+        if not others:
+            return None
+        addresses: Mapping[str, str] = self.persona.metadata.get("addresses", {})
+        lines: list[str] = []
+        stripped: list[dict[str, Any]] = []
+        for entry in others:
+            entry = dict(entry)
+            heard = entry.pop("heard", None)
+            stripped.append(entry)
+            if heard:
+                pid = str(entry.get("player_id", ""))
+                sentence = _heard_sentence(addresses.get(pid, pid), heard)
+                if sentence:
+                    lines.append(sentence)
+        data["others"] = stripped
+        if not lines:
+            return None
+        return (
+            "WHAT YOU HEARD (measured from the audio of their last takes):\n"
+            + "\n".join(lines)
+        )
 
     def _self_state_line(self) -> Optional[str]:
         """One line of who-you-have-become, present only once drift exists:
@@ -156,6 +194,41 @@ class Player(Agent):
         if not bits:
             return None
         return "WHERE YOU ARE NOW: " + " ".join(bits)
+
+
+def _heard_sentence(name: str, heard: Mapping[str, Any]) -> Optional[str]:
+    """One act's heard dict as one terse studio sentence, e.g.
+    "Roan's last take: about 98 BPM, quiet, dark, 60 seconds. It moved away
+    from yours — closer to their own last one."
+
+    Facts only, no adjectives beyond the measured buckets; whatever was not
+    measured is simply not said. Returns None when there is nothing to say
+    (fully degraded DSP and no movement to report)."""
+    facts: list[str] = []
+    if heard.get("tempo_bpm") is not None:
+        facts.append(f"about {round(float(heard['tempo_bpm']))} BPM")
+    if heard.get("loudness"):
+        label = str(heard["loudness"])
+        facts.append(label if label != "mid" else "mid loudness")
+    if heard.get("brightness"):
+        label = str(heard["brightness"])
+        facts.append(label if label != "mid" else "mid brightness")
+    if heard.get("duration_s") is not None:
+        facts.append(f"{round(float(heard['duration_s']))} seconds")
+    moved = heard.get("moved")
+    tail: Optional[str] = None
+    if moved == "toward_you":
+        tail = "It moved toward yours — away from their own last one."
+    elif moved == "away_from_you":
+        tail = "It moved away from yours — closer to their own last one."
+    if not facts and not tail:
+        return None
+    sentence = f"{name}'s last take:"
+    if facts:
+        sentence += " " + ", ".join(facts) + "."
+    if tail:
+        sentence += f" {tail}"
+    return sentence
 
 
 def _render_direction(direction: Mapping[str, Any]) -> str:
