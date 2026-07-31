@@ -15,6 +15,21 @@ export const PLAYER_IDS = ["silt", "rust", "keep"] as const;
 export const STAFF_IDS = ["muse", "producer", "critic", "listener"] as const;
 export type PlayerId = (typeof PLAYER_IDS)[number];
 
+/** Where an imported act lives: origin scene + street residence (null = in town). */
+export const ResidentSchema = z.object({
+  origin: z.string().min(1),
+  building: z.string().min(1).nullable(),
+});
+
+/** An imported act's back catalogue: one release-shaped id + album facts.
+ * Import albums live on the agent row, NOT in the releases table — the
+ * releases table stays sessions-only so every deployed reader keeps parsing. */
+export const AlbumSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().min(1).optional(),
+});
+
 export const AgentSchema = z
   .object({
     id: z.string().min(1),
@@ -33,11 +48,22 @@ export const AgentSchema = z
     palette: SonicPaletteSchema.nullable(),
     /** Portrait slot — the act's press photo in Neon media; pages fall back to public/press/. */
     imageUrl: z.string().min(1).nullable().optional(),
+    /** Album-cover slot for imported acts (their back-catalogue sleeve). */
+    coverUrl: z.string().min(1).nullable().optional(),
+    /** "dub techno · 2020s" — the imported act's genre-and-era line. */
+    genreLine: z.string().min(1).optional(),
+    /** The stance translated for strangers (house acts carry this in ACT_DESIGN). */
+    descriptor: z.string().min(1).optional(),
+    /** Present only on imported acts; house acts and staff carry nothing. */
+    resident: ResidentSchema.optional(),
+    /** The imported act's back catalogue (release id `T-<slug>`). */
+    album: AlbumSchema.optional(),
   })
   .transform((a) => ({
     ...a,
     displayName: a.displayName ?? a.name,
     imageUrl: a.imageUrl ?? null,
+    coverUrl: a.coverUrl ?? null,
   }));
 
 export const TrackSchema = z.object({
@@ -97,6 +123,29 @@ export type Agent = z.infer<typeof AgentSchema>;
 /** The stance word from a role line like "Act — accumulation" — used in kickers next to the id. */
 export function stanceWord(agent: Agent): string {
   return agent.role.split("—")[1]?.trim() ?? agent.role;
+}
+
+/** A house act: one of the three the world was founded on (no resident block). */
+export function isHouseAct(agent: Agent): boolean {
+  return agent.kind === "player" && !agent.resident;
+}
+
+/**
+ * The roster in the town's order: the house trio, then the street residents
+ * (acts with a building), then everyone else in town. Data-driven — a new
+ * import lands in the right section by its resident block alone.
+ */
+export function rosterSections(agents: Agent[]): {
+  house: Agent[];
+  residents: Agent[];
+  inTown: Agent[];
+} {
+  const acts = agents.filter((a) => a.kind === "player");
+  return {
+    house: acts.filter((a) => !a.resident),
+    residents: acts.filter((a) => a.resident?.building != null),
+    inTown: acts.filter((a) => a.resident != null && a.resident.building == null),
+  };
 }
 /**
  * Plain-language tooltip for a set-condition chip. The kernel logs short

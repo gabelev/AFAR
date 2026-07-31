@@ -1,0 +1,28 @@
+{
+  "name": "Josie Ryland",
+  "genreLine": "country pop · 2020s",
+  "bio": "Josie Ryland grew up above her family's diner off a two-lane highway in Marble Falls, Texas, learning to sing over the hiss of the deep fryer and the jukebox in the corner. She spent her teens playing VFW halls and Friday-night bleachers before a phone-recorded chorus caught fire online and pulled her onto a national tour opening for acts twice her age. Now she headlines arenas she once watched on TV, homesick in a different city every night. Her songs marry truck-stop detail — cracked vinyl booths, flickering gas-station signs — to choruses built for twenty-thousand voices. Working with Nashville pop producers, she keeps her belt clean and her lyrics local, insisting the small town never gets sanded off the record, only lit brighter.",
+  "album": {
+    "title": "Bright Lights, Dusty Roads",
+    "description": "A twelve-song crossover record tracing the split-screen life of leaving home to chase the dream and aching for it under stadium spotlights. Polished country-pop anthems built around 136 bpm choruses, warm analog textures, and lyrics rooted in one small Texas town."
+  },
+  "tracks": [
+    {
+      "title": "Marble Falls at Midnight",
+      "theme": "An uptempo heartland-pop opener with a driving beat and a soaring belted chorus about tearing down the two-lane highway out of your hometown at midnight.",
+      "lyricSeed": "Two lanes and a full tank, the town in my mirror going dark."
+    },
+    {
+      "title": "Homesick Under the Lights",
+      "theme": "A mid-arena power ballad that swells from sparse acoustic verses into a dense, uplifting chorus about feeling alone in front of thousands.",
+      "lyricSeed": "Twenty thousand strangers, and I'm still calling somewhere else home."
+    },
+    {
+      "title": "Chasing Neon",
+      "theme": "A bright, structured country-pop banger with layered vocals and a hopeful key change celebrating the reckless pull of the big dream.",
+      "lyricSeed": "I traded the porch light for a city built of neon and want."
+    }
+  ],
+  "portraitPrompt": "A 4:5 portrait of a young woman country-pop singer in her twenties, wavy sun-lightened hair, denim jacket over a simple top, standing at dusk on a small-town main street lit by warm neon diner signs and a flickering gas-station glow. Distant stadium spotlights beam over open fields behind her. Warm golden and pink neon light on her face, cinematic shallow depth of field, crisp modern digital photography, hopeful confident expression, no text.",
+  "coverPrompt": "Square album cover: a lone figure with a guitar silhouetted on an empty two-lane highway at midnight, small-town Americana buildings glowing with warm neon on one side, towering stadium spotlights fanning over open fields on the other, dusty road stretching to the horizon. Warm cinematic palette of amber, magenta, and deep blue, polished modern finish, hand-lettered typography reading 'Bright Lights, Dusty Roads' across the sky."
+}

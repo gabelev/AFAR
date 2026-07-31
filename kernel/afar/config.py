@@ -22,6 +22,15 @@ Conductor knobs (the spend controls — see afar/conductor.py):
     AFAR_FAILURE_BACKOFF_MIN -> minutes before retrying after a failed set,
                            doubling per consecutive failure, capped at the
                            pace interval (default 15)
+    AFAR_EXPERIMENT_MODE -> "1" restores the experiment parameters: the
+                           schedule's weighted condition draw (contact :
+                           isolation : parallel at 3:1:1, deterministic from
+                           the schedule seed) books every set, exactly the
+                           pre-sessions behavior. Default "0" — the live
+                           piece: the Producer books each session
+                           (together/alone) and parallel is never booked.
+                           The lab is one flag away; the piece runs on the
+                           office's judgment.
 """
 
 from __future__ import annotations
@@ -213,6 +222,10 @@ def _mock_staff(messages: Sequence[Message]) -> str | None:
         return json.dumps(
             {"duration_s": 30, "why": "[mock] a sketch session — keep the takes short"}
         )
+    if '"session_form"' in text and "book the room" in text:
+        return json.dumps(
+            {"session_form": "together", "why": "[mock] the brief wants a room that answers back"}
+        )
     if '"palette_notes"' in text and "Write the brief" in text:
         return json.dumps(
             {
@@ -246,6 +259,7 @@ class AfarConfig:
     sets_per_day: float = 3.0  # AFAR_SETS_PER_DAY — pacing target
     daily_audio_minutes: float = 110.0  # AFAR_DAILY_AUDIO_MINUTES — the hard daily gate
     failure_backoff_min: float = 15.0  # AFAR_FAILURE_BACKOFF_MIN — post-failure retry delay
+    experiment_mode: bool = False  # AFAR_EXPERIMENT_MODE — "1" = the schedule's condition draw
 
 
 def _kernel_root() -> Path:
@@ -314,4 +328,5 @@ def build_config() -> AfarConfig:
         sets_per_day=sets_per_day,
         daily_audio_minutes=daily_audio_minutes,
         failure_backoff_min=failure_backoff_min,
+        experiment_mode=os.environ.get("AFAR_EXPERIMENT_MODE", "0") == "1",
     )

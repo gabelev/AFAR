@@ -5,7 +5,7 @@ import { RailModes } from "@/components/world/RailModes";
 import { RailNow } from "@/components/world/RailNow";
 import { WorldLink } from "@/components/world/WorldLink";
 import { catalogueNumber } from "@/lib/acts";
-import { listAgents, listReleases, stanceWord } from "@/lib/data";
+import { listAgents, listReleases, rosterSections, stanceWord } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,8 @@ export const dynamic = "force-dynamic";
  */
 export default async function WorldCataloguePage() {
   const [agents, releases] = await Promise.all([listAgents(), listReleases()]);
-  const acts = agents.filter((a) => a.kind === "player");
+  const { house, residents, inTown } = rosterSections(agents);
+  const acts = house; // the acts in the building — the rail's NOW line and counts
   const staff = agents.filter((a) => a.kind === "staff");
   const latest = releases[releases.length - 1];
 
@@ -109,6 +110,51 @@ export default async function WorldCataloguePage() {
             ))}
           </div>
         </section>
+
+        {(residents.length > 0 || inTown.length > 0) && (
+          <section style={{ padding: sectionPad, borderTop: "1px solid var(--hairline)" }}>
+            <div style={headRow}>
+              <Link href="/" className="label" style={{ color: "var(--sec)" }}>
+                THE TOWN →
+              </Link>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {residents.map((agent, i) => (
+                <Link
+                  key={agent.id}
+                  href={`/act/${agent.id}`}
+                  data-act={agent.id}
+                  className={`rule-row${i === residents.length - 1 && inTown.length === 0 ? " rule-row-last" : ""}`}
+                  style={{ display: "flex", gap: 14, alignItems: "baseline", padding: "10px 0" }}
+                >
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 10,
+                      height: 10,
+                      flex: "none",
+                      alignSelf: "center",
+                      background: "var(--act-accent)",
+                    }}
+                  />
+                  <span style={{ fontSize: 15, fontWeight: 600, flex: 1 }}>{agent.displayName}</span>
+                  <span className="mono" style={{ fontSize: 11, letterSpacing: "0.2em", color: "var(--sec)" }}>
+                    {agent.resident?.building?.replace(/-/g, " ").toUpperCase()}
+                  </span>
+                </Link>
+              ))}
+              {inTown.length > 0 && (
+                <Link
+                  href="/"
+                  className="mono rule-row rule-row-last"
+                  style={{ fontSize: 11, color: "var(--sec)", padding: "10px 0", display: "block" }}
+                >
+                  and {inTown.length} more in town →
+                </Link>
+              )}
+            </div>
+          </section>
+        )}
 
         {latest && (
           <section style={{ padding: sectionPad, borderTop: "1px solid var(--hairline)" }}>

@@ -46,6 +46,27 @@ ERAS: tuple[str, ...] = (
 
 PLAYER_IDS: tuple[str, ...] = ("silt", "rust", "keep")
 
+# The ids an Intent will validate against. Starts as the house trio and grows
+# only by explicit registration (the roster loader registers imported acts).
+# The conductor never registers anything, so an unattended session's guard
+# stays exactly the trio unless a roster is deliberately loaded first.
+_REGISTERED_PLAYER_IDS: set[str] = set(PLAYER_IDS)
+
+
+def register_player_ids(*ids: str) -> None:
+    """Allow additional stable act ids (roster imports) to validate as
+    `Intent.player_id`. Registration is additive and idempotent; the house
+    trio is always registered. Ids join URLs and log keys — never rename."""
+    for pid in ids:
+        if not isinstance(pid, str) or not pid.strip():
+            raise ValueError(f"player id must be a non-empty string, got {pid!r}")
+        _REGISTERED_PLAYER_IDS.add(pid)
+
+
+def registered_player_ids() -> frozenset[str]:
+    """The ids currently allowed in an Intent (house trio + registered roster)."""
+    return frozenset(_REGISTERED_PLAYER_IDS)
+
 _WEIGHT_SUM_TOLERANCE = 1e-6
 _INFLUENCE_COUNT = 4
 
@@ -151,8 +172,10 @@ class Intent:
             elif len({t.lower() for t in tags}) != len(tags):
                 problems.append(f"{name} tags must be unique (case-insensitive)")
 
-        if self.player_id not in PLAYER_IDS:
-            problems.append(f"player_id must be one of {PLAYER_IDS}")
+        if self.player_id not in _REGISTERED_PLAYER_IDS:
+            problems.append(
+                f"player_id must be a registered act id (house: {PLAYER_IDS})"
+            )
         if not isinstance(self.line, str) or not self.line.strip():
             problems.append("line must be a non-empty sentence")
         if not isinstance(self.lyrics, str) or not self.lyrics.strip():

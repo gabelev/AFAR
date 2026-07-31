@@ -3,7 +3,7 @@ import { GraphCoverMini } from "@/components/GraphCover";
 import { PlayerBar } from "@/components/PlayerBar";
 import { PressPhoto } from "@/components/PressPhoto";
 import { ACT_DESIGN, catalogueNumber, isActId } from "@/lib/acts";
-import { listAgents, listReleases, stanceWord } from "@/lib/data";
+import { listAgents, listReleases, rosterSections, stanceWord, type Agent } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +33,47 @@ const STEPS = [
   },
 ];
 
+/** One roster card — house acts get their press photo, imports their portrait. */
+function RosterCard({ agent }: { agent: Agent }) {
+  const building = agent.resident?.building;
+  return (
+    <Link href={`/act/${agent.id}`} data-act={agent.id} className="roster-card">
+      <PressPhoto
+        pressSrc={isActId(agent.id) ? ACT_DESIGN[agent.id].press : undefined}
+        imageUrl={agent.imageUrl}
+        alt={`${agent.displayName} press photo`}
+        className={isActId(agent.id) ? "roster-card-photo" : "roster-card-photo photo-smooth"}
+      />
+      <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", gap: 3 }}>
+        <div style={{ fontSize: 18, fontWeight: 600 }}>{agent.displayName}</div>
+        <div
+          className="mono"
+          style={{
+            fontSize: 10,
+            letterSpacing: "0.2em",
+            color: "var(--act-ink)",
+            textTransform: "uppercase",
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 8,
+          }}
+        >
+          <span>{stanceWord(agent)}</span>
+          {building && <span style={{ color: "var(--sec)" }}>{building.replace(/-/g, " ")}</span>}
+        </div>
+        {agent.genreLine && (
+          <div className="mono" style={{ fontSize: 10, color: "var(--sec)" }}>
+            {agent.genreLine}
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 export default async function HomePage() {
   const [agents, releases] = await Promise.all([listAgents(), listReleases()]);
-  const acts = agents.filter((a) => a.kind === "player");
+  const { house, residents, inTown } = rosterSections(agents);
   const staff = agents.filter((a) => a.kind === "staff");
   const latest = releases[releases.length - 1];
 
@@ -104,38 +142,50 @@ export default async function HomePage() {
         </section>
 
         <section style={{ padding: "0 var(--gutter) 36px" }}>
-          <div className="label" style={{ paddingBottom: 14 }}>
-            THE ROSTER
+          <div className="label" style={{ paddingBottom: 4 }}>
+            THE ROSTER · THE HOUSE
           </div>
+          <p style={{ fontSize: 12, color: "var(--sec)", paddingBottom: 14 }}>
+            The three acts the world was founded on. They record here around the clock.
+          </p>
           <div className="roster-grid">
-            {acts.map((agent) => (
-              <Link key={agent.id} href={`/act/${agent.id}`} data-act={agent.id} className="roster-card">
-                {isActId(agent.id) && (
-                  <PressPhoto
-                    pressSrc={ACT_DESIGN[agent.id].press}
-                    imageUrl={agent.imageUrl}
-                    alt={`${agent.displayName} press photo`}
-                    className="roster-card-photo"
-                  />
-                )}
-                <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", gap: 3 }}>
-                  <div style={{ fontSize: 18, fontWeight: 600 }}>{agent.displayName}</div>
-                  <div
-                    className="mono"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.2em",
-                      color: "var(--act-ink)",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {stanceWord(agent)}
-                  </div>
-                </div>
-              </Link>
+            {house.map((agent) => (
+              <RosterCard key={agent.id} agent={agent} />
             ))}
           </div>
         </section>
+
+        {residents.length > 0 && (
+          <section style={{ padding: "0 var(--gutter) 36px" }}>
+            <div className="label" style={{ paddingBottom: 4 }}>
+              THE STREET · RESIDENTS
+            </div>
+            <p style={{ fontSize: 12, color: "var(--sec)", paddingBottom: 14 }}>
+              Acts who moved in with records of their own. Each holds a residence on the street.
+            </p>
+            <div className="roster-grid">
+              {residents.map((agent) => (
+                <RosterCard key={agent.id} agent={agent} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {inTown.length > 0 && (
+          <section style={{ padding: "0 var(--gutter) 36px" }}>
+            <div className="label" style={{ paddingBottom: 4 }}>
+              IN TOWN
+            </div>
+            <p style={{ fontSize: 12, color: "var(--sec)", paddingBottom: 14 }}>
+              The rest of the scene — in town with their back catalogues, not yet moved in.
+            </p>
+            <div className="roster-grid">
+              {inTown.map((agent) => (
+                <RosterCard key={agent.id} agent={agent} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {latest && (
           <section
@@ -185,7 +235,10 @@ export default async function HomePage() {
           </span>
         </nav>
       </div>
-      <PlayerBar quiet="NOTHING PLAYING — THE BUILDING IS QUIET" right={`${acts.length} ACTS IN STUDIO`} />
+      <PlayerBar
+        quiet="NOTHING PLAYING — THE BUILDING IS QUIET"
+        right={`${house.length} ACTS IN STUDIO · ${residents.length + inTown.length} IN TOWN`}
+      />
     </>
   );
 }
