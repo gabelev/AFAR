@@ -78,6 +78,8 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
           />
         </header>
 
+        {/* The bio — one generated paragraph, reviewed before commit; the
+            long-form description stays in the data but the page leads short. */}
         <section
           style={{
             padding: "20px var(--gutter) 0",
@@ -87,8 +89,8 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
             maxWidth: 680,
           }}
         >
-          {agent.description.map((para, i) => (
-            <p key={i} style={{ fontSize: 14, lineHeight: 1.6 }}>
+          {(agent.bio ? [agent.bio] : agent.description).map((para, i) => (
+            <p key={i} style={{ fontSize: 15, lineHeight: 1.65, textWrap: "pretty" }}>
               {para}
             </p>
           ))}
@@ -126,7 +128,7 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
                   </p>
                   <div style={{ fontSize: 12 }}>
                     <Link href={`/release/${release.id}`} className="link">
-                      view interaction record →
+                      view the release →
                     </Link>
                   </div>
                 </div>

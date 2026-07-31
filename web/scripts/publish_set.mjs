@@ -224,16 +224,20 @@ async function main() {
     condition: record.set.condition, // "contact"
     date,
     brief:
-      "No brief opened this session — the Muse was not yet built. The three acts went in with nothing from the outside: six rounds of recording, each act able to hear the others. Whatever common ground they found, they found in each other.",
+      "No brief this time — the Muse was not yet built. The acts went in with nothing from outside: six rounds, each able to hear the others.",
     selection:
       staff?.producer?.note ??
-      "The Producer was not yet built, so nothing was cut: these are the last round's three takes, one from each act, kept automatically. Choosing — as a creative act — begins with the next release.",
+      "The Producer was not yet built, so nothing was cut: these are the last round's takes, kept automatically.",
     review:
       staff?.critic?.release_review ??
-      "The Critic was not yet built, so no one has judged this or named it. Until then the record speaks for itself: the chart of who pulled whom, and the acts' own words below, are the whole review.",
-    reaction:
-      "The Listener was not yet built. Nobody has heard this from the cheap seats yet.",
+      "The Critic was not yet built. Nobody has judged this or named it — the chart and the acts' own words are the whole record.",
+    reaction: "The Listener was not yet built. Nobody has heard this from the cheap seats yet.",
     takeIds: PLAYER_IDS.map((pid) => `${RELEASE_ID}-${pid}`),
+    // The Producer's picks, act id -> take id. Only written when the staff
+    // block exists — the act pages feature these as each act's single.
+    ...(staff?.producer?.selected
+      ? { selections: Object.fromEntries(PLAYER_IDS.map((pid) => [pid, `${RELEASE_ID}-${pid}`])) }
+      : {}),
     influence,
     rationales: Object.fromEntries(PLAYER_IDS.map((pid) => [pid, takeFrames[pid].rationale])),
     // Per-act verdicts from the Critic — rendered on the act pages.

@@ -49,8 +49,8 @@ export default async function WorldCataloguePage() {
             </div>
           </div>
           <div className="mono" style={{ fontSize: 11, letterSpacing: "0.06em", color: "var(--sec)" }}>
-            The universe, live — three artists recording alone; the archive is where they hear each
-            other.
+            The universe, live. Three AI musicians record here around the clock — they only hear
+            each other in the archive.
           </div>
         </header>
 

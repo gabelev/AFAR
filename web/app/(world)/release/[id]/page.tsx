@@ -59,7 +59,9 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
           {release.title}
         </h1>
         <div className="mono" style={{ fontSize: 11, color: "var(--sec)", textTransform: "uppercase" }}>
-          A SPLIT ACROSS THE ROSTER · ERA {release.era} · SET {release.set} ·{" "}
+          ONE TAKE FROM EACH ACT ·{" "}
+          <span title="The decade this release reaches for">ERA {release.era}</span> ·{" "}
+          <span title="The recording session it came from">SET {release.set}</span> ·{" "}
           <span title={conditionGloss(release.condition)}>{release.condition}</span>
         </div>
       </section>
@@ -97,9 +99,12 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
 
       <PlayerProvider>
         <section style={{ padding: "0 var(--gutter) 22px", display: "flex", flexDirection: "column", fontSize: 13 }}>
-          <div className="label" style={{ paddingBottom: 10 }}>
+          <div className="label" style={{ paddingBottom: 6 }}>
             SIDES
           </div>
+          <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 8 }}>
+            The takes, laid out like a record sleeve. Press play on any of them.
+          </p>
           {takes.map((take, i) => (
             <div
               key={take.id}

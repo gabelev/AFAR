@@ -12,6 +12,8 @@ import type { Release } from "@/lib/data";
  *               and on the home page's mini plate (120 viewBox).
  * verb        — the stance verb the cover uses to label an influence edge
  *               pointing INTO this act (what the act did with what it heard).
+ * descriptor  — the stance translated for strangers; the plain line under the
+ *               act's name.
  * driftLine   — caption of the silhouette-drift strip on the act page.
  */
 export const ACT_DESIGN = {
@@ -22,6 +24,7 @@ export const ACT_DESIGN = {
     studio: "A",
     press: "/press/press-evers.png",
     verb: "played again",
+    descriptor: "Steady, clear — keeps playing what the others walk away from",
     node: { x: 240, y: 108 },
     mini: { x: 60, y: 26 },
     driftLine: "the silhouette is what he is reaching for now — and it is holding.",
@@ -33,6 +36,7 @@ export const ACT_DESIGN = {
     studio: "B",
     press: "/press/press-roan.png",
     verb: "cut away",
+    descriptor: "Sparse, worn — strips a song down to what survives",
     node: { x: 119, y: 318 },
     mini: { x: 31, y: 77 },
     driftLine: "the silhouette is what she is reaching for now — and it is thinning.",
@@ -44,6 +48,7 @@ export const ACT_DESIGN = {
     studio: "C",
     press: "/press/press-delta.png",
     verb: "layered under",
+    descriptor: "Slow, layered — never lets anything go",
     node: { x: 361, y: 318 },
     mini: { x: 89, y: 77 },
     driftLine: "the silhouette is what they are reaching for now — and it is thickening.",
