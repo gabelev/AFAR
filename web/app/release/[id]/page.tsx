@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArtImage } from "@/components/ArtImage";
 import { InfluenceGraph } from "@/components/InfluenceGraph";
 import { PlayerProvider, TrackPlayer } from "@/components/TrackPlayer";
 import { getRelease, listAgents, tracksForRelease } from "@/lib/data";
@@ -23,9 +24,8 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
 
       <section style={{ marginTop: "var(--space-4)" }}>
         {release.coverUrl && (
-          // Cover slot — AI-image covers arrive later; nothing renders until then.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          // Cover slot — renders nothing if the media URL 404s (fixture mode).
+          <ArtImage
             src={release.coverUrl}
             alt={`Cover of ${release.title}`}
             className="plate"

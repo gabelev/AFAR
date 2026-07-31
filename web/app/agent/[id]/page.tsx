@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArtImage } from "@/components/ArtImage";
 import { Radar } from "@/components/Radar";
 import { PlayerProvider, TrackPlayer } from "@/components/TrackPlayer";
 import {
@@ -62,11 +63,14 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
       >
         <div className="flex flex-col" style={{ gap: "var(--space-2)" }}>
           {agent.imageUrl ? (
-            // Portrait slot — AI-image portraits arrive later. The Radar
-            // silhouette below remains the act's signature either way.
+            // Portrait slot — falls back to the Radar if the media URL 404s
+            // (fixture mode). The silhouette remains the act's signature.
             <figure className="act-portrait">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={agent.imageUrl} alt={`Portrait of ${agent.displayName}`} />
+              <ArtImage
+                src={agent.imageUrl}
+                alt={`Portrait of ${agent.displayName}`}
+                fallback={agent.palette && <Radar palette={agent.palette} size={290} showLabels />}
+              />
             </figure>
           ) : (
             agent.palette && (

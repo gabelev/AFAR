@@ -18,7 +18,8 @@
       "loudQuiet": 0.45,
       "organicSynthetic": -0.7,
       "darkHopeful": 0.1
-    }
+    },
+    "imageUrl": "/api/media/cca470c074a7c321182d69c7ea63e076b2c93d97da24e23fe5c0b23881f2e34f"
   },
   {
     "id": "rust",
@@ -39,7 +40,8 @@
       "loudQuiet": 0.25,
       "organicSynthetic": 0.35,
       "darkHopeful": -0.75
-    }
+    },
+    "imageUrl": "/api/media/94e973b3622d9ed8f3d38bd16c89d948e2381ea42e8255013198dcc41c2eb835"
   },
   {
     "id": "keep",
@@ -60,7 +62,8 @@
       "loudQuiet": 0,
       "organicSynthetic": -0.1,
       "darkHopeful": 0.55
-    }
+    },
+    "imageUrl": "/api/media/7e9ca03a99b3ce48cf97fc108bf37e151b1a158098d911fd85c52242d3d75359"
   },
   {
     "id": "muse",
