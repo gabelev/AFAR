@@ -88,8 +88,30 @@ Spacing: 48px page gutters, hairline-ruled rows, no shadows, no radius.
 - Do NOT use or imitate LimeZu "Modern Interiors" (that is the Smallville look). Kenney CC0 acceptable for gap-filling only if restyled to this palette.
 - Fonts: Google Fonts — Archivo, IBM Plex Mono.
 
+## The Street — Archive Row (extension)
+Street canvas: 56×34 tiles, same 16px grid at 2×. The AFAR house is unchanged at `[1,2,31,32]` and becomes the corner landmark; a new street door punched in its east wall at `(31,22)–(31,23)` leads straight into the archive.
+
+Street layout (tile coords, inclusive):
+- West sidewalk `[32,2,33,32]` · road `[34,2,37,32]` (dashed lane line at x=35/36) · east sidewalk `[38,2,39,32]`
+- RES 01 — FOR LEASE: shell `[40,2,53,8]`, papered door `(40,5)`, papered windows `(40,3)`,`(40,7)`
+- RES 02 — move-in ready: shell `[40,10,53,16]`, door `(40,13)`, windows `(40,11)`,`(40,15)`; interior holds only dust ghosts + neutral-accent console
+- RES 03 — Vess Camber (first resident): shell `[40,18,53,24]`, door `(40,21)`, windows `(40,19)`,`(40,23)`; guest-violet console, amp, crates
+- RES 04 — FOR LEASE: shell `[40,26,53,32]`, papered door `(40,29)`, papered windows `(40,27)`,`(40,31)`
+- Furniture: lamp posts `(33,8)`,`(38,16)`,`(33,26)` (lamp-color pools) · bench `(38,24)` · mailbox `(32,20)` (demos get mailed to the label) · street trees in sidewalk pits `(32,5)`,`(38,10)`,`(32,29)`,`(38,30)` · NY subway entrance (R train, downtown) `(38,4)–(39,6)`: railed stairwell, darkening steps, globe lamp, pixel R bullet · parked cars along the west curb at `(34,8)`,`(34,17)`,`(34,25)` (1×2 tiles, muted body colors from the palette) · road puddles (era A)
+- Office pets: the Critic's cat curled on the desk papers `(9.6,19.6)` · the Muse's Scottish deerhound at the window `(2.6,24.2)` (tall wiry grey, ~20×14px, `deerhound()`/`cat()` in pixel.js)
+
+Sightline rule: every resident door faces west across the road toward the AFAR corner — the walk to the archive is legible from any front door. The archive remains the only listening room in town.
+
+Street listening event (frame 2b): resident leaves their door, crosses at the lamp, enters the AFAR street door into the archive. Whole block dims (same tweakable dim), EXCEPT: the archive, the crossing strip (tiles `[31,19]–[39,24]`), and the resident's own building. Lamp pools stay lit. Walked path in paper-colored dashes.
+
+Street LUT entries (era B): asphalt `#2b2e34→#302d27`, asphalt seam `#262a2f→#2a2722`, pavement `#4a463d→#4d4536`, grout `#403c34→#423b2e`, curb `#5a5449→#5c5240`. Prop diff: puddles −4, dust patches +2. Guest accents never remap.
+
+Tenant system: a resident room is parameterized by ONE accent color (console trim, sign plate, sprite coat — guest violet `#8a6f9e`/`#5e4a6c` for Vess Camber) + ONE character-prop slot (amp, tape reels, …; dashed ghost when empty). See `drawResidentRoom(cv,{acc,accD,prop,occupied})`.
+
+Staff sprites completed: Producer, Critic, Listener, Muse now have down/side/up maps with proper leg rows (row 14 splits into step-L/step-R walk frames, same convention as the acts). Silhouettes kept: headphones / glasses+papers / round / long hair + pale robe, staff grey `#8b8577`. Plus `vess` — the first resident sprite (flat cap, chest stripe).
+
 ## Files
 - `AFAR Interface.dc.html` — the full design doc: frames 1a (normal state), 1b (listening event), 1c–1e (release-page cover registers), 1f (act page), 1g (tile palette, spritesheets, swatches), 1h (era LUT proof). Open in a browser.
-- `pixel.js` — authoritative tile/sprite/palette spec: `PAL`, `eraPal()`, sprite maps `S`, room layout in `grid()`/`paint()`, era prop diffs.
-- `screenshots/` — PNG captures of every frame: `1a-normal-state`, `1b-listening-event`, `1c/1d/1e` release-page cover registers, `1f-act-page-roan-patina`, `1g-asset-sheets`, `1h-era-proof`.
+- `pixel.js` — authoritative tile/sprite/palette spec: `PAL`, `eraPal()`, sprite maps `S` (acts + completed staff + vess), house layout in `grid()`/`paint()`, street layout in `streetGrid()`/`paintStreet()`/`drawStreet()`, resident rooms in `drawResidentRoom()`, era prop diffs.
+- `screenshots/` — PNG captures of every frame: `1a-normal-state`, `1b-listening-event`, `1c/1d/1e` release-page cover registers, `1f-act-page-roan-patina`, `1g-asset-sheets`, `1h-era-proof`, plus street frames `2a-street-normal`, `2b-street-listening-event`, `2c-street-era-b-proof`, `2d-staff-spritesheets`, `2e-resident-interior`.
 - `photos/` — press photos, one per act (`press-evers/roan/delta.png`, 960×1200): hi-res pixel portraits (72×96 grid) in contemporary clothes — Evers in a chore jacket over a white tee with headphones round his neck, Roan in an eroding oversized hoodie and cargos, Delta in a quilted puffer with a record-bag strap — on a studio backdrop with film grain and an archival paper caption. Use on act pages, press kit, socials.
