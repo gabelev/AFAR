@@ -1359,7 +1359,7 @@ export async function createWorld(
       }
       const s = this.residents[ev.building] ?? null;
       setCaption(
-        `${clock(ev.t)} · A RESIDENT CROSSES TO THE ARCHIVE — THE ONLY LISTENING ROOM IN TOWN`,
+        `${clock(ev.t)} · AN ARTIST CROSSES TO THE ARCHIVE — THE ONLY LISTENING ROOM ON THE STREET`,
         "lamp",
       );
       setNow(`${cat} · ${ev.residentName} — crossing to the archive`);

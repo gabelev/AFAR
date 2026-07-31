@@ -4,6 +4,7 @@ import { PlayerBar } from "@/components/PlayerBar";
 import { PressPhoto } from "@/components/PressPhoto";
 import { catalogueNumber } from "@/lib/acts";
 import {
+  albumSlug,
   getAgent,
   listReleases,
   listTapes,
@@ -75,7 +76,7 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
       <div className="sheet">
         <div className="crumbbar">
           <span>
-            <Link href="/world">THE OFFICE</Link> / {agent.displayName}
+            <Link href="/world">THE STAFF</Link> / {agent.displayName}
           </span>
           <span>{stanceWord(agent)}</span>
         </div>
@@ -152,8 +153,8 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
                     “{work.pick(release)}”
                   </p>
                   <div style={{ fontSize: 12 }}>
-                    <Link href={`/release/${release.id}`} className="link">
-                      view the release →
+                    <Link href={`/album/${albumSlug("session", release.id)}`} className="link">
+                      view the album →
                     </Link>
                   </div>
                 </div>
@@ -182,7 +183,7 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
               tapesDesc.map((tape, i) => (
                 <Link
                   key={tape.id}
-                  href={`/tape/${tape.id}`}
+                  href={`/album/${albumSlug("tape", tape.id)}`}
                   className={`rule-row${i === tapesDesc.length - 1 ? " rule-row-last" : ""}`}
                   style={{ display: "flex", gap: 14, alignItems: "baseline", padding: "10px 0" }}
                 >
@@ -203,7 +204,7 @@ export default async function StaffPage({ params }: { params: Promise<{ slug: st
           </section>
         )}
       </div>
-      <PlayerBar quiet="NOTHING PLAYING" right="THE OFFICE" />
+      <PlayerBar quiet="NOTHING PLAYING" right="THE STAFF" />
     </>
   );
 }

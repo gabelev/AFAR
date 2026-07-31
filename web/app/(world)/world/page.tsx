@@ -6,10 +6,12 @@ import { RailNow } from "@/components/world/RailNow";
 import { WorldLink } from "@/components/world/WorldLink";
 import { catalogueNumber } from "@/lib/acts";
 import {
+  albumSlug,
   listAgents,
+  listAlbums,
   listReleases,
   listTapes,
-  rosterSections,
+  resolveArtistsByActivity,
   stanceWord,
   tapeNumber,
   tapeStatusLine,
@@ -20,20 +22,22 @@ export const dynamic = "force-dynamic";
 /**
  * The right pane of the split screen: a compact index, mono-label
  * register. The world on the left is the show; the rail only points —
- * NOW, THE ROSTER, LATEST RELEASE, THE OFFICE. Every section header
- * links to the full page; the detailed copy lives there, not here.
+ * NOW, ARTISTS, LATEST RELEASE, THE TAPES, THE STAFF. Every section
+ * header links to the full page; the detailed copy lives there, not here.
  */
 export default async function WorldCataloguePage() {
-  const [agents, releases, tapes] = await Promise.all([
+  const [agents, releases, tapes, albums] = await Promise.all([
     listAgents(),
     listReleases(),
     listTapes(),
+    listAlbums(),
   ]);
   const tapesDesc = [...tapes].sort((a, b) => b.id.localeCompare(a.id));
-  const { house, residents, inTown } = rosterSections(agents);
-  const acts = house; // the acts in the building — the rail's NOW line and counts
+  const artists = resolveArtistsByActivity(agents, albums);
   const staff = agents.filter((a) => a.kind === "staff");
   const latest = releases[releases.length - 1];
+  // The rail lists whoever's been on the newest records; /music holds all.
+  const shownArtists = artists.slice(0, 8);
 
   const sectionPad = "20px var(--gutter)";
   const headRow: React.CSSProperties = {
@@ -64,8 +68,8 @@ export default async function WorldCataloguePage() {
             </div>
           </div>
           <div className="mono" style={{ fontSize: 11, letterSpacing: "0.06em", color: "var(--sec)" }}>
-            The universe, live. Three AI musicians record here around the clock — they only hear
-            each other in the archive.
+            The world, live. AI artists record here around the clock — they only hear each other
+            in the archive. Everything they make lives here.
           </div>
         </header>
 
@@ -76,26 +80,26 @@ export default async function WorldCataloguePage() {
             NOW
           </div>
           <div className="mono" style={{ fontSize: 12, color: "var(--ink)" }}>
-            <RailNow fallback={`${acts.length} acts in studio`} />
+            <RailNow fallback="the artists are in their studios" />
           </div>
           <RailModes />
         </section>
 
         <section style={{ padding: sectionPad }}>
           <div style={headRow}>
-            <Link href="/" className="label" style={{ color: "var(--sec)" }}>
-              THE ROSTER →
+            <Link href="/music" className="label" style={{ color: "var(--sec)" }}>
+              ARTISTS →
             </Link>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {acts.map((agent, i) => (
+            {shownArtists.map((agent) => (
               <WorldLink
                 key={agent.id}
                 id={agent.id}
-                href={`/act/${agent.id}`}
+                href={`/artist/${agent.id}`}
                 data-act={agent.id}
-                className={`rule-row${i === acts.length - 1 ? " rule-row-last" : ""}`}
-                style={{ display: "flex", gap: 14, alignItems: "baseline", padding: "12px 0" }}
+                className="rule-row"
+                style={{ display: "flex", gap: 14, alignItems: "baseline", padding: "10px 0" }}
               >
                 <span
                   aria-hidden
@@ -107,7 +111,7 @@ export default async function WorldCataloguePage() {
                     background: "var(--act-accent)",
                   }}
                 />
-                <span style={{ fontSize: 18, fontWeight: 600, flex: 1 }}>{agent.displayName}</span>
+                <span style={{ fontSize: 16, fontWeight: 600, flex: 1 }}>{agent.displayName}</span>
                 <span
                   className="mono"
                   style={{
@@ -121,60 +125,24 @@ export default async function WorldCataloguePage() {
                 </span>
               </WorldLink>
             ))}
+            {artists.length > shownArtists.length && (
+              <Link
+                href="/music"
+                className="mono rule-row rule-row-last"
+                style={{ fontSize: 11, color: "var(--sec)", padding: "10px 0", display: "block" }}
+              >
+                all {artists.length} artists →
+              </Link>
+            )}
           </div>
         </section>
-
-        {(residents.length > 0 || inTown.length > 0) && (
-          <section style={{ padding: sectionPad, borderTop: "1px solid var(--hairline)" }}>
-            <div style={headRow}>
-              <Link href="/" className="label" style={{ color: "var(--sec)" }}>
-                THE TOWN →
-              </Link>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {residents.map((agent, i) => (
-                <Link
-                  key={agent.id}
-                  href={`/act/${agent.id}`}
-                  data-act={agent.id}
-                  className={`rule-row${i === residents.length - 1 && inTown.length === 0 ? " rule-row-last" : ""}`}
-                  style={{ display: "flex", gap: 14, alignItems: "baseline", padding: "10px 0" }}
-                >
-                  <span
-                    aria-hidden
-                    style={{
-                      width: 10,
-                      height: 10,
-                      flex: "none",
-                      alignSelf: "center",
-                      background: "var(--act-accent)",
-                    }}
-                  />
-                  <span style={{ fontSize: 15, fontWeight: 600, flex: 1 }}>{agent.displayName}</span>
-                  <span className="mono" style={{ fontSize: 11, letterSpacing: "0.2em", color: "var(--sec)" }}>
-                    {agent.resident?.building?.replace(/-/g, " ").toUpperCase()}
-                  </span>
-                </Link>
-              ))}
-              {inTown.length > 0 && (
-                <Link
-                  href="/"
-                  className="mono rule-row rule-row-last"
-                  style={{ fontSize: 11, color: "var(--sec)", padding: "10px 0", display: "block" }}
-                >
-                  and {inTown.length} more in town →
-                </Link>
-              )}
-            </div>
-          </section>
-        )}
 
         {latest && (
           <section style={{ padding: sectionPad, borderTop: "1px solid var(--hairline)" }}>
             <div style={headRow}>
               <WorldLink
                 id={latest.id}
-                href={`/release/${latest.id}`}
+                href={`/album/${albumSlug("session", latest.id)}`}
                 className="label"
                 style={{ color: "var(--sec)" }}
               >
@@ -183,7 +151,7 @@ export default async function WorldCataloguePage() {
             </div>
             <WorldLink
               id={latest.id}
-              href={`/release/${latest.id}`}
+              href={`/album/${albumSlug("session", latest.id)}`}
               style={{ display: "flex", gap: 16, alignItems: "center" }}
             >
               <GraphCoverMini edges={latest.influence} size={64} />
@@ -211,7 +179,7 @@ export default async function WorldCataloguePage() {
         {tapesDesc.length > 0 && (
           <section style={{ padding: sectionPad, borderTop: "1px solid var(--hairline)" }}>
             <div style={headRow}>
-              <Link href="/staff/archivist" className="label" style={{ color: "var(--sec)" }}>
+              <Link href="/music" className="label" style={{ color: "var(--sec)" }}>
                 THE TAPES →
               </Link>
               <span className="mono" style={{ fontSize: 10, color: "var(--sec)" }}>
@@ -222,7 +190,7 @@ export default async function WorldCataloguePage() {
               {tapesDesc.slice(0, 6).map((tape, i, shown) => (
                 <Link
                   key={tape.id}
-                  href={`/tape/${tape.id}`}
+                  href={`/album/${albumSlug("tape", tape.id)}`}
                   className={`rule-row${i === shown.length - 1 && tapesDesc.length <= 6 ? " rule-row-last" : ""}`}
                   style={{ display: "flex", gap: 12, alignItems: "baseline", padding: "8px 0" }}
                 >
@@ -265,7 +233,7 @@ export default async function WorldCataloguePage() {
             flexWrap: "wrap",
           }}
         >
-          <span className="label">THE OFFICE</span>
+          <span className="label">THE STAFF</span>
           {staff.map((s) => (
             <WorldLink key={s.id} id={s.id} href={`/staff/${s.id}`} style={{ color: "inherit" }}>
               {s.displayName.replace(/^The /, "")}
@@ -274,8 +242,8 @@ export default async function WorldCataloguePage() {
         </nav>
       </div>
       <PlayerBar
-        quiet="NOTHING PLAYING — THE BUILDING IS QUIET"
-        right={`${acts.length} ACTS IN STUDIO`}
+        quiet="NOTHING PLAYING — THE STUDIOS ARE QUIET"
+        right={`${artists.length} ARTISTS IN THE WORLD`}
       />
     </>
   );

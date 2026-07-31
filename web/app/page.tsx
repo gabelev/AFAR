@@ -1,18 +1,18 @@
 import Link from "next/link";
 import { GraphCoverMini } from "@/components/GraphCover";
+import { ArtistCard } from "@/components/ArtistCard";
 import { PlayerBar } from "@/components/PlayerBar";
-import { PressPhoto } from "@/components/PressPhoto";
-import { ACT_DESIGN, catalogueNumber, isActId } from "@/lib/acts";
-import { listAgents, listReleases, rosterSections, stanceWord, type Agent } from "@/lib/data";
+import { catalogueNumber } from "@/lib/acts";
+import { albumSlug, listAgents, listReleases, resolveArtists } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Home: what AFAR.MUSIC is, in one screen — hero, how it works in three
- * steps, the roster, the latest release, the office. The universe itself
- * lives at /world (the split-screen building). Plain language throughout:
- * this page must make sense to someone who knows nothing about AI or
- * music-making.
+ * steps, the artists (one flat roster), the latest release, the staff.
+ * Browsing lives at /music; the live pixel world at /world. Plain language
+ * throughout: this page must make sense to someone who knows nothing
+ * about AI or music-making.
  */
 
 const STEPS = [
@@ -33,48 +33,9 @@ const STEPS = [
   },
 ];
 
-/** One roster card — house acts get their press photo, imports their portrait. */
-function RosterCard({ agent }: { agent: Agent }) {
-  const building = agent.resident?.building;
-  return (
-    <Link href={`/act/${agent.id}`} data-act={agent.id} className="roster-card">
-      <PressPhoto
-        pressSrc={isActId(agent.id) ? ACT_DESIGN[agent.id].press : undefined}
-        imageUrl={agent.imageUrl}
-        palette={agent.palette}
-        alt={`${agent.displayName} press photo`}
-        className={isActId(agent.id) ? "roster-card-photo" : "roster-card-photo photo-smooth"}
-      />
-      <div style={{ padding: "10px 12px 12px", display: "flex", flexDirection: "column", gap: 3 }}>
-        <div style={{ fontSize: 18, fontWeight: 600 }}>{agent.displayName}</div>
-        <div
-          className="mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.2em",
-            color: "var(--act-ink)",
-            textTransform: "uppercase",
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 8,
-          }}
-        >
-          <span>{stanceWord(agent)}</span>
-          {building && <span style={{ color: "var(--sec)" }}>{building.replace(/-/g, " ")}</span>}
-        </div>
-        {agent.genreLine && (
-          <div className="mono" style={{ fontSize: 10, color: "var(--sec)" }}>
-            {agent.genreLine}
-          </div>
-        )}
-      </div>
-    </Link>
-  );
-}
-
 export default async function HomePage() {
   const [agents, releases] = await Promise.all([listAgents(), listReleases()]);
-  const { house, residents, inTown } = rosterSections(agents);
+  const artists = resolveArtists(agents);
   const staff = agents.filter((a) => a.kind === "staff");
   const latest = releases[releases.length - 1];
 
@@ -93,8 +54,12 @@ export default async function HomePage() {
             color: "var(--sec)",
           }}
         >
-          <span style={{ letterSpacing: "0.22em" }}>AFAR.MUSIC — A UNIVERSE OF MUSIC</span>
-          <span>EST. ERA 2020s</span>
+          <span style={{ letterSpacing: "0.22em" }}>AFAR.MUSIC — MUSIC FROM AFAR</span>
+          <span>
+            <Link href="/music" style={{ color: "inherit", letterSpacing: "0.22em" }}>
+              MUSIC
+            </Link>
+          </span>
         </header>
 
         <section style={{ padding: "48px var(--gutter) 36px", display: "flex", flexDirection: "column", gap: 18 }}>
@@ -106,9 +71,15 @@ export default async function HomePage() {
             A living world of AI musicians. Design your artist, shape their sound, and hear the
             music they make without you.
           </p>
-          <div className="wrap-sm" style={{ display: "flex", gap: 14, marginTop: 6 }}>
+          <p style={{ fontSize: 15, maxWidth: 540, color: "var(--sec-deep)" }}>
+            Everything lives here. Music from afar.
+          </p>
+          <div className="wrap-sm" style={{ display: "flex", gap: 14, marginTop: 6, flexWrap: "wrap" }}>
             <Link href="/invite" className="btn-primary">
               Build an AI artist
+            </Link>
+            <Link href="/music" className="btn-outline">
+              Listen to the music
             </Link>
             <Link href="/world" className="btn-outline">
               Visit the universe
@@ -143,50 +114,29 @@ export default async function HomePage() {
         </section>
 
         <section style={{ padding: "0 var(--gutter) 36px" }}>
-          <div className="label" style={{ paddingBottom: 4 }}>
-            THE ROSTER · THE HOUSE
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              paddingBottom: 4,
+            }}
+          >
+            <div className="label">ARTISTS</div>
+            <Link href="/music" className="mono link" style={{ fontSize: 11, fontStyle: "normal" }}>
+              all the music →
+            </Link>
           </div>
           <p style={{ fontSize: 12, color: "var(--sec)", paddingBottom: 14 }}>
-            The three acts the world was founded on. They record here around the clock.
+            One roster, A to Z. They record here around the clock, hear each other on record, and
+            work with the same staff.
           </p>
           <div className="roster-grid">
-            {house.map((agent) => (
-              <RosterCard key={agent.id} agent={agent} />
+            {artists.map((agent) => (
+              <ArtistCard key={agent.id} agent={agent} />
             ))}
           </div>
         </section>
-
-        {residents.length > 0 && (
-          <section style={{ padding: "0 var(--gutter) 36px" }}>
-            <div className="label" style={{ paddingBottom: 4 }}>
-              THE STREET · RESIDENTS
-            </div>
-            <p style={{ fontSize: 12, color: "var(--sec)", paddingBottom: 14 }}>
-              Acts who moved in with records of their own. Each holds a residence on the street.
-            </p>
-            <div className="roster-grid">
-              {residents.map((agent) => (
-                <RosterCard key={agent.id} agent={agent} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {inTown.length > 0 && (
-          <section style={{ padding: "0 var(--gutter) 36px" }}>
-            <div className="label" style={{ paddingBottom: 4 }}>
-              IN TOWN
-            </div>
-            <p style={{ fontSize: 12, color: "var(--sec)", paddingBottom: 14 }}>
-              The rest of the scene — in town with their back catalogues, not yet moved in.
-            </p>
-            <div className="roster-grid">
-              {inTown.map((agent) => (
-                <RosterCard key={agent.id} agent={agent} />
-              ))}
-            </div>
-          </section>
-        )}
 
         {latest && (
           <section
@@ -203,8 +153,8 @@ export default async function HomePage() {
                 {catalogueNumber(latest.id)} · the cover is a chart of who influenced whom
               </div>
               <div style={{ fontSize: 13, marginTop: 6 }}>
-                <Link href={`/release/${latest.id}`} className="link">
-                  view the release →
+                <Link href={`/album/${albumSlug("session", latest.id)}`} className="link">
+                  view the album →
                 </Link>
               </div>
             </div>
@@ -221,24 +171,28 @@ export default async function HomePage() {
             color: "var(--sec)",
             display: "flex",
             gap: 18,
+            flexWrap: "wrap",
           }}
         >
-          <span style={{ letterSpacing: "0.22em" }}>THE OFFICE</span>
+          <span style={{ letterSpacing: "0.22em" }}>THE STAFF</span>
           {staff.map((s) => (
             <Link key={s.id} href={`/staff/${s.id}`} style={{ color: "inherit" }}>
               {s.displayName.replace(/^The /, "")}
             </Link>
           ))}
-          <span style={{ marginLeft: "auto" }}>
+          <span style={{ marginLeft: "auto", display: "flex", gap: 18 }}>
+            <Link href="/music" className="link" style={{ fontStyle: "normal" }}>
+              all the music →
+            </Link>
             <Link href="/world" className="link" style={{ fontStyle: "normal" }}>
-              the building, live →
+              the world, live →
             </Link>
           </span>
         </nav>
       </div>
       <PlayerBar
-        quiet="NOTHING PLAYING — THE BUILDING IS QUIET"
-        right={`${house.length} ACTS IN STUDIO · ${residents.length + inTown.length} IN TOWN`}
+        quiet="NOTHING PLAYING — THE STUDIOS ARE QUIET"
+        right={`${artists.length} ARTISTS`}
       />
     </>
   );
