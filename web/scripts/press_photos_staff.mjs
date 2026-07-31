@@ -181,7 +181,7 @@ export function renderStaffPhoto(staffId) {
   // archive line, mono letterspaced
   c.fillStyle = '#5e5a4f';
   c.font = '500 18px "IBM Plex Mono"';
-  drawSpaced(c, 'AFAR PRESS ARCHIVE · THE LABEL OFFICE · ERA 2020s', 46, 1178, 1.5);
+  drawSpaced(c, 'AFAR PRESS ARCHIVE · THE OFFICE · ERA 2020s', 46, 1178, 1.5);
 
   return cv.toBuffer('image/png', { compressionLevel: 9 });
 }

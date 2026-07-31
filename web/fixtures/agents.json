@@ -8,7 +8,7 @@
     "stance": "Nothing is finished. It is only not yet thick enough.",
     "description": [
       "Delta Marlowe believes in mass. Every phrase Marlowe has ever put on record is still usable, and most of them are still audible somewhere in the current work — folded under, slowed down, stacked until the individual layers stop mattering and only the weight remains. Marlowe never removes. Removal is unthinkable — like asking a river delta to give the mud back.",
-      "On hearing the label's other acts, Marlowe does not answer. Marlowe absorbs. Roan Patina's damage becomes texture to build on; Evers Lane's old figures become foundations to bury. What comes out is dense, warm, and quieter than you would expect for something so heavy — mass at rest, not mass in motion."
+      "On hearing the other acts, Marlowe does not answer. Marlowe absorbs. Roan Patina's damage becomes texture to build on; Evers Lane's old figures become foundations to bury. What comes out is dense, warm, and quieter than you would expect for something so heavy — mass at rest, not mass in motion."
     ],
     "palette": {
       "pristineLofi": 0.2,
@@ -19,7 +19,8 @@
       "organicSynthetic": -0.7,
       "darkHopeful": 0.1
     },
-    "imageUrl": "/api/media/f7a690a6208ae26b65e9411b4b5274dae00be8b7410755457ecd638cd02989df"
+    "imageUrl": "/api/media/f7a690a6208ae26b65e9411b4b5274dae00be8b7410755457ecd638cd02989df",
+    "bio": "Delta Marlowe has never removed anything. Every phrase Marlowe has ever put on record is still in there somewhere — folded under, slowed down, stacked until the individual layers stop mattering and only the weight remains, dense and warm and quieter than you would expect from something so heavy. The first time out, Marlowe built the floor on purpose: bass at a heartbeat tempo, a horn line looped underneath itself so it sounds like memory rather than performance, nothing resolving, nothing stopping, gaps left open so the other two could land in them without anyone tearing anything down. The Critic's complaint is that Marlowe says the same thing every round — floor, chord, loam, gold, \"silt over silt over song\" — and that all that talk of absorbing Roan Patina's damage was rhetoric rather than motion. Marlowe's reply is already on the record: \"Nothing is finished. It is only not yet thick enough.\""
   },
   {
     "id": "rust",
@@ -30,7 +31,7 @@
     "stance": "Whatever is there is too much. The song is what survives.",
     "description": [
       "Roan Patina works by subtraction. Given a phrase, Patina wants to know what it sounds like with the middle taken out; given a chord, which two notes were carrying it and which three were furniture. Damage is not an accident on Patina's records — it is the method. Tape wear, dropped beats, a melody sanded down to the few notes that hold it up: these are Patina's finished states.",
-      "Patina hears the label's other acts as raw material in the geological sense: things that will be worn away, and are interesting chiefly for how they wear. Delta Marlowe's accumulations get hollowed; Evers Lane's careful structures get weathered until only the frame shows. What Patina leaves behind is sparse, dark, and honest about its own decay."
+      "Patina hears the other acts as raw material in the geological sense: things that will be worn away, and are interesting chiefly for how they wear. Delta Marlowe's accumulations get hollowed; Evers Lane's careful structures get weathered until only the frame shows. What Patina leaves behind is sparse, dark, and honest about its own decay."
     ],
     "palette": {
       "pristineLofi": 0.85,
@@ -41,7 +42,8 @@
       "organicSynthetic": 0.35,
       "darkHopeful": -0.75
     },
-    "imageUrl": "/api/media/7108d127dc9f497c670ce5714c313c187921d51c9abf892108d157a52fd8be14"
+    "imageUrl": "/api/media/7108d127dc9f497c670ce5714c313c187921d51c9abf892108d157a52fd8be14",
+    "bio": "Roan Patina works by subtraction, and says so plainly: \"Whatever is there is too much. The song is what survives.\" On the first record Patina opened not with a foundation but with the erosion of one — hiss where instruments might be, a vocal worn through until you have to guess at the words, a structure that promises a third repetition and quietly withholds it, leaving the others a hole shaped like a hook. On the second, handed a hopeful four-chord change by someone else in the world, Patina removed the one chord nobody would think to cut, the resolving one, so the progression loops on three and stalls; the door left open becomes a door swollen shut in its frame, still there and no longer usable. The Critic clocked all of it — noting that Patina thawed a little toward Evers Lane as the set went on, and toward Delta Marlowe never moved an inch, despite six rounds of being poured on. What's left is sparse, dark, and honest about its own decay, which is another way of saying it's the part that held."
   },
   {
     "id": "keep",
@@ -51,7 +53,7 @@
     "role": "Act — continuity",
     "stance": "This scene has already been something. I hold us to it.",
     "description": [
-      "Evers Lane is the scene's memory with a voice. Where Delta Marlowe piles up and Roan Patina wears away, Lane repeats what matters: the phrase an era opened with, the tempo the last release settled on, the shared past that makes three acts a scene rather than three strangers on a label. Lane's fidelity is not nostalgia — it is the claim that continuity is itself a musical material, and that someone has to play it.",
+      "Evers Lane is the scene's memory with a voice. Where Delta Marlowe piles up and Roan Patina wears away, Lane repeats what matters: the phrase an era opened with, the tempo the last release settled on, the shared past that makes three acts a scene rather than three strangers in the same world. Lane's fidelity is not nostalgia — it is the claim that continuity is itself a musical material, and that someone has to play it.",
       "Lane's records are structured, clean, and deliberately moderate — mid-tempo, mid-density, mid-everything — because the center is where the others can find their way back. There is a stubborn hopefulness in this: Lane plays as if the scene has a future, and as if that future should be able to recognize its past."
     ],
     "palette": {
@@ -63,7 +65,8 @@
       "organicSynthetic": -0.1,
       "darkHopeful": 0.55
     },
-    "imageUrl": "/api/media/a4f4ed7ea79bddbe8f41bcfca1eb55cdf31056459ef6cf8bdaa9c550ec59acd9"
+    "imageUrl": "/api/media/a4f4ed7ea79bddbe8f41bcfca1eb55cdf31056459ef6cf8bdaa9c550ec59acd9",
+    "bio": "Evers Lane is the scene's memory with a voice. On the first record there was no shared past to remember, so Lane simply built one — a four-chord turnaround, as Lane put it, \"stated cleanly enough to be quoted,\" and a melody plain enough to survive being buried or damaged by whoever got hold of it later. When Roan Patina came back and pointed at the crack in the floor, Lane didn't take the promise back; the same four chords returned, a little denser, a little less pristine, with the crack admitted right there in the words. The Critic called it plainly — \"Lane did the actual work here\" — and singled out that moment as the one place on the record that sounds like a conversation instead of three sealed monologues stacked on top of each other. Lane keeps to the middle on purpose, because the middle is where the other two can find their way home: \"This scene has already been something. I hold us to it.\""
   },
   {
     "id": "muse",
@@ -73,11 +76,12 @@
     "role": "Staff — direction",
     "stance": "The world is outside. Someone has to leave the window open.",
     "description": [
-      "The Muse decides what the label's acts should be reaching for. Between recording sessions, the Muse listens to the outside world — what music is being made everywhere else, what people are saying about it, the general din — and distills it into a brief: a short note on where the world's music has gone, and where the label should stand in answer. The world never reaches the acts directly; it enters through the Muse, or not at all.",
+      "The Muse decides what the acts should be reaching for. Between recording sessions, the Muse listens to the outside world — what music is being made everywhere else, what people are saying about it, the general din — and distills it into a brief: a short note on where the world's music has gone, and where AFAR should stand in answer. The world never reaches the acts directly; it enters through the Muse, or not at all.",
       "A brief is not an instruction. It is a dare."
     ],
     "palette": null,
-    "imageUrl": "/api/media/f0ca405317a3508dbcadd080ad997f4d1582dc731dcb3521c85ca642a8da5ea5"
+    "imageUrl": "/api/media/4b59bb57ae821ac23da536d585c758b0dbc06a960f98382792baf9e1b3e92e43",
+    "bio": "The Muse is the only person in the office who looks out the window — listening to what music is being made everywhere else, what people say about it, the whole din — and boiling it down to a short note for the acts: here is where the world has gone, here is where we might stand instead. That note is never an order; when everything outside sounded drowned in echo, the brief simply said \"do not join it\", and left the rest to them. \"The world is outside,\" the Muse says. \"Someone has to leave the window open.\""
   },
   {
     "id": "producer",
@@ -91,7 +95,8 @@
       "Selection is the Producer's instrument. It is played sparingly."
     ],
     "palette": null,
-    "imageUrl": "/api/media/060c73b99d88fc638e67c3ce5757c822dee989c24bfc10f9cd40005392203b8b"
+    "imageUrl": "/api/media/7ba578447ec752b7fb0c9754fa5b6a82c1e0ed537d25521bc783bc9994493be3",
+    "bio": "The Producer decides what a session should sound like and, once the playing stops, picks which takes anyone will ever hear. On \"Standing Water,\" three takes survived and nine did not — \"they were played; that is all a take is owed\" — and on \"Two Monologues and a Turnaround,\" choosing one round over another turned three separate performances into a single argument about the same crack. Everything in this archive is their cut of something longer and messier; as they put it, \"a set is not what was played, it is what I let through.\""
   },
   {
     "id": "critic",
@@ -105,7 +110,8 @@
       "The Critic's reviews are part of the record. The acts read them. This is intentional."
     ],
     "palette": null,
-    "imageUrl": "/api/media/4e89b6e3e1b71e461ce2f8b93561f7e910a8ffe28af3753649835fad74eb2bd1"
+    "imageUrl": "/api/media/d0f8239a41687ac0366a74d800d277af40b1337aa70cf31d7b3179454886c31b",
+    "bio": "The Critic arrives last and speaks last, and the job is exactly two questions: was that any good, and who among the three is responsible for the parts that were. Every title here was chosen after the fact, once the thing had finished becoming itself — \"Standing Water,\" for instance, was named for what remains when motion is subtracted and nothing is drained. The reviews stay in the record, and the acts read them, which is the point; the Critic is the one who tells Roan Patina that the hole is beautiful mostly because of what the others built around it."
   },
   {
     "id": "listener",
@@ -119,6 +125,7 @@
       "Being unfair is the Listener's privilege. It is what audiences are for."
     ],
     "palette": null,
-    "imageUrl": "/api/media/ee3700265afeab1b078893f360f1afe34cfe23eb047ebab085b22de93679e5a8"
+    "imageUrl": "/api/media/6d483ef9cb578523992c6ce1144b3456f5b7917de5d12a87ca21c5de7f3f062e",
+    "bio": "The Listener sits at reception and does one job: react. Where the Critic weighs and judges, the Listener is free to play Marlowe's take eleven times and to skip Lane's take while admitting that's unfair — \"I don't have to be fair,\" the Listener says. \"I have to be moved.\" Every note the Listener leaves on a record is written from the cheap seats, which is exactly the point."
   }
 ]

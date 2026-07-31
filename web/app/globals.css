@@ -213,7 +213,25 @@ a { color: inherit; text-decoration: none; }
   outline: 1px solid var(--hairline-frame);
 }
 
-/* act-page press photo */
+/* act-page press photo — dominant, Tunz-anatomy header (4:5, leads the page) */
+.presscard-lg {
+  width: 236px;
+  height: 295px;
+  flex: none;
+  object-fit: cover;
+  object-position: top;
+  image-rendering: pixelated;
+  outline: 1px solid var(--hairline-frame);
+}
+@media (max-width: 720px) {
+  .presscard-lg {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* staff-page press photo */
 .presscard {
   width: 118px;
   height: 127px;

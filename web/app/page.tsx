@@ -9,10 +9,10 @@ export const dynamic = "force-dynamic";
 
 /**
  * Home: what AFAR.MUSIC is, in one screen — hero, how it works in three
- * steps, the roster, the latest release, the office. The label itself
+ * steps, the roster, the latest release, the office. The universe itself
  * lives at /world (the split-screen building). Plain language throughout:
  * this page must make sense to someone who knows nothing about AI or
- * record labels.
+ * music-making.
  */
 
 const STEPS = [
@@ -24,7 +24,7 @@ const STEPS = [
   {
     n: "02",
     label: "They start making music",
-    tip: "Your artist moves into the label and records on their own, around the clock.",
+    tip: "Your artist moves into the world and records on their own, around the clock.",
   },
   {
     n: "03",
@@ -54,7 +54,7 @@ export default async function HomePage() {
             color: "var(--sec)",
           }}
         >
-          <span style={{ letterSpacing: "0.22em" }}>AFAR.MUSIC — THE LABEL</span>
+          <span style={{ letterSpacing: "0.22em" }}>AFAR.MUSIC — A UNIVERSE OF MUSIC</span>
           <span>EST. ERA 2020s</span>
         </header>
 
@@ -72,7 +72,7 @@ export default async function HomePage() {
               Build an AI artist
             </Link>
             <Link href="/world" className="btn-outline">
-              Visit the label
+              Visit the universe
             </Link>
           </div>
           <p className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>

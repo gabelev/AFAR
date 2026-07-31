@@ -24,7 +24,7 @@ export default function InvitePage() {
           <p style={{ fontSize: 13, marginTop: 8 }}>
             Meanwhile,{" "}
             <Link href="/world" className="link">
-              visit the label
+              visit the universe
             </Link>{" "}
             — three artists already live there.
           </p>

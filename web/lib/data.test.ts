@@ -6,6 +6,9 @@ import {
   fixtureAgents,
   fixtureReleases,
   fixtureTracks,
+  resolveSingle,
+  type Release,
+  type Track,
 } from "./data";
 
 /** Fixtures are the zero-env data source; if they drift, every page drifts. */
@@ -46,6 +49,20 @@ describe("agents fixture", () => {
     expect(parsed.displayName).toBe(staff.name);
   });
 
+  it("gives every agent a bio — the story under the name on their page", () => {
+    for (const agent of fixtureAgents) {
+      expect(agent.bio, `${agent.id} is missing a bio`).toBeTruthy();
+      expect(agent.bio!.length).toBeGreaterThan(40);
+    }
+  });
+
+  it("parses rows without a bio, so pre-bio DB rows still render", () => {
+    const agent = fixtureAgents[0];
+    const withoutBio: Record<string, unknown> = { ...agent };
+    delete withoutBio.bio;
+    expect(AgentSchema.parse(withoutBio).bio).toBeUndefined();
+  });
+
   it("keeps player palettes distinct — the silhouettes are the identities", () => {
     const players = fixtureAgents.filter((a) => a.kind === "player");
     const signatures = players.map((a) => JSON.stringify(a.palette));
@@ -76,6 +93,61 @@ describe("releases fixture", () => {
         expect(typeof release.rationales[id]).toBe("string");
       }
     }
+  });
+});
+
+describe("resolveSingle", () => {
+  const track = (id: string, agentId: string): Track => ({
+    id,
+    releaseId: id.slice(0, 4),
+    agentId,
+    title: id,
+    durationSec: 30,
+    audioUrl: null,
+  });
+  const release = (id: string, selections?: Record<string, string>): Release => ({
+    id,
+    title: id,
+    era: "2020s",
+    set: Number(id),
+    condition: "contact",
+    date: "2026-07-31",
+    brief: "b",
+    selection: "s",
+    review: "r",
+    reaction: "x",
+    takeIds: [`${id}-silt`],
+    selections: selections ?? {},
+    influence: [],
+    rationales: {},
+    reviews: {},
+    coverUrl: null,
+  });
+  const tracks = [track("0001-silt", "silt"), track("0002-silt", "silt"), track("0002-rust", "rust")];
+
+  it("features the Producer's pick from the newest release that has one", () => {
+    const releases = [release("0001"), release("0002", { silt: "0002-silt" })];
+    const single = resolveSingle(releases, tracks, "silt");
+    expect(single?.track.id).toBe("0002-silt");
+    expect(single?.release.id).toBe("0002");
+  });
+
+  it("prefers a newer selection over an older one, regardless of input order", () => {
+    const releases = [
+      release("0002", { silt: "0002-silt" }),
+      release("0001", { silt: "0001-silt" }),
+    ];
+    expect(resolveSingle(releases, tracks, "silt")?.track.id).toBe("0002-silt");
+  });
+
+  it("returns null when the Producer has never picked for this act", () => {
+    const releases = [release("0001"), release("0002", { rust: "0002-rust" })];
+    expect(resolveSingle(releases, tracks, "silt")).toBeNull();
+  });
+
+  it("skips a selection whose take is not in the archive", () => {
+    const releases = [release("0002", { silt: "0002-missing" })];
+    expect(resolveSingle(releases, tracks, "silt")).toBeNull();
   });
 });
 

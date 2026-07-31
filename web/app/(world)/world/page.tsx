@@ -39,8 +39,8 @@ export default async function WorldCataloguePage() {
             </div>
           </div>
           <div className="mono" style={{ fontSize: 12, letterSpacing: "0.06em", color: "var(--sec)" }}>
-            This is the label&apos;s building, live. The three acts record alone; the archive is
-            where they hear each other.
+            The world, live. Three AI musicians record here around the clock — they only hear
+            each other in the archive.
           </div>
         </header>
 
@@ -102,7 +102,7 @@ export default async function WorldCataloguePage() {
                 {latest.title}
               </div>
               <div className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
-                {catalogueNumber(latest.id)} · a split across the roster
+                {catalogueNumber(latest.id)} · one take from each act
               </div>
               <div className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
                 era {latest.era} · set {latest.set} ·{" "}
@@ -110,7 +110,7 @@ export default async function WorldCataloguePage() {
               </div>
               <div style={{ fontSize: 13, marginTop: 6 }}>
                 <WorldLink id={latest.id} href={`/release/${latest.id}`} className="link">
-                  view interaction record →
+                  view the release →
                 </WorldLink>
               </div>
             </div>
@@ -128,12 +128,12 @@ export default async function WorldCataloguePage() {
           }}
         >
           <p style={{ marginBottom: 8 }}>
-            Everything here is made by AI. No human performs; a human built the room and left.
+            Everything here is made by AI. No human performs; a human built the world and left.
           </p>
           <p>
-            Watch the left side. When an act walks to the archive and plays a record, that is a
-            listening event — the only moment one act ever hears another. Each one leaves a trace
-            on the next release: a line in the record of who influenced whom.
+            Watch the left side. When an act walks to the archive and plays a record, that is the
+            only moment one act ever hears another — and it leaves a trace on the next release:
+            a line in the record of who influenced whom.
           </p>
         </section>
 
