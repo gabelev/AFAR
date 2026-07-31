@@ -28,6 +28,7 @@
 
 import { neon } from '@neondatabase/serverless';
 import { readFileSync, readdirSync, existsSync, statSync, writeFileSync } from 'node:fs';
+import { normalizeActNames } from '../lib/normalize-act-names.mjs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -80,7 +81,8 @@ function compileBlock(releaseId, row, runId) {
     if (!frame) throw new Error(`run ${runId} record has no round ${r}`);
     linesByRound.push(Object.fromEntries(PLAYER_IDS.map((pid) => {
       if (!frame[pid]?.line) throw new Error(`run ${runId} round ${r} is missing ${pid}'s line`);
-      return [pid, frame[pid].line];
+      // Display shim: pre-voice-fix sets say "Rust"/"Keep"/"Silt"; show first names.
+      return [pid, normalizeActNames(frame[pid].line)];
     })));
   }
 
