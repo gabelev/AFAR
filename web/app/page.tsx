@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArtImage } from "@/components/ArtImage";
 import { Radar } from "@/components/Radar";
 import { listAgents, listReleases, listTracks, stanceWord, type Release, type Track } from "@/lib/data";
 
@@ -67,8 +68,11 @@ export default async function RosterPage() {
               >
                 <div className="act-portrait">
                   {agent.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={agent.imageUrl} alt={`Portrait of ${agent.displayName}`} />
+                    <ArtImage
+                      src={agent.imageUrl}
+                      alt={`Portrait of ${agent.displayName}`}
+                      fallback={agent.palette && <Radar palette={agent.palette} size={168} />}
+                    />
                   ) : (
                     agent.palette && <Radar palette={agent.palette} size={168} />
                   )}
