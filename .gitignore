@@ -228,3 +228,4 @@ web/next-env.d.ts
 # The Python packaging "lib/" pattern above must not swallow the web app's source.
 !web/lib/
 *.mp3
+!web/scripts/lib/
