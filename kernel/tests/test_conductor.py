@@ -302,7 +302,10 @@ def test_smoke_set_walks_the_full_chain_with_dry_run_publish(tmp_path: Path):
 
     assert outcome.completed and outcome.released
     run_dir = tmp_path / outcome.run_id
-    assert outcome.run_id.endswith(f"-smoke-set-0000-{plan.condition}")
+    # Live mode, cold start (no brief anywhere): the session defaults to
+    # "together" — the schedule's drawn condition does not book the room.
+    assert outcome.condition == "contact"
+    assert outcome.run_id.endswith("-smoke-set-0000-contact")
 
     # The set itself: rounds played, release records chained by the staff.
     assert len((run_dir / "rounds.jsonl").read_text().splitlines()) == 2
@@ -379,6 +382,186 @@ def test_direction_consumes_the_newest_logged_brief(tmp_path: Path):
     # same direction is what run_set will receive.
     assert direction["direction"]["duration_s"] == 30
     assert returned == direction["direction"]
+
+
+# --- sessions, not conditions: the office books the room ------------------------
+
+
+def _log_brief(root: Path, run: str = "prior-run") -> None:
+    ledger = JsonlLedger(root, run, context=RunContext())
+    ledger.write("briefs", {"kind": "brief", "stance": "porous", "theme": "rooms",
+                            "text": "reach for the seam", "palette_notes": [],
+                            "forbidden_moves": [], "sources": [], "thin": False,
+                            "carried_forward": True})
+
+
+def _run_row(root: Path, run_id: str) -> dict:
+    (row,) = [json.loads(line)
+              for line in (root / run_id / "runs.jsonl").read_text().splitlines()]
+    return row
+
+
+def test_live_mode_books_the_session_from_the_producer(tmp_path: Path):
+    """The default (no experiment flag): the Producer's session_form — not the
+    schedule's draw — is the condition run_set receives, and the booking's
+    reasoning rides in the direction row."""
+    _log_brief(tmp_path)
+    conductor = _conductor(tmp_path, rounds_override=2, smoke=True)
+    outcome = conductor.run_one_set(conductor.schedule.set_plan(0))
+
+    assert outcome.condition == "contact"  # the mock Producer books "together"
+    assert outcome.run_id.endswith("-contact")
+    rows = _conductor_rows(tmp_path)
+    (started,) = [r for r in rows if r["kind"] == "set_started"]
+    assert started["condition"] == "contact"
+    assert started["session_form"] == "together"
+    assert started["booked_by"] == "producer"
+    (direction,) = [r for r in rows if r["kind"] == "direction"]
+    assert direction["direction"]["session_form"] == "together"
+    assert direction["direction"]["session_why"]
+    # And run_set actually played the booked condition.
+    assert _run_row(tmp_path, outcome.run_id)["condition"] == "contact"
+
+
+def test_live_mode_books_alone_when_the_producer_says_so(tmp_path: Path):
+    _log_brief(tmp_path)
+
+    def alone_booker(messages):
+        text = "\n".join(m.content for m in messages)
+        if '"session_form"' in text and "book the room" in text:
+            return json.dumps({"session_form": "alone",
+                               "why": "a hostile week wants the doors closed"})
+        return _mock_players(messages)
+
+    config = _config(tmp_path)
+    config.model = MockProvider(responder=alone_booker)
+    conductor = _conductor(tmp_path, config=config, rounds_override=2, smoke=True)
+    outcome = conductor.run_one_set(conductor.schedule.set_plan(0))
+
+    assert outcome.condition == "isolation"
+    assert outcome.run_id.endswith("-isolation")
+    (started,) = [r for r in _conductor_rows(tmp_path) if r["kind"] == "set_started"]
+    assert started["session_form"] == "alone" and started["booked_by"] == "producer"
+    assert _run_row(tmp_path, outcome.run_id)["condition"] == "isolation"
+
+
+def test_live_booking_degrades_to_together_and_the_direction_still_ships(tmp_path: Path):
+    """The staff-degrade doctrine: an unusable booking call defaults the
+    session to "together" — the set still runs, directed."""
+    _log_brief(tmp_path)
+
+    def booking_dead(messages):
+        text = "\n".join(m.content for m in messages)
+        if '"session_form"' in text and "book the room" in text:
+            return "not json at all"
+        return _mock_players(messages)
+
+    config = _config(tmp_path)
+    config.model = MockProvider(responder=booking_dead)
+    conductor = _conductor(tmp_path, config=config, rounds_override=2, smoke=True)
+    outcome = conductor.run_one_set(conductor.schedule.set_plan(0))
+
+    assert outcome.completed and outcome.condition == "contact"
+    (direction,) = [r for r in _conductor_rows(tmp_path) if r["kind"] == "direction"]
+    assert direction["direction"]["session_form"] == "together"
+    assert "did not file" in direction["direction"]["session_why"]
+    assert direction["direction"]["theme"] == "rooms"  # the direction shipped whole
+
+
+def test_experiment_mode_runs_the_schedules_draw_parallel_included(tmp_path: Path):
+    """AFAR_EXPERIMENT_MODE: the old scheduled behavior exactly — the
+    deterministic condition draw (parallel included) books every set and the
+    Producer books nothing (the direction is the pre-booking shape)."""
+    from afar.schedule import Schedule, ScheduleConfig
+
+    _log_brief(tmp_path)
+    config = _config(tmp_path)
+    config.experiment_mode = True
+    conductor = _conductor(
+        tmp_path, config=config, rounds_override=2, smoke=True,
+        schedule=Schedule(ScheduleConfig(condition_bias=(0, 0, 1))),
+    )
+    plan = conductor.schedule.set_plan(0)
+    assert plan.condition == "parallel"
+    outcome = conductor.run_one_set(plan)
+
+    assert outcome.condition == "parallel"
+    assert outcome.run_id.endswith("-parallel")
+    rows = _conductor_rows(tmp_path)
+    (started,) = [r for r in rows if r["kind"] == "set_started"]
+    assert started["booked_by"] == "schedule"
+    (direction,) = [r for r in rows if r["kind"] == "direction"]
+    assert "session_form" not in direction["direction"]
+    assert _run_row(tmp_path, outcome.run_id)["condition"] == "parallel"
+
+
+def test_live_mode_can_never_book_parallel():
+    """The booking vocabulary is exactly together/alone: parallel is a lab
+    condition, structurally unreachable from the live path (a model reply
+    asking for it fails parsing and degrades to together — test_seams)."""
+    from afar.agents.producer import SESSION_FORM_CONDITIONS, SESSION_FORMS
+
+    assert SESSION_FORMS == ("together", "alone")
+    assert set(SESSION_FORM_CONDITIONS.values()) == {"contact", "isolation"}
+
+
+def test_the_booking_is_informed_by_the_fan_and_the_recent_forms(tmp_path: Path):
+    """What governs the call: the brief, the Listener's last word, and the
+    last few sessions' forms all reach the booking prompt."""
+    _log_brief(tmp_path)
+    JsonlLedger(tmp_path, "prior-run", context=RunContext()).write(
+        "reactions", {"kind": "reaction", "valence": "liked",
+                      "text": "the quiet one got me", "ts": "2026-07-30T00:00:00+00:00"})
+    history = JsonlLedger(tmp_path, "conductor", context=RunContext())
+    history.write("conductor", {"kind": "set_started", "set_index": 0, "condition": "contact"})
+    history.write("conductor", {"kind": "set_started", "set_index": 1, "condition": "isolation"})
+
+    prompts: list[str] = []
+
+    def capturing(messages):
+        text = "\n".join(m.content for m in messages)
+        if '"session_form"' in text and "book the room" in text:
+            prompts.append(text)
+        return _mock_players(messages)
+
+    config = _config(tmp_path)
+    config.model = MockProvider(responder=capturing)
+    conductor = _conductor(tmp_path, config=config, rounds_override=2, smoke=True)
+    conductor._direct(conductor.schedule.set_plan(0), rounds=2)
+
+    (prompt,) = prompts
+    assert "the quiet one got me" in prompt
+    assert "together, alone" in prompt  # oldest first
+    assert "reach for the seam" in prompt  # the brief itself
+
+
+def test_recent_session_forms_reads_oldest_first_and_skips_smoke():
+    from afar.conductor import recent_session_forms
+
+    rows = [
+        {"kind": "set_started", "condition": "contact"},
+        {"kind": "set_started", "condition": "parallel"},
+        {"kind": "set_started", "condition": "isolation", "smoke": True},
+        {"kind": "heartbeat"},
+        {"kind": "set_started", "condition": "isolation"},
+    ]
+    assert recent_session_forms(rows) == [
+        "together", "side by side, unable to hear each other", "alone"]
+    assert recent_session_forms(rows, limit=1) == ["alone"]
+    assert recent_session_forms([]) == []
+
+
+def test_experiment_mode_env_knob(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    from afar.config import build_config
+
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setenv("AFAR_RUNS_ROOT", str(tmp_path))
+    monkeypatch.delenv("AFAR_EXPERIMENT_MODE", raising=False)
+    assert build_config().experiment_mode is False
+    monkeypatch.setenv("AFAR_EXPERIMENT_MODE", "1")
+    assert build_config().experiment_mode is True
+    monkeypatch.setenv("AFAR_EXPERIMENT_MODE", "0")
+    assert build_config().experiment_mode is False
 
 
 def test_sigterm_mid_set_finishes_the_round_and_aborts(tmp_path: Path):

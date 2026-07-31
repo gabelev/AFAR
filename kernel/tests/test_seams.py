@@ -271,6 +271,50 @@ def test_direct_degrades_to_30s_when_the_duration_call_never_parses():
     assert direction["text"] == "reach for the seam"
 
 
+# --- the Producer books the session: together or alone, degradable --------------
+
+
+def _book_with(reply: str):
+    from afar.agents.producer import ProducerAgent
+
+    def responder(messages):
+        text = "\n".join(m.content for m in messages)
+        if '"session_form"' in text and "book the room" in text:
+            return reply
+        return _mock_players(messages)
+
+    return ProducerAgent(MockProvider(responder=responder)).direct(
+        _Brief(), session={"recent_forms": ("together",), "last_reaction": None}
+    )
+
+
+def test_direct_books_the_session_only_when_asked():
+    from afar.agents.producer import ProducerAgent
+
+    # No session context (experiment mode, or a pre-sessions caller): the
+    # direction shape is exactly the pre-booking one.
+    plain = ProducerAgent(MockProvider(responder=_mock_players)).direct(_Brief())
+    assert "session_form" not in plain and "session_why" not in plain
+    booked = _book_with('{"session_form": "alone", "why": "doors closed"}')
+    assert booked["session_form"] == "alone"
+    assert booked["session_why"] == "doors closed"
+
+
+def test_direct_refuses_parallel_out_of_the_booking_vocabulary():
+    # "parallel" is a lab condition, not a session form: a model reply asking
+    # for it never parses, and the doors default open.
+    booked = _book_with('{"session_form": "parallel", "why": "lockstep"}')
+    assert booked["session_form"] == "together"
+    assert "did not file" in booked["session_why"]
+
+
+def test_direct_degrades_to_together_when_the_booking_never_parses():
+    booked = _book_with("not json at all")
+    assert booked["session_form"] == "together"
+    assert "did not file" in booked["session_why"]
+    assert booked["text"] == "reach for the seam"  # the direction still shipped
+
+
 # --- the conductor threads the seam end to end ---------------------------------
 
 

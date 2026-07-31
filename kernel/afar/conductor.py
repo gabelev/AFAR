@@ -9,12 +9,30 @@ and set from the schedule seed alone, `run_set` already plays a set whole,
 and `run_staff` already walks the frame. The conductor only WALKS the plan —
 per set: the Producer consumes the Muse's newest logged brief
 (`ProducerAgent.direct`, set start, frame side — the only door the world
-enters through), `run_set` plays the rounds, the staff chain runs at the
-boundary (Producer -> Critic -> Muse -> Listener), the release is PUBLISHED
+enters through) and BOOKS THE SESSION, `run_set` plays the rounds, the staff
+chain runs at the boundary (Producer -> Critic -> Muse -> Listener), the
+release is PUBLISHED
 to Neon (afar.publish; forced dry-run under a mock renderer), and then the
 loop paces itself to AFAR_SETS_PER_DAY. The boundary rule holds throughout:
 `build_context` remains the only perceive path; nothing the conductor
 touches reaches a player mid-set.
+
+SESSIONS, NOT CONDITIONS (the live default): the schedule stays the piece's
+clock — eras, era stances, sets, rounds — but the schedule's weighted
+condition draw no longer books the room. The Producer does, per set, in
+`direct()`: session_form "together" (contact) or "alone" (isolation), an
+artistic call made against the Muse's brief and stance, the Listener's last
+word, and the last few sessions' forms (variety is the piece's own argument:
+a band that works together, goes off alone, reconvenes). The reasoning is
+logged in the direction row; the log schema keeps `condition` — only its
+SOURCE changes. "parallel" (lockstep without hearing) is a lab condition:
+the live conductor never books it, though run_set still supports it fully.
+If the booking call degrades (staff-degrade doctrine) — or there is no brief
+yet — the session defaults to "together".
+AFAR_EXPERIMENT_MODE=1 restores the experiment parameters whole: the
+schedule's deterministic 3:1:1 draw (parallel included) books every set and
+the Producer books nothing — the controlled experiment runs this same
+conductor unchanged. The lab is one flag away.
 
 SPEND CONTROL (hard, by design):
 
@@ -86,14 +104,18 @@ from ensemble.agent import SelfState
 from afar.agents.muse import Brief
 from afar.agents.personas import PERSONAS
 from afar.agents.player import Player
-from afar.agents.producer import ProducerAgent
+from afar.agents.producer import (
+    DEFAULT_SESSION_FORM,
+    SESSION_FORM_CONDITIONS,
+    ProducerAgent,
+)
 from afar.config import AfarConfig, build_config
 from afar.intent import PLAYER_IDS
 from afar.log import JsonlLedger, RunContext
 from afar.perception.embedder import AudioEmbedder, MockEmbedder
 from afar.run import SetAborted, run_set
 from afar.schedule import Schedule, ScheduleConfig, SetPlan
-from afar.staff import run_staff
+from afar.staff import load_recent_reactions, run_staff
 from afar.state.field_taboo import FieldTabooMemory
 
 SECONDS_PER_DAY = 86_400
@@ -146,6 +168,29 @@ def next_set_index(rows: list[Mapping[str, Any]]) -> int:
         if row.get("kind") in ("set_completed", "set_failed") and "set_index" in row
     ]
     return (max(closed) + 1) if closed else 0
+
+
+#: Plain words for a logged condition — what a session's form is called when
+#: the Producer is told what the last few sessions were. "parallel" appears
+#: only in history (the town's one lab session, and experiment-mode runs).
+FORM_BY_CONDITION: dict[str, str] = {
+    "contact": "together",
+    "isolation": "alone",
+    "parallel": "side by side, unable to hear each other",
+}
+
+
+def recent_session_forms(rows: Sequence[Mapping[str, Any]], limit: int = 4) -> list[str]:
+    """The last few sessions' forms, oldest first, read from the conductor's
+    own `set_started` rows (the log is the memory) — the variety pressure the
+    Producer's booking call weighs. Smoke rows never count: a rehearsal is
+    not a session."""
+    conditions = [
+        str(row["condition"])
+        for row in rows
+        if row.get("kind") == "set_started" and "condition" in row and not row.get("smoke")
+    ]
+    return [FORM_BY_CONDITION.get(c, c) for c in conditions[-limit:]]
 
 
 def seconds_to_next_utc_day(now: datetime) -> float:
@@ -320,6 +365,7 @@ class SetOutcome:
     set_index: int
     run_id: str
     completed: bool
+    condition: str = ""  # what the session actually ran as (the booking, or the draw)
     released: bool = False
     publish: Optional[Mapping[str, Any]] = None
     error: Optional[str] = None
@@ -459,11 +505,16 @@ class Conductor:
 
     def _direct(self, plan: SetPlan, rounds: int) -> Optional[dict[str, Any]]:
         """Set start, frame side: the Producer consumes the Muse's newest
-        logged brief and sets the session's take length against the day's
-        remaining minutes; the chosen duration is clamped so the WHOLE set
-        fits under the cap. Returns the direction `run_set` will carry as
-        frame (None on a cold start: no brief anywhere is a plain note — the
-        first session of a world opens on silence, honestly)."""
+        logged brief, BOOKS THE SESSION (live mode: session_form together/
+        alone, weighed against the brief, the fan's last word, and the last
+        few sessions — the reasoning lands in this direction row), and sets
+        the session's take length against the day's remaining minutes; the
+        chosen duration is clamped so the WHOLE set fits under the cap.
+        Returns the direction `run_set` will carry as frame (None on a cold
+        start: no brief anywhere is a plain note — the first session of a
+        world opens on silence, honestly). In experiment mode no booking
+        happens here: the schedule's draw is the condition, exactly as
+        before."""
         brief = load_newest_brief(self.config.runs_root)
         if brief is None:
             self._log(
@@ -474,7 +525,16 @@ class Conductor:
             )
             return None
         remaining = self.budget.remaining_minutes
-        direction = self.producer.direct(brief, remaining_minutes=remaining)
+        session = None
+        if not self.config.experiment_mode:
+            reactions = load_recent_reactions(self.config.runs_root, limit=1)
+            session = {
+                "recent_forms": recent_session_forms(self._rows()),
+                "last_reaction": reactions[-1] if reactions else None,
+            }
+        direction = self.producer.direct(
+            brief, remaining_minutes=remaining, session=session
+        )
         fitted = fit_duration_s(
             int(direction["duration_s"]), rounds, len(self.players), remaining
         )
@@ -561,10 +621,30 @@ class Conductor:
     def run_one_set(self, plan: SetPlan) -> SetOutcome:
         """Walk one planned set end to end: direct -> play -> staff -> publish."""
         rounds = self.rounds_override or plan.rounds
+        # Set start, frame side: the brief is consumed HERE and only here —
+        # and the direction it becomes rides into run_set as frame. Direction
+        # comes FIRST because in live mode it carries the booking.
+        direction = self._direct(plan, rounds)
+        self._set_duration_s = int(direction["duration_s"]) if direction else 30
+        if self.config.experiment_mode:
+            # The lab: the schedule's deterministic draw books the room.
+            condition = plan.condition
+            booked_by = "schedule"
+        else:
+            # The live piece: the Producer books the session. A cold start
+            # (no brief, no direction) or a degraded booking call defaults
+            # to "together" — the doors open. Parallel is never booked here.
+            form = (
+                str(direction.get("session_form", DEFAULT_SESSION_FORM))
+                if direction
+                else DEFAULT_SESSION_FORM
+            )
+            condition = SESSION_FORM_CONDITIONS.get(form, SESSION_FORM_CONDITIONS["together"])
+            booked_by = "producer"
         prefix = "smoke-" if self.smoke else ""
         run_id = (
             time.strftime("%Y%m%d-%H%M%S")
-            + f"-{prefix}set-{plan.index:04d}-{plan.condition}"
+            + f"-{prefix}set-{plan.index:04d}-{condition}"
         )
         self._log(
             "set_started",
@@ -572,7 +652,9 @@ class Conductor:
             run_id=run_id,
             era=plan.era,
             stance=plan.era_stance,
-            condition=plan.condition,
+            condition=condition,
+            session_form=FORM_BY_CONDITION.get(condition, condition),
+            booked_by=booked_by,
             rounds=rounds,
             seed=plan.seed,
             renderer=self.config.renderer.name,
@@ -580,10 +662,6 @@ class Conductor:
             minutes_today=round(self.budget.spent_minutes, 2),
             generations_today=self.budget.generations_today,
         )
-        # Set start, frame side: the brief is consumed HERE and only here —
-        # and the direction it becomes rides into run_set as frame.
-        direction = self._direct(plan, rounds)
-        self._set_duration_s = int(direction["duration_s"]) if direction else 30
 
         set_ledger = JsonlLedger(
             self.config.runs_root, run_id, context=RunContext(code_sha=self.config.code_sha)
@@ -591,7 +669,7 @@ class Conductor:
         run_set(
             self.players,
             rounds=rounds,
-            condition=plan.condition,
+            condition=condition,
             config=self.config,
             ledger=set_ledger,
             embedder=self.embedder,
@@ -629,6 +707,7 @@ class Conductor:
             set_index=plan.index,
             run_id=run_id,
             completed=True,
+            condition=condition,
             released=staff.released,
             publish=publish_row,
             staff_degraded=staff.degraded,
@@ -851,7 +930,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         kind = "smoke_completed" if args.smoke else "set_completed"
         conductor._log(kind, set_index=plan.index, run_id=outcome.run_id, released=outcome.released)
         print(
-            f"{kind}: set {plan.index} ({plan.condition}, "
+            f"{kind}: set {plan.index} ({outcome.condition}, "
             f"{rounds_override or plan.rounds} rounds) run_id={outcome.run_id} "
             f"released={outcome.released} publish={outcome.publish}"
         )
