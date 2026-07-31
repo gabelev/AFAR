@@ -2,7 +2,7 @@ import { mkdtempSync, mkdirSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { findRun, newestReleaseRecordFile, selectedTakes } from "./publish_set.mjs";
+import { findRun, newestReleaseRecordFile, parseCliArgs, selectedTakes } from "./publish_set.mjs";
 
 /**
  * The kernel's append-only correction path (kernel/scripts/reembed.py) leaves
@@ -58,7 +58,47 @@ describe("findRun", () => {
   it("throws when no run has a release record", () => {
     const root = mkdtempSync(path.join(tmpdir(), "afar-publish-"));
     mkdirSync(path.join(root, "20990101-000000-step-b-contact"));
-    expect(() => findRun(undefined, root)).toThrow(/no step-b-contact run/);
+    expect(() => findRun(undefined, root)).toThrow(/no step-b run/);
+  });
+
+  it("discovers runs from any step-b condition, newest first", () => {
+    const root = mkdtempSync(path.join(tmpdir(), "afar-publish-"));
+    for (const [runId, releaseId] of [
+      ["20990101-000000-step-b-contact", "older-contact"],
+      ["20990102-000000-step-b-isolation", "newest-isolation"],
+    ] as const) {
+      const runDir = path.join(root, runId);
+      mkdirSync(runDir);
+      writeFileSync(path.join(runDir, "release-aaaaaaaaaaaa.json"), JSON.stringify({ release_id: releaseId }));
+    }
+    const { runId, record } = findRun(undefined, root);
+    expect(runId).toBe("20990102-000000-step-b-isolation");
+    expect(record.release_id).toBe("newest-isolation");
+  });
+});
+
+describe("parseCliArgs", () => {
+  it("defaults to release 0002 with no run (backward compatible)", () => {
+    expect(parseCliArgs([])).toEqual({ releaseId: "0002", runId: undefined });
+  });
+
+  it("keeps the original bare positional runId form", () => {
+    expect(parseCliArgs(["20990101-000000-step-b-contact"])).toEqual({
+      releaseId: "0002",
+      runId: "20990101-000000-step-b-contact",
+    });
+  });
+
+  it("takes --release and --run", () => {
+    expect(parseCliArgs(["--release", "0004", "--run", "20990102-000000-step-b-isolation"])).toEqual({
+      releaseId: "0004",
+      runId: "20990102-000000-step-b-isolation",
+    });
+  });
+
+  it("refuses a non-catalogue release id and unknown flags", () => {
+    expect(() => parseCliArgs(["--release", "abc"])).toThrow(/4-digit/);
+    expect(() => parseCliArgs(["--nope"])).toThrow(/unknown argument/);
   });
 });
 

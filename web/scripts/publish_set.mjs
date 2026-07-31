@@ -36,12 +36,15 @@
  * in metadata — web/lib/data.ts strips unknown keys on read, so metadata is
  * pure provenance, exactly like seed.mjs's track.line/intent.
  *
- * Idempotent: upserts keyed on id. Touches ONLY release "0002" and its
- * tracks/media — release 0001 and the agents table are never written.
+ * Idempotent: upserts keyed on id. Touches ONLY the release being published
+ * and its tracks/media — other releases and the agents table are never
+ * written.
  *
- * Usage (from web/):  node scripts/publish_set.mjs [runId]
- *   runId optional; defaults to the newest runs/<id> ending in
- *   "step-b-contact" that contains a release-*.json.
+ * Usage (from web/):  node scripts/publish_set.mjs [--release <id>] [--run <runId>] [runId]
+ *   --release optional; defaults to "0002" (backward compatible).
+ *   --run (or the bare positional runId) optional; defaults to the newest
+ *   runs/<id> from ANY step-b condition (step-b-contact, step-b-isolation, …)
+ *   that contains a release-*.json.
  * DATABASE_URL is read from the environment, falling back to kernel/.env.
  * Nothing secret is ever printed.
  */
@@ -56,9 +59,29 @@ const REPO_ROOT = path.resolve(WEB_ROOT, "..");
 const RUNS_ROOT = path.join(REPO_ROOT, "runs");
 const PLAYER_IDS = ["silt", "rust", "keep"];
 
-const RELEASE_ID = "0002";
+const DEFAULT_RELEASE_ID = "0002";
 const RELEASE_TITLE = "First Contact"; // fallback for pre-staff records; the Critic's title supersedes it
 const SITE = "https://afar.band";
+
+/**
+ * CLI args: `--release <id>`, `--run <runId>`, plus the original bare
+ * positional runId (backward compatible with `node publish_set.mjs [runId]`).
+ */
+export function parseCliArgs(argv) {
+  let releaseId = DEFAULT_RELEASE_ID;
+  let runId;
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === "--release") releaseId = argv[++i];
+    else if (arg === "--run") runId = argv[++i];
+    else if (!arg.startsWith("--") && !runId) runId = arg;
+    else throw new Error(`unknown argument: ${arg}`);
+  }
+  if (!releaseId || !/^\d{4}$/.test(releaseId)) {
+    throw new Error(`--release wants a 4-digit catalogue id, got ${releaseId ?? "(nothing)"}`);
+  }
+  return { releaseId, runId };
+}
 
 // Display-only stage names (DECISIONS.md: stage names over stable ids).
 const STAGE_NAMES = { silt: "Delta Marlowe", rust: "Roan Patina", keep: "Evers Lane" };
@@ -115,12 +138,15 @@ export function newestReleaseRecordFile(runDir) {
     .map(({ f }) => f)[0];
 }
 
-/** The run to publish: argv[2], or the newest step-b-contact run with a release record. */
+/**
+ * The run to publish: the given run id, or the newest step-b run — ANY
+ * condition (…-step-b-contact, …-step-b-isolation, …) — with a release record.
+ */
 export function findRun(runIdArg, runsRoot = RUNS_ROOT) {
   const candidates = runIdArg
     ? [runIdArg]
     : readdirSync(runsRoot)
-        .filter((d) => d.endsWith("step-b-contact"))
+        .filter((d) => /-step-b-/.test(d))
         .sort()
         .reverse();
   for (const runId of candidates) {
@@ -129,7 +155,7 @@ export function findRun(runIdArg, runsRoot = RUNS_ROOT) {
     const recordFile = newestReleaseRecordFile(runDir);
     if (recordFile) return { runId, runDir, record: JSON.parse(readFileSync(path.join(runDir, recordFile), "utf8")) };
   }
-  throw new Error("no step-b-contact run with a release-*.json found under runs/");
+  throw new Error("no step-b run with a release-*.json found under runs/");
 }
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
@@ -155,7 +181,8 @@ export function selectedTakes(record) {
 
 async function main() {
   const sql = neon(loadDatabaseUrl());
-  const { runId, runDir, record } = findRun(process.argv[2]);
+  const { releaseId: RELEASE_ID, runId: runIdArg } = parseCliArgs(process.argv.slice(2));
+  const { runId, runDir, record } = findRun(runIdArg);
   const finalRound = record.set.rounds - 1;
   const staff = record.staff ?? null;
   const takes = selectedTakes(record);
@@ -204,10 +231,14 @@ async function main() {
   // (identity held); the legible signal is RELATIVE pull, so min-max normalize
   // the six final-round edges into the display schema's [0, 1]. Raw signed
   // values (both spaces, every round) ride along in metadata.
-  const finalIntentEdges = record.influence.intent[String(finalRound)];
+  // Guard (isolation releases): a doors-closed set can leave the influence
+  // block empty or missing for the final round — nobody heard anybody, so
+  // there may be no edges to draw. Publish an empty edge list; GraphCover
+  // renders the three nodes with no arrows, which IS the honest cover.
+  const finalIntentEdges = record.influence?.intent?.[String(finalRound)] ?? {};
   const edgeValues = Object.values(finalIntentEdges);
-  const lo = Math.min(...edgeValues);
-  const hi = Math.max(...edgeValues);
+  const lo = edgeValues.length ? Math.min(...edgeValues) : 0;
+  const hi = edgeValues.length ? Math.max(...edgeValues) : 0;
   const span = hi - lo || 1;
   const influence = Object.entries(finalIntentEdges).map(([key, value]) => {
     const [to, from] = key.split("<-");
@@ -216,15 +247,23 @@ async function main() {
 
   const date = `${runId.slice(0, 4)}-${runId.slice(4, 6)}-${runId.slice(6, 8)}`;
 
+  // The brief is honest about the condition: what could each act hear?
+  const hearing =
+    { contact: "each able to hear the others", isolation: "each hearing only itself, doors closed", parallel: "side by side but unable to hear each other" }[
+      record.set.condition
+    ] ?? `condition ${record.set.condition}`;
+
   const release = {
     id: RELEASE_ID,
     title: releaseTitle,
     era,
-    set: 2,
-    condition: record.set.condition, // "contact"
+    set: Number(RELEASE_ID), // catalogue number IS the set number (0002 -> 2)
+    condition: record.set.condition,
     date,
     brief:
-      "No brief this time — the Muse was not yet built. The acts went in with nothing from outside: six rounds, each able to hear the others.",
+      `No brief this time — the Muse was not yet built. The acts went in with nothing from outside: ${
+        ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"][record.set.rounds] ?? record.set.rounds
+      } rounds, ${hearing}.`,
     selection:
       staff?.producer?.note ??
       "The Producer was not yet built, so nothing was cut: these are the last round's takes, kept automatically.",
