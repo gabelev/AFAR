@@ -27,6 +27,12 @@
  * and per-take titles (superseding the interim line-derived titles), the
  * Critic's reviews (release verdict + per-act verdicts), and the Producer's
  * public selection note. Panel reasoning and dissents ride along in metadata.
+ * When the staff block also carries the Muse and the Listener (the frame's
+ * outward half, appended by the same kernel pass or by
+ * `run_staff.py --muse-listener-only`), the release ships the Muse's brief
+ * prose — labeled honestly as carried-forward when it was composed AFTER the
+ * release it reads — and the Listener's reaction text plus its one-word
+ * valence (`reactionValence`), replacing the "not built yet" placeholders.
  * Records without a staff block fall back to the pre-staff behavior: the
  * FINAL round's three takes, mechanically, with placeholder prose. The
  * influence triangle shows the final round's INTENT-space graph either way —
@@ -161,6 +167,30 @@ export function findRun(runIdArg, runsRoot = RUNS_ROOT) {
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 
 /**
+ * The brief block's prose. When the record carries the Muse's block, ship the
+ * Muse's own words — labeled honestly when the brief was composed AFTER the
+ * release (the retrospective staff pass): such a brief never opened this
+ * session; it is what the Muse heard in it and carries into the next one.
+ * Returns undefined for records without a Muse block (placeholder prose stays).
+ */
+export function briefProse(staff) {
+  const muse = staff?.muse;
+  if (!muse?.text) return undefined;
+  return muse.carried_forward
+    ? `What the Muse heard in this release, carried forward into the next session: ${muse.text}`
+    : muse.text;
+}
+
+/**
+ * The reaction block's prose: the Listener's own words, untouched. The valence
+ * (loved/liked/mixed/cold) ships separately as `reactionValence` so the page
+ * can surface the verdict word next to the quote.
+ */
+export function reactionProse(staff) {
+  return staff?.listener?.text || undefined;
+}
+
+/**
  * The takes to publish: the Producer's cut when the record carries a staff
  * block, otherwise (pre-staff records) the final round's takes, mechanically.
  * Returns { [pid]: { round, hash } }; the Producer's cut may span rounds.
@@ -261,7 +291,8 @@ async function main() {
     condition: record.set.condition,
     date,
     brief:
-      `No brief this time — the Muse was not yet built. The acts went in with nothing from outside: ${
+      briefProse(staff) ??
+      `No brief this time — the Muse had not yet spoken. The acts went in with nothing from outside: ${
         ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"][record.set.rounds] ?? record.set.rounds
       } rounds, ${hearing}.`,
     selection:
@@ -270,7 +301,11 @@ async function main() {
     review:
       staff?.critic?.release_review ??
       "The Critic was not yet built. Nobody has judged this or named it — the chart and the acts' own words are the whole record.",
-    reaction: "The Listener was not yet built. Nobody has heard this from the cheap seats yet.",
+    reaction:
+      reactionProse(staff) ??
+      "The Listener was not yet built. Nobody has heard this from the cheap seats yet.",
+    // The Listener's verdict word — surfaced beside the reaction quote.
+    ...(staff?.listener?.valence ? { reactionValence: staff.listener.valence } : {}),
     takeIds: PLAYER_IDS.map((pid) => `${RELEASE_ID}-${pid}`),
     // The Producer's picks, act id -> take id. Only written when the staff
     // block exists — the act pages feature these as each act's single.
@@ -285,9 +320,13 @@ async function main() {
     metadata: {
       titlePlaceholder: !staff?.critic?.release_title,
       titledBy: staff?.critic?.release_title ? "the Critic" : null,
-      briefPlaceholder: true, // no Muse yet
+      briefPlaceholder: !staff?.muse,
       reviewPlaceholder: !staff?.critic,
-      reactionPlaceholder: true, // no Listener yet
+      reactionPlaceholder: !staff?.listener,
+      // The Muse's and the Listener's full blocks (stance, theme, palette
+      // notes, forbidden moves, sources; valence, disagreements) — provenance.
+      museBrief: staff?.muse ?? null,
+      listenerReaction: staff?.listener ?? null,
       producerSelection: staff?.producer
         ? `the Producer's cut — one take per act, chosen from all rounds by a three-judge panel reading the log (round per act: ${PLAYER_IDS.map((pid) => `${pid}=${takes[pid].round}`).join(", ")})`
         : "not built — final round's takes published mechanically",

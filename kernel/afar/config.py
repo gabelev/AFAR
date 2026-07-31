@@ -196,6 +196,22 @@ def _mock_staff(messages: Sequence[Message]) -> str | None:
             "[mock] One take from each act made the release; each was the round "
             "the panel could not argue with."
         )
+    if '"palette_notes"' in text and "Write the brief" in text:
+        return json.dumps(
+            {
+                "brief": "[mock] The field is quiet and this world is not. "
+                "Reach for the thread the last release left hanging.",
+                "palette_notes": ["[mock] keep it close-mic'd", "[mock] slow is fine"],
+            }
+        )
+    if '"valence"' in text and '"disagreements_with_critic"' in text:
+        return json.dumps(
+            {
+                "valence": "liked",
+                "reaction": "[mock] Played it twice. The quiet one got me; the rest I respect more than I love.",
+                "disagreements_with_critic": ["[mock] The Critic is too hard on the closer."],
+            }
+        )
     return None
 
 

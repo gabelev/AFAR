@@ -1,18 +1,27 @@
-"""Manual staff entry: run the Producer + Critic on one COMPLETED run. NOT a test.
+"""Manual staff entry: run the staff on one COMPLETED run. NOT a test.
 
     cd kernel && uv run python scripts/run_staff.py --run <run_id>
 
 The set-boundary pass (architecture rule 1: staff act on the frame between
-sets, never inside one). Reads the run's append-only JSONL, has the Producer
-make the cut (which single take per act makes the release, judged by a panel
-reading the LOG — intents, lines, lyrics, rationales, features; not audio),
-then the Critic review the finished cut and name it, last. Appends
-`selections` and `reviews` rows and writes a new content-addressed release
-record whose provenance supersedes the previous one — the reembed pattern.
+sets, never inside one), full order Producer -> Critic -> Muse -> Listener.
+Reads the run's append-only JSONL, has the Producer make the cut, the Critic
+review and name it (last word on the finished work), then — after the release
+exists — the Muse composes the carry-forward brief (discourse scan + what
+shipped + the Listener's prior reactions) and the Listener reacts to the
+release like a fan. Appends `selections` / `reviews` / `briefs` / `reactions`
+rows and writes new content-addressed release records whose provenance chains
+supersede the previous ones — the reembed pattern.
+
+`--muse-listener-only` runs just the outward half on a run whose newest
+record already carries the Producer/Critic block (the retrospective
+enrichment path). `--stance` is the era's stance toward the outside world
+(porous | hostile | oblivious); until the conductor exists it defaults to the
+first era's stance from the authored cycle.
 
 Reads .env if present (never committed). With no ANTHROPIC_API_KEY this still
 runs on MockProvider — the honest way to check the wiring offline. Model
-calls only: no renderer, no embedder, no audio is touched.
+calls only (the Muse's web searches ride the model API): no renderer, no
+embedder, no audio is touched.
 """
 
 from __future__ import annotations
@@ -22,7 +31,8 @@ import os
 from pathlib import Path
 
 from afar.config import build_config
-from afar.staff import run_staff
+from afar.schedule import ScheduleConfig
+from afar.staff import run_muse_listener, run_staff
 
 
 def _load_dotenv(path: Path) -> None:
@@ -37,9 +47,39 @@ def _load_dotenv(path: Path) -> None:
         os.environ.setdefault(key.strip(), value.strip().strip("'\""))
 
 
+def _print_boundary(brief, reaction) -> None:
+    print("\nTHE MUSE'S BRIEF (carried forward)")
+    print(f"  stance     {brief.stance}")
+    print(f"  theme      {brief.theme}" + ("  (thin: scan came back empty)" if brief.thin else ""))
+    print(f"  brief      {brief.body}")
+    for note in brief.palette_notes:
+        print(f"  palette    {note}")
+    for move in brief.forbidden_moves:
+        print(f"  forbidden  {move}")
+    for url in brief.sources:
+        print(f"  source     {url}")
+
+    print("\nTHE LISTENER'S REACTION")
+    print(f"  valence    {reaction.valence}")
+    print(f"  reaction   {reaction.text}")
+    for d in reaction.disagreements_with_critic:
+        print(f"  vs critic  {d}")
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run the Producer + Critic on a completed run.")
+    parser = argparse.ArgumentParser(description="Run the staff on a completed run.")
     parser.add_argument("--run", required=True, help="run_id under the runs root")
+    parser.add_argument(
+        "--stance",
+        default=None,
+        choices=ScheduleConfig().eras_stance_cycle,
+        help="the era's stance toward the outside world (default: the cycle's first)",
+    )
+    parser.add_argument(
+        "--muse-listener-only",
+        action="store_true",
+        help="skip Producer/Critic (their rows must already exist) and run just the Muse + Listener enrichment",
+    )
     args = parser.parse_args()
 
     _load_dotenv(Path(__file__).resolve().parents[1] / ".env")
@@ -50,7 +90,16 @@ def main() -> None:
 
     print(f"run    {args.run}")
     print(f"model  {'live' if config.live else 'mock (no ANTHROPIC_API_KEY)'}")
-    result = run_staff(run_dir, config)
+
+    if args.muse_listener_only:
+        boundary = run_muse_listener(run_dir, config, stance=args.stance)
+        _print_boundary(boundary.brief, boundary.reaction)
+        print(f"\nsupersedes  {boundary.superseded_release_id[:12]}…")
+        print(f"release     {boundary.release_path}")
+        print(f"release_id  {boundary.release_record['release_id']}")
+        return
+
+    result = run_staff(run_dir, config, stance=args.stance)
 
     if not result.released:
         print("\nTHE PRODUCER: no release this set")
@@ -76,6 +125,8 @@ def main() -> None:
     print(f"  release title: {result.names.release_title}")
     for pid, title in result.names.take_titles.items():
         print(f"  {pid}: {title}")
+
+    _print_boundary(result.brief, result.reaction)
 
     print(f"\nsupersedes  {result.superseded_release_id[:12]}…")
     print(f"release     {result.release_path}")

@@ -161,6 +161,17 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
           style={{ margin: "0 var(--gutter)", borderTop: "1px solid var(--hairline-strong)", padding: "20px 0" }}
         >
           <div className="label">{block.label}</div>
+          {/* The Listener's verdict word rides beside the quote — a fan's
+              rating, not a review score. */}
+          {block.staffId === "listener" && release.reactionValence && (
+            <div
+              className="mono"
+              style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 8 }}
+              title="The Listener's one-word verdict"
+            >
+              VERDICT: {release.reactionValence}
+            </div>
+          )}
           <p className="quote" style={{ fontSize: 14, marginTop: 10, maxWidth: 680 }}>
             “{release[block.pick]}”
           </p>

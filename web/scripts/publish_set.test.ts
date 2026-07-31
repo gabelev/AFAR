@@ -2,7 +2,14 @@ import { mkdtempSync, mkdirSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { findRun, newestReleaseRecordFile, parseCliArgs, selectedTakes } from "./publish_set.mjs";
+import {
+  briefProse,
+  findRun,
+  newestReleaseRecordFile,
+  parseCliArgs,
+  reactionProse,
+  selectedTakes,
+} from "./publish_set.mjs";
 
 /**
  * The kernel's append-only correction path (kernel/scripts/reembed.py) leaves
@@ -137,5 +144,39 @@ describe("selectedTakes", () => {
       rust: { round: 2, hash: "r2" },
       keep: { round: 2, hash: "k2" },
     });
+  });
+});
+
+describe("briefProse", () => {
+  it("labels a carried-forward brief honestly — it never opened this session", () => {
+    const prose = briefProse({ muse: { text: "Reach for the seam.", carried_forward: true } });
+    expect(prose).toContain("carried forward into the next session");
+    expect(prose).toContain("Reach for the seam.");
+  });
+
+  it("ships a set-opening brief verbatim", () => {
+    expect(briefProse({ muse: { text: "Reach for the seam.", carried_forward: false } })).toBe(
+      "Reach for the seam.",
+    );
+  });
+
+  it("returns undefined without a Muse block, keeping the placeholder", () => {
+    expect(briefProse(undefined)).toBeUndefined();
+    expect(briefProse({ producer: {}, critic: {} })).toBeUndefined();
+    expect(briefProse({ muse: { text: "" } })).toBeUndefined();
+  });
+});
+
+describe("reactionProse", () => {
+  it("ships the Listener's words untouched", () => {
+    expect(reactionProse({ listener: { valence: "mixed", text: "Played it twice." } })).toBe(
+      "Played it twice.",
+    );
+  });
+
+  it("returns undefined without a Listener block, keeping the placeholder", () => {
+    expect(reactionProse(undefined)).toBeUndefined();
+    expect(reactionProse({ producer: {} })).toBeUndefined();
+    expect(reactionProse({ listener: { valence: "mixed", text: "" } })).toBeUndefined();
   });
 });

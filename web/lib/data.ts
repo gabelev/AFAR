@@ -67,6 +67,10 @@ export const ReleaseSchema = z
     selection: z.string().min(1),
     review: z.string().min(1),
     reaction: z.string().min(1),
+    /** The Listener's one-word verdict on the release. Optional so releases
+     * published before the Listener existed (and fixtures) still parse;
+     * missing means nobody from the cheap seats has weighed in. */
+    reactionValence: z.enum(["loved", "liked", "mixed", "cold"]).optional(),
     takeIds: z.array(z.string().min(1)),
     /** The Producer's picks, act id -> take id. Only present when a release
      * was actually chosen by the Producer (release 0002 onward); absent means
