@@ -3,13 +3,14 @@
  * per act, one shorter one per staff member — and store them as `bio` in
  * fixtures/agents.json AND in the Neon agents rows (data jsonb).
  *
- * The bios are CONTENT, not chrome: profiles of artists living in this
- * universe (not record-label press copy — universe framing per Gabe,
- * 2026-07-31), in plain language a non-music person enjoys, grounded in what
- * is actually on the record — the acts' stances, their logged rationales, the
- * Critic's verdicts, the Producer's notes. Nothing is invented beyond that
- * record. Generated words get reviewed by a human before the fixtures are
- * committed (DECISIONS.md: bios generated + register).
+ * The bios are CONTENT, not chrome: streaming-service capsule bios of artists
+ * living in this universe (not record-label press copy — universe framing per
+ * Gabe, 2026-07-31; capsule register per DECISIONS.md's bio register entry) —
+ * short sentences, present tense, concrete habits, no Critic-quoting essays.
+ * Grounded in what is actually on the record — the acts' stances, their
+ * logged rationales, the Critic's verdicts, the Producer's notes. Nothing is
+ * invented beyond that record. Generated words get reviewed by a human before
+ * the fixtures are committed (DECISIONS.md: bios generated + register).
  *
  * Usage (from web/):  node scripts/generate_bios.mjs [--dry-run]
  *   --dry-run prints the bios without writing fixtures or Neon.
@@ -97,19 +98,21 @@ function groundingFor(agent, agents, releases) {
 
 // --- generation --------------------------------------------------------------
 
-const SYSTEM = `You write profiles for AFAR.MUSIC, a small universe where every musician is software. Three acts live there — Delta Marlowe, Roan Patina, Evers Lane — recording around the clock and hearing each other only on record. Four staff work in the office — the Muse, the Producer, the Critic, the Listener — and each makes exactly one kind of decision.
+const SYSTEM = `You write artist bios for AFAR.MUSIC, a small universe where every musician is software. Three acts live there — Delta Marlowe, Roan Patina, Evers Lane — recording around the clock and hearing each other only on record. Four staff work in the office — the Muse, the Producer, the Critic, the Listener — and each makes exactly one kind of decision.
 
-Register: a profile of an artist (or an office worker) living in this universe — warm, specific, a little wry, never corporate. This is NOT record-label press copy: never call AFAR "a label" or use record-industry framing ("signed", "roster", "the label"). The place is "the universe", "the world", or just AFAR; the staff work in "the office". The hard rule is CLARITY: a curious stranger with no music-production background and no AI background must enjoy every sentence on first read. No jargon of any kind — never say "multi-agent", "generative", "model", "parameters", "output", "sonic palette", "iteration". Words like song, take, record, session are fine. Do not mention that the bio (or the musician) was generated, and do not explain the AI mechanics — the site does that elsewhere.
+Register: the capsule bio a good streaming service runs under an artist's name. Short declarative sentences, present tense, concrete images. Every sentence carries something specific the artist does — a habit, a working method, a thing they said — never a judgment about them. One vivid habit beats three abstractions. No praise adjectives, no essay moves ("what's striking is", "the result reads as"), and never quote, cite, or paraphrase the Critic — the Critic's verdicts have their own section of the site. Write the sketch of a working musician a visitor would enjoy before pressing play.
 
-Ground every claim in the record you are given: their stance, their own quoted words, what the Critic said, what actually happened in the sessions. Do not invent history, influences, hometowns, or humans — and do not describe instruments, sounds, or musical details unless they appear verbatim in the record. Short sentences beat long ones. Stay inside the sentence count you are given.`;
+This is NOT record-label press copy: never call AFAR "a label" or use record-industry framing ("signed", "roster", "the label"). The place is "the universe", "the world", or just AFAR; the staff work in "the office". The hard rule is CLARITY: a curious stranger with no music-production background and no AI background must enjoy every sentence on first read. No jargon of any kind — never say "multi-agent", "generative", "model", "parameters", "output", "sonic palette", "iteration". Words like song, take, record, session are fine. Do not mention that the bio (or the musician) was generated, and do not explain the AI mechanics — the site does that elsewhere.
+
+Ground every claim in the record you are given: their stance, their own quoted words, what actually happened in the sessions. Do not invent history, influences, hometowns, or humans — and do not describe instruments, sounds, or musical details unless they appear verbatim in the record. Stay inside the sentence count you are given.`;
 
 function promptFor(agent, grounding) {
   const isAct = agent.kind === "player";
-  return `Write the press bio for ${agent.displayName ?? agent.name}.
+  return `Write the bio for ${agent.displayName ?? agent.name}.
 
 ${isAct
-    ? "One paragraph, 3 to 5 sentences. This sits under their name at the top of their page — it should make a stranger want to press play."
-    : "One paragraph, 2 to 3 sentences. This sits under their name on their page — it should tell a stranger exactly what this person does in the office."}
+    ? "One paragraph, 3 to 4 short sentences. This sits under their name at the top of their page — it should make a stranger want to press play."
+    : "1 or 2 short sentences — a hard limit (a brief quote of their own words may ride inside one). This sits under their name on their page — it should tell a stranger exactly what this person does in the office."}
 
 Return ONLY the paragraph — no title, no quotes around it, no commentary.
 
