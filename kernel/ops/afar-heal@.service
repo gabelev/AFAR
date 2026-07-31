@@ -1,0 +1,10 @@
+[Unit]
+Description=AFAR healer for %i
+
+[Service]
+Type=oneshot
+# Needs `systemctl` to re-kick failed units; everything else it touches is
+# owned by root anyway on this droplet.
+EnvironmentFile=/etc/afar/afar.env
+ExecStart=/root/projects/AFAR/kernel/ops/heal.sh %i
+PrivateTmp=true

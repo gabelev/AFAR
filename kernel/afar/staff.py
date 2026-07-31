@@ -377,7 +377,9 @@ def run_muse_listener(
     )
 
 
-def run_staff(run_dir: Path, config: AfarConfig, *, stance: str | None = None) -> StaffRecord:
+def run_staff(
+    run_dir: Path, config: AfarConfig, *, stance: str | None = None, taboo: Any = None
+) -> StaffRecord:
     """Run the full staff retrospectively on one completed set — Producer,
     Critic, Muse, Listener, in that order. See module docstring.
 
@@ -507,7 +509,9 @@ def run_staff(run_dir: Path, config: AfarConfig, *, stance: str | None = None) -
     _append_release_record(run_dir, ledger, set_stamps, record_body)
 
     # --- the Muse and the Listener, after the release exists ------------------
-    boundary = run_muse_listener(run_dir, config, stance=stance)
+    # `taboo` (the conductor's era-scoped FieldTabooMemory) rides through so a
+    # hostile era's observed field moves accumulate across its boundaries.
+    boundary = run_muse_listener(run_dir, config, stance=stance, taboo=taboo)
     return StaffRecord(
         released=True,
         selection=selection,

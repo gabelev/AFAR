@@ -33,7 +33,7 @@ import json
 from dataclasses import dataclass
 from itertools import combinations
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping, Optional
 
 from ensemble.agent import Artifact
 from ensemble.pipeline import Stage, fan_out
@@ -48,6 +48,17 @@ from afar.perception.embedder import AudioEmbedder
 
 _SEQUENTIAL_CONDITIONS = ("isolation", "solo")
 SPACES: tuple[str, ...] = ("audio", "intent")
+
+
+class SetAborted(RuntimeError):
+    """Raised when `after_round` asked run_set to stop before the last round.
+
+    The rounds already played stay in the log as history (rule 3), but no
+    features are computed and no release record is written — an aborted set
+    never finished, and a record for it would be a lie. The conductor's
+    SIGTERM path is the only caller: finish the current round, checkpoint,
+    exit 0; the set replays whole on the next boot.
+    """
 
 
 @dataclass(frozen=True)
@@ -173,8 +184,16 @@ def run_set(
     ledger: JsonlLedger,
     embedder: AudioEmbedder,
     seed: int,
+    after_round: Optional[Callable[[int], bool]] = None,
 ) -> SetResult:
-    """Play one set and return its interaction record. See module docstring."""
+    """Play one set and return its interaction record. See module docstring.
+
+    `after_round(t)` — the conductor's seam — is called on the orchestrator
+    thread after round `t` is fully logged (its generation spend can be
+    counted there). Returning True asks the set to stop: before the last
+    round that raises SetAborted (the SIGTERM finish-current-round contract);
+    on the last round the set simply completes.
+    """
     if condition not in CONDITIONS:
         raise ValueError(f"unknown condition {condition!r}; expected one of {CONDITIONS}")
     ids = [p.persona.metadata["player_id"] for p in players]
@@ -314,6 +333,8 @@ def run_set(
             "rounds",
             {**set_stamps, "round": t, "players": ids, "artifacts": [hashes[pid] for pid in ids]},
         )
+        if after_round is not None and after_round(t) and t < rounds - 1:
+            raise SetAborted(f"set stopped after round {t} of {rounds}")
 
     # --- features, both spaces, logged and collected for the record ----------
     feature_block: dict[str, dict[str, Any]] = {

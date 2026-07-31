@@ -1,0 +1,12 @@
+[Unit]
+Description=AFAR droplet health check
+OnFailure=afar-heal@%n.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/afar/afar.env
+ExecStart=/root/projects/AFAR/kernel/ops/health.sh
+NoNewPrivileges=true
+ProtectSystem=full
+ReadWritePaths=/root/projects /var/lib/afar
+PrivateTmp=true

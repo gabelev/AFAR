@@ -90,7 +90,10 @@ export async function createWorld(
 
   let timeline: WorldCatalogue | null = null;
   try {
-    const res = await fetch("/api/timeline");
+    // no-store: the timeline is dynamic now (publishes land in Neon's
+    // timeline_source row); a browser-cached hour-old copy had the world
+    // looping a stale catalogue after a publish.
+    const res = await fetch("/api/timeline", { cache: "no-store" });
     if (res.ok) timeline = (await res.json()) as WorldCatalogue;
   } catch {
     /* the building still stands with no timeline */
