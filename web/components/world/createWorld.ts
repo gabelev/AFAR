@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The left pane: the label building as a Phaser 3 world, built from the
+ * The left pane: the world's building as a Phaser 3 scene, built from the
  * design handoff's pixel spec (assets pre-rendered at 1x by
  * scripts/render_pixels.mjs, displayed at 2x, pixelArt on).
  *
@@ -105,7 +105,7 @@ export async function createWorld(
       (timeline.condition === "contact"
         ? "RECORDED TOGETHER — EACH ACT COULD HEAR THE OTHERS"
         : timeline.condition.toUpperCase())
-    : "ERA 2020s · THE LABEL BUILDING";
+    : "ERA 2020s · THE AFAR WORLD";
   const setCaption = (text: string, tone: "normal" | "lamp" | "oxide" = "normal") => {
     caption.textContent = text;
     caption.style.color =

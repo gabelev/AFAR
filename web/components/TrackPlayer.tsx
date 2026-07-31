@@ -70,7 +70,16 @@ export function usePlayer() {
  * audioUrl is null (the take exists in the log but its audio hasn't been
  * mirrored yet) the button renders disabled.
  */
-export function PlayButton({ audioUrl, label }: { audioUrl: string | null; label: string }) {
+export function PlayButton({
+  audioUrl,
+  label,
+  size,
+}: {
+  audioUrl: string | null;
+  label: string;
+  /** Side length in px; the featured single uses a big one. Default 28. */
+  size?: number;
+}) {
   const { playingUrl, toggle } = usePlayer();
   const playing = audioUrl !== null && playingUrl === audioUrl;
 
@@ -78,6 +87,7 @@ export function PlayButton({ audioUrl, label }: { audioUrl: string | null; label
     <button
       type="button"
       className="playbtn"
+      style={size ? { width: size, height: size, fontSize: Math.round(size * 0.36) } : undefined}
       onClick={() => audioUrl && toggle(audioUrl, label)}
       disabled={!audioUrl}
       aria-label={playing ? `Pause ${label}` : `Play ${label}`}

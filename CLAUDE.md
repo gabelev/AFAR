@@ -2,7 +2,7 @@
 
 The build brief lives in Notion: "afar — MAS Design Brief". **DECISIONS.md in this repo records every decision since — where they conflict, DECISIONS.md wins.** When you make or receive a non-obvious decision (architecture or art direction), append it to DECISIONS.md in the same PR.
 
-Key overrides already in effect: each personality is its own band/act (AFAR is the label, not a band); album covers are graph covers rendered from the release's influence edges (see DECISIONS 2026-07-31 — this un-superseded the earlier AI-image-cover override); players carry display-only stage names (Delta Marlowe/Roan Patina/Evers Lane) over stable IDs (silt/rust/keep).
+Key overrides already in effect: each personality is its own band/act (AFAR is the universe around them, not a band — public copy never says "label", see DECISIONS 2026-07-31); album covers are graph covers rendered from the release's influence edges (see DECISIONS 2026-07-31 — this un-superseded the earlier AI-image-cover override); players carry display-only stage names (Delta Marlowe/Roan Patina/Evers Lane) over stable IDs (silt/rust/keep).
 
 ## Naming — do not confuse these
 
