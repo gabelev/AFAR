@@ -781,12 +781,15 @@ def run_staff(
     try:
         critic = CriticAgent(config.model)
         review = critic.review(view, selection)
-        names = critic.name(
-            view,
-            selection,
-            review,
-            recent_titles=load_recent_titles(run_dir.parent, exclude_run=run_dir.name),
-        )
+        # The Critic's shelf carries the WHOLE catalog's spines — release and
+        # take titles AND the vault's tape titles — so a release can never be
+        # named into a collision with an existing tape (the "Proof of a Hand"
+        # / TAPE-0016 class, spotted in the round-three samples).
+        shelf = load_recent_titles(run_dir.parent, exclude_run=run_dir.name)
+        for tape_title in load_recent_tape_titles(run_dir.parent, exclude_run=run_dir.name):
+            if tape_title not in shelf:
+                shelf.append(tape_title)
+        names = critic.name(view, selection, review, recent_titles=shelf)
     except Exception as err:  # noqa: BLE001 — same doctrine
         review = None
         names = None

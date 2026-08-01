@@ -297,6 +297,12 @@ def test_run_staff_feeds_prior_titles_into_the_naming_call(played_run: Path):
             "take_titles": {"silt": "Pour Again"},
         },
     )
+    # The vault's spines join the same shelf: a release must never be named
+    # into a collision with an existing tape title.
+    prior.write(
+        "archives",
+        {"kind": "shelving", "agent": "archivist", "tape_title": "Proof of a Hand"},
+    )
     config = _mock_config(played_run.parent)
     run_staff(played_run, config)
 
@@ -307,6 +313,7 @@ def test_run_staff_feeds_prior_titles_into_the_naming_call(played_run: Path):
     ]
     assert len(naming_calls) == 1
     assert "Standing Water" in naming_calls[0] and "Pour Again" in naming_calls[0]
+    assert "Proof of a Hand" in naming_calls[0]
 
 
 # --- run_staff: the boundary orchestrator --------------------------------------
