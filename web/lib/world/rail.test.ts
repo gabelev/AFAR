@@ -10,30 +10,35 @@ function fakeStorage(initial: Record<string, string> = {}) {
 }
 
 describe("rail store", () => {
-  it("defaults open on desktop, closed on mobile", () => {
-    expect(defaultRail(false)).toBe("open");
-    expect(defaultRail(true)).toBe("closed");
-    expect(loadRail(fakeStorage(), false)).toBe("open");
-    expect(loadRail(fakeStorage(), true)).toBe("closed");
+  it("defaults open on every viewport", () => {
+    expect(defaultRail()).toBe("open");
+    expect(loadRail(fakeStorage())).toBe("open");
+    expect(loadRail(null)).toBe("open");
   });
 
-  it("a stored state wins over the viewport default", () => {
-    expect(loadRail(fakeStorage({ [RAIL_STORAGE_KEY]: "closed" }), false)).toBe("closed");
-    expect(loadRail(fakeStorage({ [RAIL_STORAGE_KEY]: "open" }), true)).toBe("open");
+  it("a stored state wins over the default", () => {
+    expect(loadRail(fakeStorage({ [RAIL_STORAGE_KEY]: "closed" }))).toBe("closed");
+    expect(loadRail(fakeStorage({ [RAIL_STORAGE_KEY]: "open" }))).toBe("open");
   });
 
   it("junk in storage falls back to the default", () => {
-    expect(loadRail(fakeStorage({ [RAIL_STORAGE_KEY]: "sideways" }), false)).toBe("open");
-    expect(loadRail(null, true)).toBe("closed");
+    expect(loadRail(fakeStorage({ [RAIL_STORAGE_KEY]: "sideways" }))).toBe("open");
+  });
+
+  it("a stale v1 key is ignored — the v2 default (open) wins", () => {
+    // The pre-bump key: a mobile visitor's stored "closed" must not leak
+    // into the new default. (rail.ts bumped the key for exactly this.)
+    expect(RAIL_STORAGE_KEY).not.toBe("afar.rail");
+    expect(loadRail(fakeStorage({ "afar.rail": "closed" }))).toBe("open");
   });
 
   it("toggle persists across a reload round-trip", () => {
     const storage = fakeStorage();
-    const next = toggleRail(loadRail(storage, false)); // open → closed
+    const next = toggleRail(loadRail(storage)); // open → closed
     saveRail(storage, next);
-    expect(loadRail(storage, false)).toBe("closed");
-    saveRail(storage, toggleRail(loadRail(storage, false)));
-    expect(loadRail(storage, false)).toBe("open");
+    expect(loadRail(storage)).toBe("closed");
+    saveRail(storage, toggleRail(loadRail(storage)));
+    expect(loadRail(storage)).toBe("open");
   });
 
   it("survives a throwing storage (private mode)", () => {
@@ -45,7 +50,7 @@ describe("rail store", () => {
         throw new Error("denied");
       },
     };
-    expect(loadRail(broken, false)).toBe("open");
+    expect(loadRail(broken)).toBe("open");
     expect(() => saveRail(broken, "closed")).not.toThrow();
   });
 });
