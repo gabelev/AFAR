@@ -319,6 +319,56 @@ def load_recent_reactions(
     return rows[-limit:]
 
 
+def _load_recent_rows(
+    runs_root: Path, table: str, kind: str, *, exclude_run: str | None = None
+) -> list[dict[str, Any]]:
+    """All rows of one kind from one table across ALL runs, oldest first.
+    Reading the log, not remembering, is the point (rule 3): a fresh process
+    on a fresh machine sees the same shelf."""
+    runs_root = Path(runs_root)
+    rows: list[dict[str, Any]] = []
+    if runs_root.exists():
+        for run_dir in sorted(p for p in runs_root.iterdir() if p.is_dir()):
+            if run_dir.name == exclude_run:
+                continue
+            path = run_dir / f"{table}.jsonl"
+            if path.exists():
+                rows.extend(r for r in _read_jsonl(path) if r.get("kind") == kind)
+    rows.sort(key=lambda r: str(r.get("ts", "")))
+    return rows
+
+
+def load_recent_titles(
+    runs_root: Path, *, exclude_run: str | None = None, limit: int = 24
+) -> list[str]:
+    """Every title the Critic already put on the record (release and take,
+    oldest first, deduped, last `limit`) — the naming call's diversity
+    pressure. A namer that cannot see the shelf re-invents the same title
+    shape until the whole catalog scans alike; this is how it sees the shelf."""
+    titles: list[str] = []
+    for row in _load_recent_rows(runs_root, "reviews", "titles", exclude_run=exclude_run):
+        take_titles = row.get("take_titles") or {}
+        for value in (row.get("release_title"), *dict(take_titles).values()):
+            title = str(value or "").strip()
+            if title and title not in titles:
+                titles.append(title)
+    return titles[-limit:]
+
+
+def load_recent_tape_titles(
+    runs_root: Path, *, exclude_run: str | None = None, limit: int = 12
+) -> list[str]:
+    """The recent tape titles already on the vault shelf (oldest first,
+    deduped, last `limit`) — the Archivist's diversity pressure, same reason
+    as the Critic's."""
+    titles: list[str] = []
+    for row in _load_recent_rows(runs_root, "archives", "shelving", exclude_run=exclude_run):
+        title = str(row.get("tape_title") or "").strip()
+        if title and title not in titles:
+            titles.append(title)
+    return titles[-limit:]
+
+
 def run_muse_listener(
     run_dir: Path,
     config: AfarConfig,
@@ -537,7 +587,13 @@ def run_archivist(run_dir: Path, config: AfarConfig) -> ArchiveOutcome:
         liner_notes: Optional[str] = None
         if view.released and record is not None:
             liner_notes = archivist.release_liner_notes(record, stage_names=STAGE_NAMES)
-        shelving = archivist.shelve(view, stage_names=STAGE_NAMES)
+        shelving = archivist.shelve(
+            view,
+            stage_names=STAGE_NAMES,
+            recent_tape_titles=load_recent_tape_titles(
+                run_dir.parent, exclude_run=run_dir.name
+            ),
+        )
     except Exception as err:  # noqa: BLE001 — the material outranks the commentary
         ledger.write(
             "archives",
@@ -725,7 +781,11 @@ def run_staff(
     try:
         critic = CriticAgent(config.model)
         review = critic.review(view, selection)
-        names = critic.name(selection, review)
+        names = critic.name(
+            selection,
+            review,
+            recent_titles=load_recent_titles(run_dir.parent, exclude_run=run_dir.name),
+        )
     except Exception as err:  # noqa: BLE001 — same doctrine
         review = None
         names = None
