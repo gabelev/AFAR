@@ -1,0 +1,170 @@
+{
+  "assembly-ghost": {
+    "accent": "#8b4b98",
+    "accentD": "#572d5f",
+    "chest": "badge",
+    "hair": "#8a7a52",
+    "head": "hair",
+    "prop": "amp"
+  },
+  "b-9-the-lucky-draw": {
+    "accent": "#af8f5f",
+    "accentD": "#715a37",
+    "chest": "pockets",
+    "hair": "#292319",
+    "head": "hair",
+    "prop": "reels"
+  },
+  "deuce-the-dust-servos": {
+    "accent": "#536b9a",
+    "accentD": "#324261",
+    "chest": "badge",
+    "hair": "#16140f",
+    "head": "hair",
+    "prop": "amp"
+  },
+  "fren-l-ge": {
+    "accent": "#4f948d",
+    "accentD": "#305d58",
+    "chest": "plain",
+    "hair": "#9a978c",
+    "head": "cap",
+    "prop": null
+  },
+  "hohlraum": {
+    "accent": "#644d92",
+    "accentD": "#3e2f5c",
+    "chest": "plain",
+    "hair": "#8a7a52",
+    "head": "hair",
+    "prop": "amp"
+  },
+  "hollis-wren-the-blacklung-choir": {
+    "accent": "#6a924d",
+    "accentD": "#415c2f",
+    "chest": "plain",
+    "hair": "#8a7a52",
+    "head": "cap",
+    "prop": "reels"
+  },
+  "josie-ryland": {
+    "accent": "#9aa95d",
+    "accentD": "#616c37",
+    "chest": "pockets",
+    "hair": "#6a6f78",
+    "head": "hair",
+    "prop": null
+  },
+  "lolgorithm": {
+    "accent": "#5f4bad",
+    "accentD": "#3a2d6d",
+    "chest": "badge",
+    "hair": "#9a978c",
+    "head": "hair",
+    "prop": "amp"
+  },
+  "los-novios-del-m-s-all": {
+    "accent": "#a68e5a",
+    "accentD": "#685936",
+    "chest": "pockets",
+    "hair": "#4a3120",
+    "head": "hair",
+    "prop": "reels"
+  },
+  "marlow-vane": {
+    "accent": "#54659a",
+    "accentD": "#333e60",
+    "chest": "pocket",
+    "hair": "#9a978c",
+    "head": "cap",
+    "prop": "amp"
+  },
+  "marlowe-quiet": {
+    "accent": "#7e9c52",
+    "accentD": "#4e6232",
+    "chest": "plain",
+    "hair": "#292319",
+    "head": "cap",
+    "prop": null
+  },
+  "midnight-vendo": {
+    "accent": "#5793a9",
+    "accentD": "#345c6a",
+    "chest": "pockets",
+    "hair": "#4a3120",
+    "head": "hair",
+    "prop": "amp"
+  },
+  "nite-route": {
+    "accent": "#52599c",
+    "accentD": "#323662",
+    "chest": "badge",
+    "hair": "#8a7a52",
+    "head": "cap",
+    "prop": "amp"
+  },
+  "ore-ashes": {
+    "accent": "#918952",
+    "accentD": "#5b5632",
+    "chest": "pocket",
+    "hair": "#4a3120",
+    "head": "hair",
+    "prop": "reels"
+  },
+  "systurj-kull": {
+    "accent": "#70a55b",
+    "accentD": "#456737",
+    "chest": "pockets",
+    "hair": "#4a3120",
+    "head": "hair",
+    "prop": "reels"
+  },
+  "the-harbor-belles": {
+    "accent": "#799254",
+    "accentD": "#4b5c33",
+    "chest": "pocket",
+    "hair": "#16140f",
+    "head": "hair",
+    "prop": "reels"
+  },
+  "the-pier-lights": {
+    "accent": "#a7925f",
+    "accentD": "#6a5b39",
+    "chest": "pockets",
+    "hair": "#8a7a52",
+    "head": "hair",
+    "prop": "reels"
+  },
+  "the-sardis-fasola-society": {
+    "accent": "#6f9251",
+    "accentD": "#455c31",
+    "chest": "pockets",
+    "hair": "#8a7a52",
+    "head": "hair",
+    "prop": "reels"
+  },
+  "twin-signal": {
+    "accent": "#595db1",
+    "accentD": "#333672",
+    "chest": "badge",
+    "hair": "#4a3120",
+    "head": "hair",
+    "prop": "amp"
+  },
+  "valentina-sol": {
+    "accent": "#5f7faf",
+    "accentD": "#364e71",
+    "chest": "badge",
+    "hair": "#9a978c",
+    "head": "hair",
+    "prop": "amp"
+  },
+  "velvet-nadia": {
+    "accent": "#5595a7",
+    "accentD": "#335d69",
+    "chest": "pockets",
+    "hair": "#8a7a52",
+    "head": "hair",
+    "prop": "amp"
+  }
+}

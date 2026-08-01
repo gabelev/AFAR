@@ -6,11 +6,12 @@
  * holds the two consumers to the design spec, pixel for pixel.
  *
  * Nothing in the world may hand-code a coordinate that exists here.
- * The world canvas IS the street ("Archive Row", 56×34 tiles): the AFAR
- * house sits on the corner, the four resident buildings face it across
- * the road, and every walk route — act → turntable, staff office →
- * studio, resident door → archive — derives from the registry's doors,
- * corridor rows and crossing spec.
+ * The world canvas IS the street ("Archive Row", 78×118 tiles): the AFAR
+ * house sits on the corner and the town's two avenues of resident
+ * buildings run south of it (avenue 2 staggered so its walk-out rows
+ * thread avenue 1's gaps), and every walk route — act → turntable, staff
+ * office → studio, resident door → archive — derives from the registry's
+ * doors, corridor rows and crossing spec.
  */
 
 import registry from "@/world-geometry.json";
@@ -36,8 +37,8 @@ export const GEO = registry;
 
 export const TILE = registry.tile;
 /** The world canvas is the whole street block (Archive Row). */
-export const WORLD_W = registry.street.canvas.w * TILE; // 896
-export const WORLD_H = registry.street.canvas.h * TILE; // 544
+export const WORLD_W = registry.street.canvas.w * TILE; // 1248
+export const WORLD_H = registry.street.canvas.h * TILE; // 1888
 
 /** Night-void margin around the building, in world px (6 tiles). */
 export const CAMERA_MARGIN = registry.cameraMarginTiles * TILE;

@@ -16,8 +16,21 @@ import { paintWorld, paintStreet, drawResidentRoom, eraPal, T, W, H, SW, SH } fr
  * THE ACCEPTANCE GATE for the geometry-registry refactor: rendering the
  * world from web/world-geometry.json + pixelspec's painters must be
  * hash-identical to rendering the design handoff's own pixel.js — the same
- * new spec, drawn twice by independent code paths. If the registry drops,
+ * spec, drawn twice by independent code paths. If the registry drops,
  * moves, or reorders a single tile, prop, or sprite, these hashes split.
+ *
+ * SCOPE (town-of-25 expansion, 2026-08): the handoff's drawStreet paints
+ * the DESIGNED CORE — the original 56×34 block with its four authored
+ * shells. The registry street is now the whole town (78×118: the avenue
+ * continues south, and a second staggered avenue runs east), an ADDITIVE
+ * extension in the same grammar. Parity therefore holds on the designed
+ * core as a crop: every pixel with x < 54 tiles and y < 33 tiles must
+ * still match the handoff exactly. Excluded, deliberately: tile column
+ * 54–55 (night void in the handoff; avenue 2's sidewalk now) and tile row
+ * 33 (the handoff's south margin; the avenue now continues through it).
+ * Nothing INSIDE the designed core may change — house, shells, road,
+ * sidewalks, props, cast all still hash identically. The house and
+ * resident-room gates are untouched and remain full-canvas.
  */
 
 const hashPixels = (cv: Canvas) => {
@@ -25,6 +38,17 @@ const hashPixels = (cv: Canvas) => {
   const data = cv.getContext("2d").getImageData(0, 0, width, height).data;
   return createHash("sha256").update(Buffer.from(data.buffer, data.byteOffset, data.byteLength)).digest("hex");
 };
+
+/** sha256 of one pixel region (world px) — the designed-core crop gate. */
+const hashRegion = (cv: Canvas, w: number, h: number) => {
+  const data = cv.getContext("2d").getImageData(0, 0, w, h).data;
+  return createHash("sha256").update(Buffer.from(data.buffer, data.byteOffset, data.byteLength)).digest("hex");
+};
+
+/** The designed core: everything west of avenue 2, north of the handoff's
+ * south margin row (tiles x 0..53, y 0..32 → px 864×528). */
+const CORE_W = 54 * T;
+const CORE_H = 33 * T;
 
 describe("registry-driven render matches the design spec, pixel for pixel", () => {
   for (const era of ["A", "B"] as const) {
@@ -42,18 +66,21 @@ describe("registry-driven render matches the design spec, pixel for pixel", () =
       expect(hashPixels(ours)).toBe(hashPixels(ref));
     });
 
-    it(`the street, era ${era} (drawStreet vs registry paintStreet)`, () => {
+    it(`the street's designed core, era ${era} (drawStreet vs registry paintStreet, cropped)`, () => {
       const ref = createCanvas(1, 1);
       design.drawStreet(ref, { era, scene: "normal" });
-      expect(ref.width).toBe(SW * T);
-      expect(ref.height).toBe(SH * T);
+      expect(ref.width).toBe(56 * T); // the handoff's designed core
+      expect(ref.height).toBe(34 * T);
+      // the registry street is the whole town — strictly larger
+      expect(SW * T).toBeGreaterThan(ref.width);
+      expect(SH * T).toBeGreaterThan(ref.height);
 
       const ours = createCanvas(SW * T, SH * T);
       const c = ours.getContext("2d");
       c.imageSmoothingEnabled = false;
       paintStreet(c, eraPal(era), era, "normal");
 
-      expect(hashPixels(ours)).toBe(hashPixels(ref));
+      expect(hashRegion(ours, CORE_W, CORE_H)).toBe(hashRegion(ref, CORE_W, CORE_H));
     });
   }
 

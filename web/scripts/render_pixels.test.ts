@@ -20,10 +20,11 @@ describe("render_pixels", () => {
     }
   });
 
-  it("emits the spec'd geometry (the 56×34-tile street; 8×12 character frames)", () => {
-    expect(pngSize(first.get("bg-era-a.png")!)).toEqual({ w: 896, h: 544 });
-    expect(pngSize(first.get("bg-era-b.png")!)).toEqual({ w: 896, h: 544 });
-    expect(pngSize(first.get("characters.png")!)).toEqual({ w: 192, h: 128 }); // 12 frames × 8 chars
+  it("emits the spec'd geometry (the 78×118-tile town; 29×12 character frames)", () => {
+    expect(pngSize(first.get("bg-era-a.png")!)).toEqual({ w: 1248, h: 1888 });
+    expect(pngSize(first.get("bg-era-b.png")!)).toEqual({ w: 1248, h: 1888 });
+    // 12 frames × (8 designed + 21 import residents)
+    expect(pngSize(first.get("characters.png")!)).toEqual({ w: 192, h: 464 });
     expect(pngSize(first.get("tiles.png")!).h).toBe(16);
     expect(pngSize(first.get("props.png")!).h).toBe(32);
   });

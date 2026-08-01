@@ -4,17 +4,17 @@
  * pixel.js data). The Phaser world displays them at 2x with pixelArt on.
  *
  * Outputs (committed, under web/public/world/):
- *   bg-era-a.png / bg-era-b.png — the whole block, 896×544 (the street's
- *     56×34 tiles of 16px): house rooms + props + office pets, sidewalks,
- *     road, Archive Row shells, street furniture. NO characters (the scene
- *     places them) and NO building occupancy dressing (the runtime paints
- *     lease / move-in ready / occupied from live agents data). Era B = LUT
- *     + prop diff.
- *   characters.png — 8 characters × 12 frames of 16×16 (rows in
- *     pixelspec CHARACTERS order — acts, staff, then vess the street
- *     resident; cols = 4 directions × 3 frames, the handoff's frames()
- *     convention: idle / step L / step R; staff now carry real side/up
- *     maps + walk rows from the street handoff).
+ *   bg-era-a.png / bg-era-b.png — the whole block (the street canvas in
+ *     the registry, two avenues of Archive Row at 16px tiles): house rooms
+ *     + props + office pets, sidewalks, roads, building shells, street
+ *     furniture. NO characters (the scene places them) and NO building
+ *     occupancy dressing (the runtime paints lease / move-in ready /
+ *     occupied from live agents data). Era B = LUT + prop diff.
+ *   characters.png — one row × 12 frames of 16×16 per spriteOrder entry
+ *     (the designed acts, staff and vess from the handoff maps, then every
+ *     import resident generated from its committed DNA look; cols = 4
+ *     directions × 3 frames, the handoff's frames() convention: idle /
+ *     step L / step R).
  *   tiles.png — the 16×16 base tiles at 1x, one per column (reference +
  *     any future Tiled use).
  *   props.png — the 32×32 props at 1x, one per column.
@@ -29,7 +29,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  PAL, eraPal, T, SW, SH, S, dict, drawMap, frames, paintStreet,
+  PAL, eraPal, T, SW, SH, drawMap, frames, paintStreet, spriteDef,
   CHARACTERS, DIRECTIONS,
   consoleDesk, reels, shelf, turntable, chair, armchair, lampPool,
   crate, ghost, puddle, windowV,
@@ -50,18 +50,21 @@ function renderBackground(era) {
   return png(cv);
 }
 
-/** 8 rows × 12 cols of 16×16: [down,left,right,up] × [idle, step L, step R]. */
+/** One row × 12 cols of 16×16 per character: [down,left,right,up] ×
+ * [idle, step L, step R]. Rows follow the registry's spriteOrder: the
+ * designed 8 from the handoff maps, then every import resident generated
+ * from its committed DNA look (spriteDef → spritegen.mjs). */
 function renderCharacters() {
   const cv = createCanvas(12 * 16, CHARACTERS.length * 16);
   const c = cv.getContext('2d');
   c.imageSmoothingEnabled = false;
   CHARACTERS.forEach((who, row) => {
-    const dk = dict(PAL, who);
+    const def = spriteDef(who);
     DIRECTIONS.forEach((dir, d) => {
       // side map serves left (as-is) and right (flipped).
-      const base = S[who][dir === 'left' || dir === 'right' ? 'side' : dir] || S[who].down;
+      const base = def.maps[dir === 'left' || dir === 'right' ? 'side' : dir] || def.maps.down;
       const flip = dir === 'right';
-      frames(base).forEach((m, f) => drawMap(c, m, (d * 3 + f) * 16, row * 16, dk, flip));
+      frames(base).forEach((m, f) => drawMap(c, m, (d * 3 + f) * 16, row * 16, def.dict, flip));
     });
   });
   return png(cv);
