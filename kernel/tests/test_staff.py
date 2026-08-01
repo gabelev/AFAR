@@ -219,12 +219,17 @@ def test_critic_naming_prompt_carries_register_and_shelf(played_run: Path):
 
     assert names.release_title
     naming_text = "\n".join(m.content for m in provider.calls[-1])
-    # The known ruts are named and closed.
+    # The known ruts are named and closed — including the second-audit pair
+    # (bland verb-phrase fragments, bare generic nouns).
     assert "RUTS THE HOUSE HAS ALREADY WORN" in naming_text
     assert "two fragments joined by a comma" in naming_text
     assert 'beginning with "Same"' in naming_text
-    # The shape range is shown (with the never-reuse guard).
+    assert "vague verb-phrase fragments" in naming_text
+    assert "a bare generic noun" in naming_text
+    # The concrete-noun doctrine is shown (with the never-reuse guard).
     assert "HOW A TITLE IS FOUND" in naming_text
+    assert "names a THING" in naming_text
+    assert "no other record could carry it" in naming_text
     assert "Undertow" in naming_text and "never reuse" in naming_text
     # And the shelf is visible, under the do-not-echo pressure.
     assert "ALREADY ON THE SHELF" in naming_text
