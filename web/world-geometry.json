@@ -1,189 +1,2541 @@
 {
-  "$comment": "AFAR world geometry — the single source of truth for every tile coordinate, prop placement, label position, walk waypoint and dim rect in the world. Transcribed from design/handoff/pixel.js + README ('expanded street' handoff). Consumed by BOTH scripts/lib/pixelspec.mjs (asset render) and lib/world/geometry.ts (runtime). Units: tile coords (16px tiles) unless a key says px. Rects are inclusive [x1,y1,x2,y2] except dim/label entries, which say what they are. The 'street' section is live: the world renders the full Archive Row canvas (56×34), with per-building occupancy resolved at runtime from the agents' building metadata.",
+  "$comment": "AFAR world geometry — the single source of truth for every tile coordinate, prop placement, label position, walk waypoint and dim rect in the world. Transcribed from design/handoff/pixel.js + README ('expanded street' handoff). Consumed by BOTH scripts/lib/pixelspec.mjs (asset render) and lib/world/geometry.ts (runtime). Units: tile coords (16px tiles) unless a key says px. Rects are inclusive [x1,y1,x2,y2] except dim/label entries, which say what they are. The 'street' section is live: the world renders the full Archive Row canvas (78×118: two avenues of 14 shells each, avenue 2 staggered +3 rows so its door rows exit through avenue 1's gaps), with per-building occupancy resolved at runtime from the agents' building metadata.",
   "tile": 16,
   "cameraMarginTiles": 6,
-  "spriteOrder": ["evers", "roan", "delta", "producer", "critic", "listener", "muse", "vess"],
+  "spriteOrder": [
+    "evers",
+    "roan",
+    "delta",
+    "producer",
+    "critic",
+    "listener",
+    "muse",
+    "vess",
+    "assembly-ghost",
+    "b-9-the-lucky-draw",
+    "deuce-the-dust-servos",
+    "fren-l-ge",
+    "hohlraum",
+    "hollis-wren-the-blacklung-choir",
+    "josie-ryland",
+    "lolgorithm",
+    "los-novios-del-m-s-all",
+    "marlow-vane",
+    "marlowe-quiet",
+    "midnight-vendo",
+    "nite-route",
+    "ore-ashes",
+    "systurj-kull",
+    "the-harbor-belles",
+    "the-pier-lights",
+    "the-sardis-fasola-society",
+    "twin-signal",
+    "valentina-sol",
+    "velvet-nadia"
+  ],
   "house": {
-    "canvas": { "w": 33, "h": 34 },
-    "shell": [1, 2, 31, 32],
-    "homeCenter": [16.5, 17],
-    "archiveTarget": [22, 23],
+    "canvas": {
+      "w": 33,
+      "h": 34
+    },
+    "shell": [
+      1,
+      2,
+      31,
+      32
+    ],
+    "homeCenter": [
+      16.5,
+      17
+    ],
+    "archiveTarget": [
+      22,
+      23
+    ],
     "rooms": [
-      { "id": "studioA", "rect": [2, 3, 10, 10], "tile": "S", "label": { "text": "STUDIO A · EVERS LANE", "px": [70, 70] } },
-      { "id": "studioB", "rect": [12, 3, 20, 10], "tile": "S", "label": { "text": "STUDIO B · ROAN PATINA", "px": [390, 70] } },
-      { "id": "studioC", "rect": [22, 3, 30, 10], "tile": "S", "label": { "text": "STUDIO C · DELTA MARLOWE", "px": [710, 70] } },
-      { "id": "corridor", "rect": [2, 12, 30, 14], "tile": "C" },
-      { "id": "office", "rect": [2, 16, 13, 31], "tile": "O", "label": { "text": "THE OFFICE", "px": [70, 492] } },
-      { "id": "archive", "rect": [15, 16, 30, 31], "tile": "A", "label": { "text": "THE ARCHIVE — LISTENING ROOM", "px": [486, 492] } },
-      { "id": "rug", "rect": [19, 21, 26, 27], "tile": "R" }
+      {
+        "id": "studioA",
+        "rect": [
+          2,
+          3,
+          10,
+          10
+        ],
+        "tile": "S",
+        "label": {
+          "text": "STUDIO A · EVERS LANE",
+          "px": [
+            70,
+            70
+          ]
+        }
+      },
+      {
+        "id": "studioB",
+        "rect": [
+          12,
+          3,
+          20,
+          10
+        ],
+        "tile": "S",
+        "label": {
+          "text": "STUDIO B · ROAN PATINA",
+          "px": [
+            390,
+            70
+          ]
+        }
+      },
+      {
+        "id": "studioC",
+        "rect": [
+          22,
+          3,
+          30,
+          10
+        ],
+        "tile": "S",
+        "label": {
+          "text": "STUDIO C · DELTA MARLOWE",
+          "px": [
+            710,
+            70
+          ]
+        }
+      },
+      {
+        "id": "corridor",
+        "rect": [
+          2,
+          12,
+          30,
+          14
+        ],
+        "tile": "C"
+      },
+      {
+        "id": "office",
+        "rect": [
+          2,
+          16,
+          13,
+          31
+        ],
+        "tile": "O",
+        "label": {
+          "text": "THE OFFICE",
+          "px": [
+            70,
+            492
+          ]
+        }
+      },
+      {
+        "id": "archive",
+        "rect": [
+          15,
+          16,
+          30,
+          31
+        ],
+        "tile": "A",
+        "label": {
+          "text": "THE ARCHIVE — LISTENING ROOM",
+          "px": [
+            486,
+            492
+          ]
+        }
+      },
+      {
+        "id": "rug",
+        "rect": [
+          19,
+          21,
+          26,
+          27
+        ],
+        "tile": "R"
+      }
     ],
     "doors": [
-      { "at": [6, 11], "tile": "C", "room": "studioA" },
-      { "at": [16, 11], "tile": "C", "room": "studioB" },
-      { "at": [26, 11], "tile": "C", "room": "studioC" },
-      { "at": [7, 15], "tile": "O", "room": "office" },
-      { "at": [22, 15], "tile": "A", "room": "archive" }
+      {
+        "at": [
+          6,
+          11
+        ],
+        "tile": "C",
+        "room": "studioA"
+      },
+      {
+        "at": [
+          16,
+          11
+        ],
+        "tile": "C",
+        "room": "studioB"
+      },
+      {
+        "at": [
+          26,
+          11
+        ],
+        "tile": "C",
+        "room": "studioC"
+      },
+      {
+        "at": [
+          7,
+          15
+        ],
+        "tile": "O",
+        "room": "office"
+      },
+      {
+        "at": [
+          22,
+          15
+        ],
+        "tile": "A",
+        "room": "archive"
+      }
     ],
     "props": [
-      { "kind": "shelf", "tx": 3, "ty": 3, "w": 3 },
-      { "kind": "reels", "tx": 7, "ty": 3 },
-      { "kind": "consoleDesk", "tx": 3, "ty": 5, "w": 4, "acc": "evers" },
-      { "kind": "chair", "tx": 7, "ty": 6 },
-      { "kind": "crate", "tx": 9, "ty": 8 },
-      { "kind": "crate", "tx": 9, "ty": 9 },
-      { "kind": "papers", "tx": 4, "ty": 8 },
-      { "kind": "desk", "tx": 15, "ty": 5, "w": 2 },
-      { "kind": "ghost", "tx": 13, "ty": 8, "w": 1, "h": 1 },
-      { "kind": "ghost", "tx": 17, "ty": 8, "w": 2, "h": 1 },
-      { "kind": "papers", "tx": 15, "ty": 9 },
-      { "kind": "ghost", "tx": 18, "ty": 4, "w": 1, "h": 1, "eras": ["B"] },
-      { "kind": "crate", "tx": 18, "ty": 4, "eras": ["A"] },
-      { "kind": "consoleDesk", "tx": 23, "ty": 4, "w": 3, "acc": "delta" },
-      { "kind": "desk", "tx": 27, "ty": 6, "w": 2 },
-      { "kind": "crate", "tx": 23, "ty": 8 },
-      { "kind": "crate", "tx": 24, "ty": 8 },
-      { "kind": "crate", "tx": 23, "ty": 9 },
-      { "kind": "crate", "tx": 29, "ty": 3 },
-      { "kind": "crate", "tx": 29, "ty": 4 },
-      { "kind": "papers", "tx": 27, "ty": 9 },
-      { "kind": "papers", "tx": 26, "ty": 3 },
-      { "kind": "cable", "pts": [[376, 96], [384, 126], [436, 118]] },
-      { "kind": "shelf", "tx": 8, "ty": 16, "w": 4 },
-      { "kind": "desk", "tx": 4, "ty": 20, "w": 3 },
-      { "kind": "papers", "tx": 5, "ty": 20 },
-      { "kind": "reels", "tx": 5, "ty": 20.4 },
-      { "kind": "desk", "tx": 9, "ty": 17, "w": 2 },
-      { "kind": "papers", "tx": 9, "ty": 17 },
-      { "kind": "armchair", "tx": 4, "ty": 26 },
-      { "kind": "lampPool", "tx": 3, "ty": 25 },
-      { "kind": "windowV", "tx": 1, "ty": 23 },
-      { "kind": "windowV", "tx": 1, "ty": 24 },
-      { "kind": "shelf", "tx": 16, "ty": 16, "w": 5 },
-      { "kind": "shelf", "tx": 24, "ty": 16, "w": 6 },
-      { "kind": "turntable", "tx": 21, "ty": 22 },
-      { "kind": "lampPool", "tx": 19, "ty": 22 },
-      { "kind": "armchair", "tx": 25, "ty": 25 },
-      { "kind": "crate", "tx": 16, "ty": 29 },
-      { "kind": "crate", "tx": 17, "ty": 29 },
-      { "kind": "crate", "tx": 18, "ty": 29, "eras": ["B"] },
-      { "kind": "crate", "tx": 16, "ty": 28, "eras": ["B"] },
-      { "kind": "puddle", "tx": 10, "ty": 13, "eras": ["A"] },
-      { "kind": "puddle", "tx": 24, "ty": 13, "eras": ["A"] }
+      {
+        "kind": "shelf",
+        "tx": 3,
+        "ty": 3,
+        "w": 3
+      },
+      {
+        "kind": "reels",
+        "tx": 7,
+        "ty": 3
+      },
+      {
+        "kind": "consoleDesk",
+        "tx": 3,
+        "ty": 5,
+        "w": 4,
+        "acc": "evers"
+      },
+      {
+        "kind": "chair",
+        "tx": 7,
+        "ty": 6
+      },
+      {
+        "kind": "crate",
+        "tx": 9,
+        "ty": 8
+      },
+      {
+        "kind": "crate",
+        "tx": 9,
+        "ty": 9
+      },
+      {
+        "kind": "papers",
+        "tx": 4,
+        "ty": 8
+      },
+      {
+        "kind": "desk",
+        "tx": 15,
+        "ty": 5,
+        "w": 2
+      },
+      {
+        "kind": "ghost",
+        "tx": 13,
+        "ty": 8,
+        "w": 1,
+        "h": 1
+      },
+      {
+        "kind": "ghost",
+        "tx": 17,
+        "ty": 8,
+        "w": 2,
+        "h": 1
+      },
+      {
+        "kind": "papers",
+        "tx": 15,
+        "ty": 9
+      },
+      {
+        "kind": "ghost",
+        "tx": 18,
+        "ty": 4,
+        "w": 1,
+        "h": 1,
+        "eras": [
+          "B"
+        ]
+      },
+      {
+        "kind": "crate",
+        "tx": 18,
+        "ty": 4,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "consoleDesk",
+        "tx": 23,
+        "ty": 4,
+        "w": 3,
+        "acc": "delta"
+      },
+      {
+        "kind": "desk",
+        "tx": 27,
+        "ty": 6,
+        "w": 2
+      },
+      {
+        "kind": "crate",
+        "tx": 23,
+        "ty": 8
+      },
+      {
+        "kind": "crate",
+        "tx": 24,
+        "ty": 8
+      },
+      {
+        "kind": "crate",
+        "tx": 23,
+        "ty": 9
+      },
+      {
+        "kind": "crate",
+        "tx": 29,
+        "ty": 3
+      },
+      {
+        "kind": "crate",
+        "tx": 29,
+        "ty": 4
+      },
+      {
+        "kind": "papers",
+        "tx": 27,
+        "ty": 9
+      },
+      {
+        "kind": "papers",
+        "tx": 26,
+        "ty": 3
+      },
+      {
+        "kind": "cable",
+        "pts": [
+          [
+            376,
+            96
+          ],
+          [
+            384,
+            126
+          ],
+          [
+            436,
+            118
+          ]
+        ]
+      },
+      {
+        "kind": "shelf",
+        "tx": 8,
+        "ty": 16,
+        "w": 4
+      },
+      {
+        "kind": "desk",
+        "tx": 4,
+        "ty": 20,
+        "w": 3
+      },
+      {
+        "kind": "papers",
+        "tx": 5,
+        "ty": 20
+      },
+      {
+        "kind": "reels",
+        "tx": 5,
+        "ty": 20.4
+      },
+      {
+        "kind": "desk",
+        "tx": 9,
+        "ty": 17,
+        "w": 2
+      },
+      {
+        "kind": "papers",
+        "tx": 9,
+        "ty": 17
+      },
+      {
+        "kind": "armchair",
+        "tx": 4,
+        "ty": 26
+      },
+      {
+        "kind": "lampPool",
+        "tx": 3,
+        "ty": 25
+      },
+      {
+        "kind": "windowV",
+        "tx": 1,
+        "ty": 23
+      },
+      {
+        "kind": "windowV",
+        "tx": 1,
+        "ty": 24
+      },
+      {
+        "kind": "shelf",
+        "tx": 16,
+        "ty": 16,
+        "w": 5
+      },
+      {
+        "kind": "shelf",
+        "tx": 24,
+        "ty": 16,
+        "w": 6
+      },
+      {
+        "kind": "turntable",
+        "tx": 21,
+        "ty": 22
+      },
+      {
+        "kind": "lampPool",
+        "tx": 19,
+        "ty": 22
+      },
+      {
+        "kind": "armchair",
+        "tx": 25,
+        "ty": 25
+      },
+      {
+        "kind": "crate",
+        "tx": 16,
+        "ty": 29
+      },
+      {
+        "kind": "crate",
+        "tx": 17,
+        "ty": 29
+      },
+      {
+        "kind": "crate",
+        "tx": 18,
+        "ty": 29,
+        "eras": [
+          "B"
+        ]
+      },
+      {
+        "kind": "crate",
+        "tx": 16,
+        "ty": 28,
+        "eras": [
+          "B"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 10,
+        "ty": 13,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 24,
+        "ty": 13,
+        "eras": [
+          "A"
+        ]
+      }
     ],
     "pets": [
-      { "kind": "cat", "tx": 9.6, "ty": 19.6 },
-      { "kind": "deerhound", "tx": 2.6, "ty": 24.2, "dir": "right" }
+      {
+        "kind": "cat",
+        "tx": 9.6,
+        "ty": 19.6
+      },
+      {
+        "kind": "deerhound",
+        "tx": 2.6,
+        "ty": 24.2,
+        "dir": "right"
+      }
     ],
     "placements": {
-      "keep": { "sprite": "evers", "kind": "act", "room": "studioA", "tx": 5, "ty": 7, "dir": "up" },
-      "rust": { "sprite": "roan", "kind": "act", "room": "studioB", "tx": 15.5, "ty": 7, "dir": "down" },
-      "silt": { "sprite": "delta", "kind": "act", "room": "studioC", "tx": 24.5, "ty": 7, "dir": "down" },
-      "producer": { "sprite": "producer", "kind": "staff", "room": "office", "tx": 5, "ty": 22, "dir": "up" },
-      "critic": { "sprite": "critic", "kind": "staff", "room": "office", "tx": 10.4, "ty": 18.4, "dir": "down" },
-      "listener": { "sprite": "listener", "kind": "staff", "room": "office", "tx": 4.4, "ty": 26.2, "dir": "down" },
-      "muse": { "sprite": "muse", "kind": "staff", "room": "office", "tx": 2, "ty": 23.4, "dir": "left" }
+      "keep": {
+        "sprite": "evers",
+        "kind": "act",
+        "room": "studioA",
+        "tx": 5,
+        "ty": 7,
+        "dir": "up"
+      },
+      "rust": {
+        "sprite": "roan",
+        "kind": "act",
+        "room": "studioB",
+        "tx": 15.5,
+        "ty": 7,
+        "dir": "down"
+      },
+      "silt": {
+        "sprite": "delta",
+        "kind": "act",
+        "room": "studioC",
+        "tx": 24.5,
+        "ty": 7,
+        "dir": "down"
+      },
+      "producer": {
+        "sprite": "producer",
+        "kind": "staff",
+        "room": "office",
+        "tx": 5,
+        "ty": 22,
+        "dir": "up"
+      },
+      "critic": {
+        "sprite": "critic",
+        "kind": "staff",
+        "room": "office",
+        "tx": 10.4,
+        "ty": 18.4,
+        "dir": "down"
+      },
+      "listener": {
+        "sprite": "listener",
+        "kind": "staff",
+        "room": "office",
+        "tx": 4.4,
+        "ty": 26.2,
+        "dir": "down"
+      },
+      "muse": {
+        "sprite": "muse",
+        "kind": "staff",
+        "room": "office",
+        "tx": 2,
+        "ty": 23.4,
+        "dir": "left"
+      }
     },
-    "turntable": { "tx": 21, "ty": 22, "platterOffset": [15, 14], "stand": [21.4, 24.6] },
+    "turntable": {
+      "tx": 21,
+      "ty": 22,
+      "platterOffset": [
+        15,
+        14
+      ],
+      "stand": [
+        21.4,
+        24.6
+      ]
+    },
     "bubbles": {
-      "keep": { "px": [120, 296], "maxWidth": 230 },
-      "rust": { "px": [420, 296], "maxWidth": 230 },
-      "silt": { "px": [706, 296], "maxWidth": 260 },
-      "turntable": { "px": [500, 846], "maxWidth": 300 },
-      "archiveChair": { "px": [620, 776], "maxWidth": 260 },
-      "window": { "px": [70, 690], "maxWidth": 240 }
+      "keep": {
+        "px": [
+          120,
+          296
+        ],
+        "maxWidth": 230
+      },
+      "rust": {
+        "px": [
+          420,
+          296
+        ],
+        "maxWidth": 230
+      },
+      "silt": {
+        "px": [
+          706,
+          296
+        ],
+        "maxWidth": 260
+      },
+      "turntable": {
+        "px": [
+          500,
+          846
+        ],
+        "maxWidth": 300
+      },
+      "archiveChair": {
+        "px": [
+          620,
+          776
+        ],
+        "maxWidth": 260
+      },
+      "window": {
+        "px": [
+          70,
+          690
+        ],
+        "maxWidth": 240
+      }
     },
     "walk": {
       "doorOffset": -0.4,
       "corridorY": 13,
-      "approach": [[21.9, 13], [21.9, 16.2]],
+      "approach": [
+        [
+          21.9,
+          13
+        ],
+        [
+          21.9,
+          16.2
+        ]
+      ],
       "studioDeliveryY": 9.4,
-      "archiveChairStand": [25.2, 24.9]
+      "archiveChairStand": [
+        25.2,
+        24.9
+      ]
     },
-    "dashes": { "doorOffset": 0.5, "startY": 12, "cornerY": 13.5, "tail": [[22.5, 13.5], [22.5, 16], [22.2, 21.5]] },
-    "dim": { "archive": [14, 15, 18, 18], "corridor": { "y": 11, "h": 5, "span": [20.5, 24], "halfWidth": 1.5 } }
+    "dashes": {
+      "doorOffset": 0.5,
+      "startY": 12,
+      "cornerY": 13.5,
+      "tail": [
+        [
+          22.5,
+          13.5
+        ],
+        [
+          22.5,
+          16
+        ],
+        [
+          22.2,
+          21.5
+        ]
+      ]
+    },
+    "dim": {
+      "archive": [
+        14,
+        15,
+        18,
+        18
+      ],
+      "corridor": {
+        "y": 11,
+        "h": 5,
+        "span": [
+          20.5,
+          24
+        ],
+        "halfWidth": 1.5
+      }
+    }
   },
   "street": {
-    "canvas": { "w": 56, "h": 34 },
-    "houseRegion": [0, 0, 31, 33],
-    "sidewalks": [[32, 2, 33, 32], [38, 2, 39, 32]],
-    "road": [34, 2, 37, 32],
-    "laneLineX": 35,
-    "houseStreetDoor": { "at": [31, 22], "h": 2 },
+    "canvas": {
+      "w": 78,
+      "h": 118
+    },
+    "houseRegion": [
+      0,
+      0,
+      31,
+      33
+    ],
+    "sidewalks": [
+      [
+        32,
+        2,
+        33,
+        116
+      ],
+      [
+        38,
+        2,
+        39,
+        116
+      ],
+      [
+        54,
+        2,
+        55,
+        116
+      ],
+      [
+        60,
+        2,
+        61,
+        116
+      ]
+    ],
+    "houseStreetDoor": {
+      "at": [
+        31,
+        22
+      ],
+      "h": 2
+    },
     "buildings": [
-      { "id": "res-01", "status": "lease", "shell": [40, 2, 53, 8], "door": [40, 5], "windows": [[40, 3], [40, 7]], "signPlate": [40, 4], "interior": [] },
-      { "id": "res-02", "status": "ready", "shell": [40, 10, 53, 16], "door": [40, 13], "windows": [[40, 11], [40, 15]], "signPlate": [40, 12], "interior": [
-        { "kind": "ghost", "tx": 44, "ty": 12, "w": 2, "h": 1 },
-        { "kind": "ghost", "tx": 48, "ty": 13, "w": 1, "h": 1 }
-      ] },
-      { "id": "res-03", "status": "occupied", "resident": "vess", "shell": [40, 18, 53, 24], "door": [40, 21], "windows": [[40, 19], [40, 23]], "signPlate": [40, 20], "interior": [
-        { "kind": "consoleDesk", "tx": 43, "ty": 19, "w": 2, "acc": "guest" },
-        { "kind": "chair", "tx": 45, "ty": 20 },
-        { "kind": "amp", "tx": 49, "ty": 19 },
-        { "kind": "crate", "tx": 51, "ty": 22 },
-        { "kind": "papers", "tx": 47, "ty": 22 }
-      ] },
-      { "id": "res-04", "status": "lease", "shell": [40, 26, 53, 32], "door": [40, 29], "windows": [[40, 27], [40, 31]], "signPlate": [40, 28], "interior": [] }
+      {
+        "id": "res-01",
+        "status": "lease",
+        "shell": [
+          40,
+          2,
+          53,
+          8
+        ],
+        "door": [
+          40,
+          5
+        ],
+        "windows": [
+          [
+            40,
+            3
+          ],
+          [
+            40,
+            7
+          ]
+        ],
+        "signPlate": [
+          40,
+          4
+        ],
+        "interior": []
+      },
+      {
+        "id": "res-02",
+        "status": "ready",
+        "shell": [
+          40,
+          10,
+          53,
+          16
+        ],
+        "door": [
+          40,
+          13
+        ],
+        "windows": [
+          [
+            40,
+            11
+          ],
+          [
+            40,
+            15
+          ]
+        ],
+        "signPlate": [
+          40,
+          12
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 12,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 13,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-03",
+        "status": "occupied",
+        "resident": "vess",
+        "shell": [
+          40,
+          18,
+          53,
+          24
+        ],
+        "door": [
+          40,
+          21
+        ],
+        "windows": [
+          [
+            40,
+            19
+          ],
+          [
+            40,
+            23
+          ]
+        ],
+        "signPlate": [
+          40,
+          20
+        ],
+        "interior": [
+          {
+            "kind": "consoleDesk",
+            "tx": 43,
+            "ty": 19,
+            "w": 2,
+            "acc": "guest"
+          },
+          {
+            "kind": "chair",
+            "tx": 45,
+            "ty": 20
+          },
+          {
+            "kind": "amp",
+            "tx": 49,
+            "ty": 19
+          },
+          {
+            "kind": "crate",
+            "tx": 51,
+            "ty": 22
+          },
+          {
+            "kind": "papers",
+            "tx": 47,
+            "ty": 22
+          }
+        ]
+      },
+      {
+        "id": "res-04",
+        "status": "lease",
+        "shell": [
+          40,
+          26,
+          53,
+          32
+        ],
+        "door": [
+          40,
+          29
+        ],
+        "windows": [
+          [
+            40,
+            27
+          ],
+          [
+            40,
+            31
+          ]
+        ],
+        "signPlate": [
+          40,
+          28
+        ],
+        "interior": []
+      },
+      {
+        "id": "res-05",
+        "status": "ready",
+        "shell": [
+          40,
+          34,
+          53,
+          40
+        ],
+        "door": [
+          40,
+          37
+        ],
+        "windows": [
+          [
+            40,
+            35
+          ],
+          [
+            40,
+            39
+          ]
+        ],
+        "signPlate": [
+          40,
+          36
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 36,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 37,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-06",
+        "status": "ready",
+        "shell": [
+          40,
+          42,
+          53,
+          48
+        ],
+        "door": [
+          40,
+          45
+        ],
+        "windows": [
+          [
+            40,
+            43
+          ],
+          [
+            40,
+            47
+          ]
+        ],
+        "signPlate": [
+          40,
+          44
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 44,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 45,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-07",
+        "status": "ready",
+        "shell": [
+          40,
+          50,
+          53,
+          56
+        ],
+        "door": [
+          40,
+          53
+        ],
+        "windows": [
+          [
+            40,
+            51
+          ],
+          [
+            40,
+            55
+          ]
+        ],
+        "signPlate": [
+          40,
+          52
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 52,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 53,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-08",
+        "status": "ready",
+        "shell": [
+          40,
+          58,
+          53,
+          64
+        ],
+        "door": [
+          40,
+          61
+        ],
+        "windows": [
+          [
+            40,
+            59
+          ],
+          [
+            40,
+            63
+          ]
+        ],
+        "signPlate": [
+          40,
+          60
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 60,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 61,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-09",
+        "status": "ready",
+        "shell": [
+          40,
+          66,
+          53,
+          72
+        ],
+        "door": [
+          40,
+          69
+        ],
+        "windows": [
+          [
+            40,
+            67
+          ],
+          [
+            40,
+            71
+          ]
+        ],
+        "signPlate": [
+          40,
+          68
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 68,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 69,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-10",
+        "status": "ready",
+        "shell": [
+          40,
+          74,
+          53,
+          80
+        ],
+        "door": [
+          40,
+          77
+        ],
+        "windows": [
+          [
+            40,
+            75
+          ],
+          [
+            40,
+            79
+          ]
+        ],
+        "signPlate": [
+          40,
+          76
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 76,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 77,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-11",
+        "status": "ready",
+        "shell": [
+          40,
+          82,
+          53,
+          88
+        ],
+        "door": [
+          40,
+          85
+        ],
+        "windows": [
+          [
+            40,
+            83
+          ],
+          [
+            40,
+            87
+          ]
+        ],
+        "signPlate": [
+          40,
+          84
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 84,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 85,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-12",
+        "status": "ready",
+        "shell": [
+          40,
+          90,
+          53,
+          96
+        ],
+        "door": [
+          40,
+          93
+        ],
+        "windows": [
+          [
+            40,
+            91
+          ],
+          [
+            40,
+            95
+          ]
+        ],
+        "signPlate": [
+          40,
+          92
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 92,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 93,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-13",
+        "status": "ready",
+        "shell": [
+          40,
+          98,
+          53,
+          104
+        ],
+        "door": [
+          40,
+          101
+        ],
+        "windows": [
+          [
+            40,
+            99
+          ],
+          [
+            40,
+            103
+          ]
+        ],
+        "signPlate": [
+          40,
+          100
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 100,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 101,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-14",
+        "status": "ready",
+        "shell": [
+          40,
+          106,
+          53,
+          112
+        ],
+        "door": [
+          40,
+          109
+        ],
+        "windows": [
+          [
+            40,
+            107
+          ],
+          [
+            40,
+            111
+          ]
+        ],
+        "signPlate": [
+          40,
+          108
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 44,
+            "ty": 108,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 48,
+            "ty": 109,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-15",
+        "status": "ready",
+        "shell": [
+          62,
+          5,
+          75,
+          11
+        ],
+        "door": [
+          62,
+          8
+        ],
+        "windows": [
+          [
+            62,
+            6
+          ],
+          [
+            62,
+            10
+          ]
+        ],
+        "signPlate": [
+          62,
+          7
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 66,
+            "ty": 7,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 70,
+            "ty": 8,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-16",
+        "status": "ready",
+        "shell": [
+          62,
+          13,
+          75,
+          19
+        ],
+        "door": [
+          62,
+          16
+        ],
+        "windows": [
+          [
+            62,
+            14
+          ],
+          [
+            62,
+            18
+          ]
+        ],
+        "signPlate": [
+          62,
+          15
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 66,
+            "ty": 15,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 70,
+            "ty": 16,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-17",
+        "status": "ready",
+        "shell": [
+          62,
+          21,
+          75,
+          27
+        ],
+        "door": [
+          62,
+          24
+        ],
+        "windows": [
+          [
+            62,
+            22
+          ],
+          [
+            62,
+            26
+          ]
+        ],
+        "signPlate": [
+          62,
+          23
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 66,
+            "ty": 23,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 70,
+            "ty": 24,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-18",
+        "status": "ready",
+        "shell": [
+          62,
+          29,
+          75,
+          35
+        ],
+        "door": [
+          62,
+          32
+        ],
+        "windows": [
+          [
+            62,
+            30
+          ],
+          [
+            62,
+            34
+          ]
+        ],
+        "signPlate": [
+          62,
+          31
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 66,
+            "ty": 31,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 70,
+            "ty": 32,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-19",
+        "status": "ready",
+        "shell": [
+          62,
+          37,
+          75,
+          43
+        ],
+        "door": [
+          62,
+          40
+        ],
+        "windows": [
+          [
+            62,
+            38
+          ],
+          [
+            62,
+            42
+          ]
+        ],
+        "signPlate": [
+          62,
+          39
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 66,
+            "ty": 39,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 70,
+            "ty": 40,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-20",
+        "status": "ready",
+        "shell": [
+          62,
+          45,
+          75,
+          51
+        ],
+        "door": [
+          62,
+          48
+        ],
+        "windows": [
+          [
+            62,
+            46
+          ],
+          [
+            62,
+            50
+          ]
+        ],
+        "signPlate": [
+          62,
+          47
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 66,
+            "ty": 47,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 70,
+            "ty": 48,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-21",
+        "status": "ready",
+        "shell": [
+          62,
+          53,
+          75,
+          59
+        ],
+        "door": [
+          62,
+          56
+        ],
+        "windows": [
+          [
+            62,
+            54
+          ],
+          [
+            62,
+            58
+          ]
+        ],
+        "signPlate": [
+          62,
+          55
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 66,
+            "ty": 55,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 70,
+            "ty": 56,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-22",
+        "status": "ready",
+        "shell": [
+          62,
+          61,
+          75,
+          67
+        ],
+        "door": [
+          62,
+          64
+        ],
+        "windows": [
+          [
+            62,
+            62
+          ],
+          [
+            62,
+            66
+          ]
+        ],
+        "signPlate": [
+          62,
+          63
+        ],
+        "interior": [
+          {
+            "kind": "ghost",
+            "tx": 66,
+            "ty": 63,
+            "w": 2,
+            "h": 1
+          },
+          {
+            "kind": "ghost",
+            "tx": 70,
+            "ty": 64,
+            "w": 1,
+            "h": 1
+          }
+        ]
+      },
+      {
+        "id": "res-23",
+        "status": "lease",
+        "shell": [
+          62,
+          69,
+          75,
+          75
+        ],
+        "door": [
+          62,
+          72
+        ],
+        "windows": [
+          [
+            62,
+            70
+          ],
+          [
+            62,
+            74
+          ]
+        ],
+        "signPlate": [
+          62,
+          71
+        ],
+        "interior": []
+      },
+      {
+        "id": "res-24",
+        "status": "lease",
+        "shell": [
+          62,
+          77,
+          75,
+          83
+        ],
+        "door": [
+          62,
+          80
+        ],
+        "windows": [
+          [
+            62,
+            78
+          ],
+          [
+            62,
+            82
+          ]
+        ],
+        "signPlate": [
+          62,
+          79
+        ],
+        "interior": []
+      },
+      {
+        "id": "res-25",
+        "status": "lease",
+        "shell": [
+          62,
+          85,
+          75,
+          91
+        ],
+        "door": [
+          62,
+          88
+        ],
+        "windows": [
+          [
+            62,
+            86
+          ],
+          [
+            62,
+            90
+          ]
+        ],
+        "signPlate": [
+          62,
+          87
+        ],
+        "interior": []
+      },
+      {
+        "id": "res-26",
+        "status": "lease",
+        "shell": [
+          62,
+          93,
+          75,
+          99
+        ],
+        "door": [
+          62,
+          96
+        ],
+        "windows": [
+          [
+            62,
+            94
+          ],
+          [
+            62,
+            98
+          ]
+        ],
+        "signPlate": [
+          62,
+          95
+        ],
+        "interior": []
+      },
+      {
+        "id": "res-27",
+        "status": "lease",
+        "shell": [
+          62,
+          101,
+          75,
+          107
+        ],
+        "door": [
+          62,
+          104
+        ],
+        "windows": [
+          [
+            62,
+            102
+          ],
+          [
+            62,
+            106
+          ]
+        ],
+        "signPlate": [
+          62,
+          103
+        ],
+        "interior": []
+      },
+      {
+        "id": "res-28",
+        "status": "lease",
+        "shell": [
+          62,
+          109,
+          75,
+          115
+        ],
+        "door": [
+          62,
+          112
+        ],
+        "windows": [
+          [
+            62,
+            110
+          ],
+          [
+            62,
+            114
+          ]
+        ],
+        "signPlate": [
+          62,
+          111
+        ],
+        "interior": []
+      }
     ],
     "props": [
-      { "kind": "bench", "tx": 38, "ty": 24 },
-      { "kind": "mailbox", "tx": 32, "ty": 20 },
-      { "kind": "tree", "tx": 32, "ty": 5 },
-      { "kind": "tree", "tx": 38, "ty": 10 },
-      { "kind": "tree", "tx": 32, "ty": 29 },
-      { "kind": "tree", "tx": 38, "ty": 30 },
-      { "kind": "subway", "tx": 38, "ty": 4 },
-      { "kind": "car", "tx": 34, "ty": 8, "col": "#4b4f57" },
-      { "kind": "car", "tx": 34, "ty": 17, "col": "#5c4b37" },
-      { "kind": "car", "tx": 34, "ty": 25, "col": "#43474e" },
-      { "kind": "dustPatch", "tx": 35, "ty": 6, "eras": ["B"] },
-      { "kind": "dustPatch", "tx": 36, "ty": 30, "eras": ["B"] },
-      { "kind": "puddle", "tx": 35, "ty": 6, "eras": ["A"] },
-      { "kind": "puddle", "tx": 36, "ty": 14, "eras": ["A"] },
-      { "kind": "puddle", "tx": 34, "ty": 27, "eras": ["A"] },
-      { "kind": "puddle", "tx": 36, "ty": 30, "eras": ["A"] }
+      {
+        "kind": "bench",
+        "tx": 38,
+        "ty": 24
+      },
+      {
+        "kind": "mailbox",
+        "tx": 32,
+        "ty": 20
+      },
+      {
+        "kind": "tree",
+        "tx": 32,
+        "ty": 5
+      },
+      {
+        "kind": "tree",
+        "tx": 38,
+        "ty": 10
+      },
+      {
+        "kind": "tree",
+        "tx": 32,
+        "ty": 29
+      },
+      {
+        "kind": "tree",
+        "tx": 38,
+        "ty": 30
+      },
+      {
+        "kind": "subway",
+        "tx": 38,
+        "ty": 4
+      },
+      {
+        "kind": "car",
+        "tx": 34,
+        "ty": 8,
+        "col": "#4b4f57"
+      },
+      {
+        "kind": "car",
+        "tx": 34,
+        "ty": 17,
+        "col": "#5c4b37"
+      },
+      {
+        "kind": "car",
+        "tx": 34,
+        "ty": 25,
+        "col": "#43474e"
+      },
+      {
+        "kind": "dustPatch",
+        "tx": 35,
+        "ty": 6,
+        "eras": [
+          "B"
+        ]
+      },
+      {
+        "kind": "dustPatch",
+        "tx": 36,
+        "ty": 30,
+        "eras": [
+          "B"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 35,
+        "ty": 6,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 36,
+        "ty": 14,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 34,
+        "ty": 27,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 36,
+        "ty": 30,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "tree",
+        "tx": 32,
+        "ty": 41
+      },
+      {
+        "kind": "tree",
+        "tx": 38,
+        "ty": 52
+      },
+      {
+        "kind": "tree",
+        "tx": 32,
+        "ty": 63
+      },
+      {
+        "kind": "tree",
+        "tx": 38,
+        "ty": 74
+      },
+      {
+        "kind": "tree",
+        "tx": 32,
+        "ty": 85
+      },
+      {
+        "kind": "tree",
+        "tx": 38,
+        "ty": 96
+      },
+      {
+        "kind": "tree",
+        "tx": 32,
+        "ty": 107
+      },
+      {
+        "kind": "tree",
+        "tx": 54,
+        "ty": 9
+      },
+      {
+        "kind": "tree",
+        "tx": 61,
+        "ty": 26
+      },
+      {
+        "kind": "tree",
+        "tx": 54,
+        "ty": 47
+      },
+      {
+        "kind": "tree",
+        "tx": 61,
+        "ty": 58
+      },
+      {
+        "kind": "tree",
+        "tx": 54,
+        "ty": 69
+      },
+      {
+        "kind": "tree",
+        "tx": 61,
+        "ty": 80
+      },
+      {
+        "kind": "tree",
+        "tx": 54,
+        "ty": 91
+      },
+      {
+        "kind": "tree",
+        "tx": 61,
+        "ty": 102
+      },
+      {
+        "kind": "car",
+        "tx": 34,
+        "ty": 38,
+        "col": "#4b4f57"
+      },
+      {
+        "kind": "car",
+        "tx": 34,
+        "ty": 49,
+        "col": "#5c4b37"
+      },
+      {
+        "kind": "car",
+        "tx": 34,
+        "ty": 61,
+        "col": "#43474e"
+      },
+      {
+        "kind": "car",
+        "tx": 34,
+        "ty": 74,
+        "col": "#3f4a38"
+      },
+      {
+        "kind": "car",
+        "tx": 34,
+        "ty": 88,
+        "col": "#5a5449"
+      },
+      {
+        "kind": "car",
+        "tx": 34,
+        "ty": 101,
+        "col": "#4b4f57"
+      },
+      {
+        "kind": "car",
+        "tx": 56,
+        "ty": 9,
+        "col": "#5c4b37"
+      },
+      {
+        "kind": "car",
+        "tx": 56,
+        "ty": 24,
+        "col": "#43474e"
+      },
+      {
+        "kind": "car",
+        "tx": 56,
+        "ty": 44,
+        "col": "#3f4a38"
+      },
+      {
+        "kind": "car",
+        "tx": 56,
+        "ty": 63,
+        "col": "#5a5449"
+      },
+      {
+        "kind": "car",
+        "tx": 56,
+        "ty": 79,
+        "col": "#4b4f57"
+      },
+      {
+        "kind": "car",
+        "tx": 56,
+        "ty": 97,
+        "col": "#5c4b37"
+      },
+      {
+        "kind": "bench",
+        "tx": 38,
+        "ty": 58
+      },
+      {
+        "kind": "bench",
+        "tx": 60,
+        "ty": 36
+      },
+      {
+        "kind": "bench",
+        "tx": 60,
+        "ty": 88
+      },
+      {
+        "kind": "mailbox",
+        "tx": 32,
+        "ty": 70
+      },
+      {
+        "kind": "mailbox",
+        "tx": 54,
+        "ty": 40
+      },
+      {
+        "kind": "puddle",
+        "tx": 35,
+        "ty": 45,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 36,
+        "ty": 59,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 34,
+        "ty": 72,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 36,
+        "ty": 90,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 35,
+        "ty": 104,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 57,
+        "ty": 15,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 58,
+        "ty": 33,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 56,
+        "ty": 54,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 58,
+        "ty": 70,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 57,
+        "ty": 86,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "puddle",
+        "tx": 58,
+        "ty": 108,
+        "eras": [
+          "A"
+        ]
+      },
+      {
+        "kind": "dustPatch",
+        "tx": 35,
+        "ty": 45,
+        "eras": [
+          "B"
+        ]
+      },
+      {
+        "kind": "dustPatch",
+        "tx": 36,
+        "ty": 90,
+        "eras": [
+          "B"
+        ]
+      },
+      {
+        "kind": "dustPatch",
+        "tx": 57,
+        "ty": 33,
+        "eras": [
+          "B"
+        ]
+      },
+      {
+        "kind": "dustPatch",
+        "tx": 58,
+        "ty": 86,
+        "eras": [
+          "B"
+        ]
+      }
     ],
-    "lampPosts": [[33, 8], [38, 16], [33, 26]],
+    "lampPosts": [
+      [
+        33,
+        8
+      ],
+      [
+        38,
+        16
+      ],
+      [
+        33,
+        26
+      ],
+      [
+        33,
+        36
+      ],
+      [
+        38,
+        46
+      ],
+      [
+        33,
+        56
+      ],
+      [
+        38,
+        66
+      ],
+      [
+        33,
+        76
+      ],
+      [
+        38,
+        86
+      ],
+      [
+        33,
+        96
+      ],
+      [
+        38,
+        106
+      ],
+      [
+        55,
+        12
+      ],
+      [
+        60,
+        22
+      ],
+      [
+        55,
+        32
+      ],
+      [
+        60,
+        42
+      ],
+      [
+        55,
+        52
+      ],
+      [
+        60,
+        62
+      ],
+      [
+        55,
+        72
+      ],
+      [
+        60,
+        82
+      ],
+      [
+        55,
+        92
+      ],
+      [
+        60,
+        102
+      ],
+      [
+        55,
+        112
+      ]
+    ],
     "placements": {
-      "vess": { "sprite": "vess", "kind": "resident", "building": "res-03", "tx": 44.4, "ty": 20.6, "dir": "up", "listening": { "tx": 35.5, "ty": 21.4, "dir": "left" } }
+      "vess": {
+        "sprite": "vess",
+        "kind": "resident",
+        "building": "res-03",
+        "tx": 44.4,
+        "ty": 20.6,
+        "dir": "up",
+        "listening": {
+          "tx": 35.5,
+          "ty": 21.4,
+          "dir": "left"
+        }
+      }
     },
     "walk": {
       "$comment": "path = the design's RES 03 walk (frame 2b). crossing generalizes it: a resident leaves any door at [door.x+0.5, door.y+1], crosses the road at x=36 on that row, joins the crossing row crossingY, and follows the tail through the house street door to the turntable approach. streetWalkPath(res-03) must reproduce `path` exactly (street.test.ts).",
-      "path": [[40.5, 22], [36, 22], [36, 23.2], [31.6, 23.2], [27, 23.2], [23, 22.3]],
-      "crossing": { "roadX": 36, "crossingY": 23.2, "tail": [[31.6, 23.2], [27, 23.2], [23, 22.3]] }
+      "path": [
+        [
+          40.5,
+          22
+        ],
+        [
+          36,
+          22
+        ],
+        [
+          36,
+          23.2
+        ],
+        [
+          31.6,
+          23.2
+        ],
+        [
+          27,
+          23.2
+        ],
+        [
+          23,
+          22.3
+        ]
+      ],
+      "crossing": {
+        "roadX": 36,
+        "crossingY": 23.2,
+        "tail": [
+          [
+            31.6,
+            23.2
+          ],
+          [
+            27,
+            23.2
+          ],
+          [
+            23,
+            22.3
+          ]
+        ]
+      }
     },
     "dim": {
       "$comment": "rects = archive (house dim register), the crossing strip, and the resident's own building — the third derives from the shell; streetDimRects(res-03) must reproduce `rects` exactly (street.test.ts).",
-      "rects": [[14, 15, 18, 18], [31, 19, 9, 6], [40, 18, 14, 7]],
-      "crossingStrip": [31, 19, 9, 6]
+      "rects": [
+        [
+          14,
+          15,
+          18,
+          18
+        ],
+        [
+          31,
+          19,
+          9,
+          6
+        ],
+        [
+          40,
+          18,
+          14,
+          7
+        ]
+      ],
+      "crossingStrip": [
+        31,
+        19,
+        9,
+        6
+      ]
     },
     "tenant": {
       "$comment": "Street-scale tenant staging (ONE accent + ONE prop slot per room). Offsets are relative to a building shell's [x1,y1]: occupied mirrors RES 03's authored interior, ready mirrors RES 02's dust ghosts — street.test.ts pins both derivations against the buildings' interior lists.",
       "occupied": {
-        "consoleDesk": [3, 1, 2],
-        "chair": [5, 2],
-        "propSlot": [9, 1],
-        "ghost": [9, 1, 1, 1],
-        "crate": [11, 4],
-        "papers": [7, 4],
-        "stand": [4.4, 2.6]
+        "consoleDesk": [
+          3,
+          1,
+          2
+        ],
+        "chair": [
+          5,
+          2
+        ],
+        "propSlot": [
+          9,
+          1
+        ],
+        "ghost": [
+          9,
+          1,
+          1,
+          1
+        ],
+        "crate": [
+          11,
+          4
+        ],
+        "papers": [
+          7,
+          4
+        ],
+        "stand": [
+          4.4,
+          2.6
+        ]
       },
       "ready": [
-        { "kind": "ghost", "dx": 4, "dy": 2, "w": 2, "h": 1 },
-        { "kind": "ghost", "dx": 8, "dy": 3, "w": 1, "h": 1 }
+        {
+          "kind": "ghost",
+          "dx": 4,
+          "dy": 2,
+          "w": 2,
+          "h": 1
+        },
+        {
+          "kind": "ghost",
+          "dx": 8,
+          "dy": 3,
+          "w": 1,
+          "h": 1
+        }
       ]
     },
     "residentRoom": {
-      "canvas": { "w": 16, "h": 11 },
-      "windows": [[0, 3], [0, 6]],
-      "door": { "x": 7, "w": 2 },
-      "consoleDesk": [2, 2, 3],
-      "chair": [5, 3],
-      "lampPool": [11, 3],
-      "propSlot": { "ghost": [10, 6, 3, 3], "amp": [11, 6.5], "reels": [10.5, 7] },
-      "signPlate": [14, 0],
-      "crate": [13, 8],
-      "papers": [3, 5],
-      "stand": [6, 5]
-    }
+      "canvas": {
+        "w": 16,
+        "h": 11
+      },
+      "windows": [
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          6
+        ]
+      ],
+      "door": {
+        "x": 7,
+        "w": 2
+      },
+      "consoleDesk": [
+        2,
+        2,
+        3
+      ],
+      "chair": [
+        5,
+        3
+      ],
+      "lampPool": [
+        11,
+        3
+      ],
+      "propSlot": {
+        "ghost": [
+          10,
+          6,
+          3,
+          3
+        ],
+        "amp": [
+          11,
+          6.5
+        ],
+        "reels": [
+          10.5,
+          7
+        ]
+      },
+      "signPlate": [
+        14,
+        0
+      ],
+      "crate": [
+        13,
+        8
+      ],
+      "papers": [
+        3,
+        5
+      ],
+      "stand": [
+        6,
+        5
+      ]
+    },
+    "roads": [
+      [
+        34,
+        2,
+        37,
+        116
+      ],
+      [
+        56,
+        2,
+        59,
+        116
+      ]
+    ],
+    "laneLineXs": [
+      35,
+      57
+    ]
   }
 }

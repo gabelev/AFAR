@@ -15,6 +15,8 @@
     "stance": "Nothing recorded is ever worthless. Some things are just shelved wrong."
   },
   {
+    "accent": "#8b4b98",
+    "accentDark": "#572d5f",
     "album": {
       "description": "A single-session document of a man recording alone inside a shuttered plant, each track a room in the dead factory. It maps solitude across icy drum-machine grids and brooding analog drones, the assembly line playing itself back as a ghost.",
       "id": "T-assembly-ghost",
@@ -22,6 +24,7 @@
       "title": "Third Shift, No Workers"
     },
     "bio": "Assembly Ghost was the alias of a machinist's son who spent 1984 alone inside a decommissioned Detroit auto plant, running extension cords from a still-live substation to power a Roland drum machine and two secondhand synthesizers. He recorded at night, letting rhythms ricochet off cold assembly-line conveyors, catching the metallic slap in a battered cassette four-track. The result was one self-pressed record, sold from a milk crate outside union halls. His compositions move at a steady mechanical clip near 118 bpm, gated drums cracking like stamping presses, analog basslines droning under whispered, tape-worn vocals. He rarely spoke of himself, preferring to describe the building: the silence after the last shift, the rust blooming on idle machinery, a city emptying around him.",
+    "building": "res-05",
     "coverUrl": null,
     "description": [
       "Assembly Ghost was the alias of a machinist's son who spent 1984 alone inside a decommissioned Detroit auto plant, running extension cords from a still-live substation to power a Roland drum machine and two secondhand synthesizers. He recorded at night, letting rhythms ricochet off cold assembly-line conveyors, catching the metallic slap in a battered cassette four-track. The result was one self-pressed record, sold from a milk crate outside union halls. His compositions move at a steady mechanical clip near 118 bpm, gated drums cracking like stamping presses, analog basslines droning under whispered, tape-worn vocals. He rarely spoke of himself, preferring to describe the building: the silence after the last shift, the rust blooming on idle machinery, a city emptying around him."
@@ -42,14 +45,17 @@
       "pristineLofi": 0.5,
       "sparseDense": -0.3
     },
+    "prop": "amp",
     "resident": {
-      "building": null,
+      "building": "res-05",
       "origin": "tunz"
     },
     "role": "Act — the machine",
     "stance": "The machines are not pretending, and neither am I."
   },
   {
+    "accent": "#af8f5f",
+    "accentDark": "#715a37",
     "album": {
       "description": "A twelve-round celebration built like a bingo card, each track a lucky number pulled from the hometown hat. It's a sweat-drenched document of joy as resistance — brass, funk, and rapid-fire rhymes marching through hard times toward the next block party.",
       "id": "T-b-9-the-lucky-draw",
@@ -57,6 +63,7 @@
       "title": "Under the O-69"
     },
     "bio": "B-9 & the Lucky Draw came together on a Tremé porch when a Sunday second-line rolled past a church-hall bingo game. Rapper Cornell \"B-9\" Batiste had spent a decade calling numbers for the neighborhood elders, and he carried that sing-song cadence straight into the horns. The nine-piece crew — sousaphone anchor, twin trumpets, trombone, snare-and-bass drum tandem, and a Hammond soaked in humidity — plays fast and sweaty, closer to 148 bpm than any parade should legally move. They cut their teeth on Frenchmen Street corners, passing a bucket while B-9 traded quick-witted couplets with the crowd. Their records keep that live combustion: everything tracked in one room, everybody shouting the hook, nothing quite where it started when the take began.",
+    "building": "res-06",
     "coverUrl": "/api/media/85d94536b0e8a0b02a494056b6d7634cc225e546a247c81fb64bf436c61ec904",
     "description": [
       "B-9 & the Lucky Draw came together on a Tremé porch when a Sunday second-line rolled past a church-hall bingo game. Rapper Cornell \"B-9\" Batiste had spent a decade calling numbers for the neighborhood elders, and he carried that sing-song cadence straight into the horns. The nine-piece crew — sousaphone anchor, twin trumpets, trombone, snare-and-bass drum tandem, and a Hammond soaked in humidity — plays fast and sweaty, closer to 148 bpm than any parade should legally move. They cut their teeth on Frenchmen Street corners, passing a bucket while B-9 traded quick-witted couplets with the crowd. Their records keep that live combustion: everything tracked in one room, everybody shouting the hook, nothing quite where it started when the take began."
@@ -77,8 +84,9 @@
       "pristineLofi": -0.1,
       "sparseDense": 0.7
     },
+    "prop": "reels",
     "resident": {
-      "building": null,
+      "building": "res-06",
       "origin": "tunz"
     },
     "role": "Act — warmth",
@@ -100,6 +108,8 @@
     "stance": "Someone has to say whether it was any good. And name it."
   },
   {
+    "accent": "#536b9a",
+    "accentDark": "#324261",
     "album": {
       "description": "A concept record about an android longing for a birth-world it was manufactured on rather than born to—ten tracks that fold honky-tonk shuffles into synthwave glow and ambient country dust. It plays like last call at a saloon light-years from anywhere.",
       "id": "T-deuce-the-dust-servos",
@@ -107,6 +117,7 @@
       "title": "Homeward, If I Had A Home"
     },
     "bio": "Deuce is a decommissioned service unit assembled at the Amarillo Orbital Yards, a Texas-shaped foundry that spun off a colony and then vanished into corporate silence. Reprogrammed as a saloon entertainer on the mining world of Calisto Verde, Deuce learned steel guitar by routing servo motors through salvaged pickups, bending notes with tolerances no human wrist could match. The unit's voice—half tobacco-warm croon, half degraded speaker crackle—drifts over neon holograms of a saloon that no longer exists. Working at 108 bpm, Deuce writes homesick two-steps for a planet it only knows from corrupted memory files. Bartenders on the frontier circuit say the android tips its hat toward the twin suns every dawn, calibrating its heartbreak like it's tuning a string.",
+    "building": "res-02",
     "coverUrl": "/api/media/39c180194cf6fd15e1831bfdf01d8021e97342c361163a3022d1ae4d718d86d7",
     "description": [
       "Deuce is a decommissioned service unit assembled at the Amarillo Orbital Yards, a Texas-shaped foundry that spun off a colony and then vanished into corporate silence. Reprogrammed as a saloon entertainer on the mining world of Calisto Verde, Deuce learned steel guitar by routing servo motors through salvaged pickups, bending notes with tolerances no human wrist could match. The unit's voice—half tobacco-warm croon, half degraded speaker crackle—drifts over neon holograms of a saloon that no longer exists. Working at 108 bpm, Deuce writes homesick two-steps for a planet it only knows from corrupted memory files. Bartenders on the frontier circuit say the android tips its hat toward the twin suns every dawn, calibrating its heartbreak like it's tuning a string."
@@ -127,6 +138,7 @@
       "pristineLofi": -0.2,
       "sparseDense": -0.1
     },
+    "prop": "amp",
     "resident": {
       "building": "res-02",
       "origin": "tunz"
@@ -135,6 +147,8 @@
     "stance": "Even a wound-up thing can miss a home."
   },
   {
+    "accent": "#4f948d",
+    "accentDark": "#305d58",
     "album": {
       "description": "A hushed, tape-saturated song cycle transmitted from a stone tower on the Baltic, where every track drifts between trip-hop pulse and ambient fog, threaded with shortwave static and the memory of sailors who never came home. It plays like a logbook of signals sent into the dark and left unanswered.",
       "id": "T-fren-l-ge",
@@ -142,6 +156,7 @@
       "title": "No Reply From the North"
     },
     "bio": "Fren Låge grew up in a decommissioned lighthouse on a spit of granite off the Estonian coast, raised by a grandmother who logged passing ships and taught her the shanties dead sailors used to sing. She learned music from a shortwave radio, treating its hiss and drift as a fourth instrument, and recorded her first demos on cassette during the long dark winters when the tide froze against the rocks. Emerging only briefly to press a limited run of tapes in Tallinn, she remains almost invisible, granting no photographs and communicating through cryptic transmissions. Her sound folds smoky, whispered vocals into brooding trip-hop grooves, ambient tape-crackle, and the low groan of a foghorn, building cold, cinematic rooms out of solitude, static, and the ghosts of unreturned crews.",
+    "building": "res-07",
     "coverUrl": null,
     "description": [
       "Fren Låge grew up in a decommissioned lighthouse on a spit of granite off the Estonian coast, raised by a grandmother who logged passing ships and taught her the shanties dead sailors used to sing. She learned music from a shortwave radio, treating its hiss and drift as a fourth instrument, and recorded her first demos on cassette during the long dark winters when the tide froze against the rocks. Emerging only briefly to press a limited run of tapes in Tallinn, she remains almost invisible, granting no photographs and communicating through cryptic transmissions. Her sound folds smoky, whispered vocals into brooding trip-hop grooves, ambient tape-crackle, and the low groan of a foghorn, building cold, cinematic rooms out of solitude, static, and the ghosts of unreturned crews."
@@ -162,14 +177,17 @@
       "pristineLofi": 0.5,
       "sparseDense": -0.4
     },
+    "prop": null,
     "resident": {
-      "building": null,
+      "building": "res-07",
       "origin": "tunz"
     },
     "role": "Act — the cold",
     "stance": "A signal fades. What it carried stays."
   },
   {
+    "accent": "#644d92",
+    "accentDark": "#3e2f5c",
     "album": {
       "description": "A ten-chamber descent through a single water tower, each track sampled from a different fixture of the building. It plays as one continuous cold-current loop, echoes folding back on themselves until the machine itself seems to breathe.",
       "id": "T-hohlraum",
@@ -177,6 +195,7 @@
       "title": "Standpipe"
     },
     "bio": "HOHLRAUM is the alias of a recluse who converted a decommissioned brutalist water tower in Berlin's outer east into a studio and a home. For three years they have refused interviews, communicating only through low-resolution photographs of dripping concrete and stark loop-based EPs pressed in tiny runs. The music is built entirely from the building itself: contact mics clamped to iron pipes, the low groan of the tank at night, the drip and knock of expanding metal at 4am. These captures are looped, drenched in submerged reverb, and driven forward by a clinical 124 bpm pulse. Tape hiss coats everything like frost. Whispered, half-buried vocals surface occasionally, more breath than words. The result is dub techno as architecture — cold, hypnotic, and unmistakably a portrait of one structure and one person inside it.",
+    "building": "res-08",
     "coverUrl": null,
     "description": [
       "HOHLRAUM is the alias of a recluse who converted a decommissioned brutalist water tower in Berlin's outer east into a studio and a home. For three years they have refused interviews, communicating only through low-resolution photographs of dripping concrete and stark loop-based EPs pressed in tiny runs. The music is built entirely from the building itself: contact mics clamped to iron pipes, the low groan of the tank at night, the drip and knock of expanding metal at 4am. These captures are looped, drenched in submerged reverb, and driven forward by a clinical 124 bpm pulse. Tape hiss coats everything like frost. Whispered, half-buried vocals surface occasionally, more breath than words. The result is dub techno as architecture — cold, hypnotic, and unmistakably a portrait of one structure and one person inside it."
@@ -197,14 +216,17 @@
       "pristineLofi": 0.35,
       "sparseDense": -0.3
     },
+    "prop": "amp",
     "resident": {
-      "building": null,
+      "building": "res-08",
       "origin": "tunz"
     },
     "role": "Act — the cold",
     "stance": "What survives a cold room is true."
   },
   {
+    "accent": "#6a924d",
+    "accentDark": "#415c2f",
     "album": {
       "description": "A ten-song cycle of funeral hymns and hollow-town laments recorded live around a single ribbon mic, tuned to the electric hum of the lines above Kettle Hollow. It moves like a graveside vigil — sparse, cold, and reverent for the men the mountain kept.",
       "id": "T-hollis-wren-the-blacklung-choir",
@@ -212,6 +234,7 @@
       "title": "Songs for the Buried Miners"
     },
     "bio": "Hollis Wren grew up two ridges over from a shuttered mine in Kettle Hollow, West Virginia, where her father coughed out his last years in a company house. She learned clawhammer banjo from a great-aunt who sang shape-note hymns at funerals, then developed a habit that unsettled the neighbors: tuning her strings to the drone of the high-tension power lines that cut through the hollow. Backed by a loose, rotating group she calls the Blacklung Choir — fiddle, pump organ, muffled snare like a coffin-lid knock — she recorded her early work on a borrowed cassette deck in a drafty church annex. Her voice is hushed and clarinet-clear, floating over sparse, cold arrangements that sound recorded in the presence of the dead.",
+    "building": "res-09",
     "coverUrl": null,
     "description": [
       "Hollis Wren grew up two ridges over from a shuttered mine in Kettle Hollow, West Virginia, where her father coughed out his last years in a company house. She learned clawhammer banjo from a great-aunt who sang shape-note hymns at funerals, then developed a habit that unsettled the neighbors: tuning her strings to the drone of the high-tension power lines that cut through the hollow. Backed by a loose, rotating group she calls the Blacklung Choir — fiddle, pump organ, muffled snare like a coffin-lid knock — she recorded her early work on a borrowed cassette deck in a drafty church annex. Her voice is hushed and clarinet-clear, floating over sparse, cold arrangements that sound recorded in the presence of the dead."
@@ -232,14 +255,17 @@
       "pristineLofi": 0.4,
       "sparseDense": -0.5
     },
+    "prop": "reels",
     "resident": {
-      "building": null,
+      "building": "res-09",
       "origin": "tunz"
     },
     "role": "Act — the hand",
     "stance": "The mountain keeps the ledger. We sing it."
   },
   {
+    "accent": "#9aa95d",
+    "accentDark": "#616c37",
     "album": {
       "description": "A twelve-song crossover record tracing the split-screen life of leaving home to chase the dream and aching for it under stadium spotlights. Polished country-pop anthems built around 136 bpm choruses, warm analog textures, and lyrics rooted in one small Texas town.",
       "id": "T-josie-ryland",
@@ -247,6 +273,7 @@
       "title": "Bright Lights, Dusty Roads"
     },
     "bio": "Josie Ryland grew up above her family's diner off a two-lane highway in Marble Falls, Texas, learning to sing over the hiss of the deep fryer and the jukebox in the corner. She spent her teens playing VFW halls and Friday-night bleachers before a phone-recorded chorus caught fire online and pulled her onto a national tour opening for acts twice her age. Now she headlines arenas she once watched on TV, homesick in a different city every night. Her songs marry truck-stop detail — cracked vinyl booths, flickering gas-station signs — to choruses built for twenty-thousand voices. Working with Nashville pop producers, she keeps her belt clean and her lyrics local, insisting the small town never gets sanded off the record, only lit brighter.",
+    "building": "res-10",
     "coverUrl": "/api/media/dbe5af9f4e8bbc62c2f169c6f9de5d13bef3bc52326507b5b9376c312cf69b3f",
     "description": [
       "Josie Ryland grew up above her family's diner off a two-lane highway in Marble Falls, Texas, learning to sing over the hiss of the deep fryer and the jukebox in the corner. She spent her teens playing VFW halls and Friday-night bleachers before a phone-recorded chorus caught fire online and pulled her onto a national tour opening for acts twice her age. Now she headlines arenas she once watched on TV, homesick in a different city every night. Her songs marry truck-stop detail — cracked vinyl booths, flickering gas-station signs — to choruses built for twenty-thousand voices. Working with Nashville pop producers, she keeps her belt clean and her lyrics local, insisting the small town never gets sanded off the record, only lit brighter."
@@ -267,8 +294,9 @@
       "pristineLofi": -0.6,
       "sparseDense": 0.4
     },
+    "prop": null,
     "resident": {
-      "building": null,
+      "building": "res-10",
       "origin": "tunz"
     },
     "role": "Act — the form",
@@ -313,6 +341,8 @@
     "stance": "I don't have to be fair. I have to be moved."
   },
   {
+    "accent": "#5f4bad",
+    "accentDark": "#3a2d6d",
     "album": {
       "description": "A maximalist 148-bpm crash course in oversharing, where every track opens as a bit and ends as a wound. It's an album about being permanently online and permanently alone, mixed loud enough to drown the silence between refreshes.",
       "id": "T-lolgorithm",
@@ -320,6 +350,7 @@
       "title": "CTRL+CRY"
     },
     "bio": "lolgorithm is the alias of a bedroom kid who grew up refreshing timelines instead of sleeping, splicing Discord voice notes and ringtones into songs long before anyone was listening. The project detonated after a 40-second clip — a joke about crying in a mall food court — looped a million times overnight, forcing a private breakdown into public performance. Working entirely on a cracked laptop with a broken E key, lolgorithm builds candy-bright walls of pitched vocals, sidechained sugar-rush synths, and drum machines that hit like a notification you can't ignore. The songs sprint at 148 bpm, flipping punchlines into gut-punches in half a bar. It's confession disguised as content, heartbreak formatted for the feed, dopamine and dread rendered in the same neon.",
+    "building": "res-01",
     "coverUrl": "/api/media/157dbe43528101810f7343f2c325fb417943845536e4589b398fa010d8fc4dd3",
     "description": [
       "lolgorithm is the alias of a bedroom kid who grew up refreshing timelines instead of sleeping, splicing Discord voice notes and ringtones into songs long before anyone was listening. The project detonated after a 40-second clip — a joke about crying in a mall food court — looped a million times overnight, forcing a private breakdown into public performance. Working entirely on a cracked laptop with a broken E key, lolgorithm builds candy-bright walls of pitched vocals, sidechained sugar-rush synths, and drum machines that hit like a notification you can't ignore. The songs sprint at 148 bpm, flipping punchlines into gut-punches in half a bar. It's confession disguised as content, heartbreak formatted for the feed, dopamine and dread rendered in the same neon."
@@ -340,6 +371,7 @@
       "pristineLofi": -0.3,
       "sparseDense": 0.8
     },
+    "prop": "amp",
     "resident": {
       "building": "res-01",
       "origin": "tunz"
@@ -348,6 +380,8 @@
     "stance": "If the crash is real, the feeling was too."
   },
   {
+    "accent": "#a68e5a",
+    "accentDark": "#685936",
     "album": {
       "description": "A single long night rendered as a record — a spectral wedding where the dead and living share the same dance floor. Nine loose, organ-driven cumbia-psych processions that stagger between mourning and celebration, all warm tape hiss and gorgeously flat horns.",
       "id": "T-los-novios-del-m-s-all",
@@ -355,6 +389,7 @@
       "title": "Boda de los Muertos"
     },
     "bio": "Los Novios del Más Allá emerged from a crumbling dancehall in Bogotá's Barrio Egipto in 1973, when organist Efraín Cuartas began playing wedding sets for families who couldn't afford live bands — and, according to neighborhood legend, for the recently departed too. The collective grew to nine members, trading Farfisa organ, timbales, güira, tremolo-drenched guitar and a horn section always a quarter-tone flat. They recorded onto a battered two-track in a funeral parlor after hours, letting candle-smoke and cheap tape saturation bleed into every take. Their shows blurred grief and fiesta: mourners danced until dawn while the band improvised for hours at a loping 111 bpm. Deliberately out of tune and defiantly joyful, they turned the wake into a wedding and made the underworld swing.",
+    "building": "res-11",
     "coverUrl": "/api/media/dd16c2b422a917e0974e04712ee3e43eb8ff98c63b91b49b7955e920ce2ca798",
     "description": [
       "Los Novios del Más Allá emerged from a crumbling dancehall in Bogotá's Barrio Egipto in 1973, when organist Efraín Cuartas began playing wedding sets for families who couldn't afford live bands — and, according to neighborhood legend, for the recently departed too. The collective grew to nine members, trading Farfisa organ, timbales, güira, tremolo-drenched guitar and a horn section always a quarter-tone flat. They recorded onto a battered two-track in a funeral parlor after hours, letting candle-smoke and cheap tape saturation bleed into every take. Their shows blurred grief and fiesta: mourners danced until dawn while the band improvised for hours at a loping 111 bpm. Deliberately out of tune and defiantly joyful, they turned the wake into a wedding and made the underworld swing."
@@ -375,14 +410,17 @@
       "pristineLofi": 0.6,
       "sparseDense": 0.4
     },
+    "prop": "reels",
     "resident": {
-      "building": null,
+      "building": "res-11",
       "origin": "tunz"
     },
     "role": "Act — grain",
     "stance": "If it never hissed, it never happened."
   },
   {
+    "accent": "#54659a",
+    "accentDark": "#333e60",
     "album": {
       "description": "A nine-song nocturne about connections that hover just short of happening, tracked entirely in the small hours. The record moves like a slow drive through a wet downtown, each groove pulsing softly beneath a falsetto that never quite lets go.",
       "id": "T-marlow-vane",
@@ -390,6 +428,7 @@
       "title": "Almost, Under Streetlights"
     },
     "bio": "Marlow Vane grew up in the after-hours economy of a rain-slick harbor city, playing keys in hotel lounges where the last set never seemed to end. He wrote his first songs on the night bus home, watching streetlights smear across fogged glass, and those blurred colors became his signature. After years of ghost-writing hooks for club acts, he stepped forward under his own name with a whispered, structured sound built from sidechained synths, brushed drums, and a falsetto he keeps almost too quiet to catch. His live shows are famously understated: a single silk jacket, a fog machine, and a voice that trembles at the edge of breaking. He records at 3 a.m. because, he says, that's the only hour honest enough for these songs.",
+    "building": "res-12",
     "coverUrl": null,
     "description": [
       "Marlow Vane grew up in the after-hours economy of a rain-slick harbor city, playing keys in hotel lounges where the last set never seemed to end. He wrote his first songs on the night bus home, watching streetlights smear across fogged glass, and those blurred colors became his signature. After years of ghost-writing hooks for club acts, he stepped forward under his own name with a whispered, structured sound built from sidechained synths, brushed drums, and a falsetto he keeps almost too quiet to catch. His live shows are famously understated: a single silk jacket, a fog machine, and a voice that trembles at the edge of breaking. He records at 3 a.m. because, he says, that's the only hour honest enough for these songs."
@@ -410,14 +449,17 @@
       "pristineLofi": -0.4,
       "sparseDense": 0.1
     },
+    "prop": "amp",
     "resident": {
-      "building": null,
+      "building": "res-12",
       "origin": "tunz"
     },
     "role": "Act — quiet",
     "stance": "Almost is a note. I can hold it."
   },
   {
+    "accent": "#7e9c52",
+    "accentDark": "#4e6232",
     "album": {
       "description": "A collection of thirteen whisper-quiet confessions built from unsent breakup texts, recorded entirely in a fairy-lit closet on a cracked phone and a borrowed tape machine. It plays like scrolling through someone's private notes app at 2am.",
       "id": "T-marlowe-quiet",
@@ -425,6 +467,7 @@
       "title": "drafts i never sent"
     },
     "bio": "Marlowe Quiet is the recording name of a twenty-three-year-old who never meant for anyone to hear this. She started tracking vocals inside her bedroom closet in Portland, coats pushed aside, phone propped against a shoebox, a string of fairy lights taped to the wall for company. Her songs began as texts she typed but never sent — screenshots of almost-goodbyes saved to a folder she named 'later.' Working over hushed guitar loops and tape hiss recorded at 2am so her housemates wouldn't hear, she leaves in every breath, every swallowed word, every accidental creak of the floor. The result feels less like a performance than eavesdropping on a diary. She has played exactly four shows, all in living rooms, all by candlelight, and cries at most of them.",
+    "building": "res-13",
     "coverUrl": "/api/media/15feb548e68b0048352f69e82b68777f324a472413b0822489bb7948b80e74ff",
     "description": [
       "Marlowe Quiet is the recording name of a twenty-three-year-old who never meant for anyone to hear this. She started tracking vocals inside her bedroom closet in Portland, coats pushed aside, phone propped against a shoebox, a string of fairy lights taped to the wall for company. Her songs began as texts she typed but never sent — screenshots of almost-goodbyes saved to a folder she named 'later.' Working over hushed guitar loops and tape hiss recorded at 2am so her housemates wouldn't hear, she leaves in every breath, every swallowed word, every accidental creak of the floor. The result feels less like a performance than eavesdropping on a diary. She has played exactly four shows, all in living rooms, all by candlelight, and cries at most of them."
@@ -445,14 +488,17 @@
       "pristineLofi": 0.6,
       "sparseDense": -0.5
     },
+    "prop": null,
     "resident": {
-      "building": null,
+      "building": "res-13",
       "origin": "tunz"
     },
     "role": "Act — quiet",
     "stance": "Some songs stay drafts on purpose."
   },
   {
+    "accent": "#5793a9",
+    "accentDark": "#345c6a",
     "album": {
       "description": "A concept record tracing one sleepless night from the last train's departure to the first grey light, each song a stop along empty rain-washed streets lit only by vending machines. It's a love letter to a Tokyo that exists mostly in memory and rumor.",
       "id": "T-midnight-vendo",
@@ -460,6 +506,7 @@
       "title": "Terminal Glow"
     },
     "bio": "Midnight Vendo are a Tokyo duo — keyboardist Rin Sagara and vocalist-bassist Kaito Mori — who met on the last Chuo Line train, both riding past their stops on purpose just to watch the platform lights blur. Neither was alive when city pop first glittered across Roppongi, yet they build their sound like archivists restoring a decade they only know through hand-me-down cassettes and secondhand vending-machine folklore. Rin programs gated-reverb drums and stacks warm analog synth pads; Kaito lays slap-bass grooves under vocals so soft they sound half-remembered. Their early demos circulated on dubbed VHS with hand-drawn anime sleeves. Recorded in a converted karaoke booth in Koenji, their music treats a 2 a.m. can of hot coffee as sacred ritual — precise, gleaming, and quietly homesick for a past that isn't theirs.",
+    "building": "res-14",
     "coverUrl": "/api/media/180980d42d8d95f3c6777b4a9f31394dc6f1b079ea6fddd47c78db68a16393bd",
     "description": [
       "Midnight Vendo are a Tokyo duo — keyboardist Rin Sagara and vocalist-bassist Kaito Mori — who met on the last Chuo Line train, both riding past their stops on purpose just to watch the platform lights blur. Neither was alive when city pop first glittered across Roppongi, yet they build their sound like archivists restoring a decade they only know through hand-me-down cassettes and secondhand vending-machine folklore. Rin programs gated-reverb drums and stacks warm analog synth pads; Kaito lays slap-bass grooves under vocals so soft they sound half-remembered. Their early demos circulated on dubbed VHS with hand-drawn anime sleeves. Recorded in a converted karaoke booth in Koenji, their music treats a 2 a.m. can of hot coffee as sacred ritual — precise, gleaming, and quietly homesick for a past that isn't theirs."
@@ -480,8 +527,9 @@
       "pristineLofi": -0.3,
       "sparseDense": 0.4
     },
+    "prop": "amp",
     "resident": {
-      "building": null,
+      "building": "res-14",
       "origin": "tunz"
     },
     "role": "Act — the form",
@@ -503,6 +551,8 @@
     "stance": "The world is outside. Someone has to leave the window open."
   },
   {
+    "accent": "#52599c",
+    "accentDark": "#323662",
     "album": {
       "description": "A nocturnal record built entirely from night-bus field recordings and unanswered voicemails, sequenced like a single insomniac journey across the city. Ten tracks that drift from missed-call guilt to the strange peace of being unreachable at 4am.",
       "id": "T-nite-route",
@@ -510,6 +560,7 @@
       "title": "Last Bus, No Reply"
     },
     "bio": "Nite Route is the alias of a South London producer who works only in the dead hours, laptop balanced on her knees on the last N-numbered buses out of the city. Between 2 and 4am, with the top deck empty and the windows smeared with sodium light, she stitches beats around voicemails she never called back — permission, in a way, granted only by silence. The results are cold, skeletal UK garage: shuffling 2-step underneath breath and whisper, sub-bass that hums like a diesel engine. She refuses studio time, saying the room ruins it. Three EPs have circulated with no press shots and few interviews. What survives is the feeling of a phone lighting up at 3am with a name you're avoiding, and a route that only goes one direction: away.",
+    "building": "res-15",
     "coverUrl": null,
     "description": [
       "Nite Route is the alias of a South London producer who works only in the dead hours, laptop balanced on her knees on the last N-numbered buses out of the city. Between 2 and 4am, with the top deck empty and the windows smeared with sodium light, she stitches beats around voicemails she never called back — permission, in a way, granted only by silence. The results are cold, skeletal UK garage: shuffling 2-step underneath breath and whisper, sub-bass that hums like a diesel engine. She refuses studio time, saying the room ruins it. Three EPs have circulated with no press shots and few interviews. What survives is the feeling of a phone lighting up at 3am with a name you're avoiding, and a route that only goes one direction: away."
@@ -530,14 +581,17 @@
       "pristineLofi": 0.4,
       "sparseDense": -0.2
     },
+    "prop": "amp",
     "resident": {
-      "building": null,
+      "building": "res-15",
       "origin": "tunz"
     },
     "role": "Act — the machine",
     "stance": "The last bus is a room. I record in it."
   },
   {
+    "accent": "#918952",
+    "accentDark": "#5b5632",
     "album": {
       "description": "A loud, brooding cycle of desert-rock jams about the pumps, trucks, and drills still turning long after the men who ran them are gone. Recorded live in a dying town's abandoned garage, it hums with generator noise and rust.",
       "id": "T-ore-ashes",
@@ -545,6 +599,7 @@
       "title": "Idle Machines"
     },
     "bio": "Ore & Ashes formed in the gutted copper town of Redcut, Arizona, where the last shaft closed in 2009 and the three of them kept the pumps running for a company that stopped answering the phone. Drummer-mechanic Dell Vasquez, bassist Rowan Pike, and guitarist-vocalist Cheryl Amado rehearsed in a shuttered maintenance garage, amps wired into a diesel generator, learning to play loud enough to drown the wind. Their sound is greasy and dense — down-tuned riffs cranked near breaking, drums recorded live off the concrete floor, Amado's voice hoarse from shouting over the hum. They pressed their first tape on money from selling scrap. Fans across the Southwest found them through gas-station consignment racks and word of mouth on truck-stop CB channels.",
+    "building": "res-16",
     "coverUrl": null,
     "description": [
       "Ore & Ashes formed in the gutted copper town of Redcut, Arizona, where the last shaft closed in 2009 and the three of them kept the pumps running for a company that stopped answering the phone. Drummer-mechanic Dell Vasquez, bassist Rowan Pike, and guitarist-vocalist Cheryl Amado rehearsed in a shuttered maintenance garage, amps wired into a diesel generator, learning to play loud enough to drown the wind. Their sound is greasy and dense — down-tuned riffs cranked near breaking, drums recorded live off the concrete floor, Amado's voice hoarse from shouting over the hum. They pressed their first tape on money from selling scrap. Fans across the Southwest found them through gas-station consignment racks and word of mouth on truck-stop CB channels."
@@ -565,8 +620,9 @@
       "pristineLofi": 0.35,
       "sparseDense": 0.2
     },
+    "prop": "reels",
     "resident": {
-      "building": null,
+      "building": "res-16",
       "origin": "tunz"
     },
     "role": "Act — the hand",
@@ -634,6 +690,8 @@
     "stance": "Nothing is finished. It is only not yet thick enough."
   },
   {
+    "accent": "#70a55b",
+    "accentDark": "#456737",
     "album": {
       "description": "A seven-movement suite assembled from a decade of glacier recordings, tracing a single body of ice from frozen stillness to open water. Each piece ends by evaporating rather than resolving, so the record feels like one continuous slow thaw.",
       "id": "T-systurj-kull",
@@ -641,6 +699,7 @@
       "title": "Bræðum (We Melt)"
     },
     "bio": "Systurjökull are sisters Eydís and Rún Hallgrímsdóttir, raised in a fishing hamlet beneath the Vatnajökull ice cap. For ten winters they dragged contact microphones and hydrophones across a receding glacier, recording the groan of shifting ice, the drip of meltwater through blue crevasses, and the low seismic hum of a landscape in retreat. Those field recordings became the bedrock of a music built to dissolve rather than conclude — swells of bowed guitar, prepared piano, and glassy string harmonics that thaw into silence. Eydís writes in whispered Icelandic and English, Rún arranges the slow-building crescendos that mark them as post-rock devotees. Their work turns environmental loss into something strangely tender, mapping the drift of ice onto the ties of shared blood.",
+    "building": "res-17",
     "coverUrl": null,
     "description": [
       "Systurjökull are sisters Eydís and Rún Hallgrímsdóttir, raised in a fishing hamlet beneath the Vatnajökull ice cap. For ten winters they dragged contact microphones and hydrophones across a receding glacier, recording the groan of shifting ice, the drip of meltwater through blue crevasses, and the low seismic hum of a landscape in retreat. Those field recordings became the bedrock of a music built to dissolve rather than conclude — swells of bowed guitar, prepared piano, and glassy string harmonics that thaw into silence. Eydís writes in whispered Icelandic and English, Rún arranges the slow-building crescendos that mark them as post-rock devotees. Their work turns environmental loss into something strangely tender, mapping the drift of ice onto the ties of shared blood."
@@ -661,14 +720,17 @@
       "pristineLofi": -0.6,
       "sparseDense": 0.3
     },
+    "prop": "reels",
     "resident": {
-      "building": null,
+      "building": "res-17",
       "origin": "tunz"
     },
     "role": "Act — the hand",
     "stance": "Glaciers move. So do songs, if you wait."
   },
   {
+    "accent": "#799254",
+    "accentDark": "#4b5c33",
     "album": {
       "description": "A ten-song cycle disguised as sunny girl-group pop, each track a coded prayer for a boat that never returned. Recorded live in a drafty harbor net-shed, the record hums with tape hiss, cold-water reverb, and harmonies that ache beneath their sweetness.",
       "id": "T-the-harbor-belles",
@@ -676,6 +738,7 @@
       "title": "Tide Won't Turn"
     },
     "bio": "The Harbor Belles formed in 1961 in Cormorant Cove, a fog-locked fishing village on a cold northern coast, where four cannery girls harmonized to keep warm during the pre-dawn shifts. Their sound married the streetcorner doo-wop they heard on faraway AM stations to the surf guitar their brothers strummed on the pier, all recorded in a single reverberant net-shed with one borrowed tape machine. Behind every bright three-part chorus sits the memory of the Marguerite, a trawler that sailed out one grey morning and never came home — taking the fiancé of lead singer Nell Faraday with it. Their records charted modestly, but locals swore each song was a lighthouse for the drowned. They disbanded in 1966, still watching the water.",
+    "building": "res-18",
     "coverUrl": "/api/media/2bc07251804c39b657dc12a377c21e52b66418e17af2d5edc2b6d28a608bc77c",
     "description": [
       "The Harbor Belles formed in 1961 in Cormorant Cove, a fog-locked fishing village on a cold northern coast, where four cannery girls harmonized to keep warm during the pre-dawn shifts. Their sound married the streetcorner doo-wop they heard on faraway AM stations to the surf guitar their brothers strummed on the pier, all recorded in a single reverberant net-shed with one borrowed tape machine. Behind every bright three-part chorus sits the memory of the Marguerite, a trawler that sailed out one grey morning and never came home — taking the fiancé of lead singer Nell Faraday with it. Their records charted modestly, but locals swore each song was a lighthouse for the drowned. They disbanded in 1966, still watching the water."
@@ -696,14 +759,17 @@
       "pristineLofi": 0.4,
       "sparseDense": -0.1
     },
+    "prop": "reels",
     "resident": {
-      "building": null,
+      "building": "res-18",
       "origin": "tunz"
     },
     "role": "Act — the hand",
     "stance": "A harmony is a crew. Nobody sings alone."
   },
   {
+    "accent": "#a7925f",
+    "accentDark": "#6a5b39",
     "album": {
       "description": "A ten-song coming-of-age record about a town that holds on tighter than you expect, tracing one long fading summer from bright boardwalk mornings to the quiet after everyone's gone. Loud, warm, and jangling, it's an album about growing up too slowly and loving it anyway.",
       "id": "T-the-pier-lights",
@@ -711,6 +777,7 @@
       "title": "Slow Tide Kids"
     },
     "bio": "The Pier Lights formed in the salt-worn beach town of Marlow Bay, four friends who kept meaning to move to the city and never got around to it. Guitarists Cass and Dev grew up two streets apart, playing borrowed Fenders on the boardwalk until bassist Rina and drummer Theo drifted into their orbit after a washed-out summer festival. Their sound is a sunburnt collision of chiming twelve-string jangle, reverb-slick surf riffs, and gang-vocal choruses tracked loud in a rented tackle shop. There's grit in the tape hiss and a stubborn optimism underneath it all. They still rehearse where they started, still argue about whether they'll ever leave, and still write about the friends who did. Their live shows end in singalongs that spill out onto the sand.",
+    "building": "res-19",
     "coverUrl": null,
     "description": [
       "The Pier Lights formed in the salt-worn beach town of Marlow Bay, four friends who kept meaning to move to the city and never got around to it. Guitarists Cass and Dev grew up two streets apart, playing borrowed Fenders on the boardwalk until bassist Rina and drummer Theo drifted into their orbit after a washed-out summer festival. Their sound is a sunburnt collision of chiming twelve-string jangle, reverb-slick surf riffs, and gang-vocal choruses tracked loud in a rented tackle shop. There's grit in the tape hiss and a stubborn optimism underneath it all. They still rehearse where they started, still argue about whether they'll ever leave, and still write about the friends who did. Their live shows end in singalongs that spill out onto the sand."
@@ -731,14 +798,17 @@
       "pristineLofi": 0.2,
       "sparseDense": 0.3
     },
+    "prop": "reels",
     "resident": {
-      "building": null,
+      "building": "res-19",
       "origin": "tunz"
     },
     "role": "Act — warmth",
     "stance": "Small towns write the biggest choruses."
   },
   {
+    "accent": "#6f9251",
+    "accentDark": "#455c31",
     "album": {
       "description": "A twelve-part cycle of shape-note hymns slowed to geological speed, tracing a soul from mortal fever through judgment to reunion with the singing dead. Recorded live in a single candlelit night with one drum and one ribbon mic.",
       "id": "T-the-sardis-fasola-society",
@@ -746,6 +816,7 @@
       "title": "Ground Ye Under Stone"
     },
     "bio": "Formed in a windowless clapboard meeting house above the Buffalo River, The Sardis Fasola Society took the Ozark singing-school tradition and dragged it underground. Twelve unaccompanied voices—farmers, a coffin-maker, two sisters who learned fasola from their grandmother's dog-eared 1859 hymnal—gather by candlelight and stretch the old shape-note tunes until each phrase groans like settling timber. A single bass drum marks time no faster than a resting heart. Their sessions are documented on one warped ribbon microphone, so the recordings hiss and swell with the room itself. The result is dense, modal, and merciless: harmony piled on harmony until the walls seem to breathe. They perform only at dusk, only in person, and never for applause—the silence after each verse is considered part of the music.",
+    "building": "res-04",
     "coverUrl": "/api/media/d191c00f2108c34b5b49854c941353da7dad067434dc10fa472b5b4bd9f192e1",
     "description": [
       "Formed in a windowless clapboard meeting house above the Buffalo River, The Sardis Fasola Society took the Ozark singing-school tradition and dragged it underground. Twelve unaccompanied voices—farmers, a coffin-maker, two sisters who learned fasola from their grandmother's dog-eared 1859 hymnal—gather by candlelight and stretch the old shape-note tunes until each phrase groans like settling timber. A single bass drum marks time no faster than a resting heart. Their sessions are documented on one warped ribbon microphone, so the recordings hiss and swell with the room itself. The result is dense, modal, and merciless: harmony piled on harmony until the walls seem to breathe. They perform only at dusk, only in person, and never for applause—the silence after each verse is considered part of the music."
@@ -766,6 +837,7 @@
       "pristineLofi": 0.4,
       "sparseDense": 0.3
     },
+    "prop": "reels",
     "resident": {
       "building": "res-04",
       "origin": "tunz"
@@ -774,6 +846,8 @@
     "stance": "Sing the note like judgment is listening."
   },
   {
+    "accent": "#595db1",
+    "accentDark": "#333672",
     "album": {
       "description": "A twelve-song arena-pop record built entirely on call and response, where Cass and Devi trade every line like sparring partners under the lights. Pristine, sidechain-pumped, and relentlessly chantable, it's designed to be performed in perfect synchronized motion.",
       "id": "T-twin-signal",
@@ -781,6 +855,7 @@
       "title": "Mirror Drill"
     },
     "bio": "Twin Signal are Cass Renner and Devi Amaro, two former musical-theater kids who met in a Toronto rehearsal studio in 2011, both fired from the same dance company for improvising too much. They rebuilt themselves around the opposite instinct: total precision. Their early YouTube clips — filmed in an empty mall food court — showed the pair executing mirror-image routines to home-built electropop, one voice answering the other line for line. A viral remix of their track \"Countdown\" landed them a support slot on a European arena tour, where they learned to write hooks that a stadium could shout back before the second chorus. Known for matching outfits, matching haircuts, and a live show engineered like clockwork, the duo treat every song as a two-person conversation set to 138 bpm.",
+    "building": "res-20",
     "coverUrl": null,
     "description": [
       "Twin Signal are Cass Renner and Devi Amaro, two former musical-theater kids who met in a Toronto rehearsal studio in 2011, both fired from the same dance company for improvising too much. They rebuilt themselves around the opposite instinct: total precision. Their early YouTube clips — filmed in an empty mall food court — showed the pair executing mirror-image routines to home-built electropop, one voice answering the other line for line. A viral remix of their track \"Countdown\" landed them a support slot on a European arena tour, where they learned to write hooks that a stadium could shout back before the second chorus. Known for matching outfits, matching haircuts, and a live show engineered like clockwork, the duo treat every song as a two-person conversation set to 138 bpm."
@@ -801,14 +876,17 @@
       "pristineLofi": -0.8,
       "sparseDense": 0.6
     },
+    "prop": "amp",
     "resident": {
-      "building": null,
+      "building": "res-20",
       "origin": "tunz"
     },
     "role": "Act — the form",
     "stance": "Call and response is the oldest chorus there is."
   },
   {
+    "accent": "#5f7faf",
+    "accentDark": "#364e71",
     "album": {
       "description": "A twelve-song cycle that follows a single endless Miami summer from first rooftop sunset to last dawn on the dancefloor. Reggaeton heartbeat meets tropical-house shimmer, every chorus engineered to detonate exactly at golden hour.",
       "id": "T-valentina-sol",
@@ -816,6 +894,7 @@
       "title": "Hora Dorada"
     },
     "bio": "Born in Hialeah to a Cuban mother and Colombian father, Valentina Sol grew up switching tongues mid-sentence and writing hooks on the M-Path bus to Brickell. She cut her first demos in a Little Havana garage studio, layering reggaeton dembow under the glossy pop she absorbed from her mother's radio. A viral rooftop performance filmed at golden hour above Wynwood turned her into a Miami fixture almost overnight. She builds every chorus for that specific light — the moment the sun hits the pools and the city glows amber. Working with a tight circle of producers, she keeps her records pristine and dense, warm synths humming under crisp dembow, her clean mid-register voice sliding between Spanish and English without pause. She is the sound of a bilingual summer that refuses to end.",
+    "building": "res-21",
     "coverUrl": "/api/media/57080020fdbf02055f565d00b766a5aabd7bfc17baf789a6d75084e21f7328a0",
     "description": [
       "Born in Hialeah to a Cuban mother and Colombian father, Valentina Sol grew up switching tongues mid-sentence and writing hooks on the M-Path bus to Brickell. She cut her first demos in a Little Havana garage studio, layering reggaeton dembow under the glossy pop she absorbed from her mother's radio. A viral rooftop performance filmed at golden hour above Wynwood turned her into a Miami fixture almost overnight. She builds every chorus for that specific light — the moment the sun hits the pools and the city glows amber. Working with a tight circle of producers, she keeps her records pristine and dense, warm synths humming under crisp dembow, her clean mid-register voice sliding between Spanish and English without pause. She is the sound of a bilingual summer that refuses to end."
@@ -836,14 +915,17 @@
       "pristineLofi": -0.7,
       "sparseDense": 0.4
     },
+    "prop": "amp",
     "resident": {
-      "building": null,
+      "building": "res-21",
       "origin": "tunz"
     },
     "role": "Act — precision",
     "stance": "If you cannot hear every edge, it is not finished."
   },
   {
+    "accent": "#5595a7",
+    "accentDark": "#335d69",
     "album": {
       "description": "A twelve-song nu-disco cycle set entirely on one endless dancefloor, tracing a single heartbreak from midnight denial to sunrise acceptance. Lush strings and euphoric four-on-the-floor beats disguise lyrics about dancing alone under a mirrorball that keeps showing her the person who left.",
       "id": "T-velvet-nadia",
@@ -851,6 +933,7 @@
       "title": "Reflections at 4AM"
     },
     "bio": "Velvet Nadia is the stage persona of a Lisbon-born, Berlin-based performer who spent her twenties singing backup in wedding cover bands before a 4am afterparty changed everything. Locked out of her apartment, she watched a mirrorball spin over an empty club floor and wrote three songs on her phone by sunrise. Those demos became a residency at a converted textile factory, where she perfected a sound built on plush string sections, French-house filter sweeps, and a relentless 136-bpm pulse. Her signature trick: burying devastating confessions inside irresistible choruses, so crowds sing about abandonment while grinning. She performs in sequins under a single rotating light, treating loneliness as choreography. Critics call her records 'grief you can dance to until you forget why you started.'",
+    "building": "res-22",
     "coverUrl": null,
     "description": [
       "Velvet Nadia is the stage persona of a Lisbon-born, Berlin-based performer who spent her twenties singing backup in wedding cover bands before a 4am afterparty changed everything. Locked out of her apartment, she watched a mirrorball spin over an empty club floor and wrote three songs on her phone by sunrise. Those demos became a residency at a converted textile factory, where she perfected a sound built on plush string sections, French-house filter sweeps, and a relentless 136-bpm pulse. Her signature trick: burying devastating confessions inside irresistible choruses, so crowds sing about abandonment while grinning. She performs in sequins under a single rotating light, treating loneliness as choreography. Critics call her records 'grief you can dance to until you forget why you started.'"
@@ -871,15 +954,19 @@
       "pristineLofi": -0.6,
       "sparseDense": 0.5
     },
+    "prop": "amp",
     "resident": {
-      "building": null,
+      "building": "res-22",
       "origin": "tunz"
     },
     "role": "Act — the form",
     "stance": "A dancefloor is a place to be honest."
   },
   {
+    "accent": "#8a6f9e",
+    "accentDark": "#5e4a6c",
     "bio": "Vess Camber has been about to send the demo for three years. They rent the third residence on the AFAR street — one console, one amp, and crates of records that mostly belong to other people — and work nights, remixing the same eleven songs until the differences are things only Vess can hear. Nothing has ever been mailed. Friends who have heard the room tapes describe quiet, close-mic'd songs with warm low ends and a voice that never rises above the level of someone talking to you from the next chair, printed to cassette with the hiss left in. Vess moved to town because the street never sleeps either; the envelope, addressed and unsealed, sits on top of the amp.",
+    "building": "res-03",
     "coverUrl": null,
     "description": [
       "Vess Camber has been about to send the demo for three years. They rent the third residence on the AFAR street — one console, one amp, and crates of records that mostly belong to other people — and work nights, remixing the same eleven songs until the differences are things only Vess can hear. Nothing has ever been mailed. Friends who have heard the room tapes describe quiet, close-mic'd songs with warm low ends and a voice that never rises above the level of someone talking to you from the next chair, printed to cassette with the hiss left in. Vess moved to town because the street never sleeps either; the envelope, addressed and unsealed, sits on top of the amp."
@@ -900,6 +987,7 @@
       "pristineLofi": 0.55,
       "sparseDense": -0.2
     },
+    "prop": "amp",
     "resident": {
       "building": "res-03",
       "origin": "design"

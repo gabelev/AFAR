@@ -52,7 +52,12 @@ function residentFromRow(row: unknown): ResidentRow | null {
     string,
     unknown
   >;
-  const building = [r.building, meta.building].find(
+  // the kernel-side roster import nests its address as resident.building
+  const nested = (typeof r.resident === "object" && r.resident !== null ? r.resident : {}) as Record<
+    string,
+    unknown
+  >;
+  const building = [r.building, meta.building, nested.building].find(
     (b): b is string => typeof b === "string" && BUILDING_ID.test(b),
   );
   if (!building) return null;

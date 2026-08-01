@@ -35,10 +35,11 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  T, PAL, P, spriteAt,
+  T, PAL, S, dict, P, spriteAt,
   consoleDesk, chair, lampPool, ghost, crate, papers, reels, amp, signPlate,
   windowW, lampPost, leaseTile, paintProps, paintBuildingState, PROP_KINDS,
 } from '../../lib/world/pixelpaint.mjs';
+import { residentMaps, residentDict } from './spritegen.mjs';
 
 export * from '../../lib/world/pixelpaint.mjs';
 
@@ -52,6 +53,28 @@ export const GEO = JSON.parse(
 
 if (GEO.tile !== T) {
   throw new Error(`registry tile ${GEO.tile} != pixelpaint tile ${T} — the spec drifted`);
+}
+
+/** The committed sprite spec for import residents (web/world-sprites.json,
+ * generated deterministically from roster DNA by
+ * scripts/generate_resident_sprites.mjs). */
+export const RESIDENT_SPRITES = JSON.parse(
+  readFileSync(
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'world-sprites.json'),
+    'utf8',
+  ),
+);
+
+/**
+ * One sprite definition — maps + symbol/colour dictionary — for ANY row of
+ * the sheet: the designed cast comes straight from the handoff's maps, an
+ * import resident is generated from its committed look (spritegen.mjs).
+ */
+export function spriteDef(who) {
+  if (S[who]) return { maps: S[who], dict: dict(PAL, who) };
+  const look = RESIDENT_SPRITES[who];
+  if (!look) throw new Error(`spriteOrder names "${who}" but no sprite map or spec exists`);
+  return { maps: residentMaps(look), dict: residentDict(look) };
 }
 
 export const W = GEO.house.canvas.w, H = GEO.house.canvas.h;
@@ -140,7 +163,7 @@ export function streetGrid() {
   const fill = (x1, y1, x2, y2, t) => { for (let y = y1; y <= y2; y++) for (let x = x1; x <= x2; x++) g[y][x] = t; };
   fill(...st.houseRegion, 'H'); // AFAR house region, painted by paintWorld()
   for (const r of st.sidewalks) fill(...r, 'P');
-  fill(...st.road, 'D');
+  for (const r of st.roads) fill(...r, 'D');
   for (const b of st.buildings) {
     const [x1, y1, x2, y2] = b.shell;
     fill(x1, y1, x2, y2, 'W');
@@ -163,10 +186,13 @@ export function paintStreet(c, p, era, scene, opts = {}) {
   const st = GEO.street;
   paintWorld(c, p, { era, people, scene: 'normal' });
   const g = streetGrid();
-  const x0 = st.houseRegion[2] + 1; // street tiles start east of the house region
-  for (let y = 0; y < SH; y++) for (let x = x0; x < SW; x++) {
+  // every tile outside the house region: the house canvas covers only its
+  // own 33×34 corner, so the block south of it is street-painted too
+  for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
     const t = g[y][x], px = x * T, py = y * T;
-    if (t === 'V') {
+    if (t === 'H') {
+      continue; // the AFAR house, already painted by paintWorld()
+    } else if (t === 'V') {
       P(c, px, py, T, T, p.void);
       if (era !== 'B' && (x * 13 + y * 29) % 31 < 2) { P(c, px + 3, py + 2, 1, 4, p.rain); P(c, px + 9, py + 9, 1, 4, p.rain); }
     } else if (t === 'P') {
@@ -177,7 +203,7 @@ export function paintStreet(c, p, era, scene, opts = {}) {
     } else if (t === 'D') {
       P(c, px, py, T, T, p.asph);
       if ((x * 11 + y * 5) % 13 === 0) P(c, px + 3, py + 6, 6, 1, p.asphD);
-      if (x === st.laneLineX && y % 3 !== 2) { c.globalAlpha = 0.3; P(c, px + 15, py + 3, 2, 9, p.paperD); c.globalAlpha = 1; }
+      if (st.laneLineXs.includes(x) && y % 3 !== 2) { c.globalAlpha = 0.3; P(c, px + 15, py + 3, 2, 9, p.paperD); c.globalAlpha = 1; }
     } else if (t === 'W') {
       P(c, px, py, T, T, p.wallCap);
       const below = g[y + 1] && g[y + 1][x];

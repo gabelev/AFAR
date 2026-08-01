@@ -2,8 +2,8 @@
 
 /**
  * The left pane: Archive Row as a Phaser 3 world — the AFAR house on its
- * street corner, the road, and the four resident buildings facing it —
- * built from the design handoff's pixel spec (assets pre-rendered at 1x
+ * street corner and the town's two avenues of resident buildings — built
+ * from the design handoff's pixel spec (assets pre-rendered at 1x
  * by scripts/render_pixels.mjs, displayed at 2x, pixelArt on). Building
  * occupancy is DATA: /api/street resolves lease / move-in ready /
  * occupied from the agents' building metadata, and the occupancy layer is
@@ -319,6 +319,10 @@ export async function createWorld(
     chars: Record<string, InstanceType<typeof Ph.GameObjects.Sprite>> = {};
     /** Resident sprites by building id (occupied Archive Row rooms only). */
     residents: Record<string, InstanceType<typeof Ph.GameObjects.Sprite>> = {};
+    /** Which spritesheet row each resident wears: their own DNA-derived
+     * row when the sheet carries one (spriteOrder = agent id), else the
+     * designed vess silhouette. */
+    residentSprite: Record<string, string> = {};
     dim!: InstanceType<typeof Ph.GameObjects.Graphics>;
     litMask!: InstanceType<typeof Ph.GameObjects.Graphics>;
     fx!: InstanceType<typeof Ph.GameObjects.Graphics>; // path dashes + rings + platter light
@@ -514,17 +518,25 @@ export async function createWorld(
       }
 
       // Residents: one sprite per OCCUPIED building, idling at the tenant
-      // stand (the design's resident silhouette — flat cap, chest stripe).
+      // stand. Each wears their own spritesheet row (spriteOrder carries a
+      // DNA-derived sprite per import artist, keyed by agent id); a
+      // resident the sheet doesn't know falls back to the designed vess
+      // silhouette rather than not appearing.
       for (const building of STREET_BUILDINGS) {
         const state = stateById.get(building.id);
         if (!state || state.status !== "occupied") continue;
+        const sprite =
+          state.resident && SHEET_ROW[state.resident.id] !== undefined
+            ? state.resident.id
+            : "vess";
         const stand = tenantStand(building);
         const s = this.add
-          .sprite(stand.tx * T, stand.ty * T - 6, "chars", SHEET_ROW.vess * 12 + DIR_COL.up * 3)
+          .sprite(stand.tx * T, stand.ty * T - 6, "chars", SHEET_ROW[sprite] * 12 + DIR_COL.up * 3)
           .setOrigin(0, 0)
           .setDepth(10);
-        s.play("vess-idle-up");
+        s.play(`${sprite}-idle-up`);
         this.residents[building.id] = s;
+        this.residentSprite[building.id] = sprite;
       }
 
       // Dim overlay with an inverted mask: the lit region stays bright.
@@ -761,7 +773,7 @@ export async function createWorld(
         const building = STREET_BUILDINGS.find((b) => b.id === buildingId)!;
         const stand = tenantStand(building);
         s.setPosition(stand.tx * T, stand.ty * T - 6);
-        s.play("vess-idle-up");
+        s.play(`${this.residentSprite[buildingId]}-idle-up`);
       }
       setBubble(bubbles.turntable, null);
       setBubble(bubbles.archiveChair, null);
@@ -933,10 +945,11 @@ export async function createWorld(
     residentGesture(buildingId: string) {
       const s = this.residents[buildingId];
       if (!s || this.followTarget === s) return;
+      const sprite = this.residentSprite[buildingId];
       const dirs = ["down", "left", "right"] as const;
-      s.play(`vess-idle-${dirs[Math.floor(Math.random() * dirs.length)]}`);
+      s.play(`${sprite}-idle-${dirs[Math.floor(Math.random() * dirs.length)]}`);
       this.time.delayedCall(1200 + Math.random() * 1600, () => {
-        if (this.followTarget !== s) s.play("vess-idle-up");
+        if (this.followTarget !== s) s.play(`${sprite}-idle-up`);
       });
     }
 
@@ -1358,6 +1371,7 @@ export async function createWorld(
         return;
       }
       const s = this.residents[ev.building] ?? null;
+      const sprite = this.residentSprite[ev.building] ?? "vess";
       setCaption(
         `${clock(ev.t)} · AN ARTIST CROSSES TO THE ARCHIVE — THE ONLY LISTENING ROOM ON THE STREET`,
         "lamp",
@@ -1382,10 +1396,10 @@ export async function createWorld(
             return;
           }
           const back = [...streetWalkPath(building)].reverse();
-          this.walkAlong(s, "vess", back, () => {
+          this.walkAlong(s, sprite, back, () => {
             const stand = tenantStand(building);
             s.setPosition(stand.tx * T, stand.ty * T - 6);
-            s.play("vess-idle-up");
+            s.play(`${sprite}-idle-up`);
             this.releaseWalker();
             this.time.delayedCall(600, done);
           });
@@ -1399,8 +1413,8 @@ export async function createWorld(
       this.followWalker(s);
       this.drawStreetDashes(building);
       const out = streetWalkPath(building);
-      const walkMs = this.walkAlong(s, "vess", out, () => {
-        s.play("vess-idle-left");
+      const walkMs = this.walkAlong(s, sprite, out, () => {
+        s.play(`${sprite}-idle-left`);
         beginListen(walkMs);
       });
     }

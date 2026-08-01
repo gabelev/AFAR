@@ -31,18 +31,26 @@ import {
  */
 
 describe("geometry registry: derived values match the world as shipped", () => {
-  it("canvas + camera (the world canvas is the 56×34 street)", () => {
+  it("canvas + camera (the world canvas is the 78×118 two-avenue town)", () => {
     expect(TILE).toBe(16);
-    expect(WORLD_W).toBe(896);
-    expect(WORLD_H).toBe(544);
+    expect(WORLD_W).toBe(1248);
+    expect(WORLD_H).toBe(1888);
     expect(CAMERA_MARGIN).toBe(96);
     expect(HOME_CENTER).toEqual({ tx: 16.5, ty: 17 });
   });
 
-  it("spritesheet rows (render_pixels CHARACTERS order, vess appended)", () => {
-    expect(SHEET_ROW).toEqual({
+  it("spritesheet rows: the designed 8 keep their rows; every import resident has one", () => {
+    // rows 0–7 are the handoff's designed cast — these NEVER move
+    expect(SHEET_ROW).toMatchObject({
       evers: 0, roan: 1, delta: 2, producer: 3, critic: 4, listener: 5, muse: 6, vess: 7,
     });
+    // then one row per import resident (world-sprites.json), slug-sorted
+    const importRows = Object.entries(SHEET_ROW).filter(([, row]) => row >= 8);
+    expect(importRows.length).toBe(21);
+    const slugs = importRows.sort((a, b) => a[1] - b[1]).map(([slug]) => slug);
+    expect(slugs).toEqual([...slugs].sort());
+    expect(slugs).toContain("assembly-ghost");
+    expect(slugs).toContain("velvet-nadia");
   });
 
   it("character placements (design normal scene)", () => {

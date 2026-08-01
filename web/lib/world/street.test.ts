@@ -92,3 +92,57 @@ describe("street derivations match the authored design data", () => {
     expect(buildingLabelPx(byId["res-04"])).toEqual([40 * 32 + 6, 26 * 32 - 20]);
   });
 });
+
+describe("the town of 25: two avenues, 28 shells, headroom", () => {
+  it("28 shells: res-01..res-28, the authored four untouched", () => {
+    expect(STREET_BUILDINGS.map((b) => b.id)).toEqual(
+      Array.from({ length: 28 }, (_, i) => `res-${String(i + 1).padStart(2, "0")}`),
+    );
+    expect(byId["res-01"]).toMatchObject({ status: "lease", shell: [40, 2, 53, 8] });
+    expect(byId["res-02"]).toMatchObject({ status: "ready", shell: [40, 10, 53, 16] });
+    expect(byId["res-03"]).toMatchObject({ status: "occupied", resident: "vess", shell: [40, 18, 53, 24] });
+    expect(byId["res-04"]).toMatchObject({ status: "lease", shell: [40, 26, 53, 32] });
+  });
+
+  it("every shell repeats the authored grammar (14×7, door y1+3, windows y1+1/y1+5, plate y1+2)", () => {
+    for (const b of STREET_BUILDINGS) {
+      const [x1, y1, x2, y2] = b.shell;
+      expect([x2 - x1, y2 - y1], b.id).toEqual([13, 6]);
+      expect(b.door, b.id).toEqual([x1, y1 + 3]);
+      expect(b.windows, b.id).toEqual([
+        [x1, y1 + 1],
+        [x1, y1 + 5],
+      ]);
+      expect(b.signPlate, b.id).toEqual([x1, y1 + 2]);
+    }
+  });
+
+  it("avenue 2 is staggered so every walk-out row threads avenue 1's gaps", () => {
+    // a resident leaves at row door.y + 1; that horizontal leg runs west to
+    // the crossing road and must never cut through another building's shell
+    for (const b of STREET_BUILDINGS) {
+      const exitY = b.door[1] + 1;
+      for (const other of STREET_BUILDINGS) {
+        if (other.id === b.id) continue;
+        const [x1, y1, , y2] = other.shell;
+        if (x1 >= b.shell[0]) continue; // only shells west of this one are crossed
+        expect(exitY < y1 || exitY > y2, `${b.id} walks through ${other.id}`).toBe(true);
+      }
+    }
+  });
+
+  it("res-23..res-28 are the for-lease headroom for future arrivals", () => {
+    for (let i = 23; i <= 28; i++) {
+      const b = byId[`res-${i}`];
+      expect(b.status, b.id).toBe("lease");
+      expect(b.interior, b.id).toEqual([]);
+    }
+  });
+
+  it("occupied-designed shells outside the core carry the ready dust ghosts", () => {
+    for (const b of STREET_BUILDINGS) {
+      if (b.status !== "ready" || b.id === "res-02") continue;
+      expect(readyInterior(b), b.id).toEqual(b.interior);
+    }
+  });
+});

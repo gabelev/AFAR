@@ -20,18 +20,44 @@ const BUILDINGS = registry.street.buildings;
 describe("resolveBuildings: the occupancy matrix", () => {
   it("no rows claim rooms: lease stays lease, designed-occupied is move-in ready", () => {
     const states = resolveBuildings(BUILDINGS, []);
-    expect(states.map((s) => [s.id, s.status])).toEqual([
-      ["res-01", "lease"],
-      ["res-02", "ready"],
-      ["res-03", "ready"], // vess hasn't arrived in the data — nothing invented
-      ["res-04", "lease"],
-    ]);
+    // the whole 28-shell town, from the designed statuses alone
+    expect(states.map((s) => [s.id, s.status])).toEqual(
+      BUILDINGS.map((b) => [b.id, b.status === "lease" ? "lease" : "ready"]),
+    );
+    // vess hasn't arrived in the data — nothing invented
+    expect(states.find((s) => s.id === "res-03")!.status).toBe("ready");
     for (const s of states) expect(s.resident).toBeNull();
   });
 
-  it("the committed agents fixture claims no rooms (the import PR owns that)", () => {
+  it("the committed agents fixture houses the whole roster: 22 occupied, 6 for lease", () => {
     const states = resolveBuildings(BUILDINGS, agentsFixture);
-    expect(states.every((s) => s.resident === null)).toBe(true);
+    const occupied = states.filter((s) => s.status === "occupied");
+    expect(occupied).toHaveLength(22);
+    // vess keeps the authored room, with the design's tenant fields
+    expect(states.find((s) => s.id === "res-03")).toMatchObject({
+      status: "occupied",
+      resident: { id: "vess", name: "Vess Camber" },
+      accent: GUEST_ACCENT,
+      accentD: GUEST_ACCENT_DARK,
+      prop: "amp",
+    });
+    // res-01..res-22 are all lived in; the headroom shells stay papered
+    for (let i = 1; i <= 22; i++) {
+      expect(states.find((s) => s.id === `res-${String(i).padStart(2, "0")}`)!.status).toBe(
+        "occupied",
+      );
+    }
+    for (let i = 23; i <= 28; i++) {
+      expect(states.find((s) => s.id === `res-${String(i).padStart(2, "0")}`)!.status).toBe(
+        "lease",
+      );
+    }
+    // every resident carries a real accent pair (their DNA colours, not the
+    // guest fallback — vess's authored guest violet is the one exception)
+    for (const s of occupied) {
+      expect(s.accent).toMatch(/^#[0-9a-f]{6}$/);
+      expect(s.resident!.id).toBeTruthy();
+    }
   });
 
   it("a row with building metadata occupies its room, tenant fields honoured", () => {
