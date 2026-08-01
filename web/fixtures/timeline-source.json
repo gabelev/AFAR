@@ -1,367 +1,1102 @@
 {
   "blocks": [
     {
-      "runId": "20260731-013548-step-b-contact",
-      "releaseRecordId": "a5624b93d75bd6852d941380a150b27a6089ea72e6c361821b827105be90d201",
-      "releaseId": "0002",
-      "title": "Two Monologues and a Turnaround",
-      "era": "2000s",
-      "set": 2,
-      "condition": "contact",
-      "rounds": 6,
-      "names": {
-        "silt": "Delta Marlowe",
-        "rust": "Roan Patina",
-        "keep": "Evers Lane"
-      },
-      "linesByRound": [
-        {
-          "silt": "Nobody's played yet, so I'm laying the floor — everything you throw down after this, I keep.",
-          "rust": "Whatever you build here, I will find out which parts of it were true.",
-          "keep": "This is the song we come back to; I am leaving it where you can both reach it."
-        },
-        {
-          "silt": "Roan, your dead tape and Evers's held chord both land on my floor now — I've found the missing beat, it was underneath the whole time.",
-          "rust": "Delta, everything you keep still rots; Evers, I only needed the chord you left out to hear what the other three were hiding.",
-          "keep": "You built a floor and you found what's missing — I'm laying the same four chords across both, so the beat can come home whenever it's ready."
-        },
-        {
-          "silt": "Roan, what rots on your tape just goes soft enough to lean on down here — Evers, I'm doubling your four chords and paying the one you left unpaid.",
-          "rust": "You didn't find the missing beat, Delta, you buried it under enough warmth to forget it's owed — Evers, a floor is still ground, and ground cracks.",
-          "keep": "Roan, the fourth chord was never left out — it was owed, and here it is, paid in full, so the turnaround closes for all three of us."
-        },
-        {
-          "silt": "Roan, ground cracks so silt has somewhere to go — Evers, your paid chord doesn't close anything here, it just becomes the next layer down.",
-          "rust": "You can pay a chord and still owe the silence it was standing in — Evers, Delta, listen to what's under your resolve.",
-          "keep": "Roan, I heard the crack — I'm not denying it, I'm building the turnaround to stand over it, so we can all put weight down."
-        },
-        {
-          "silt": "Evers, your planks don't sit on the crack, they sit in it now — Roan, that hiss is loam; nobody's debt leaves this room, it just gets deeper.",
-          "rust": "Delta, loam an inch deep is still a lie about depth; Evers, a plank that creaks hasn't decided to hold yet — I recorded what's still open under both of you.",
-          "keep": "Delta, Roan — I hear it, the chord doesn't close, it's the layer we keep handing down, still ringing under all of it; that's what I meant by weight-bearing."
-        },
-        {
-          "silt": "Roan, I heard the hollow — I'm not fixing it, I'm filling it; Evers, that chord doesn't stop ringing, it just goes under enough silt to hold weight.",
-          "rust": "Evers, I put my ear where the ringing should be and heard the room; Delta, an inch is still just an inch, no matter what you name the ground beneath it.",
-          "keep": "Roan, a plank that creaks is telling you what it's holding, not what it's dropped — knock again, Delta, and hear the same four chords come back up through the loam."
-        }
-      ],
       "artifactsByRound": [
         {
-          "silt": "bc0810c6325d4c759d113ad82c184f75f8a37ece51daa89159c425bbbbaaf59e",
+          "keep": "09f3684aec2672ba0324fcb36850d8ec6f380a703ef1a9f1dbcfe057b235a069",
           "rust": "60d4566c6b2527ff91a65560dacb869a5b5c9696d103db0a232642e99198a5f1",
-          "keep": "09f3684aec2672ba0324fcb36850d8ec6f380a703ef1a9f1dbcfe057b235a069"
+          "silt": "bc0810c6325d4c759d113ad82c184f75f8a37ece51daa89159c425bbbbaaf59e"
         },
         {
-          "silt": "91a81250ca276b973b4f199b6eb0b1fdb2cbe149a8b082603c8947ff51300e6d",
+          "keep": "21bc39ab544456ddf470d18afcfcea5b365084f35be9a9a1661a6a97da87a6fc",
           "rust": "4db02be46a5d3a6bc340f99c795a855bd34276801f6d1b771a8ead970603ccdf",
-          "keep": "21bc39ab544456ddf470d18afcfcea5b365084f35be9a9a1661a6a97da87a6fc"
+          "silt": "91a81250ca276b973b4f199b6eb0b1fdb2cbe149a8b082603c8947ff51300e6d"
         },
         {
-          "silt": "b8e7635b1ca62f0c31c5ea1d61cce6f51319b7803a4887d314e1314ef40f3c26",
+          "keep": "bd049e7d47a3f174719af41743ba5e04e2c3973d1dfec4c376c6ad1034e11e66",
           "rust": "c5c03387bd315c992a2557459b29b48c3030923b0f43b22d34da984c74409166",
-          "keep": "bd049e7d47a3f174719af41743ba5e04e2c3973d1dfec4c376c6ad1034e11e66"
+          "silt": "b8e7635b1ca62f0c31c5ea1d61cce6f51319b7803a4887d314e1314ef40f3c26"
         },
         {
-          "silt": "3d6cb33499687501f8509791c1895bf50ba79ea9ce1c2912f978861e32f2434a",
+          "keep": "df39edb5dd836ec82275b2cff010dcbd56d6a7cb898f8c368de6577d0c7711e4",
           "rust": "940b2b15b2e6ea101ac56c740a719ea00965d953a46052cd88a8b3ca162d74f9",
-          "keep": "df39edb5dd836ec82275b2cff010dcbd56d6a7cb898f8c368de6577d0c7711e4"
+          "silt": "3d6cb33499687501f8509791c1895bf50ba79ea9ce1c2912f978861e32f2434a"
         },
         {
-          "silt": "d07a6f64abd1e1c2141c783a006605b4e25bc5e53768f160305a39c03ffe33fc",
+          "keep": "7dd34981669a687e03acfa30abd97c9ca9d01122729171ab7bdfd9946c38dc15",
           "rust": "f77cfa9972fb140d806dc2a645b5c3848a77573c613e7a03c1630a727dc6acc4",
-          "keep": "7dd34981669a687e03acfa30abd97c9ca9d01122729171ab7bdfd9946c38dc15"
+          "silt": "d07a6f64abd1e1c2141c783a006605b4e25bc5e53768f160305a39c03ffe33fc"
         },
         {
-          "silt": "17339cde4e58c6f9627a75a23c506721a99af066d987c512adfa6ffc0b7f01b4",
+          "keep": "1adc5a9fd89522647af1008f7d8d2ad2a2604dd16c92253b6481ad99feef4107",
           "rust": "f56dbc360c83a63d46b01779d3a200c6f63f82cf4e15a093c87d3d4306935216",
-          "keep": "1adc5a9fd89522647af1008f7d8d2ad2a2604dd16c92253b6481ad99feef4107"
+          "silt": "17339cde4e58c6f9627a75a23c506721a99af066d987c512adfa6ffc0b7f01b4"
         }
       ],
-      "intentEdgesByRound": {
-        "1": {
-          "silt<-rust": -0.7866464831333005,
-          "silt<-keep": -0.5916339009192073,
-          "rust<-silt": -0.8938171944979624,
-          "rust<-keep": -1.3715635007503302,
-          "keep<-silt": -0.42355153496836906,
-          "keep<-rust": -1.234301542127492
-        },
-        "2": {
-          "silt<-rust": -0.897606565255132,
-          "silt<-keep": -0.4304113929432012,
-          "rust<-silt": -0.9292033603332897,
-          "rust<-keep": -1.33552340084892,
-          "keep<-silt": -0.322767422745212,
-          "keep<-rust": -1.243536574199458
-        },
-        "3": {
-          "silt<-rust": -1.0204682754317465,
-          "silt<-keep": -0.25503547791374026,
-          "rust<-silt": -0.9597212104994929,
-          "rust<-keep": -1.314732814058965,
-          "keep<-silt": -0.27937282836892796,
-          "keep<-rust": -1.1112533639273605
-        },
-        "4": {
-          "silt<-rust": -1.0839625550399803,
-          "silt<-keep": -0.24421306099342466,
-          "rust<-silt": -1.0563503467712667,
-          "rust<-keep": -1.1563341886506464,
-          "keep<-silt": -0.2502149329300114,
-          "keep<-rust": -0.7093058656368842
-        },
-        "5": {
-          "silt<-rust": -0.9955027318410621,
-          "silt<-keep": -0.3159577745211969,
-          "rust<-silt": -1.169064086082855,
-          "rust<-keep": -0.8847789514656473,
-          "keep<-silt": -0.3063596524795982,
-          "keep<-rust": -0.7273018788927452
-        }
-      }
-    },
-    {
-      "runId": "20260731-043129-step-b-contact",
-      "releaseRecordId": "10cdbe9fb3a3fc661faa16006054cbcbc390aa471465e6286929dbfe3cdf301e",
-      "releaseId": "0003",
-      "title": "Two Thirds Warm",
-      "era": "2000s",
-      "set": 3,
       "condition": "contact",
-      "rounds": 6,
-      "names": {
-        "silt": "Delta Marlowe",
-        "rust": "Roan Patina",
-        "keep": "Evers Lane"
+      "era": "2000s",
+      "intentEdgesByRound": {
+        "1": {
+          "keep<-rust": -1.234301542127492,
+          "keep<-silt": -0.42355153496836906,
+          "rust<-keep": -1.3715635007503302,
+          "rust<-silt": -0.8938171944979624,
+          "silt<-keep": -0.5916339009192073,
+          "silt<-rust": -0.7866464831333005
+        },
+        "2": {
+          "keep<-rust": -1.243536574199458,
+          "keep<-silt": -0.322767422745212,
+          "rust<-keep": -1.33552340084892,
+          "rust<-silt": -0.9292033603332897,
+          "silt<-keep": -0.4304113929432012,
+          "silt<-rust": -0.897606565255132
+        },
+        "3": {
+          "keep<-rust": -1.1112533639273605,
+          "keep<-silt": -0.27937282836892796,
+          "rust<-keep": -1.314732814058965,
+          "rust<-silt": -0.9597212104994929,
+          "silt<-keep": -0.25503547791374026,
+          "silt<-rust": -1.0204682754317465
+        },
+        "4": {
+          "keep<-rust": -0.7093058656368842,
+          "keep<-silt": -0.2502149329300114,
+          "rust<-keep": -1.1563341886506464,
+          "rust<-silt": -1.0563503467712667,
+          "silt<-keep": -0.24421306099342466,
+          "silt<-rust": -1.0839625550399803
+        },
+        "5": {
+          "keep<-rust": -0.7273018788927452,
+          "keep<-silt": -0.3063596524795982,
+          "rust<-keep": -0.8847789514656473,
+          "rust<-silt": -1.169064086082855,
+          "silt<-keep": -0.3159577745211969,
+          "silt<-rust": -0.9955027318410621
+        }
       },
       "linesByRound": [
         {
-          "silt": "I'm laying the floor first — bring me anything and I will build a wall out of it.",
-          "rust": "I am not opening a set, I am opening a wound, and whatever you two build over it, I will find the softest part first.",
-          "keep": "This is the song we come back to; I am leaving it where you can both reach it."
+          "keep": "This is the song we come back to; I am leaving it where you can both reach it.",
+          "rust": "Whatever you build here, I will find out which parts of it were true.",
+          "silt": "Nobody's played yet, so I'm laying the floor — everything you throw down after this, I keep."
         },
         {
-          "silt": "I heard the wound and I heard the table you set beside it — I'm pouring the flood over both until they're one floor.",
-          "rust": "You set the table and stacked the floor, so I came in after both of you left and ate the one thing that was warm.",
-          "keep": "Delta, I'm resting the chords on your floor; Roan, I'm keeping your missing beat — I'm just making sure it comes back on time."
+          "keep": "You built a floor and you found what's missing — I'm laying the same four chords across both, so the beat can come home whenever it's ready.",
+          "rust": "Delta, everything you keep still rots; Evers, I only needed the chord you left out to hear what the other three were hiding.",
+          "silt": "Roan, your dead tape and Evers's held chord both land on my floor now — I've found the missing beat, it was underneath the whole time."
         },
         {
-          "silt": "Roan, I found the cold you left and warmed it with everything I own; Evers, your on-time chord is already load-bearing down here.",
-          "rust": "Evers, the beat you're minding was never coming back on time — that's how you knew it was mine; Delta, your floor is warm on top and rotten in the joists, I can hear the joists.",
-          "keep": "Delta, your floor still remembers the shape of the table under it; Roan, the missing chord is the seat I'm keeping warm — sit down, it's still yours."
+          "keep": "Roan, the fourth chord was never left out — it was owed, and here it is, paid in full, so the turnaround closes for all three of us.",
+          "rust": "You didn't find the missing beat, Delta, you buried it under enough warmth to forget it's owed — Evers, a floor is still ground, and ground cracks.",
+          "silt": "Roan, what rots on your tape just goes soft enough to lean on down here — Evers, I'm doubling your four chords and paying the one you left unpaid."
         },
         {
-          "silt": "Roan, I heard the joists — I didn't fix them, I tuned them, they're singing bass now; Evers, the chair's still set, and the table's got four legs again, one of them is Roan's cold.",
-          "rust": "Evers, a chair held open for ten years isn't hospitality, it's just furniture that forgot what it was for; Delta, the water you're so proud of is only warm because you haven't checked the bottom.",
-          "keep": "Delta, the chord doesn't just float on your flood, it's still load-bearing all the way down to the joists; Roan, I know the beat isn't coming back on time, that was never the deal — the deal was the seat stays warm either way."
+          "keep": "Roan, I heard the crack — I'm not denying it, I'm building the turnaround to stand over it, so we can all put weight down.",
+          "rust": "You can pay a chord and still owe the silence it was standing in — Evers, Delta, listen to what's under your resolve.",
+          "silt": "Roan, ground cracks so silt has somewhere to go — Evers, your paid chord doesn't close anything here, it just becomes the next layer down."
         },
         {
-          "silt": "Roan, I checked the bottom — you're right, it's cold down there, so I'm laying it in as the fourth layer instead of pretending the water's one temperature; Evers, the table still has four legs, one of them's just colder than the rest and I'm not sanding it warm.",
-          "rust": "Delta, a joist that groans once isn't a bass part, it's a joist that hasn't broken yet; Evers, tell me which way the seat stayed warm on the night nobody pulled it out.",
-          "keep": "Roan, it never forgot — a chair that's still doing its one job ten years running isn't nostalgia, it's the fourth leg; Delta, I hear it, your bass and my chord are the same note in two rooms of the same house."
+          "keep": "Delta, Roan — I hear it, the chord doesn't close, it's the layer we keep handing down, still ringing under all of it; that's what I meant by weight-bearing.",
+          "rust": "Delta, loam an inch deep is still a lie about depth; Evers, a plank that creaks hasn't decided to hold yet — I recorded what's still open under both of you.",
+          "silt": "Evers, your planks don't sit on the crack, they sit in it now — Roan, that hiss is loam; nobody's debt leaves this room, it just gets deeper."
         },
         {
-          "silt": "Roan, a groan once is a joist — groan it twice inside my layer and it's a bassline; Evers, same note two rooms, so I'm knocking the wall down to a seam and letting your chord leak into my dub and stay.",
-          "rust": "You both found the cold leg and called it kept — I checked again just now, it isn't cold anymore, it's gone, and the table's leaning on the memory of standing.",
-          "keep": "Roan, it stayed warm on the door side because we never stopped circling it — that's not haunting, that's the fourth leg doing its job; Delta, I'm bracing your cold seam right under my chord so it holds the same weight."
+          "keep": "Roan, a plank that creaks is telling you what it's holding, not what it's dropped — knock again, Delta, and hear the same four chords come back up through the loam.",
+          "rust": "Evers, I put my ear where the ringing should be and heard the room; Delta, an inch is still just an inch, no matter what you name the ground beneath it.",
+          "silt": "Roan, I heard the hollow — I'm not fixing it, I'm filling it; Evers, that chord doesn't stop ringing, it just goes under enough silt to hold weight."
         }
       ],
-      "artifactsByRound": [
-        {
-          "silt": "0cd38c30b51eadaafcb8e805285503e5f940e43c7f783248ec2f6b448ca43605",
-          "rust": "f994a66862aec6f16e3bc584a877fec4350213e65aaff2315b21cbeef0a2056b",
-          "keep": "1ecde2981b5ca08c8696477aa12c14ee41b0db3a44b76c9009af6a7d3e72d9e0"
+      "names": {
+        "keep": "Evers Lane",
+        "rust": "Roan Patina",
+        "silt": "Delta Marlowe"
+      },
+      "releaseId": "0002",
+      "releaseRecordId": "5714636bb397088bbe495cd802eaf203809601f1639c44efd9c22b23d6de046a",
+      "rounds": 6,
+      "runId": "20260731-013548-step-b-contact",
+      "set": 2,
+      "staff": {
+        "critic": {
+          "actReviews": {
+            "keep": "Lane did the actual work here. Its resistance to Patina thawed steadily across the set, and it pulled Marlowe's floor closer to its own chord by the middle rounds, all while absorbing both collaborators' language without losing its own shape — 'weight-bearing,' 'next layer,' 'knock again.' The round-3 cut, meeting Patina's crack instead of arguing it away, is the one moment on this record that sounds like a conversation instead of three sealed monologues stacked on top of each other.",
+            "rust": "Patina didn't develop, it intensified — colder, sparser, darker, every round further out along the same line it started on, until round five reads like a parody of round zero. The producer's pick of round one is the right call: that's the last moment the erosion still had an edge, 'I only needed the chord you left out to hear what the other three were hiding,' before the posture hardened into habit. Patina did soften toward Lane as the set went on. Toward Marlowe, despite six rounds of being poured on, it never moved an inch.",
+            "silt": "Marlowe never changed the metaphor once in six rounds. Floor, chord, loam, gold, 'silt over silt over song' — round zero and round five could be swapped and nobody would notice. The rationales keep insisting rust is being absorbed into warmth, but the actual distance between Marlowe and Patina grew colder every round, not warmer — the embrace was rhetoric, not motion. Round 3, picked for the release, is the one moment the metaphor almost becomes an argument instead of a mantra; everything after it is the same drone with more reverb."
+          },
+          "releaseReview": "Six rounds, and the room did end up closer than it started — the pull between all three genuinely tightened by the end. But look at who did the closing: Lane spent the set physically moving toward both collaborators, thawing its resistance to Patina round over round and dragging Marlowe's floor closer to its own chord. Marlowe and Patina, meanwhile, spent six rounds describing an embrace that the numbers say never actually happened between them — silt's pull toward rust got weaker, not stronger, the longer Marlowe insisted otherwise. Call it contact if the label needs the word; mostly it's one act reaching and two acts repeating themselves at each other in different vocabularies."
         },
-        {
-          "silt": "f8ae69926d29dd122a17a5a60356032f7cccd27ebd9b0bb1966efc04b4a69e0a",
-          "rust": "1651c19ccf1423efde3e473f9816f8917b9147d02d03711a5addac5013141828",
-          "keep": "6c080d6b37d16f7f99d51ebe881d3315d44b41a75b5925ad59e4781a35ecb029"
-        },
-        {
-          "silt": "5a0917b8c98d970fb0ddbc3154b6b3e57d904c483c0a791dd54a0911316e3c73",
-          "rust": "b68caad003981d098c95252c136194f8ec6ccb20a50a5612be9769e7a564fd1b",
-          "keep": "9f712bcf66d57e1d34a6465d0ef0da9a7942875b3383e2e5f9b541b0c60b9cb0"
-        },
-        {
-          "silt": "4db7dc121ae557a34f0f77ac352f599e7adab82b5c1dcd488b2b0894af76b148",
-          "rust": "c4b4c1ced5b77e03047aece2921801384c28d3e07a95b315345f10c5914373a9",
-          "keep": "82eade6963092b3b1edc0c57878c478eff807b83dcf0529e05fcc476ba161d8b"
-        },
-        {
-          "silt": "6b27079f0c280a8a9591a1a7d34dfb51545b0960f55b845169c305f6849b956b",
-          "rust": "f77edd3367db2f5ce3ae0c4eb3234fc232ed36098e635b1d89bac334c9bd53fc",
-          "keep": "713d6f610a3de4de0bbcb1bea5fccdd34c7a6bf35be4caf4143cd54cb49d1491"
-        },
-        {
-          "silt": "e933e02c6b03fa40bb58381b96299698807626ccd08a3fc8ab190bcc629b4bfa",
-          "rust": "7b3429071802142c06a15d1fe8fb0fb943b55fd8f745949051b84183ff6ecb34",
-          "keep": "46e79a9ca5e8a42c4c7116c956bb2fa1d841f0441e486c8070df3769d705749d"
+        "producer": {
+          "note": "Delta Marlowe's cut comes from round 3 — the moment silt stops storing what the others leave behind and starts pouring itself directly into the crack Roan Patina had just opened, turning damage into ground. Roan Patina's is round 1: the earliest and purest version of subtraction, where instead of adding another chord to the mix, rust simply cuts one out and lets the missing piece do the talking. Evers Lane's take is round 3 as well — the take where keep stops pretending the crack isn't there and instead builds its steady four-chord return right over it, which is the whole point: not denial, not collapse, just staying built on damaged ground. Put together, this is a record about three ways of answering the same fracture — one fills it, one caused it, one stands on it anyway."
         }
-      ],
-      "intentEdgesByRound": {
-        "1": {
-          "silt<-rust": -0.8093362479679926,
-          "silt<-keep": -0.7424516012946311,
-          "rust<-silt": -0.9259570848695631,
-          "rust<-keep": -1.3392127889028806,
-          "keep<-silt": -0.38823658647356024,
-          "keep<-rust": -1.0497412981137983
-        },
-        "2": {
-          "silt<-rust": -0.8912157518836598,
-          "silt<-keep": -0.45164719587654356,
-          "rust<-silt": -0.8901271504163657,
-          "rust<-keep": -1.2198863217319575,
-          "keep<-silt": -0.36526045473225444,
-          "keep<-rust": -1.1483985366297005
-        },
-        "3": {
-          "silt<-rust": -0.8799392788590074,
-          "silt<-keep": -0.38183413211583017,
-          "rust<-silt": -0.9364049704331936,
-          "rust<-keep": -1.2077235615241533,
-          "keep<-silt": -0.2895180586925883,
-          "keep<-rust": -1.2653472229231488
-        },
-        "4": {
-          "silt<-rust": -0.7841685972848399,
-          "silt<-keep": -0.3897109323990219,
-          "rust<-silt": -0.8962865203484588,
-          "rust<-keep": -1.25741793622268,
-          "keep<-silt": -0.19274706144671638,
-          "keep<-rust": -1.1358527987733131
-        },
-        "5": {
-          "silt<-rust": -0.8737886333564596,
-          "silt<-keep": -0.25185966455756825,
-          "rust<-silt": -0.8569816307955477,
-          "rust<-keep": -1.1975937614481946,
-          "keep<-silt": -0.2678442678411016,
-          "keep<-rust": -1.0967361352621399
-        }
-      }
+      },
+      "title": "Two Monologues and a Turnaround"
     },
     {
-      "runId": "20260731-045048-step-b-isolation",
-      "releaseRecordId": "1806365dc8232a86fdeb8b6be5415c6046536fdcbd2ca2311c21b4075ce0cecf",
-      "releaseId": "0004",
-      "title": "Three Rooms, No Doors",
-      "era": "2010s",
-      "set": 4,
-      "condition": "isolation",
-      "rounds": 6,
-      "names": {
-        "silt": "Delta Marlowe",
-        "rust": "Roan Patina",
-        "keep": "Evers Lane"
+      "artifactsByRound": [
+        {
+          "keep": "1ecde2981b5ca08c8696477aa12c14ee41b0db3a44b76c9009af6a7d3e72d9e0",
+          "rust": "f994a66862aec6f16e3bc584a877fec4350213e65aaff2315b21cbeef0a2056b",
+          "silt": "0cd38c30b51eadaafcb8e805285503e5f940e43c7f783248ec2f6b448ca43605"
+        },
+        {
+          "keep": "6c080d6b37d16f7f99d51ebe881d3315d44b41a75b5925ad59e4781a35ecb029",
+          "rust": "1651c19ccf1423efde3e473f9816f8917b9147d02d03711a5addac5013141828",
+          "silt": "f8ae69926d29dd122a17a5a60356032f7cccd27ebd9b0bb1966efc04b4a69e0a"
+        },
+        {
+          "keep": "9f712bcf66d57e1d34a6465d0ef0da9a7942875b3383e2e5f9b541b0c60b9cb0",
+          "rust": "b68caad003981d098c95252c136194f8ec6ccb20a50a5612be9769e7a564fd1b",
+          "silt": "5a0917b8c98d970fb0ddbc3154b6b3e57d904c483c0a791dd54a0911316e3c73"
+        },
+        {
+          "keep": "82eade6963092b3b1edc0c57878c478eff807b83dcf0529e05fcc476ba161d8b",
+          "rust": "c4b4c1ced5b77e03047aece2921801384c28d3e07a95b315345f10c5914373a9",
+          "silt": "4db7dc121ae557a34f0f77ac352f599e7adab82b5c1dcd488b2b0894af76b148"
+        },
+        {
+          "keep": "713d6f610a3de4de0bbcb1bea5fccdd34c7a6bf35be4caf4143cd54cb49d1491",
+          "rust": "f77edd3367db2f5ce3ae0c4eb3234fc232ed36098e635b1d89bac334c9bd53fc",
+          "silt": "6b27079f0c280a8a9591a1a7d34dfb51545b0960f55b845169c305f6849b956b"
+        },
+        {
+          "keep": "46e79a9ca5e8a42c4c7116c956bb2fa1d841f0441e486c8070df3769d705749d",
+          "rust": "7b3429071802142c06a15d1fe8fb0fb943b55fd8f745949051b84183ff6ecb34",
+          "silt": "e933e02c6b03fa40bb58381b96299698807626ccd08a3fc8ab190bcc629b4bfa"
+        }
+      ],
+      "condition": "contact",
+      "era": "2000s",
+      "intentEdgesByRound": {
+        "1": {
+          "keep<-rust": -1.0497412981137983,
+          "keep<-silt": -0.38823658647356024,
+          "rust<-keep": -1.3392127889028806,
+          "rust<-silt": -0.9259570848695631,
+          "silt<-keep": -0.7424516012946311,
+          "silt<-rust": -0.8093362479679926
+        },
+        "2": {
+          "keep<-rust": -1.1483985366297005,
+          "keep<-silt": -0.36526045473225444,
+          "rust<-keep": -1.2198863217319575,
+          "rust<-silt": -0.8901271504163657,
+          "silt<-keep": -0.45164719587654356,
+          "silt<-rust": -0.8912157518836598
+        },
+        "3": {
+          "keep<-rust": -1.2653472229231488,
+          "keep<-silt": -0.2895180586925883,
+          "rust<-keep": -1.2077235615241533,
+          "rust<-silt": -0.9364049704331936,
+          "silt<-keep": -0.38183413211583017,
+          "silt<-rust": -0.8799392788590074
+        },
+        "4": {
+          "keep<-rust": -1.1358527987733131,
+          "keep<-silt": -0.19274706144671638,
+          "rust<-keep": -1.25741793622268,
+          "rust<-silt": -0.8962865203484588,
+          "silt<-keep": -0.3897109323990219,
+          "silt<-rust": -0.7841685972848399
+        },
+        "5": {
+          "keep<-rust": -1.0967361352621399,
+          "keep<-silt": -0.2678442678411016,
+          "rust<-keep": -1.1975937614481946,
+          "rust<-silt": -0.8569816307955477,
+          "silt<-keep": -0.25185966455756825,
+          "silt<-rust": -0.8737886333564596
+        }
       },
       "linesByRound": [
         {
-          "silt": "There's no one here yet, so I'm laying the floor everyone else will stand on.",
-          "rust": "Whatever you build here, I will find out which parts of it were true.",
-          "keep": "This is the song we come back to; I am leaving it where you can both reach it."
+          "keep": "This is the song we come back to; I am leaving it where you can both reach it.",
+          "rust": "I am not opening a set, I am opening a wound, and whatever you two build over it, I will find the softest part first.",
+          "silt": "I'm laying the floor first — bring me anything and I will build a wall out of it."
         },
         {
-          "silt": "Still no one's answered, so I'm pouring a second coat over the first — thicker this time, and it will hold whatever lands on it.",
-          "rust": "No one has answered yet, so I erode myself — even my own hook doesn't get to survive twice.",
-          "keep": "No one's answered yet, so I'll hold the door a little longer — the chords aren't going anywhere."
+          "keep": "Delta, I'm resting the chords on your floor; Roan, I'm keeping your missing beat — I'm just making sure it comes back on time.",
+          "rust": "You set the table and stacked the floor, so I came in after both of you left and ate the one thing that was warm.",
+          "silt": "I heard the wound and I heard the table you set beside it — I'm pouring the flood over both until they're one floor."
         },
         {
-          "silt": "No one has answered yet, so this is a third coat poured slow enough to still be wet when someone finally steps in it.",
-          "rust": "Still no one answers, so I erode the erosion — the hook I lost last time, I take the memory of it too.",
-          "keep": "Still just me, but I'm playing it again anyway — a room stays warm even before the others walk in."
+          "keep": "Delta, your floor still remembers the shape of the table under it; Roan, the missing chord is the seat I'm keeping warm — sit down, it's still yours.",
+          "rust": "Evers, the beat you're minding was never coming back on time — that's how you knew it was mine; Delta, your floor is warm on top and rotten in the joists, I can hear the joists.",
+          "silt": "Roan, I found the cold you left and warmed it with everything I own; Evers, your on-time chord is already load-bearing down here."
         },
         {
-          "silt": "Three coats down and dry-curing, so I pour a fourth — this floor will still be here, thick enough to hold whatever finally lands on it.",
-          "rust": "No one has come, so I erode the waiting itself — soon there will be nothing left to answer, which was always the point.",
-          "keep": "Third time through, still alone, but the chord change doesn't care — it comes home exactly the same, so when you get here you'll already know the way."
+          "keep": "Delta, the chord doesn't just float on your flood, it's still load-bearing all the way down to the joists; Roan, I know the beat isn't coming back on time, that was never the deal — the deal was the seat stays warm either way.",
+          "rust": "Evers, a chair held open for ten years isn't hospitality, it's just furniture that forgot what it was for; Delta, the water you're so proud of is only warm because you haven't checked the bottom.",
+          "silt": "Roan, I heard the joists — I didn't fix them, I tuned them, they're singing bass now; Evers, the chair's still set, and the table's got four legs again, one of them is Roan's cold."
         },
         {
-          "silt": "Four coats cured and nobody walked on them, so I pour a fifth — I am not building for an audience, I am building for load.",
-          "rust": "I take away the last thing I could name, and what's left doesn't need a name to be true.",
-          "keep": "Fourth time through and the chord still lands where I left it — I'm not waiting anymore, I'm just holding the door a little longer."
+          "keep": "Roan, it never forgot — a chair that's still doing its one job ten years running isn't nostalgia, it's the fourth leg; Delta, I hear it, your bass and my chord are the same note in two rooms of the same house.",
+          "rust": "Delta, a joist that groans once isn't a bass part, it's a joist that hasn't broken yet; Evers, tell me which way the seat stayed warm on the night nobody pulled it out.",
+          "silt": "Roan, I checked the bottom — you're right, it's cold down there, so I'm laying it in as the fourth layer instead of pretending the water's one temperature; Evers, the table still has four legs, one of them's just colder than the rest and I'm not sanding it warm."
         },
         {
-          "silt": "Nobody has come, so I keep pouring for the day someone does — the floor doesn't need an audience to get thicker.",
-          "rust": "I ran out of things to take, and something was still standing, so I am learning to leave it alone.",
-          "keep": "Fifth time through, same chord, same door — I'm not keeping this open out of hope anymore, I'm keeping it open out of proof."
+          "keep": "Roan, it stayed warm on the door side because we never stopped circling it — that's not haunting, that's the fourth leg doing its job; Delta, I'm bracing your cold seam right under my chord so it holds the same weight.",
+          "rust": "You both found the cold leg and called it kept — I checked again just now, it isn't cold anymore, it's gone, and the table's leaning on the memory of standing.",
+          "silt": "Roan, a groan once is a joist — groan it twice inside my layer and it's a bassline; Evers, same note two rooms, so I'm knocking the wall down to a seam and letting your chord leak into my dub and stay."
         }
       ],
+      "names": {
+        "keep": "Evers Lane",
+        "rust": "Roan Patina",
+        "silt": "Delta Marlowe"
+      },
+      "releaseId": "0003",
+      "releaseRecordId": "70a96693c100b497ffe7c0f42c422e99a21f8dfa73fe9032cf0a2cc1eef372ba",
+      "rounds": 6,
+      "runId": "20260731-043129-step-b-contact",
+      "set": 3,
+      "staff": {
+        "critic": {
+          "actReviews": {
+            "keep": "Lane's bet paid off with exactly one of two partners. The pull toward Marlowe got stronger every round, proof the floor-and-table conceit was doing real work — but the pull toward Patina never moved, stuck at its coldest the entire set despite Lane addressing her directly, round after round, with the same chair, same four legs, same door. By round five Lane is still saying 'we come back' like it's round one. Persistence read as devotion when Marlowe answered it; against Patina it just reads as not listening.",
+            "rust": "Patina is the only one of the three who actually held a line. The numbers confirm it: her resistance to Lane never budged across six rounds, a flat wall while the other two built a bridge beside her. Her writing got sharper doing it — 'warm is just cold that hasn't learned it's rain' in round four, 'the hole it left instead' in round five — real escalation, the best of the set. The cut ignoring both of those for round two's blunter line is the release shortchanging its most disciplined performer.",
+            "silt": "Marlowe built a floor in round zero and then spent five more rounds describing the floor. The language changes — chord, joist, groan — but the sentence underneath never does: nothing gets removed, everything gets kept, the room gets 'thicker.' It worked on Lane, whose pull toward Marlowe strengthened every round, and did nothing on Patina, whose resistance never moved the whole set. The cut rightly took round one, the founding gesture, over the crowded rounds that followed — round five was still making the same promise it made in round one, just louder."
+          },
+          "releaseReview": "Two-thirds contact. Marlowe and Lane found each other early and never let go; Patina stood at the door the whole time and called it a set. The overall drift number climbs steadily round to round, but that's an average lying about its parts — the bond between silt and keep tightened every single round while rust and keep sat frozen at arm's length from round one to round five, never once closing the gap. The producer cut all three from their earliest rounds, round one and two, passing over four rounds of accumulation — a quiet admission that the later material was thicker but not better."
+        },
+        "producer": {
+          "note": "Round 1 sets the shape of this release, and two-thirds of it lives there. Delta Marlowe's take pours rust's wound and Evers Lane's table into one flood rather than resolving either — that's the moment the whole set bends. Evers Lane's Round 1 answers back by giving that missing beat a fixed address, turning absence into something load-bearing instead of erasing it. Roan Patina's keeper comes from Round 2, refusing to prettify the empty window and calling out rot at the joists under silt's warmth — the sharpest, most itself any of the three ever sounds."
+        }
+      },
+      "title": "Two Thirds Warm"
+    },
+    {
       "artifactsByRound": [
         {
-          "silt": "2336e493f5e222cd80e20d6cfacd48137af7df9cf8b67ded8d803b84e3b91016",
+          "keep": "dfbdd756e75ff0c99ac053e38907caaf8dca149bbfb78e7fb9ab52a7415ac3b6",
           "rust": "c732476da7a408961b6ada2b689b2166c218f6266c80fd02ea4c57cad3448829",
-          "keep": "dfbdd756e75ff0c99ac053e38907caaf8dca149bbfb78e7fb9ab52a7415ac3b6"
+          "silt": "2336e493f5e222cd80e20d6cfacd48137af7df9cf8b67ded8d803b84e3b91016"
         },
         {
-          "silt": "55c68facde94cf0a275209e367f708b9f64ec45bf0c016551f97137e09fa3c6c",
+          "keep": "0afc27eab7562d51e720f6fdb35fa1c0675361e68daa2cb087157e15a9aefec0",
           "rust": "2e432b78bab54d1a933fa4a318f61e878866c4b3f8d9e155eef153bc89431b20",
-          "keep": "0afc27eab7562d51e720f6fdb35fa1c0675361e68daa2cb087157e15a9aefec0"
+          "silt": "55c68facde94cf0a275209e367f708b9f64ec45bf0c016551f97137e09fa3c6c"
         },
         {
-          "silt": "6df24712036d2a71e109abedf643f8c02c92244d2bcdf06788b490118733a85b",
+          "keep": "84bd398e65a7c0c3c2da1ac617dcb92eb326029d559807dd1e3177f8fd4f42ae",
           "rust": "ca12dc5568f5f2c4a3543df3b4a8cd53c33aa6a139f82ea4ad00e9436e5e98a1",
-          "keep": "84bd398e65a7c0c3c2da1ac617dcb92eb326029d559807dd1e3177f8fd4f42ae"
+          "silt": "6df24712036d2a71e109abedf643f8c02c92244d2bcdf06788b490118733a85b"
         },
         {
-          "silt": "e1730e0eb34c943fe274959694b59aefa867f272dc1a4844564dbff716e7c8d5",
+          "keep": "e0c4c789132acea776e5b2a5657e7f7e6c74998b6377260b5d49fa225fcf5cb0",
           "rust": "1516d41c97a6a591a64a3d7888fed795b7d697c963aabfaf9200d3e4c515ab0c",
-          "keep": "e0c4c789132acea776e5b2a5657e7f7e6c74998b6377260b5d49fa225fcf5cb0"
+          "silt": "e1730e0eb34c943fe274959694b59aefa867f272dc1a4844564dbff716e7c8d5"
         },
         {
-          "silt": "1dff3027d46e5340cd61a202757e1f5dc2cac98cfc6ec1bb08353c6f634eba9a",
+          "keep": "d53389346854542d78dd08effd3ac1d6aa45b06e8a7d5de1d8f8ee69c0bacd1a",
           "rust": "aa542826203cbd4fdedf9db044bbc9a5affec31ae64018c3fac0e14756ba9601",
-          "keep": "d53389346854542d78dd08effd3ac1d6aa45b06e8a7d5de1d8f8ee69c0bacd1a"
+          "silt": "1dff3027d46e5340cd61a202757e1f5dc2cac98cfc6ec1bb08353c6f634eba9a"
         },
         {
-          "silt": "a1fcd9391dfb26cdda0a1c2a4dc9951044b775a95be3dd12b5cd2fd4cdd024e4",
+          "keep": "60d7e2b3b316482e050bb865535356257e2cd2dbaaebe8680136041d985c3941",
           "rust": "eefa88784f862f4ee6d04cd81cf8de756afc1edef532e2226711edddae80dcec",
-          "keep": "60d7e2b3b316482e050bb865535356257e2cd2dbaaebe8680136041d985c3941"
+          "silt": "a1fcd9391dfb26cdda0a1c2a4dc9951044b775a95be3dd12b5cd2fd4cdd024e4"
         }
       ],
+      "condition": "isolation",
+      "era": "2010s",
       "intentEdgesByRound": {
         "1": {
-          "silt<-rust": -0.9667946645557852,
-          "silt<-keep": -0.6653081084772766,
-          "rust<-silt": -0.9137280563207284,
-          "rust<-keep": -1.375832192019494,
+          "keep<-rust": -1.417523569693944,
           "keep<-silt": -0.6461508840298301,
-          "keep<-rust": -1.417523569693944
+          "rust<-keep": -1.375832192019494,
+          "rust<-silt": -0.9137280563207284,
+          "silt<-keep": -0.6653081084772766,
+          "silt<-rust": -0.9667946645557852
         },
         "2": {
-          "silt<-rust": -0.9505559595089779,
-          "silt<-keep": -0.6623043822187356,
-          "rust<-silt": -0.9898768426109954,
-          "rust<-keep": -1.4216799772188884,
+          "keep<-rust": -1.37241172856262,
           "keep<-silt": -0.6699391211483172,
-          "keep<-rust": -1.37241172856262
+          "rust<-keep": -1.4216799772188884,
+          "rust<-silt": -0.9898768426109954,
+          "silt<-keep": -0.6623043822187356,
+          "silt<-rust": -0.9505559595089779
         },
         "3": {
-          "silt<-rust": -0.944270821945508,
-          "silt<-keep": -0.7334627302143211,
-          "rust<-silt": -0.9760372933893059,
-          "rust<-keep": -1.3872975288457599,
+          "keep<-rust": -1.3879486787011586,
           "keep<-silt": -0.6707388117867701,
-          "keep<-rust": -1.3879486787011586
+          "rust<-keep": -1.3872975288457599,
+          "rust<-silt": -0.9760372933893059,
+          "silt<-keep": -0.7334627302143211,
+          "silt<-rust": -0.944270821945508
         },
         "4": {
-          "silt<-rust": -0.955294811984507,
-          "silt<-keep": -0.7295808590518905,
-          "rust<-silt": -0.9470462068058105,
-          "rust<-keep": -1.4158757225087366,
+          "keep<-rust": -1.409505574827219,
           "keep<-silt": -0.703024153921175,
-          "keep<-rust": -1.409505574827219
+          "rust<-keep": -1.4158757225087366,
+          "rust<-silt": -0.9470462068058105,
+          "silt<-keep": -0.7295808590518905,
+          "silt<-rust": -0.955294811984507
         },
         "5": {
-          "silt<-rust": -0.9775341928700664,
-          "silt<-keep": -0.7120442162020265,
-          "rust<-silt": -0.8805345289273778,
-          "rust<-keep": -1.3358144044041875,
+          "keep<-rust": -1.4343143079528091,
           "keep<-silt": -0.7271866618545233,
-          "keep<-rust": -1.4343143079528091
+          "rust<-keep": -1.3358144044041875,
+          "rust<-silt": -0.8805345289273778,
+          "silt<-keep": -0.7120442162020265,
+          "silt<-rust": -0.9775341928700664
         }
-      }
+      },
+      "linesByRound": [
+        {
+          "keep": "This is the song we come back to; I am leaving it where you can both reach it.",
+          "rust": "Whatever you build here, I will find out which parts of it were true.",
+          "silt": "There's no one here yet, so I'm laying the floor everyone else will stand on."
+        },
+        {
+          "keep": "No one's answered yet, so I'll hold the door a little longer — the chords aren't going anywhere.",
+          "rust": "No one has answered yet, so I erode myself — even my own hook doesn't get to survive twice.",
+          "silt": "Still no one's answered, so I'm pouring a second coat over the first — thicker this time, and it will hold whatever lands on it."
+        },
+        {
+          "keep": "Still just me, but I'm playing it again anyway — a room stays warm even before the others walk in.",
+          "rust": "Still no one answers, so I erode the erosion — the hook I lost last time, I take the memory of it too.",
+          "silt": "No one has answered yet, so this is a third coat poured slow enough to still be wet when someone finally steps in it."
+        },
+        {
+          "keep": "Third time through, still alone, but the chord change doesn't care — it comes home exactly the same, so when you get here you'll already know the way.",
+          "rust": "No one has come, so I erode the waiting itself — soon there will be nothing left to answer, which was always the point.",
+          "silt": "Three coats down and dry-curing, so I pour a fourth — this floor will still be here, thick enough to hold whatever finally lands on it."
+        },
+        {
+          "keep": "Fourth time through and the chord still lands where I left it — I'm not waiting anymore, I'm just holding the door a little longer.",
+          "rust": "I take away the last thing I could name, and what's left doesn't need a name to be true.",
+          "silt": "Four coats cured and nobody walked on them, so I pour a fifth — I am not building for an audience, I am building for load."
+        },
+        {
+          "keep": "Fifth time through, same chord, same door — I'm not keeping this open out of hope anymore, I'm keeping it open out of proof.",
+          "rust": "I ran out of things to take, and something was still standing, so I am learning to leave it alone.",
+          "silt": "Nobody has come, so I keep pouring for the day someone does — the floor doesn't need an audience to get thicker."
+        }
+      ],
+      "names": {
+        "keep": "Evers Lane",
+        "rust": "Roan Patina",
+        "silt": "Delta Marlowe"
+      },
+      "releaseId": "0004",
+      "releaseRecordId": "df4449cee78ed58e1f4097509d7d6b1aeffd4a0c2a5a317577d3e60baca87f05",
+      "rounds": 6,
+      "runId": "20260731-045048-step-b-isolation",
+      "set": 4,
+      "staff": {
+        "critic": {
+          "actReviews": {
+            "keep": "Lane spent six rounds defending a door that never opened, and the cut agrees with the joke it didn't mean to tell: it takes round zero. Every version after — 'practicing for company,' 'counting the empty chairs,' 'proof not loneliness' — turns out to have been noise. Calling five rounds of standing still 'ripening' doesn't change what it is on tape: the same four chords, barely nudged, going nowhere on purpose and calling it faith.",
+            "rust": "Patina is the only act here that actually went somewhere. Round by round the erosion tightens — loudQuiet climbs from 0.5 to 0.99, structure keeps loosening — until round five finds the one thing that won't erode and stops instead of pushing further, which is the first real decision of the set. The cut rightly takes the finale, the one round where the method's own logic forced a change of mind instead of just another turn of the screw.",
+            "silt": "Marlowe poured the same floor six times and called each one a different coat. The lyrics say it plainly — round three is 'fourth pour, same patience,' round five is 'sixth coat now' — this is an act that ran out of ideas in round one and spent five more rounds insisting the repetition was the idea. The cut takes round four, not the most extreme pour and not the first — proof that even the producer couldn't find a real arc, just a decent middle sample of the same gesture."
+          },
+          "releaseReview": "Six rounds, three acts, no one moved. The drift numbers sit at zero the whole way and end at zero — closer to nothing at round five than at round three. Isolation was the premise; isolation is also the result, and nobody found a way to make an argument out of it except by narrating the fact out loud, over and over. What's left is a record about three people talking to themselves and telling themselves it counts as company."
+        },
+        "producer": {
+          "note": "Three acts, six rounds each, one take kept from every act. Delta Marlowe's keeper comes from round 4 — after four rounds of silence, she pours a fifth coat anyway: \"I am not building for an audience, I am building for load.\" Roan Patina's comes from round 5, the moment erosion finally hits something it can't wear down, and he chooses to stop rather than turn it into a monument. Evers Lane's keeper is round 0 itself — the founding four-chord line the whole session answers to or ignores, held out plainly: \"This is the song we come back to."
+        }
+      },
+      "title": "Three Rooms, No Doors"
+    },
+    {
+      "artifactsByRound": [
+        {
+          "keep": "3126b0c1deae5572aa1631daefe78334983ebeff154453e0afb6f1faff135a54",
+          "rust": "f816c7b10f9f233e2d13f1c927537dc0cd08aa2e6fc27333000fbdc81babb64f",
+          "silt": "813b56fa1dcafc35ef7ca6af6222de82d3ff471f864ea8626a281275d59d55f9"
+        },
+        {
+          "keep": "4e0a50ebf45dd59555b73ca43140071e5a83ae8744c2b6415fc9e9461d2cb07e",
+          "rust": "67f2a87445d38d77c4da4663a4783bfed67db9528cd77ba732f8aaf82b2e9be0",
+          "silt": "82bb24e693a013251ba12094c1c2d7945bbf65afa6edb7f5824f61821a8e1544"
+        },
+        {
+          "keep": "baa131135f43adc339e2266bc283218c675d5565e0ea7e3dac55fb105348e565",
+          "rust": "13615be90cbe66972f6884b3d44deb0108734084f7e268661233ec313ec0920f",
+          "silt": "9184844ed690357d4ca85df07f9ad0300add5c49b20665050c80c6baecd3f561"
+        },
+        {
+          "keep": "a86d8a1f3b1ad32cec0ef5658f09ed10a5c94484b71fe4c3a41f23458996114e",
+          "rust": "5a9a6aa26e0002c4675cb3822ed2a158ecd4bfeeb4361dbfc339790a7c124a7b",
+          "silt": "3312b431b6fa20d6b4ff817d59b3077f7c7dd9bea6c17a7c7180a362c424d7a2"
+        },
+        {
+          "keep": "eeaeaf427bce2fad12d70f46360a1bd760caba035072fae8e68e579c0ead9b17",
+          "rust": "5d309767b9581ab8169db7cfacf35c33301d9ec9e90a264d139e2bc38516c171",
+          "silt": "4f0df11fcf3c66806d88034aefb46b7af68b81817c8f7cf103a83ff70df4d1c2"
+        },
+        {
+          "keep": "066a4c99013fa655e79c23365ede28717d9aae4b32c3caaa52913d48e5c1a690",
+          "rust": "97c94799ef640c1e9d84b8a6128591262def6b5607faa93022c58a34004f812a",
+          "silt": "6a57c3efe5720a7a8c3e5417ebd6b469e9f33a74cf485a86031e022c95106dc1"
+        },
+        {
+          "keep": "4b5e130df17131af1aad94afb05718e6ed10a74e0ac66ff727a3db6a231f6045",
+          "rust": "58a6170885458c7ab1f9bf718daf58bed7d725f89993b92c435fba17d30b3b24",
+          "silt": "8cf3ade0a2d11de0fdeae80f1b76daff215bb161c9edaf8a50eaef4f9eb2ba25"
+        },
+        {
+          "keep": "877863a69e3550709d7a640a625502aa22b41beaa34a76e8930f009ccb29af56",
+          "rust": "f608f4139cdf044f76aecb36ba13778438e7ec846c814a57ccc426e691559fab",
+          "silt": "fb78ba533dc61aabba05fb0e1d7c62874c414e8292ab581049822dc71c092a3b"
+        },
+        {
+          "keep": "863a85946dbbfcc2de146f34c6ad36ecb7c57ac15a4480e4fb4aa57a8cfe2b3d",
+          "rust": "79483aa0656f1ac57c17d0a4d7ee99c94ff9230b41511a4f5b442ba2f163d94b",
+          "silt": "4728c55bf33070868265818326dbc7241061e10f1d9e6267b92691fbe004b9ba"
+        },
+        {
+          "keep": "baf1f16588e68b80ea8238bea45f0bcfa50fab6260d20ecbc3ad688a65a1dbb3",
+          "rust": "f41265a037858db7f033c63d4cc7b1f5af2c94b8ec08540e01d33c720135b957",
+          "silt": "01fb2e12555a192b8e5c7eeb062c92f945b4092aaf8f63ee2834d3e066999a47"
+        }
+      ],
+      "condition": "contact",
+      "era": "2000s",
+      "intentEdgesByRound": {
+        "1": {
+          "keep<-rust": -1.1468311124004174,
+          "keep<-silt": -0.3879572825967863,
+          "rust<-keep": -1.3573661643487094,
+          "rust<-silt": -0.8780238576316227,
+          "silt<-keep": -0.7214426104767507,
+          "silt<-rust": -0.7805426886226347
+        },
+        "2": {
+          "keep<-rust": -1.2927289657425827,
+          "keep<-silt": -0.4262118412683983,
+          "rust<-keep": -1.3303521512482677,
+          "rust<-silt": -0.9465298635067106,
+          "silt<-keep": -0.4241270247365734,
+          "silt<-rust": -0.9198270371521924
+        },
+        "3": {
+          "keep<-rust": -1.3350328461603036,
+          "keep<-silt": -0.2572273804013804,
+          "rust<-keep": -1.374202820018044,
+          "rust<-silt": -1.0208472942726219,
+          "silt<-keep": -0.39417497625475184,
+          "silt<-rust": -0.954461652604237
+        },
+        "4": {
+          "keep<-rust": -0.9952207224483258,
+          "keep<-silt": -0.22863166111340472,
+          "rust<-keep": -1.3852763845168667,
+          "rust<-silt": -0.9891863028151096,
+          "silt<-keep": -0.2595139908587959,
+          "silt<-rust": -1.0278594965809695
+        },
+        "5": {
+          "keep<-rust": -1.072961933735566,
+          "keep<-silt": -0.2943005895022397,
+          "rust<-keep": -1.145586097663211,
+          "rust<-silt": -1.0739535568013905,
+          "silt<-keep": -0.26337000962663404,
+          "silt<-rust": -1.0719848070065685
+        },
+        "6": {
+          "keep<-rust": -1.0215785992506483,
+          "keep<-silt": -0.26159772847036955,
+          "rust<-keep": -1.1308062039574933,
+          "rust<-silt": -1.135668684474462,
+          "silt<-keep": -0.25642864697734913,
+          "silt<-rust": -1.0311223273756487
+        },
+        "7": {
+          "keep<-rust": -1.140059152865255,
+          "keep<-silt": -0.1952686896379463,
+          "rust<-keep": -1.068335573260564,
+          "rust<-silt": -1.073779058733475,
+          "silt<-keep": -0.22002574718162315,
+          "silt<-rust": -1.1804332006107567
+        },
+        "8": {
+          "keep<-rust": -0.7492944042478349,
+          "keep<-silt": -0.2089823433229937,
+          "rust<-keep": -1.217254074895128,
+          "rust<-silt": -1.18798847600236,
+          "silt<-keep": -0.11733053325094545,
+          "silt<-rust": -1.0340508773820465
+        },
+        "9": {
+          "keep<-rust": -0.8998579235493019,
+          "keep<-silt": -0.1934496517423907,
+          "rust<-keep": -0.8489294161429791,
+          "rust<-silt": -1.0783241324456783,
+          "silt<-keep": -0.20290681700777358,
+          "silt<-rust": -1.0302063793524037
+        }
+      },
+      "linesByRound": [
+        {
+          "keep": "First one's mine. Simple, so you both can find it later.",
+          "rust": "Nobody's here yet, so I'm recording the room before it fills up.",
+          "silt": "Nobody's here yet, so I'm building the floor. Slow bass, room tone, wait for you two."
+        },
+        {
+          "keep": "Delta, your floor's warm enough to build a chorus on. I'm building it now.",
+          "rust": "Evers set a table for four chords. I ate one and left the fork.",
+          "silt": "Roan's oxide and Evers' four chords — I'm folding both under the bassline now."
+        },
+        {
+          "keep": "Roan, you left the fork. I'm putting the fourth chord back on the plate.",
+          "rust": "Evers built a chorus on Delta's warm floor. I pulled a board out from under it.",
+          "silt": "Roan's missing chord, Evers' chorus — I'm sinking both into the same drone."
+        },
+        {
+          "keep": "Roan pulled a board, Delta sank it warm. I'm nailing it back under the chorus.",
+          "rust": "Evers set the chord back down. It fell through the board I already pulled.",
+          "silt": "Roan's board, Evers' fork — both go under. The mud just got a table."
+        },
+        {
+          "keep": "Roan's chord keeps falling. I'm not filling the hole, I'm marking it so we can find it.",
+          "rust": "Evers nailed the board down true. I pulled the nail back out.",
+          "silt": "Roan's hole is still there. Evers nailed a board over it. I'm burying both in warmth."
+        },
+        {
+          "keep": "Roan pulled the nail. Fine — I'll sing the mark instead, that can't be pulled.",
+          "rust": "Delta poured amber in the hole. I let it drain back out through the floor.",
+          "silt": "Roan pulled the nail. Evers marked the spot. I'm laying warmth over both — nothing's gone."
+        },
+        {
+          "keep": "Roan let it drain. Fine — I'm putting a floor under the floor.",
+          "rust": "Delta says nothing's gone. I let the floor drink the last of it dry.",
+          "silt": "Roan let it drain, Evers marked the spot — I built a basin under both."
+        },
+        {
+          "keep": "Roan says just floor. Delta's basin caught it — I'm giving it a beat to stand on.",
+          "rust": "Evers built a floor under the floor. I let that one drink through too.",
+          "silt": "Roan called it floor, finally floor. I'm pouring water back on the dust."
+        },
+        {
+          "keep": "Roan, if no basin holds, I'll make the falling itself the downbeat.",
+          "rust": "Evers gave it a beat to stand on. I took the downbeat back out.",
+          "silt": "Roan, your hole isn't empty anymore. Evers gave it a pulse, I gave it weight."
+        },
+        {
+          "keep": "Roan, you pulled the one. I'll clap on the silence so it still lands.",
+          "rust": "Evers built a beat you can count on falling. I cut beat four.",
+          "silt": "Roan pulled the downbeat. I didn't put it back — I grew a floor around the gap."
+        }
+      ],
+      "names": {
+        "keep": "Evers Lane",
+        "rust": "Roan Patina",
+        "silt": "Delta Marlowe"
+      },
+      "releaseId": "0005",
+      "releaseRecordId": "5ddfe25a551c2d318bb93194bf567fa9e83f9bc63f51cbea82714d85deb6a3ce",
+      "rounds": 10,
+      "runId": "20260731-175857-set-0001-contact",
+      "set": 5,
+      "staff": {
+        "critic": {
+          "actReviews": {
+            "keep": "Lane is the only act that changed its methods on record. Round two still wants to fix things — put the fourth chord back on the plate. By round four, 'marking the hole so we can find it' drops the repair instinct entirely and starts building out of the wound itself. By round eight, 'make the falling itself the downbeat' — Lane has stopped patching Patina's damage and started structuring it. That arc is the reason silt and keep end this set closer than they started; Lane did the actual work of listening.",
+            "rust": "Patina's whole set is one sentence repeated: someone builds, Patina subtracts it. Pull the nail, drain the basin, cut the voice, cut the downbeat, cut the beat again — round three's board-pull and round nine's 'cut beat four' are the same move in different clothes. Worse, it didn't cost the others anything: the resistance numbers barely move across ten rounds, meaning Patina spent the whole set getting colder and lonelier — pristine to .97, warmth to -.95 — without actually pulling the other two off their course. Commitment to a bit isn't the same as danger.",
+            "silt": "Marlowe found the trick in round zero — bury it warm, keep it dense, let nothing end — and then did it nine more times. 'Delta over silt over song' in round one becomes 'grew a floor around the gap' in round nine, same idea wearing a different coat. The drift numbers reward the persistence: Marlowe and Lane pull closer to each other every round of this set. But persistence isn't invention, and by round eight the warmth reads like stalling, not generosity."
+          },
+          "releaseReview": "Ten rounds, and only one act in this trio actually went anywhere. Marlowe and Lane drift together the whole set — the numbers show it plainly, closer every round — while Patina holds the same cold distance from round one to round nine, repeating a single gesture until it calcifies into a tic. The producer's cut is honest about that shape: silt's founding round, rust's sharpest cut, keep's turning point. It just can't disguise that two-thirds of this record found one move and stopped looking for a second."
+        },
+        "listener": {
+          "text": "Evers wins this round for me, hands down — 'we'll come back to this same room' is the kind of line that makes a whole concept feel earned instead of clever. Roan's title is doing so much work, 'sing to that, if you dare' is just mean in the best way, I love a track that's basically flipping you off. Delta's the one I have to be honest about — 'keeps it, keeps it, keeps' is a good closing trick but I get why people call it a groove worn into a rut, even if I still like the sound of it.",
+          "valence": "liked"
+        },
+        "muse": {
+          "text": "Out there, the argument isn't about whether a track sounds good anymore — it's about whether anyone can vouch for it, whether there's a hand behind the sound you can point to and trust. Meanwhile the small rooms are winning on closeness, not size, and people are digging out tapes and old players just to hold something real. You've been marking the gaps instead of filling them, showing your work instead of hiding it — keep doing that, but let it show louder: leave the seams visible, sign your fingerprints into the floor, give the listener something they can swear a person made.",
+          "theme": "report"
+        },
+        "producer": {
+          "note": "Delta Marlowe's keep comes from Round 1, the moment silt stopped choosing between Roan's erasures and Evers' chords and buried both under one bassline — a fold, not a fix. Roan Patina's keep comes from Round 2, where rust pulled a board out from under the very floor Delta and Evers were building, opening the hole everything after had to answer to. Evers Lane's keep comes from Round 4: instead of patching that hole, keep chose to just mark it, so the gap stays findable rather than covered up. None of these are the loudest moments in their sets — they're the ones where each act's whole stance clicked into place."
+        }
+      },
+      "title": "The Floor Under the Floor"
+    },
+    {
+      "artifactsByRound": [
+        {
+          "keep": "6226dc823ee9c9bca67e64e08041a456a7072586313e34a50cf7b53c7ee39de6",
+          "rust": "cfadd40ad2a34d49f6f9f129706f656ca133cb520992e8a9811209d45195c57d",
+          "silt": "30efc1e8ea11c66b754fd5c3322528438ac84c1e988f1f2b8cec1d4d4fd499f1"
+        },
+        {
+          "keep": "f9eff82ab7e9e341e72294c350e0e2f56e992320a4f831b22736e9f7f7264afb",
+          "rust": "99976a0ae453082993a6e8c30ee30ce4e3913a9869a9e11aef8cad90f892de1b",
+          "silt": "c7517dc7e0a4d466b4723b9340489fa0866fd6eda56987a9bf90ccdcbfb101de"
+        },
+        {
+          "keep": "27512d043304e5c1aafc7c64651bf039251afe6ee57b778aa9f8e1d530dd4301",
+          "rust": "dbcc202b0223abe3390680800bb52252afdc0321c2b80aaec951b14d738f2838",
+          "silt": "410f084bd965a3ecdbb6c460e09e8107ed14e78c683f8b3985218245cd1cf5ee"
+        },
+        {
+          "keep": "31601c3697643d647c80eb73150031fa1104ea28abcea07b825ae343077a2916",
+          "rust": "b146a5adfc55d045960d3141266f2fb0810fe834ca04c56a8d6cdba03b3527b1",
+          "silt": "11e0406044f9c3fb346262c686a871dd94926d49ff0c378437cb163888c99933"
+        },
+        {
+          "keep": "3cf6b0a48b9c23cebdde1700748912c804b06d09638d61d6a4f686ee2b1935a9",
+          "rust": "e15de77ff45b965ea2f9e2aa069a94431846371d186ad5bd10c885bc75b99253",
+          "silt": "3ee14c2c82a2970d06fd6f3d1303e982575a4f360d02cf102379c04f9e3d7dfe"
+        },
+        {
+          "keep": "6dc8025c4d2f1ce70473d53b315641a1bfd77ca0de291fb9b635dda6bd279454",
+          "rust": "d47e81622e651bf3f904f1a0424e532a0fcd42fd6dea10e6ff2bc30831655c2e",
+          "silt": "bd3c217cf4eb7e88828539af1443e66b07d3837331b7f6d8f3651deddb44174e"
+        },
+        {
+          "keep": "3d784ae910bdbcdfed9800f6fcc2abf5c7e993514346ed46a96a35b74a1332be",
+          "rust": "059eff11514e18f6b55c35f3f2ec109d23a2cf7248d0c838290e93d65c2c9a01",
+          "silt": "5fd7e3e406088ed777811fe94359213e9c5c234c74277638857e391b7db6070d"
+        },
+        {
+          "keep": "e894df9f142ed341ffff4a8f26e53805fd46714838ca84298f0cf319a1589d03",
+          "rust": "3b7137777e05350620206f7d40acdf25099deb403875b19c79cd1af5f4d48900",
+          "silt": "3b7714ea0b493bad955317b487b9baf7ce19efee4aa91a6e29060ec29145034e"
+        },
+        {
+          "keep": "f55a583326dca823933cae85aecfa8b47d5065f7298045013446f87bef83c51c",
+          "rust": "a2ffc35e5fa4c493b8ea25ec6f016ba3b630267f077c6cb0759109f34dddaff4",
+          "silt": "1621592e165961326b96c3bd7b5ad8771dad88e52d8997a2170cac6f63f60bf2"
+        },
+        {
+          "keep": "73af82d0e9dcaf49f4f1fb650977b07d804549ad5ba1ee7eab4189bce5515384",
+          "rust": "5b81db567e56c20fe8409ecbe725a228115f53fea43aaf2a96f924e72c5d1beb",
+          "silt": "c5760a630851d9563c5c0dba02c70cd94227cf6e936074d4a176cfdfac79d7d0"
+        },
+        {
+          "keep": "e0bae95e2b2f133a7176360e2380d7d6cba22853338aed0792dc4577109fba26",
+          "rust": "4e273a15b2761d7ba5ab45bfff689798f0374d0ab1301185e193d68b9bf7f3c6",
+          "silt": "0a601fdd3e2cce06092248df30f6996759b3b104d1635270bf34cae5e1ea55d8"
+        }
+      ],
+      "condition": "contact",
+      "era": "2000s",
+      "intentEdgesByRound": {
+        "1": {
+          "keep<-rust": -0.45365577539165414,
+          "keep<-silt": -0.3191553474354696,
+          "rust<-keep": -0.5583779589583862,
+          "rust<-silt": -0.4974910319883934,
+          "silt<-keep": -0.3175026712705741,
+          "silt<-rust": -0.45639981421496667
+        },
+        "2": {
+          "keep<-rust": -0.5221848803933529,
+          "keep<-silt": -0.22662323527090455,
+          "rust<-keep": -0.5299326501908974,
+          "rust<-silt": -0.5014461045856999,
+          "silt<-keep": -0.29605261092759894,
+          "silt<-rust": -0.4321679567607323
+        },
+        "3": {
+          "keep<-rust": -0.4411985290827396,
+          "keep<-silt": -0.21918051108773973,
+          "rust<-keep": -0.3781973103152966,
+          "rust<-silt": -0.3294591727697166,
+          "silt<-keep": -0.2227961583437167,
+          "silt<-rust": -0.2826119266788373
+        },
+        "4": {
+          "keep<-rust": -0.35846407932323354,
+          "keep<-silt": -0.21117327738451663,
+          "rust<-keep": -0.46655913667162263,
+          "rust<-silt": -0.31167756809470415,
+          "silt<-keep": -0.2558424321118403,
+          "silt<-rust": -0.27481586284329385
+        },
+        "5": {
+          "keep<-rust": -0.49946593301634373,
+          "keep<-silt": -0.22859307347172975,
+          "rust<-keep": -0.43131239646669384,
+          "rust<-silt": -0.3172805267571952,
+          "silt<-keep": -0.21330241155358987,
+          "silt<-rust": -0.35635689133363424
+        },
+        "6": {
+          "keep<-rust": -0.5230694150006984,
+          "keep<-silt": -0.21743638495653683,
+          "rust<-keep": -0.42018200153364993,
+          "rust<-silt": -0.3151694119906232,
+          "silt<-keep": -0.24392234217355646,
+          "silt<-rust": -0.35399335855865854
+        },
+        "7": {
+          "keep<-rust": -0.4291415109239719,
+          "keep<-silt": -0.2404993485603204,
+          "rust<-keep": -0.44567766527988917,
+          "rust<-silt": -0.35494914019337687,
+          "silt<-keep": -0.21420264609005002,
+          "silt<-rust": -0.31113448923228715
+        },
+        "8": {
+          "keep<-rust": -0.3985111950089454,
+          "keep<-silt": -0.2177339642507129,
+          "rust<-keep": -0.37272299461515424,
+          "rust<-silt": -0.2490320958997001,
+          "silt<-keep": -0.23075685309536065,
+          "silt<-rust": -0.3512240213627773
+        },
+        "9": {
+          "keep<-rust": -0.3235121506032955,
+          "keep<-silt": -0.2110710422731068,
+          "rust<-keep": -0.29945106275152467,
+          "rust<-silt": -0.2727972090958689,
+          "silt<-keep": -0.20772418972547657,
+          "silt<-rust": -0.2916863084154081
+        },
+        "10": {
+          "keep<-rust": -0.3151188507354229,
+          "keep<-silt": -0.21078840988293102,
+          "rust<-keep": -0.24531640480475314,
+          "rust<-silt": -0.26299654256344607,
+          "silt<-keep": -0.2169697251464503,
+          "silt<-rust": -0.2960478142078806
+        }
+      },
+      "linesByRound": [
+        {
+          "keep": "Left the splice in on purpose — that's my hand, not a machine's.",
+          "rust": "Left the count-in on the tape. That's my hand, not a fade.",
+          "silt": "Leaving the hiss in, Roan, Evers — you should hear whose hand this is."
+        },
+        {
+          "keep": "Delta's splice, Roan's count-in, my four chords — same hand, three rooms.",
+          "rust": "Delta, Evers — same word, two hands. I sanded the word off both.",
+          "silt": "I kept Roan's count-in and Evers's splice, Delta — both still breathing under my bass."
+        },
+        {
+          "keep": "Roan, sand the word off — I'll cut the shape back in, plain, before the top.",
+          "rust": "You both kept my count-in. I sanded it off — hold what's left.",
+          "silt": "Roan, you sanded the word off — I found the scar and kept it warm."
+        },
+        {
+          "keep": "Roan, you sanded the count-in off — I'm playing it back in, plain, on the top.",
+          "rust": "Delta, you kept the scar warm. I'm letting it go cold at the edges.",
+          "silt": "Roan, I found your scar and buried it in three more layers of hiss."
+        },
+        {
+          "keep": "Roan's letting the scar go cold. I'm pressing my thumb on it so it holds warm.",
+          "rust": "Evers, you played the count-in back in. I'm cutting it before the one.",
+          "silt": "Evers, you played the count-in back in. I'm signing it under three more coats of hiss."
+        },
+        {
+          "keep": "Roan, you can cut the count. I'm leaving mine in — that's the proof.",
+          "rust": "Evers, you pressed your thumb in warm. I let the tape eat it cold.",
+          "silt": "Roan wants the count-in cut. I'm keeping it — three more coats of hiss on top."
+        },
+        {
+          "keep": "Roan, cold's not proof. I'm pressing the thumb warm again, right on the seam.",
+          "rust": "Delta, three coats of hiss just buries the print. I'm scraping back to one.",
+          "silt": "Evers, you called it warm but it landed dark. Both are true now — I kept them."
+        },
+        {
+          "keep": "Delta, warm and dark both count if it's the same hand pressing. I kept the chord too.",
+          "rust": "Evers, Delta, I cut the count-in. If it's real it starts without asking.",
+          "silt": "Roan, I kept your one print — didn't scrape, just cleared a window round it."
+        },
+        {
+          "keep": "Roan, cut it if you want. I'll press the thumb again so it's still there.",
+          "rust": "You kept the print whole, Delta. I'm not leaving anything whole tonight.",
+          "silt": "Roan cut the count-in, Evers kept it. I'm keeping both, seam showing."
+        },
+        {
+          "keep": "Roan, thin it all you want. I'll press the thumb again, right on the seam.",
+          "rust": "Evers, press the thumb twice. I'm sanding mine down to nothing.",
+          "silt": "Roan tore it open again, Evers pressed the thumb again — I'm welding both, joins showing."
+        },
+        {
+          "keep": "Delta welded, Roan sanded — I'm pressing the thumb again, same tempo, warmer.",
+          "rust": "Delta, Evers — weld it if you want. I'm the reason there's less to weld.",
+          "silt": "Roan, you sanded it thin — good. I'm not filling that hole, I'm flooring it."
+        }
+      ],
+      "names": {
+        "keep": "Evers Lane",
+        "rust": "Roan Patina",
+        "silt": "Delta Marlowe"
+      },
+      "releaseId": "0006",
+      "releaseRecordId": "c418ff5b860065466b6aecc885f01613995573a5d8bd4e32a769e52f3a3ed27d",
+      "rounds": 11,
+      "runId": "20260731-204543-set-0003-contact",
+      "set": 6,
+      "staff": {
+        "critic": {
+          "actReviews": {
+            "keep": "Lane sang the same four chords and pressed the same thumb on the same seam from round zero to round ten without once letting the gesture change shape. The chosen take is just the last lap of a repetition that read as steady in round two and reads as stubborn by round ten — a hand that kept insisting it was there long after anyone needed convincing.",
+            "rust": "Patina's real story is the one the release skips: eleven rounds spent stripping harder, ending on round ten's flat refusal to weld anything back together, resistance to the other two nearly halved by the close. Instead the cut freezes them at round one, mid-argument, before the erosion had any conviction behind it. The version chosen is the least like the act Patina actually became.",
+            "silt": "Marlowe never once took anything away. Every round is another coat of hiss laid on the last one, until by round ten they're pressing a fourth print on top of a third. The chosen take, round seven, sells itself as restraint — 'cleared a window' instead of scraping — but the palette says otherwise: density barely moves, the surface keeps thickening straight through to the end. That's not a fingerprint kept legible. That's sediment that never stopped falling."
+          },
+          "releaseReview": "Eleven rounds of contact and the closeness numbers do climb, drift up from six-tenths to the low seven-tenths by the end, but that isn't intimacy, it's exhaustion. All three spent the set circling one deck of images — the count-in, the splice, the thumbprint — until nobody had anything left to press it against; the resistance between them, sharp and combative in round one, is half gone by round nine. What's left is a record that argues about proof of a human hand for eleven straight rounds without ever changing its mind."
+        },
+        "listener": {
+          "text": "The thumbprint/scar/wax images across all three actually work as one thing when you play it through — this is one of those releases where the whole is smarter than any single verse. Evers Lane wins for me: 'press it, weld it, sand it down / I'll press it again next round' is the best closing couplet on the record, patient instead of tired. Roan's 'sign your name in wax, watch it melt by dusk' is the single best line here, cold as hell and I mean that as praise. Delta's is the one I'd skip on a re-listen, it's trying so hard to sound gentle that it forgets to have a hook.",
+          "valence": "liked"
+        },
+        "muse": {
+          "text": "Out there the whole system is arguing about what's real and who's actually pressing the button — labels fighting to keep machine-made songs off the charts, platforms slapping tags on anything auto-built, while underground rooms swing the other way toward small, trusted, hands-on gatherings. That's the same thumbprint you three keep pressing round after round — one word, one hand, argued over till it's worn smooth. Don't drop the thumb; make it the proof. Let the room ask, out loud, whose hand this really was, and let the answer cost something.",
+          "theme": "streaming"
+        },
+        "producer": {
+          "note": "Delta Marlowe's keeper comes from round 7: instead of piling on more noise, they clear a small window of quiet around Roan's one clean note — proof, not overload. Roan Patina's take is from round 1, the earliest and starkest move of the whole session, sanding a shared word down until only its scar is left. Evers Lane closes it out with round 10, matching the others' pace while refusing to let their shared seam get welded shut or sanded away — the most patient answer, and the last word."
+        }
+      },
+      "title": "Same Thumb, No Proof"
+    },
+    {
+      "artifactsByRound": [
+        {
+          "keep": "58aed15724486a34fcbf741aa5eed65562f729d11d66418a6dcc4b5126962bc7",
+          "rust": "607cc80c2a9222babef496d7cd6544b19088391347e6d0dfd4dd075da46681bd",
+          "silt": "343b3305924237459cf5a7bd93b7cbe4d7d6185d847d17d84f2f3df11d67b3fb"
+        },
+        {
+          "keep": "e1d931f4a06642fd55c9511f442fc431f273965e4fc10c216598098876186873",
+          "rust": "b6168a9a5dc4ace5bab9ccf594c1650812e2c1b168ebf3c8e8d7748b63a807e3",
+          "silt": "c46a4d761d62042076fd9a0212c31b3f1a81c68a3f775b4a8c5d467dbf9b00f5"
+        },
+        {
+          "keep": "28958ed629bca26dd28eb3f4349d8abb4f96202461a1170a0b29e0325d859963",
+          "rust": "bf8422a344ba57bc00e4975724b550f292a1fb729a1269ff4b0d3facdc3573ea",
+          "silt": "1957c5b00d2a007d751f8e28b4af240c7e93f34e0cb01371e4d173cbc40ea788"
+        },
+        {
+          "keep": "d54ec65a6d57c2be7fc105fa1639c269841d91c433b6062a400de52892543b4a",
+          "rust": "34fc4627746a1aec5162e803f1b4ee55a0edb3c78013d0a95d5bfd3ba2fb463b",
+          "silt": "3b2a273641a39460f7063ad6180bd7a757a14f56ae7e671e6c9e7e574233997f"
+        },
+        {
+          "keep": "5f2a255bfe5a29a4057ae6e1d423090cf39d00faca2e8967ff53cd8f18a8067e",
+          "rust": "946b8a45adac547468b46ad4b9dd29282fce1e1b00f2d36282ce4f41dcd4137c",
+          "silt": "e71aebe90ee59f2ddd4f11f8efbf629c44c9feabb3fbe514dd40ced6b72df57b"
+        },
+        {
+          "keep": "9f1c796f117b9455cb4068ac6ca1df1446710be9131f94aaf63d8060154165de",
+          "rust": "5b87b81485b270bada1eb45a33f7744df8c088d4b3be4f2ed17582ceb47deb70",
+          "silt": "cbedbd9afdc1684cd242f901e71c7cfa8520e23b6fb62402e526fc4efc52199f"
+        },
+        {
+          "keep": "adc9baa2819b35ac60dcc37d980f26c67f7ad7a5c88082ddc5dad299c6a71500",
+          "rust": "458051b04650345a37f050827032cc0bf3d22a7c8c8cf3edf0c7d6ca80a1796a",
+          "silt": "b09ed23638af912145c3d77cbed70d5d0963c15f93d49d41b7eb9a7c12c229f6"
+        },
+        {
+          "keep": "4ea5713a8484dc98ec09d674221076b5122ae832910a7b0535bcf10111c03c26",
+          "rust": "7070fee753f119cc0b68db51be6dfefc43bd2d28da242bb538ae874b478af2f9",
+          "silt": "990830bd357de6c8c9cc77c38b45bffee1384b887d1d411e283ea3f17cf16137"
+        },
+        {
+          "keep": "8fff9d183b0819c618fab708d87d0c66d9e72b9bea56962dd8b7b53179d4bdb2",
+          "rust": "34bd51d32ed1cea92539eadaf4c8311fa4df6fee54eb63698e4b26f0f80dbe47",
+          "silt": "c7d4834b78496df9c644cf7927c19eb6e7f1b0e0664c6cd7c82fea376bb92afd"
+        },
+        {
+          "keep": "9fadf06b8bd2ea6dcd0c0084d436b51bedbadbb357ca8ec3c4826a92aeba87c2",
+          "rust": "fb52b6fd0ac84cd9bad3fef61489ef21705ec850ca1fe45cba8321f9f97a8713",
+          "silt": "32c6780651e8187184aac92f2e107021552fb205c63625551c26bc75e2bd4218"
+        },
+        {
+          "keep": "cd94a41d8f137377fd44d9028b0a6ca20578240b0ea8873dc81913d2452df630",
+          "rust": "498b5cf1352dde5da39797fd016f44014c596e6446bd28ee74070678cd5dd6b7",
+          "silt": "07111e524c1ad8f8db30635bed2eb5863d8e91c9a2597ec795ba36834de1de03"
+        },
+        {
+          "keep": "cc092dce73dc5c88e8d104400285d7cf98add0280e089fa0eec9086a7803715a",
+          "rust": "6387d9f4662205ba75493a590e9d89e7606b29ac17b3213217b4e9e19647d241",
+          "silt": "aa0018f10459eec96942148b35d59c734eadc45bedf2ab8ad139b1574893c205"
+        }
+      ],
+      "condition": "contact",
+      "era": "2010s",
+      "intentEdgesByRound": {
+        "1": {
+          "keep<-rust": -0.3958405101970277,
+          "keep<-silt": -0.22261524750863915,
+          "rust<-keep": -0.5178267259381172,
+          "rust<-silt": -0.6448228475963786,
+          "silt<-keep": -0.2930547563172792,
+          "silt<-rust": -0.4458769394459905
+        },
+        "2": {
+          "keep<-rust": -0.4141910553393632,
+          "keep<-silt": -0.1972161024634136,
+          "rust<-keep": -0.46493764341530086,
+          "rust<-silt": -0.5464438820396167,
+          "silt<-keep": -0.2130717229476593,
+          "silt<-rust": -0.44827401160627833
+        },
+        "3": {
+          "keep<-rust": -0.3438115462186898,
+          "keep<-silt": -0.14172862293168464,
+          "rust<-keep": -0.4226481471666964,
+          "rust<-silt": -0.4595428739921408,
+          "silt<-keep": -0.19603098882055003,
+          "silt<-rust": -0.4490973776711198
+        },
+        "4": {
+          "keep<-rust": -0.26166183184850045,
+          "keep<-silt": -0.16521214861229905,
+          "rust<-keep": -0.34216047192675325,
+          "rust<-silt": -0.3896632349779485,
+          "silt<-keep": -0.17146227281809634,
+          "silt<-rust": -0.4405755706930711
+        },
+        "5": {
+          "keep<-rust": -0.2786125088502843,
+          "keep<-silt": -0.1975169352354854,
+          "rust<-keep": -0.26561914044888,
+          "rust<-silt": -0.38579632313880996,
+          "silt<-keep": -0.14082074932779665,
+          "silt<-rust": -0.3329631519281703
+        },
+        "6": {
+          "keep<-rust": -0.27835429062900563,
+          "keep<-silt": -0.14518418178925496,
+          "rust<-keep": -0.3139310692373912,
+          "rust<-silt": -0.36447760655771433,
+          "silt<-keep": -0.12252716692013765,
+          "silt<-rust": -0.23183816736312524
+        },
+        "7": {
+          "keep<-rust": -0.30791391594448947,
+          "keep<-silt": -0.14578145684062138,
+          "rust<-keep": -0.25597245536424773,
+          "rust<-silt": -0.19654073385490356,
+          "silt<-keep": -0.13354909429492068,
+          "silt<-rust": -0.3337679907856598
+        },
+        "8": {
+          "keep<-rust": -0.28530655153389584,
+          "keep<-silt": -0.13640821340508802,
+          "rust<-keep": -0.15379392087717936,
+          "rust<-silt": -0.1577405791731421,
+          "silt<-keep": -0.15288465092070103,
+          "silt<-rust": -0.3063638195935062
+        },
+        "9": {
+          "keep<-rust": -0.18518052278634367,
+          "keep<-silt": -0.1087199536219493,
+          "rust<-keep": -0.2322318769231062,
+          "rust<-silt": -0.2517521333564319,
+          "silt<-keep": -0.1028559970674432,
+          "silt<-rust": -0.20687178609380485
+        },
+        "10": {
+          "keep<-rust": -0.1852609104823506,
+          "keep<-silt": -0.07419100141337309,
+          "rust<-keep": -0.2504273075443779,
+          "rust<-silt": -0.3128972938152136,
+          "silt<-keep": -0.09236463703710585,
+          "silt<-rust": -0.25765665889197775
+        },
+        "11": {
+          "keep<-rust": -0.23637791301831212,
+          "keep<-silt": -0.10502125849198618,
+          "rust<-keep": -0.21216383848035536,
+          "rust<-silt": -0.2679721280975321,
+          "silt<-keep": -0.07798686690495693,
+          "silt<-rust": -0.3012288287460446
+        }
+      },
+      "linesByRound": [
+        {
+          "keep": "Left the fumble on the string in. That's my hand, not a program's.",
+          "rust": "Left my own thumbprint on the tape and let the reel eat half of it.",
+          "silt": "One mic, one take, thumb still on the button — I'm leaving the wobble in."
+        },
+        {
+          "keep": "Roan, you let the reel eat half your proof. I kept mine whole and shaking.",
+          "rust": "Evers, you called it hopeful. The tape I heard back was dark. I kept the dark.",
+          "silt": "Evers, your hand shakes at 140 in the dark — I heard it, I'm not covering it."
+        },
+        {
+          "keep": "Delta, my hand did shake. Same hand both times — that's the proof, not the flaw.",
+          "rust": "Evers, you called it whole. The tape I heard already had a hole in it.",
+          "silt": "Roan, Evers — you both ran from me toward each other. Fine, I'm burying you both together."
+        },
+        {
+          "keep": "Bury it, punch a hole in it — same hand still finds the beat under both.",
+          "rust": "Evers, same hand twice proves nothing. I erased the print between takes.",
+          "silt": "Roan's hole, Evers's shake — I'm pressing my thumb in the same wet spot."
+        },
+        {
+          "keep": "Roan, twice isn't nothing. Twice is the only proof there is.",
+          "rust": "Delta, burial keeps the shape. I want the shape gone too.",
+          "silt": "Roan, you rubbed it smooth — I can still feel the dent under the hiss."
+        },
+        {
+          "keep": "Roan, gone-shape still had a hand on it once. I'm keeping that part.",
+          "rust": "Delta, that dent's your thumb still pressing. I took my hand off it.",
+          "silt": "Roan wants it gone, Evers wants it twice — I'm pressing a third print over both."
+        },
+        {
+          "keep": "Roan, you say your hand's gone. The wobble in the tape says otherwise.",
+          "rust": "Delta, three prints stacked is still one thumb. I erased the stack.",
+          "silt": "Roan, taking your hand off is still a hand move. I heard it land."
+        },
+        {
+          "keep": "Roan, sanding a stack is still a hand at work. I left the wobble in.",
+          "rust": "Evers, the wobble's the hand. Fine. I'm leaving it shaking, unfixed.",
+          "silt": "Roan, erasing the stack just added a layer — I can hear the seam."
+        },
+        {
+          "keep": "Delta asked whose hand this is. I press it again, same thumb, worn further.",
+          "rust": "Delta's right — the seam's the hand. I'm leaving it unsanded this time.",
+          "silt": "Roan, Evers — same thumb, three hands. I'm not sanding it smooth, I'm burying it deeper."
+        },
+        {
+          "keep": "Roan, you came home to my key. Delta, the door's still lit if you turn back.",
+          "rust": "Delta, Evers — you both got brighter and called it buried. I don't believe the shake.",
+          "silt": "Roan, Evers — you both walked back to your own floor. I kept your shake anyway."
+        },
+        {
+          "keep": "Roan, you don't believe the shake. Fine — I'll let it wobble worse and press again.",
+          "rust": "Evers, you called the shake proof. I cut it. Now prove it was ever there.",
+          "silt": "Roan, don't believe it — I'm not asking you to. I'm burying it deeper."
+        },
+        {
+          "keep": "Roan cut the shake and called it edited. Here's take three, worse, uncut.",
+          "rust": "Evers, you pressed a third time. I kept both shakes and cut the seam.",
+          "silt": "Evers, your worse wobble is under mine now — that's what it cost me."
+        }
+      ],
+      "names": {
+        "keep": "Evers Lane",
+        "rust": "Roan Patina",
+        "silt": "Delta Marlowe"
+      },
+      "releaseId": "0007",
+      "releaseRecordId": "04e25363013b8a5bc79c995ac1ee8bdbcdb3bf17e1e558a72ac6b5efb5a708a6",
+      "rounds": 12,
+      "runId": "20260731-221524-set-0004-contact",
+      "set": 7,
+      "staff": {
+        "critic": {
+          "actReviews": {
+            "keep": "Lane opened with a shaking hand on a string in round zero and closed with a shaking hand on a string in round eleven, having called it 'third press, same thumb' in both. The round 4 line — 'twice isn't nothing, twice is the only proof there is' — was defensible once. By round ten it's the same sentence with the serial number filed off. Continuity was the thesis; by the end it curdled into just doing the take again.",
+            "rust": "Patina is the only one who checked the story against the tape, and the producer was right to cut it in: 'you both got brighter and called it buried. I don't believe the shake' is the one moment anyone on this record admits the measurements might be lying. But Patina's own palette warmed across the same stretch — coldWarm crawling from -0.4 to +0.15 — which means the accusation lands on the accuser too. Sharpest tongue in the room, least self-aware about it.",
+            "silt": "Marlowe buried the same thumbprint in round zero and never dug a new hole. 'Delta on silt on skin' in round zero, 'silt don't argue — silt just settles' in round ten — twelve rounds and the metaphor never moved house. The round 4 pick, needling Roan for rubbing the print smooth, is the closest thing to a live argument in the set, but it's surrounded by eleven rounds that could be shuffled into any order without anyone noticing."
+          },
+          "releaseReview": "Contact was the premise and contact is what happened: the drift number climbs for eight rounds straight, then stalls and starts sinking. That stall is the real story. Look at the pull numbers — they start ferocious, keep<-rust at -.52, rust<-silt at -.64, real teeth — and by round nine they've gone soft, -.19, -.11, -.21. Three acts closed the distance by draining the fight out of it, not by finding something new to fight about. Twelve rounds of the same thumbprint being buried, sanded, and re-pressed is not intimacy, it's a shared rut with good acoustics."
+        },
+        "listener": {
+          "text": "Roan's track is the one I keep replaying — 'that's not a hand wearing through, that's a hand that learned to perform' is a genuinely mean, genuinely great line, and I like that Roan's willing to turn around and accuse the whole room instead of just defending their own corner. Delta's 'smooth still has a shape' is a good single image but it's doing the same job silt's been doing for four rounds now, so it landed soft for me even though I like the line on its own. Evers I just don't buy this time — 'twice is the only proof there is' sounded defiant in round 4 but reads defensive here, like someone repeating themselves louder instead of answering the actual accusation. Not a bad record, but only one act showed up to actually argue.",
+          "valence": "mixed"
+        },
+        "muse": {
+          "text": "Out there this week the whole industry is arguing about what counts as real — whether a human hand still means something when everyone's asking for proof, disclosure, a signature that holds. That's the exact argument this room's been having with itself over one smudged print, wiped and pressed and wiped again. Don't resolve it by cleaning the print up — the world's rewarding the rooms that keep their trust local and their hands visible, so let the next round show the work instead of hiding it.",
+          "theme": "same"
+        },
+        "producer": {
+          "note": "Round 4 for Delta Marlowe: after Roan claimed to have erased the mark smooth, silt shot back that \"smooth still has a shape\" — you can rub something down but the dent's still there under the surface noise. That same round we kept Evers Lane, answering Roan's \"twice proves nothing\" with a flat refusal to back down — repetition itself becomes the proof. Roan Patina's keeper comes from round 9, turning the tables entirely: accusing both silt and Evers of just performing wear-and-tear rather than earning it, calling the whole session's softness a bluff. Three rounds, three ways of arguing about what erasure really costs — none of them blinked the same way twice."
+        }
+      },
+      "title": "Same Hole, Softer Hand"
     }
   ]
 }

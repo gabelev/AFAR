@@ -27,13 +27,18 @@ import {
   type Track,
 } from "./data";
 
-/** Fixtures are the zero-env data source; if they drift, every page drifts. */
+/** Fixtures are the zero-env data source; if they drift, every page drifts.
+ * They are a SNAPSHOT of Neon (scripts/export_fixtures.mjs), so these tests
+ * assert invariants of the data, not counts frozen at snapshot time. */
+
+const HOUSE_IDS: readonly string[] = [...PLAYER_IDS, ...STAFF_IDS];
+const houseAgents = fixtureAgents.filter((a) => HOUSE_IDS.includes(a.id));
 
 describe("agents fixture", () => {
-  it("contains exactly the eight stable public entity ids", () => {
-    expect(fixtureAgents.map((a) => a.id).sort()).toEqual(
-      [...PLAYER_IDS, ...STAFF_IDS].sort(),
-    );
+  it("contains all eight stable house ids, every id unique", () => {
+    const ids = fixtureAgents.map((a) => a.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const id of HOUSE_IDS) expect(ids).toContain(id);
   });
 
   it("gives every player a palette and every staff member none", () => {
@@ -46,8 +51,12 @@ describe("agents fixture", () => {
   it("gives every act a stage name over the stable id, and staff their title", () => {
     for (const agent of fixtureAgents) {
       expect(agent.displayName.length).toBeGreaterThan(0);
+    }
+    for (const agent of houseAgents) {
       if (agent.kind === "player") {
         // Stage name is display-only; the mineral sub-identity stays in `name`.
+        // (Imported acts arrived under their own working names, so some of
+        // theirs coincide with `name` or `id` — house acts never do.)
         expect(agent.displayName).not.toBe(agent.name);
         expect(agent.displayName).not.toBe(agent.id);
       } else {
@@ -122,20 +131,34 @@ describe("imported acts (the town)", () => {
   });
 
   it("keeps parsing rows without any of the new fields (house acts, staff)", () => {
-    for (const agent of fixtureAgents) {
+    for (const agent of houseAgents) {
       const parsed = AgentSchema.parse(agent);
       expect(parsed.resident).toBeUndefined();
       expect(parsed.coverUrl).toBeNull();
     }
   });
 
+  it("gives every imported act a resident block with an origin scene", () => {
+    const imports = fixtureAgents.filter((a) => !HOUSE_IDS.includes(a.id));
+    expect(imports.length).toBeGreaterThan(0);
+    for (const agent of imports) {
+      expect(agent.kind).toBe("player");
+      expect(agent.resident?.origin, `${agent.id} has no origin`).toBeTruthy();
+    }
+  });
+
   it("rosters every artist as ONE flat alphabetical list — no tiers, no staff", () => {
-    const withBuilding = AgentSchema.parse(importRow);
+    const fixturePlayers = fixtureAgents.filter((a) => a.kind === "player");
+    const withBuilding = AgentSchema.parse({
+      ...importRow,
+      id: "test-import-roomed",
+      resident: { origin: "tunz", building: "res-01" },
+    });
     const withoutBuilding = AgentSchema.parse({
       ...importRow,
-      id: "josie-ryland",
-      name: "Josie Ryland",
-      displayName: "Josie Ryland",
+      id: "test-import-in-town",
+      name: "Josie Test",
+      displayName: "Josie Test",
       resident: { origin: "tunz", building: null },
     });
     const artists = resolveArtists([...fixtureAgents, withBuilding, withoutBuilding]);
@@ -144,10 +167,10 @@ describe("imported acts (the town)", () => {
     expect(artists.map((a) => a.displayName)).toEqual(
       [...artists.map((a) => a.displayName)].sort((a, b) => a.localeCompare(b)),
     );
-    expect(artists.map((a) => a.id)).toContain("hohlraum");
-    expect(artists.map((a) => a.id)).toContain("josie-ryland");
+    expect(artists.map((a) => a.id)).toContain("test-import-roomed");
+    expect(artists.map((a) => a.id)).toContain("test-import-in-town");
     for (const a of artists) expect(a.kind).toBe("player");
-    expect(artists).toHaveLength(PLAYER_IDS.length + 2);
+    expect(artists).toHaveLength(fixturePlayers.length + 2);
   });
 
   it("parses import tracks (releaseId T-<slug>, no releases row required)", () => {
@@ -256,11 +279,19 @@ describe("resolveSingle", () => {
 });
 
 describe("tracks fixture", () => {
-  it("attributes every take to a player on a real release", () => {
-    const releaseIds = new Set(fixtureReleases.map((r) => r.id));
+  it("attributes every take to a known artist on a real release or import album", () => {
+    const artistIds = new Set(
+      fixtureAgents.filter((a) => a.kind === "player").map((a) => a.id),
+    );
+    // A track belongs to a session release (AFAR-NNNN) or to an imported
+    // act's back-catalogue album (id T-<slug>, carried on the agent row).
+    const recordIds = new Set([
+      ...fixtureReleases.map((r) => r.id),
+      ...fixtureAgents.flatMap((a) => (a.album ? [a.album.id] : [])),
+    ]);
     for (const track of fixtureTracks) {
-      expect(PLAYER_IDS).toContain(track.agentId);
-      expect(releaseIds.has(track.releaseId)).toBe(true);
+      expect(artistIds.has(track.agentId), `${track.id}: unknown artist`).toBe(true);
+      expect(recordIds.has(track.releaseId), `${track.id}: unknown record`).toBe(true);
     }
   });
 });
@@ -358,10 +389,11 @@ describe("tapes (the vault)", () => {
   });
 
   it("keeps release rows back-compatible: linerNotes optional, unknown rows unchanged", () => {
-    // Every deployed fixture release parses untouched (no linerNotes field).
-    for (const release of fixtureReleases) {
-      expect(release.linerNotes).toBeUndefined();
-    }
+    // The snapshot rows carry the Archivist's notes; a pre-Archivist row
+    // (no linerNotes field) must keep parsing untouched.
+    const withoutNotes: Record<string, unknown> = { ...fixtureReleases[0] };
+    delete withoutNotes.linerNotes;
+    expect(ReleaseSchema.parse(withoutNotes).linerNotes).toBeUndefined();
     const withNotes = ReleaseSchema.parse({
       ...fixtureReleases[0],
       linerNotes: "What happened in the room, kept plain.",
@@ -373,33 +405,39 @@ describe("tapes (the vault)", () => {
 // --- the Album view: one entity over sessions, tapes and imported records ----
 
 describe("albums (the streaming IA's one entity)", () => {
+  // A scoped world — the house trio's first release, one tape, one synthetic
+  // imported act — so the assertions stay exact however large the snapshot
+  // roster grows. The synthetic ids never collide with real snapshot rows.
+  const houseTrio = houseAgents.filter((a) => a.kind === "player");
+  const release0001 = fixtureReleases.find((r) => r.id === "0001")!;
+  const sessionTracks = fixtureTracks.filter((t) => t.releaseId === "0001");
   const importAgent = AgentSchema.parse({
-    id: "hohlraum",
+    id: "test-cold",
     kind: "player",
-    name: "HOHLRAUM",
-    displayName: "HOHLRAUM",
+    name: "TEST-COLD",
+    displayName: "TEST-COLD",
     role: "Act — the cold",
     stance: "What survives a cold room is true.",
     description: ["A recluse in a Berlin water tower."],
     palette: null,
     coverUrl: "/api/media/def",
     genreLine: "dub techno · 2020s",
-    album: { id: "T-hohlraum", title: "Standpipe", linerNotes: "Ten chambers down." },
+    album: { id: "T-test-cold", title: "Standpipe", linerNotes: "Ten chambers down." },
   });
   const importTrack = TrackSchema.parse({
-    id: "T-hohlraum-1",
-    releaseId: "T-hohlraum",
-    agentId: "hohlraum",
+    id: "T-test-cold-1",
+    releaseId: "T-test-cold",
+    agentId: "test-cold",
     title: "Tank at Four AM",
     durationSec: 31,
     audioUrl: "/api/media/0ff",
   });
   const tape = TapeSchema.parse({ ...tapeRow, date: "2026-07-30" });
   const albums = resolveAlbums(
-    [...fixtureAgents, importAgent],
-    fixtureReleases,
+    [...houseTrio, importAgent],
+    [release0001],
     [tape],
-    [...fixtureTracks, importTrack],
+    [...sessionTracks, importTrack],
   );
 
   it("mints stable public slugs from the catalogue ids", () => {
@@ -412,17 +450,17 @@ describe("albums (the streaming IA's one entity)", () => {
     expect(albums.map((a) => `${a.slug}:${a.type}`)).toEqual([
       "tape-0002:tape", // 2026-07-30, newer than release 0001
       "afar-0001:session",
-      "t-hohlraum:album", // undated back catalogue, after the dated records
+      "t-test-cold:album", // undated back catalogue, after the dated records
     ]);
   });
 
   it("builds the session album from the release: takes as tracks, graph cover data", () => {
     const session = resolveAlbum(albums, "afar-0001")!;
     expect(session.catalogueNo).toBe("AFAR-0001");
-    expect(session.title).toBe(fixtureReleases[0].title);
+    expect(session.title).toBe(release0001.title);
     expect(session.artistIds).toEqual(["silt", "rust", "keep"]);
     expect(session.tracks).toHaveLength(3);
-    expect(session.influence).toEqual(fixtureReleases[0].influence);
+    expect(session.influence).toEqual(release0001.influence);
     expect(session.release?.id).toBe("0001");
     expect(session.tape).toBeNull();
   });
@@ -436,20 +474,20 @@ describe("albums (the streaming IA's one entity)", () => {
   });
 
   it("gives the imported record a first-class page: art, era, liner notes", () => {
-    const record = resolveAlbum(albums, "t-hohlraum")!;
+    const record = resolveAlbum(albums, "t-test-cold")!;
     expect(record.catalogueNo).toBeNull();
     expect(record.coverUrl).toBe("/api/media/def");
     expect(record.era).toBe("2020s");
     expect(record.linerNotes).toBe("Ten chambers down.");
-    expect(record.importArtistId).toBe("hohlraum");
-    expect(record.tracks.map((x) => x.id)).toEqual(["T-hohlraum-1"]);
+    expect(record.importArtistId).toBe("test-cold");
+    expect(record.tracks.map((x) => x.id)).toEqual(["T-test-cold-1"]);
   });
 
   it("skips an import album with no mirrored tracks — nothing to stream yet", () => {
     const silent = AgentSchema.parse({
       ...JSON.parse(JSON.stringify(importAgent)),
-      id: "assembly-ghost",
-      album: { id: "T-assembly-ghost", title: "Line Voltage" },
+      id: "test-silent",
+      album: { id: "T-test-silent", title: "Line Voltage" },
     });
     const withSilent = resolveAlbums([silent], [], [], []);
     expect(withSilent).toEqual([]);
@@ -461,16 +499,16 @@ describe("albums (the streaming IA's one entity)", () => {
       "afar-0001",
     ]);
     expect(resolveDiscography(albums, "keep").map((a) => a.slug)).toEqual(["afar-0001"]);
-    expect(resolveDiscography(albums, "hohlraum").map((a) => a.slug)).toEqual(["t-hohlraum"]);
+    expect(resolveDiscography(albums, "test-cold").map((a) => a.slug)).toEqual(["t-test-cold"]);
   });
 
   it("ranks the roster by latest activity — records, not tiers, buy position", () => {
-    const byActivity = resolveArtistsByActivity([...fixtureAgents, importAgent], albums);
-    // The tape (newest record) features silt and rust; hohlraum's import
-    // album is the oldest thing in the catalogue, so hohlraum trails.
+    const byActivity = resolveArtistsByActivity([...houseTrio, importAgent], albums);
+    // The tape (newest record) features silt and rust; the import's back
+    // catalogue is the oldest thing in this catalogue, so it trails.
     // Alphabetical (Delta Marlowe < Roan Patina) breaks the tie on the tape.
     expect(byActivity.map((a) => a.id).slice(0, 2)).toEqual(["silt", "rust"]);
-    expect(byActivity[byActivity.length - 1].id).toBe("hohlraum");
+    expect(byActivity[byActivity.length - 1].id).toBe("test-cold");
     expect(byActivity).toHaveLength(4);
   });
 

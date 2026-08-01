@@ -16,13 +16,15 @@ describe("resolve map", () => {
     }
   });
 
-  it("covers every agent in the fixtures (the Archivist has no world body yet)", () => {
+  it("covers every housed agent in the fixtures (the rest fall back to plain navigation)", () => {
     for (const agent of fixtureAgents) {
       const entry = resolveWorld(agent.id);
-      if (agent.id === "archivist") {
-        // Deliberate: the Archivist's sprite/press art is flagged for the
-        // next design round (DECISIONS.md) — page exists, world presence
-        // later. WorldLink falls back to a plain navigation on null.
+      if (agent.id === "archivist" || agent.resident !== undefined) {
+        // Deliberate gaps: the Archivist's sprite/press art is flagged for
+        // the next design round (DECISIONS.md), and imported residents have
+        // no walking world body — their presence is their street building,
+        // keyed by building id, not agent id. WorldLink falls back to a
+        // plain navigation on null.
         expect(entry).toBeNull();
         continue;
       }

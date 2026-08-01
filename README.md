@@ -84,6 +84,8 @@ Web (zero-env fixture mode works out of the box; `DATABASE_URL` switches to Neon
 cd web && npm install && npm run dev
 ```
 
+The fixtures under `web/fixtures/` are a committed snapshot of Neon — the whole site (every artist, album, tape, and the world timeline) works with zero env vars; only audio and images need the DB. After publishing new rows, refresh the snapshot with `npm run fixtures:export` (reads `DATABASE_URL` from the environment or `.env`; output is deterministic, so the diff is reviewable) and commit the result.
+
 `kernel/.env.example` documents every key. All tests run offline against mocks; anything that spends money is a deliberate script invocation.
 
 ## Deployment
