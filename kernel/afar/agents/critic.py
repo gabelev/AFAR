@@ -53,27 +53,38 @@ logged words briefly where it cuts; never rewrite them."""
 
 
 #: The naming doctrine, appended to every naming call. Written AGAINST the
-#: catalog's own observed ruts (audit, 2026-08-01): by release 0007 every
-#: title was two fragments and a comma, three of seven started with "Same",
-#: and the nouns had drifted from the music to the session's furniture. The
-#: cure is the one tunz proved: a title is a concrete thing lifted from the
-#: work's own world, shown a range of shapes, with the known ruts named and
-#: closed.
+#: catalog's own observed ruts (audit, 2026-08-01; tightened after a second
+#: audit the same day): by release 0007 every title was two fragments and a
+#: comma, three of seven started with "Same", and the nouns had drifted from
+#: the music to the session's furniture. The first cure allowed verb-phrase
+#: and small-sentence shapes and promptly grew a second rut — bland verb
+#: fragments ("What Stays Quiet") and bare generic nouns ("One Stone") that
+#: could hang on any record in any shop. The standing cure is the one tunz
+#: proved with "Standpipe" / "Rust Ledger" / "Canned Coffee Halo": a title
+#: NAMES A SPECIFIC THING from the work's own world, pictureable and
+#: ownable, with the known ruts named and closed.
 _NAMING_RULES = """\
-HOW A TITLE IS FOUND. A title is a thing, not a summary. Lift one concrete \
-image out of the finished work's own sung or spoken words — an object, a \
-place, an act of doing — and let it stand alone. The wrong title comments on \
-the session; the right one could be painted on a shop sign and still be true \
-to the record. Find the image FIRST and only then choose a shape, and vary \
-the shape: some titles are one word, some a short noun phrase, some carry a \
-verb, some are a whole small sentence. These show SHAPES only — never reuse \
-their words: "Undertow" / "The Third Reel" / "Left Out in the Weather" / \
-"It Settles" / "Pencil on the Label".
+HOW A TITLE IS FOUND. A title names a THING — one concrete object or image \
+that actually appears in the finished work's sung or spoken words, specific \
+enough to picture and particular enough that no other record could carry it. \
+Keep the noun and keep its particular: the material, the count, the place it \
+sat, the state it was in. "Undertow" / "The Third Reel" / "Pencil on the \
+Label" / "Salt on the Sill" show the register (never reuse their words — \
+they are shapes, not titles). The test: could a stranger draw the title? \
+Would it be at home on any other record's sleeve? Draw yes, at home no. A \
+title built on a verb or an abstraction is allowed only when no object in \
+the work is strong enough to hold the sleeve — that is rare, and it still \
+must be this record's and no one else's.
 
 RUTS THE HOUSE HAS ALREADY WORN (banned):
 - two fragments joined by a comma — the "Three Rooms, No Doors" mold is \
 retired, as is any title built as <fragment>, <fragment>
 - any title beginning with "Same"
+- vague verb-phrase fragments — the "What Stays Quiet" / "Cost You \
+Something" / "Learned To Perform" mold: a clause about no thing in \
+particular, wearable by any record in the shop
+- a bare generic noun — "One Stone", "The Fourth Chord": the noun alone is \
+nobody's; attach the particular that makes it this record's
 - the machinery of recording as the subject: room, round, take, set, \
 session, door, floor, tape are how the work was made, not what it is about
 - body parts used as surreal objects (hands, thumbs, holes) — unless the \
