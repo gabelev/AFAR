@@ -152,7 +152,7 @@ def test_the_archivist_reads_the_whole_tape_not_the_cut(tmp_path: Path):
     assert prompt.count('"round": 0') >= 3 and prompt.count(f'"round": {_ROUNDS - 1}') >= 3
 
 
-def test_shelve_prompt_carries_the_title_register_and_the_shelf(tmp_path: Path):
+def test_shelve_prompt_carries_the_law_and_the_shelf(tmp_path: Path):
     run_dir = _play(tmp_path)
     run_staff(run_dir, _config(tmp_path))
     view = load_tape_view(run_dir)
@@ -160,8 +160,10 @@ def test_shelve_prompt_carries_the_title_register_and_the_shelf(tmp_path: Path):
     shelf = ["Delta Marlowe — Floor, Before Anything", "Three Rooms, Six Rounds"]
     ArchivistAgent(provider).shelve(view, stage_names=STAGE_NAMES, recent_tape_titles=shelf)
     prompt = "\n".join(m.content for m in provider.calls[-1])
-    # The spine-label register with its banned ruts is always in hand...
-    assert "spine label written in pencil" in prompt
+    # The tunz process: whole sleeve in one breath, everything traceable to
+    # the tape — plus the residue of the audits.
+    assert "THE TRACEABILITY LAW" in prompt
+    assert "traceable to the tape" in prompt
     assert "two fragments joined by a comma" in prompt
     # ...and the shelf is shown, under the do-not-echo pressure.
     assert "ALREADY ON THE SHELF" in prompt

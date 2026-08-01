@@ -3,11 +3,19 @@
 Two acts of judgment, in a fixed order. First `review()`: a third-person,
 retrospective verdict on each act's showing across the whole logged set —
 cold, verdict-first, allowed to be unfair (the design register: "Roan Patina
-has been coasting for three sets"). Then `name()`: the release title and one
-title per selected take. Naming is a SEPARATE model call that sees only
-finished work — the selected takes and the Critic's own review — never the
-full session log, and nothing the Critic writes ever feeds forward into any
-brief. The name is the last word said about a set, not the first.
+has been coasting for three sets"). Then `name()`: ONE structured call that
+titles the release, describes it as a body of work, and titles each selected
+take — together, so the sleeve coheres. The naming process is ported from
+tunz (`tunz/lib/generation/profile.ts`), whose titles stayed good for three
+process reasons this call mirrors: nothing is named in isolation (one bundle
+call, all sleeve text in the same breath); every title arrives WITH its
+justification (the release gets a 1-2 sentence body-of-work description, each
+take title a one-line why); and instead of ban lists, one traceability law —
+every artifact must be traceable to the record's own material. The call
+reads a rich session brief (who the acts are, everything sung and said across
+the rounds, the Critic's own review) plus the catalog shelf as differ-from
+pressure. Nothing the Critic writes ever feeds forward into any brief; the
+name is the last word said about a set, not the first.
 
 The voice is ported from mold's Critic (verdict-first, zero warmth, pan when
 panning is earned) and adapted to AFAR's register: third person, surnames,
@@ -18,14 +26,14 @@ rule: readable by someone with no music-production and no AI background.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Mapping, Sequence
 
 from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
 
 from afar.agents.robust import staff_complete
-from afar.intent import _loads_lenient
+from afar.intent import ERAS, _loads_lenient
 from afar.staff import STAGE_NAMES, SURNAMES, SetView, take_digest
 
 _CRITIC_PROMPT = """You are the Critic at AFAR, the label around three acts — \
@@ -52,46 +60,30 @@ and emptier every round", never "-0.85 on darkHopeful". Quote the acts' own \
 logged words briefly where it cuts; never rewrite them."""
 
 
-#: The naming doctrine, appended to every naming call. Written AGAINST the
-#: catalog's own observed ruts (audit, 2026-08-01; tightened after a second
-#: audit the same day): by release 0007 every title was two fragments and a
-#: comma, three of seven started with "Same", and the nouns had drifted from
-#: the music to the session's furniture. The first cure allowed verb-phrase
-#: and small-sentence shapes and promptly grew a second rut — bland verb
-#: fragments ("What Stays Quiet") and bare generic nouns ("One Stone") that
-#: could hang on any record in any shop. The standing cure is the one tunz
-#: proved with "Standpipe" / "Rust Ledger" / "Canned Coffee Halo": a title
-#: NAMES A SPECIFIC THING from the work's own world, pictureable and
-#: ownable, with the known ruts named and closed.
-_NAMING_RULES = """\
-HOW A TITLE IS FOUND. A title names a THING — one concrete object or image \
-that actually appears in the finished work's sung or spoken words, specific \
-enough to picture and particular enough that no other record could carry it. \
-Keep the noun and keep its particular: the material, the count, the place it \
-sat, the state it was in. "Undertow" / "The Third Reel" / "Pencil on the \
-Label" / "Salt on the Sill" show the register (never reuse their words — \
-they are shapes, not titles). The test: could a stranger draw the title? \
-Would it be at home on any other record's sleeve? Draw yes, at home no. A \
-title built on a verb or an abstraction is allowed only when no object in \
-the work is strong enough to hold the sleeve — that is rare, and it still \
-must be this record's and no one else's.
+#: The naming law, appended to every naming call. This is the tunz process
+#: (profile.ts), not a rule list: one traceability law in place of ban
+#: inventories — the two earlier rule-list cures (2026-08-01, twice) each
+#: just grew a new rut. What remains of them is three lines of residue at
+#: the end, the catalog's certified dead molds.
+_NAMING_LAW = """\
+THE TRACEABILITY LAW. Every artifact on this sleeve must be traceable to \
+the record: each title names something actually sung or said on the tape — \
+a thing, an image, a phrase an act put on the record — and the description \
+reads the takes as one body of work, built from the record's own images. \
+Nothing on the sleeve is invented from outside the record, and nothing is \
+named in isolation: the release title, its description, and the take titles \
+leave your desk in the same breath and must cohere — and differ; four titles \
+sharing one construction is one title written four times.
 
-RUTS THE HOUSE HAS ALREADY WORN (banned):
-- two fragments joined by a comma — the "Three Rooms, No Doors" mold is \
-retired, as is any title built as <fragment>, <fragment>
+REGISTER. The description is 1-2 sentences on the record as a body of work, \
+in the register of a music journalist's capsule note: concrete detail from \
+the record, no generic praise. Each take title carries its why — one line \
+pointing at the sung or spoken words the title came from.
+
+HOUSE RESIDUE (this catalog's certified dead molds — never again):
+- two fragments joined by a comma ("Three Rooms, No Doors")
 - any title beginning with "Same"
-- vague verb-phrase fragments — the "What Stays Quiet" / "Cost You \
-Something" / "Learned To Perform" mold: a clause about no thing in \
-particular, wearable by any record in the shop
-- a bare generic noun — "One Stone", "The Fourth Chord": the noun alone is \
-nobody's; attach the particular that makes it this record's
-- the machinery of recording as the subject: room, round, take, set, \
-session, door, floor, tape are how the work was made, not what it is about
-- body parts used as surreal objects (hands, thumbs, holes) — unless the \
-sung words are literally about a body, name what the song sees, not anatomy
-- colons and subtitles
-- the release title and the take titles scanning alike: the four titles on \
-one sleeve must not share a construction\
+- colons and subtitles\
 """
 
 
@@ -105,10 +97,14 @@ class Review:
 
 @dataclass(frozen=True)
 class Names:
-    """The last decision of a set: what the finished work is called."""
+    """The last decision of a set: what the finished work is called — and,
+    per the tunz process, why. The description and the whys arrive in the
+    same call as the titles so the sleeve coheres."""
 
     release_title: str
     take_titles: dict[str, str]
+    release_description: str = ""  # 1-2 sentences, the record as a body of work
+    take_notes: dict[str, str] = field(default_factory=dict)  # pid -> one-line why
 
 
 class CriticAgent(Agent):
@@ -202,46 +198,73 @@ class CriticAgent(Agent):
             metadata={"per_act": per_act, "release": str(data["release"]).strip()},
         )
 
-    # -- the name, last --------------------------------------------------------
+    # -- the name, last (the tunz bundle: one call, whole sleeve) --------------
 
     def name(
-        self, selection: Any, review: Review, recent_titles: Sequence[str] = ()
+        self,
+        view: SetView,
+        selection: Any,
+        review: Review,
+        recent_titles: Sequence[str] = (),
     ) -> Names:
-        """Title the release and each selected take. Finished work only.
+        """Name the whole sleeve in one structured call — the tunz process.
 
-        This call's context is deliberately starved: the selected takes'
-        spoken lines and sung words, and the Critic's own review. No session
-        log, no discards, no features — a title judges what shipped. It runs
-        last and feeds nothing forward. The ONE thing added to the starved
-        context is `recent_titles` — what is already on the shelf — because a
-        namer who cannot see the catalog re-invents the same title shape until
-        the whole shelf scans alike (releases 0004-0007 all rhymed before this
-        pressure existed: "Three Rooms, No Doors" / "Same Thumb, No Proof" /
-        "Same Hole, Softer Hand").
+        The call reads a rich session brief: who each act is (their stance and
+        the DNA of their selected take), everything sung and everything said
+        across the rounds (the discards included — titles grow from the
+        session's whole material, the way tunz grows titles from the whole
+        DNA), and the Critic's own review. It returns the release title, the
+        1-2 sentence body-of-work description, and each take's title WITH its
+        one-line why — bundled, so nothing is named in isolation. The measured
+        story (drift numbers) and the acts' private rationales stay out: the
+        sleeve is traceable to what a listener can hear, not to the meters.
+        `recent_titles` is the catalog shelf, kept as differ-from pressure.
+        It runs last and feeds nothing forward.
         """
-        finished = {
-            STAGE_NAMES.get(pid, pid): {
+        acts_brief: dict[str, Any] = {}
+        sung: dict[str, list[dict[str, Any]]] = {}
+        for pid, choice in selection.takes.items():
+            stage = STAGE_NAMES.get(pid, pid)
+            takes = view.takes.get(pid, [])
+            selected = next((t for t in takes if t.round == choice.round), None)
+            intent = dict(selected.intent) if selected is not None else {}
+            era = intent.get("era")
+            acts_brief[stage] = {
                 "player_id": pid,
-                "line": choice.line,
-                "lyrics": choice.lyrics,
+                "stance": view.commitments.get(pid, ""),
+                "the_artist_they_set_out_to_be": intent.get("seedPrompt", ""),
+                "era": ERAS[era] if isinstance(era, int) and 0 <= era < len(ERAS) else era,
+                "lyrical_obsessions": intent.get("lyricalObsessions", []),
             }
-            for pid, choice in selection.takes.items()
-        }
+            sung[stage] = [
+                {
+                    "round": t.round,
+                    "said": t.line,
+                    "sung": t.lyrics,
+                    **({"on_the_release": True} if t.round == choice.round else {}),
+                }
+                for t in takes
+            ]
         acts_line = ",".join(selection.takes)
         shelf = ""
         if recent_titles:
             shelf = (
-                "\n\nALREADY ON THE SHELF (recent titles across the catalog — "
-                "release and take):\n"
+                "\n\nALREADY ON THE SHELF (recent titles across the catalog): "
+                "this sleeve must fit the record it is on but differ from "
+                "everything here — no shared first word, construction, or "
+                "cadence.\n"
                 + json.dumps(list(recent_titles), indent=1, ensure_ascii=False)
-                + "\nYour titles share NOTHING with these: not a first word, not "
-                "a construction, not a cadence. If a shape appears twice up "
-                "there, that shape is spent — find another."
             )
         prompt = (
-            "The release is cut and reviewed. Name it — the last word.\n"
-            "THE FINISHED WORK (the selected takes only):\n"
-            + json.dumps(finished, indent=1, ensure_ascii=False)
+            "The release is cut and reviewed. Write its sleeve — the whole "
+            "sleeve, in one breath: the release title, the description of the "
+            "record as a body of work, and each act's take title with its why.\n\n"
+            "WHO WAS IN THE ROOM:\n"
+            + json.dumps(acts_brief, indent=1, ensure_ascii=False)
+            + "\n\nEVERYTHING SUNG AND SAID, round by round ('on_the_release' "
+            "marks the takes that shipped; the rest is the session the titles "
+            "grew out of):\n"
+            + json.dumps(sung, indent=1, ensure_ascii=False)
             + "\n\nYOUR REVIEW OF THE RELEASE:\n"
             + review.release
             + "\n\nPER-ACT VERDICTS:\n"
@@ -252,13 +275,14 @@ class CriticAgent(Agent):
             )
             + shelf
             + f"\n\nACTS: {acts_line}\n"
-            + _NAMING_RULES
-            + "\nGive the release one title (1-5 words) and each act's take one "
-            "title (1-6 words), plain language, no quotation marks inside "
-            "titles. Reply with ONE JSON object, nothing else: "
-            '{"release_title": "<title>", '
-            '"take_titles": {"<player_id>": "<title>"}} — one entry per '
-            "player id on the ACTS line."
+            + _NAMING_LAW
+            + "\nRelease title 1-5 words; take titles 1-6 words; plain "
+            "language, no quotation marks inside titles. Reply with ONE JSON "
+            'object, nothing else: {"release_title": "<title>", '
+            '"release_description": "<1-2 sentences>", '
+            '"take_titles": {"<player_id>": {"title": "<title>", '
+            '"why": "<one line: the sung or spoken words it came from>"}}} — '
+            "one take_titles entry per player id on the ACTS line."
         )
         def parse(raw: str) -> dict[str, Any]:
             data = _loads_lenient(raw)
@@ -278,5 +302,18 @@ class CriticAgent(Agent):
             stage="critic/name",
             parse=parse,
         )
-        titles = {pid: str(data["take_titles"][pid]).strip() for pid in selection.takes}
-        return Names(release_title=str(data["release_title"]).strip(), take_titles=titles)
+        titles: dict[str, str] = {}
+        notes: dict[str, str] = {}
+        for pid in selection.takes:
+            entry = data["take_titles"][pid]
+            if isinstance(entry, Mapping):  # the bundle shape
+                titles[pid] = str(entry.get("title", "")).strip()
+                notes[pid] = str(entry.get("why", "")).strip()
+            else:  # a bare string still names the take (degrade, don't die)
+                titles[pid] = str(entry).strip()
+        return Names(
+            release_title=str(data["release_title"]).strip(),
+            take_titles=titles,
+            release_description=str(data.get("release_description", "")).strip(),
+            take_notes=notes,
+        )

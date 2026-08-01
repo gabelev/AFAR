@@ -203,7 +203,11 @@ def _mock_staff(messages: Sequence[Message]) -> str | None:
         return json.dumps(
             {
                 "release_title": "Mock Pressing",
-                "take_titles": {pid: f"Mock Take ({pid})" for pid in _listed("ACTS:")},
+                "release_description": "[mock] Three takes from one room, pressed as they fell.",
+                "take_titles": {
+                    pid: {"title": f"Mock Take ({pid})", "why": f"[mock] {pid} sang it"}
+                    for pid in _listed("ACTS:")
+                },
             }
         )
     if '"release"' in text and '"acts"' in text and "ACTS:" in text:

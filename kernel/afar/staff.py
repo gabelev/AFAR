@@ -782,6 +782,7 @@ def run_staff(
         critic = CriticAgent(config.model)
         review = critic.review(view, selection)
         names = critic.name(
+            view,
             selection,
             review,
             recent_titles=load_recent_titles(run_dir.parent, exclude_run=run_dir.name),
@@ -825,7 +826,9 @@ def run_staff(
                 "kind": "titles",
                 "agent": "critic",
                 "release_title": names.release_title,
+                "release_description": names.release_description,
                 "take_titles": dict(names.take_titles),
+                "take_notes": dict(names.take_notes),
             },
         )
 
@@ -850,7 +853,12 @@ def run_staff(
     if review is not None and names is not None:
         staff_block["critic"] = {
             "release_title": names.release_title,
+            # The tunz bundle's extra sleeve text rides the record alongside
+            # the fields the publish path already reads (title, take_titles):
+            # the body-of-work description and each take title's one-line why.
+            "release_description": names.release_description,
             "take_titles": dict(names.take_titles),
+            "take_notes": dict(names.take_notes),
             "release_review": review.release,
             "act_reviews": dict(review.per_act),
         }

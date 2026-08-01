@@ -170,37 +170,7 @@ def test_producer_no_release_when_the_panel_passes_nothing(played_run: Path):
     assert "No release from this set" in selection.note
 
 
-# --- Critic: naming only sees finished work -----------------------------------
-
-
-def test_critic_naming_sees_only_the_selection(played_run: Path):
-    view = load_set_view(played_run)
-    provider = MockProvider(responder=_mock_players)
-    selection = ProducerAgent(provider).select(view)
-    critic = CriticAgent(provider)
-    review = critic.review(view, selection)
-    names = critic.name(selection, review)
-
-    assert names.release_title
-    assert set(names.take_titles) == set(_PLAYERS)
-
-    naming_call = provider.calls[-1]
-    naming_text = "\n".join(m.content for m in naming_call)
-    # Finished work only: the selected takes' words and the review — never the
-    # discarded rounds' material, rationales, or the measured story.
-    selected_rounds = {pid: selection.takes[pid].round for pid in _PLAYERS}
-    for pid in _PLAYERS:
-        for take in view.takes[pid]:
-            if take.round == selected_rounds[pid]:
-                # First lyric line only: json.dumps escapes the newlines.
-                assert take.lyrics.splitlines()[0] in naming_text
-            else:  # a discarded take's sung words must not reach the naming call
-                assert take.rationale not in naming_text
-    assert "THE MEASURED STORY" not in naming_text
-    assert review.release in naming_text
-
-
-# --- Naming register: the shelf, the ruts, the shapes --------------------------
+# --- Critic: the naming bundle (the tunz process) ------------------------------
 
 
 def _naming_setup(played_run: Path):
@@ -209,40 +179,72 @@ def _naming_setup(played_run: Path):
     selection = ProducerAgent(provider).select(view)
     critic = CriticAgent(provider)
     review = critic.review(view, selection)
-    return provider, critic, selection, review
+    return provider, critic, view, selection, review
 
 
-def test_critic_naming_prompt_carries_register_and_shelf(played_run: Path):
-    provider, critic, selection, review = _naming_setup(played_run)
+def test_critic_naming_reads_the_session_not_the_meters(played_run: Path):
+    provider, critic, view, selection, review = _naming_setup(played_run)
+    names = critic.name(view, selection, review)
+
+    assert names.release_title
+    assert set(names.take_titles) == set(_PLAYERS)
+
+    naming_text = "\n".join(m.content for m in provider.calls[-1])
+    # The rich session brief: EVERYTHING sung and said reaches the naming call
+    # (discards included — titles grow from the session's whole material), and
+    # the shipped takes are marked. The meters and the acts' private
+    # rationales never do: the sleeve is traceable to what a listener hears.
+    for pid in _PLAYERS:
+        for take in view.takes[pid]:
+            assert take.lyrics.splitlines()[0] in naming_text
+            assert take.line in naming_text
+            assert take.rationale not in naming_text
+    assert "on_the_release" in naming_text
+    assert "THE MEASURED STORY" not in naming_text
+    assert review.release in naming_text
+
+
+def test_critic_naming_returns_the_whole_sleeve_bundle(played_run: Path):
+    _, critic, view, selection, review = _naming_setup(played_run)
+    names = critic.name(view, selection, review)
+    # One call, whole sleeve: the description and every title's why arrive
+    # with the titles (the mock replies in the bundle shape).
+    assert names.release_description
+    assert set(names.take_notes) == set(_PLAYERS)
+    assert all(names.take_notes.values())
+    assert all(names.take_titles.values())
+
+
+def test_critic_naming_prompt_carries_the_law_and_the_shelf(played_run: Path):
+    provider, critic, view, selection, review = _naming_setup(played_run)
     shelf = ["Same Hole, Softer Hand", "Three Rooms, No Doors"]
-    names = critic.name(selection, review, recent_titles=shelf)
+    names = critic.name(view, selection, review, recent_titles=shelf)
 
     assert names.release_title
     naming_text = "\n".join(m.content for m in provider.calls[-1])
-    # The known ruts are named and closed — including the second-audit pair
-    # (bland verb-phrase fragments, bare generic nouns).
-    assert "RUTS THE HOUSE HAS ALREADY WORN" in naming_text
+    # The tunz process rides every call: the traceability law, the bundle
+    # framing, the capsule register — not a rule inventory.
+    assert "THE TRACEABILITY LAW" in naming_text
+    assert "traceable to the record" in naming_text
+    assert "in the same breath" in naming_text
+    assert "body of work" in naming_text
+    assert "no generic praise" in naming_text
+    # The residue of the two audits — the catalog's certified dead molds.
+    assert "HOUSE RESIDUE" in naming_text
     assert "two fragments joined by a comma" in naming_text
     assert 'beginning with "Same"' in naming_text
-    assert "vague verb-phrase fragments" in naming_text
-    assert "a bare generic noun" in naming_text
-    # The concrete-noun doctrine is shown (with the never-reuse guard).
-    assert "HOW A TITLE IS FOUND" in naming_text
-    assert "names a THING" in naming_text
-    assert "no other record could carry it" in naming_text
-    assert "Undertow" in naming_text and "never reuse" in naming_text
-    # And the shelf is visible, under the do-not-echo pressure.
+    # And the shelf is visible as differ-from pressure.
     assert "ALREADY ON THE SHELF" in naming_text
     for title in shelf:
         assert title in naming_text
 
 
 def test_critic_naming_prompt_omits_the_shelf_when_empty(played_run: Path):
-    provider, critic, selection, review = _naming_setup(played_run)
-    critic.name(selection, review)
+    provider, critic, view, selection, review = _naming_setup(played_run)
+    critic.name(view, selection, review)
     naming_text = "\n".join(m.content for m in provider.calls[-1])
     assert "ALREADY ON THE SHELF" not in naming_text
-    assert "RUTS THE HOUSE HAS ALREADY WORN" in naming_text  # the rules always ride
+    assert "THE TRACEABILITY LAW" in naming_text  # the law always rides
 
 
 def test_load_recent_titles_reads_the_shelf_across_runs(tmp_path: Path):
@@ -301,7 +303,7 @@ def test_run_staff_feeds_prior_titles_into_the_naming_call(played_run: Path):
     naming_calls = [
         "\n".join(m.content for m in call)
         for call in config.model.calls
-        if any("Name it — the last word" in m.content for m in call)
+        if any("Write its sleeve" in m.content for m in call)
     ]
     assert len(naming_calls) == 1
     assert "Standing Water" in naming_calls[0] and "Pour Again" in naming_calls[0]
@@ -388,6 +390,12 @@ def test_run_staff_appends_rows_and_supersedes_the_record(played_run: Path):
         assert sel["take_id"] == old_record["artifacts"][sel["round"]][pid]
     assert staff["critic"]["release_title"] == "Mock Pressing"
     assert set(staff["critic"]["act_reviews"]) == set(_PLAYERS)
+    # The tunz bundle's sleeve text rides the record: the body-of-work
+    # description and each take title's one-line why.
+    assert staff["critic"]["release_description"]
+    assert set(staff["critic"]["take_notes"]) == set(_PLAYERS)
+    assert set(staff["critic"]["take_titles"]) == set(_PLAYERS)
+    assert all(isinstance(t, str) and t for t in staff["critic"]["take_titles"].values())
     assert staff["muse"]["text"] == brief_row["text"]
     assert staff["muse"]["carried_forward"] is True
     assert staff["listener"]["valence"] == reaction_row["valence"]

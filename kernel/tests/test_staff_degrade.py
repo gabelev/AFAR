@@ -39,7 +39,7 @@ _RUN_ID = "test-degrade-run"
 _STAGE_MARKERS: dict[str, tuple[str, ...]] = {
     "producer": ('"scores"', "ROUNDS:"),  # the panel's judges
     "critic": ("The set is finished and cut. Review it.",),
-    "critic-naming": ("Name it — the last word.",),
+    "critic-naming": ("Write its sleeve",),
     "muse": ("Write the brief",),
     "listener": ('"valence"', '"disagreements_with_critic"'),
 }
