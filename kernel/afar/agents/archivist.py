@@ -224,15 +224,20 @@ class ArchivistAgent(Agent):
                 if d["recent_tape_titles"]
                 else ""
             )
-            + "\n\nDecide where this tape belongs and write its sleeve. "
+            + "\n\nDecide where this tape belongs and write its sleeve — the "
+            "whole sleeve in one breath, title and notes together, so it "
+            "coheres. THE TRACEABILITY LAW: everything on the sleeve must be "
+            "traceable to the tape — the title names something actually on it "
+            "(a sung image, a spoken phrase, the thing that happened), the arc "
+            "and notes are built from the takes you were handed, and nothing "
+            "is invented from outside the tape. House residue (dead molds, "
+            "never again): two fragments joined by a comma; colons. "
             "Reply with ONE JSON object, nothing else: "
             '{"placement": "companion|standalone|collection", '
-            '"tape_title": "<a short name for the tape — plain and archival, like a '
-            "spine label written in pencil: say what is ON it (the act, the day's "
-            "work, the thing that happened), never a poetic inversion. For a solo "
-            "tape the act's name may lead. Banned: two fragments joined by a comma, "
-            'colons, and titles about rooms or doors — the shelf wore those out>", '
-            '"arc": "<1-2 sentences: the session\'s shape, start to end>", '
+            '"tape_title": "<a short plain archival name, traceable to the tape; '
+            "for a solo tape the act's name may lead>\", "
+            '"arc": "<1-2 sentences: the session\'s shape, start to end — the '
+            'spine note that justifies the title in the same breath>", '
             '"callouts": [{"act": "<stage name>", "round": <n>, '
             '"note": "<one sentence: why this take earns a call-out>"}], '
             '"liner_notes": "<the back-of-sleeve prose: 2-3 short paragraphs — what '
