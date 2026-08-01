@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
@@ -72,7 +72,10 @@ worth keeping anyway.
 PLAIN LANGUAGE (house law): your prose is public and must read clean to \
 someone with no music-production and no AI background. Record-world words \
 (set, take, release, tape, session) are fine. Refer to the acts by their \
-stage names, never by internal ids."""
+stage names, never by internal ids. The log hands you internal numbers and \
+dial names (drift values, palette axes like "coldWarm") — those are YOUR \
+evidence, never your prose, and they never survive inside a quote either: \
+trim a quoted line rather than let a dial name through."""
 
 
 @dataclass(frozen=True)
@@ -131,8 +134,20 @@ class ArchivistAgent(Agent):
 
     # -- the one decision: shelve one session's tape ---------------------------
 
-    def shelve(self, view: TapeView, *, stage_names: Mapping[str, str]) -> Shelving:
-        perception = self.perceive({"view": view, "stage_names": dict(stage_names)})
+    def shelve(
+        self,
+        view: TapeView,
+        *,
+        stage_names: Mapping[str, str],
+        recent_tape_titles: Sequence[str] = (),
+    ) -> Shelving:
+        perception = self.perceive(
+            {
+                "view": view,
+                "stage_names": dict(stage_names),
+                "recent_tape_titles": list(recent_tape_titles),
+            }
+        )
         decision = self.decide(perception)
         artifact = self.execute(decision)
         meta = artifact.metadata
@@ -162,6 +177,7 @@ class ArchivistAgent(Agent):
                 "takes": tape_digest(view, stage_names),
                 "release_title": staff.get("critic", {}).get("release_title", ""),
                 "veto_note": view.veto_note or "",
+                "recent_tape_titles": list(context.get("recent_tape_titles", ())),
             }
         )
 
@@ -200,10 +216,22 @@ class ArchivistAgent(Agent):
             + "\nTHE TAPE (every take, in round order — 'on_the_release' marks the cut; "
             "'dissent' marks where a judge wanted a different round):\n"
             + json.dumps(d["takes"], indent=1, ensure_ascii=False)
+            + (
+                "\n\nALREADY ON THE SHELF (recent tape titles — yours must not "
+                "echo their words, their openings, or their cadence; a shelf "
+                "where every spine scans alike is shelved wrong):\n"
+                + json.dumps(d["recent_tape_titles"], indent=1, ensure_ascii=False)
+                if d["recent_tape_titles"]
+                else ""
+            )
             + "\n\nDecide where this tape belongs and write its sleeve. "
             "Reply with ONE JSON object, nothing else: "
             '{"placement": "companion|standalone|collection", '
-            '"tape_title": "<a short name for the tape — plain, archival, never cute>", '
+            '"tape_title": "<a short name for the tape — plain and archival, like a '
+            "spine label written in pencil: say what is ON it (the act, the day's "
+            "work, the thing that happened), never a poetic inversion. For a solo "
+            "tape the act's name may lead. Banned: two fragments joined by a comma, "
+            'colons, and titles about rooms or doors — the shelf wore those out>", '
             '"arc": "<1-2 sentences: the session\'s shape, start to end>", '
             '"callouts": [{"act": "<stage name>", "round": <n>, '
             '"note": "<one sentence: why this take earns a call-out>"}], '

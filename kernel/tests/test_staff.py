@@ -25,7 +25,14 @@ from afar.config import AfarConfig, _mock_players
 from afar.log import JsonlLedger, RunContext
 from afar.perception.embedder import MockEmbedder
 from afar.render.base import MockRenderer
-from afar.staff import load_set_view, newest_release_path, run_muse_listener, run_staff
+from afar.staff import (
+    load_recent_tape_titles,
+    load_recent_titles,
+    load_set_view,
+    newest_release_path,
+    run_muse_listener,
+    run_staff,
+)
 from afar.run import run_set
 
 _PLAYERS = ("silt", "rust", "keep")
@@ -191,6 +198,108 @@ def test_critic_naming_sees_only_the_selection(played_run: Path):
                 assert take.rationale not in naming_text
     assert "THE MEASURED STORY" not in naming_text
     assert review.release in naming_text
+
+
+# --- Naming register: the shelf, the ruts, the shapes --------------------------
+
+
+def _naming_setup(played_run: Path):
+    view = load_set_view(played_run)
+    provider = MockProvider(responder=_mock_players)
+    selection = ProducerAgent(provider).select(view)
+    critic = CriticAgent(provider)
+    review = critic.review(view, selection)
+    return provider, critic, selection, review
+
+
+def test_critic_naming_prompt_carries_register_and_shelf(played_run: Path):
+    provider, critic, selection, review = _naming_setup(played_run)
+    shelf = ["Same Hole, Softer Hand", "Three Rooms, No Doors"]
+    names = critic.name(selection, review, recent_titles=shelf)
+
+    assert names.release_title
+    naming_text = "\n".join(m.content for m in provider.calls[-1])
+    # The known ruts are named and closed.
+    assert "RUTS THE HOUSE HAS ALREADY WORN" in naming_text
+    assert "two fragments joined by a comma" in naming_text
+    assert 'beginning with "Same"' in naming_text
+    # The shape range is shown (with the never-reuse guard).
+    assert "HOW A TITLE IS FOUND" in naming_text
+    assert "Undertow" in naming_text and "never reuse" in naming_text
+    # And the shelf is visible, under the do-not-echo pressure.
+    assert "ALREADY ON THE SHELF" in naming_text
+    for title in shelf:
+        assert title in naming_text
+
+
+def test_critic_naming_prompt_omits_the_shelf_when_empty(played_run: Path):
+    provider, critic, selection, review = _naming_setup(played_run)
+    critic.name(selection, review)
+    naming_text = "\n".join(m.content for m in provider.calls[-1])
+    assert "ALREADY ON THE SHELF" not in naming_text
+    assert "RUTS THE HOUSE HAS ALREADY WORN" in naming_text  # the rules always ride
+
+
+def test_load_recent_titles_reads_the_shelf_across_runs(tmp_path: Path):
+    for run_id, release, takes in (
+        ("run-a", "Standing Water", {"silt": "Pour Again"}),
+        ("run-b", "Two Thirds Warm", {"rust": "Pour Again"}),  # dupe take title
+    ):
+        ledger = JsonlLedger(tmp_path, run_id, context=RunContext(code_sha="test-sha"))
+        ledger.write(
+            "reviews",
+            {"kind": "titles", "agent": "critic", "release_title": release, "take_titles": takes},
+        )
+    # Oldest first, deduped, release and take titles both on the shelf.
+    assert load_recent_titles(tmp_path) == [
+        "Standing Water",
+        "Pour Again",
+        "Two Thirds Warm",
+    ]
+    # The current run's own rows never feed its naming call.
+    assert load_recent_titles(tmp_path, exclude_run="run-b") == [
+        "Standing Water",
+        "Pour Again",
+    ]
+    assert load_recent_titles(tmp_path, limit=1) == ["Two Thirds Warm"]
+
+
+def test_load_recent_tape_titles_reads_the_vault_shelf(tmp_path: Path):
+    ledger = JsonlLedger(tmp_path, "run-a", context=RunContext(code_sha="test-sha"))
+    ledger.write(
+        "archives",
+        {"kind": "shelving", "agent": "archivist", "tape_title": "Mock Session Tape"},
+    )
+    ledger.write(  # a degraded stage row on the same table never becomes a title
+        "archives",
+        {"kind": "staff_stage_failed", "agent": "archivist", "stage": "archivist"},
+    )
+    assert load_recent_tape_titles(tmp_path) == ["Mock Session Tape"]
+    assert load_recent_tape_titles(tmp_path, exclude_run="run-a") == []
+
+
+def test_run_staff_feeds_prior_titles_into_the_naming_call(played_run: Path):
+    # A prior run's titles are on the log; run_staff must show them to the namer.
+    prior = JsonlLedger(played_run.parent, "prior-run", context=RunContext(code_sha="test-sha"))
+    prior.write(
+        "reviews",
+        {
+            "kind": "titles",
+            "agent": "critic",
+            "release_title": "Standing Water",
+            "take_titles": {"silt": "Pour Again"},
+        },
+    )
+    config = _mock_config(played_run.parent)
+    run_staff(played_run, config)
+
+    naming_calls = [
+        "\n".join(m.content for m in call)
+        for call in config.model.calls
+        if any("Name it — the last word" in m.content for m in call)
+    ]
+    assert len(naming_calls) == 1
+    assert "Standing Water" in naming_calls[0] and "Pour Again" in naming_calls[0]
 
 
 # --- run_staff: the boundary orchestrator --------------------------------------

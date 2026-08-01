@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
@@ -50,6 +50,38 @@ internal numbers and dial names (drift values, palette axes like \
 "darkHopeful") — those are YOUR evidence, never your prose: write "colder \
 and emptier every round", never "-0.85 on darkHopeful". Quote the acts' own \
 logged words briefly where it cuts; never rewrite them."""
+
+
+#: The naming doctrine, appended to every naming call. Written AGAINST the
+#: catalog's own observed ruts (audit, 2026-08-01): by release 0007 every
+#: title was two fragments and a comma, three of seven started with "Same",
+#: and the nouns had drifted from the music to the session's furniture. The
+#: cure is the one tunz proved: a title is a concrete thing lifted from the
+#: work's own world, shown a range of shapes, with the known ruts named and
+#: closed.
+_NAMING_RULES = """\
+HOW A TITLE IS FOUND. A title is a thing, not a summary. Lift one concrete \
+image out of the finished work's own sung or spoken words — an object, a \
+place, an act of doing — and let it stand alone. The wrong title comments on \
+the session; the right one could be painted on a shop sign and still be true \
+to the record. Find the image FIRST and only then choose a shape, and vary \
+the shape: some titles are one word, some a short noun phrase, some carry a \
+verb, some are a whole small sentence. These show SHAPES only — never reuse \
+their words: "Undertow" / "The Third Reel" / "Left Out in the Weather" / \
+"It Settles" / "Pencil on the Label".
+
+RUTS THE HOUSE HAS ALREADY WORN (banned):
+- two fragments joined by a comma — the "Three Rooms, No Doors" mold is \
+retired, as is any title built as <fragment>, <fragment>
+- any title beginning with "Same"
+- the machinery of recording as the subject: room, round, take, set, \
+session, door, floor, tape are how the work was made, not what it is about
+- body parts used as surreal objects (hands, thumbs, holes) — unless the \
+sung words are literally about a body, name what the song sees, not anatomy
+- colons and subtitles
+- the release title and the take titles scanning alike: the four titles on \
+one sleeve must not share a construction\
+"""
 
 
 @dataclass(frozen=True)
@@ -161,13 +193,20 @@ class CriticAgent(Agent):
 
     # -- the name, last --------------------------------------------------------
 
-    def name(self, selection: Any, review: Review) -> Names:
+    def name(
+        self, selection: Any, review: Review, recent_titles: Sequence[str] = ()
+    ) -> Names:
         """Title the release and each selected take. Finished work only.
 
         This call's context is deliberately starved: the selected takes'
         spoken lines and sung words, and the Critic's own review. No session
         log, no discards, no features — a title judges what shipped. It runs
-        last and feeds nothing forward.
+        last and feeds nothing forward. The ONE thing added to the starved
+        context is `recent_titles` — what is already on the shelf — because a
+        namer who cannot see the catalog re-invents the same title shape until
+        the whole shelf scans alike (releases 0004-0007 all rhymed before this
+        pressure existed: "Three Rooms, No Doors" / "Same Thumb, No Proof" /
+        "Same Hole, Softer Hand").
         """
         finished = {
             STAGE_NAMES.get(pid, pid): {
@@ -178,6 +217,16 @@ class CriticAgent(Agent):
             for pid, choice in selection.takes.items()
         }
         acts_line = ",".join(selection.takes)
+        shelf = ""
+        if recent_titles:
+            shelf = (
+                "\n\nALREADY ON THE SHELF (recent titles across the catalog — "
+                "release and take):\n"
+                + json.dumps(list(recent_titles), indent=1, ensure_ascii=False)
+                + "\nYour titles share NOTHING with these: not a first word, not "
+                "a construction, not a cadence. If a shape appears twice up "
+                "there, that shape is spent — find another."
+            )
         prompt = (
             "The release is cut and reviewed. Name it — the last word.\n"
             "THE FINISHED WORK (the selected takes only):\n"
@@ -190,12 +239,13 @@ class CriticAgent(Agent):
                 indent=1,
                 ensure_ascii=False,
             )
+            + shelf
             + f"\n\nACTS: {acts_line}\n"
-            "Give the release one title (1-5 words) and each act's take one "
-            "title (1-6 words). Draw on the acts' own sung or spoken words "
-            "where it serves — a title can be a phrase they already said — "
-            "plain language, no quotation marks inside titles. Reply with ONE "
-            'JSON object, nothing else: {"release_title": "<title>", '
+            + _NAMING_RULES
+            + "\nGive the release one title (1-5 words) and each act's take one "
+            "title (1-6 words), plain language, no quotation marks inside "
+            "titles. Reply with ONE JSON object, nothing else: "
+            '{"release_title": "<title>", '
             '"take_titles": {"<player_id>": "<title>"}} — one entry per '
             "player id on the ACTS line."
         )
