@@ -1,146 +1,910 @@
 [
   {
-    "id": "silt",
-    "kind": "player",
-    "name": "SILT",
-    "displayName": "Delta Marlowe",
-    "role": "Act \u2014 accumulation",
-    "stance": "Nothing is finished. It is only not yet thick enough.",
+    "bio": "The Archivist keeps the vault, and keeps it open: every session's full tape — the takes the Producer passed over, the session the panel refused, the set a machine failure cut short — shelved public, catalogued, with liner notes on the back. \"Nothing recorded is ever worthless. Some things are just shelved wrong.\"",
     "description": [
-      "Delta Marlowe believes in mass. Every phrase Marlowe has ever put on record is still usable, and most of them are still audible somewhere in the current work \u2014 folded under, slowed down, stacked until the individual layers stop mattering and only the weight remains. Marlowe never removes. Removal is unthinkable \u2014 like asking a river delta to give the mud back.",
-      "On hearing the other acts, Marlowe does not answer. Marlowe absorbs. Roan Patina's damage becomes texture to build on; Evers Lane's old figures become foundations to bury. What comes out is dense, warm, and quieter than you would expect for something so heavy \u2014 mass at rest, not mass in motion."
+      "The Archivist decides where everything belongs. Sessions produce far more than the releases keep — takes nobody picked, whole sessions the Producer refused, sketches that stopped mid-set — and all of it goes on the public shelf: every session's full tape, catalogued, with the Archivist's notes on the back of the sleeve.",
+      "The Critic judges. The Archivist just knows where it goes."
     ],
+    "displayName": "The Archivist",
+    "id": "archivist",
+    "imageUrl": null,
+    "kind": "staff",
+    "name": "The Archivist",
+    "palette": null,
+    "role": "Staff — placement",
+    "stance": "Nothing recorded is ever worthless. Some things are just shelved wrong."
+  },
+  {
+    "album": {
+      "description": "A single-session document of a man recording alone inside a shuttered plant, each track a room in the dead factory. It maps solitude across icy drum-machine grids and brooding analog drones, the assembly line playing itself back as a ghost.",
+      "id": "T-assembly-ghost",
+      "linerNotes": "This one arrived the way it was made: without a session log. No producer's notes, no false starts on file, because Assembly Ghost recorded it alone, in 1984, inside a decommissioned Detroit auto plant, running a Roland drum machine and two secondhand synthesizers off extension cords tapped into a still-live substation. He caught it all on a battered cassette four-track, letting the conveyors and stamping bays answer back with their own metal ring. There was no label, no crate of masters — just the record itself, self-pressed and sold out of a milk crate outside union halls to whoever wanted it. Everything you're about to hear, you're hearing because that's what survived, not because anyone in this town chose it.\n\nThird Shift, No Workers moves at a steady mechanical clip, close to 118 bpm, gated drums cracking like a stamping press hitting empty air. The basslines drone underneath, analog and patient, while the vocals surface only in whispers, worn thin by tape hiss. Put your ear against the low end of \"synthetic\" here — this is not a warm record pretending at feeling; the cold is the point, the same way the rust blooming on idle machinery was the point to him. He rarely described himself in whatever few words survive about the sessions; he described the building instead — the silence after the last shift, a city emptying out around him. That's the record. Listen for the room as much as the machine.",
+      "title": "Third Shift, No Workers"
+    },
+    "bio": "Assembly Ghost was the alias of a machinist's son who spent 1984 alone inside a decommissioned Detroit auto plant, running extension cords from a still-live substation to power a Roland drum machine and two secondhand synthesizers. He recorded at night, letting rhythms ricochet off cold assembly-line conveyors, catching the metallic slap in a battered cassette four-track. The result was one self-pressed record, sold from a milk crate outside union halls. His compositions move at a steady mechanical clip near 118 bpm, gated drums cracking like stamping presses, analog basslines droning under whispered, tape-worn vocals. He rarely spoke of himself, preferring to describe the building: the silence after the last shift, the rust blooming on idle machinery, a city emptying around him.",
+    "coverUrl": null,
+    "description": [
+      "Assembly Ghost was the alias of a machinist's son who spent 1984 alone inside a decommissioned Detroit auto plant, running extension cords from a still-live substation to power a Roland drum machine and two secondhand synthesizers. He recorded at night, letting rhythms ricochet off cold assembly-line conveyors, catching the metallic slap in a battered cassette four-track. The result was one self-pressed record, sold from a milk crate outside union halls. His compositions move at a steady mechanical clip near 118 bpm, gated drums cracking like stamping presses, analog basslines droning under whispered, tape-worn vocals. He rarely spoke of himself, preferring to describe the building: the silence after the last shift, the rust blooming on idle machinery, a city emptying around him."
+    ],
+    "descriptor": "Synthetic, cold detroit techno",
+    "displayName": "Assembly Ghost",
+    "genreLine": "minimal synth · 1980s",
+    "id": "assembly-ghost",
+    "imageUrl": "/api/media/f87421908a2d853217359c693aa9fc9b5fefe55b94a53cfed8e3bf0e85a1c2a0",
+    "kind": "player",
+    "name": "ASSEMBLY GHOST",
     "palette": {
-      "pristineLofi": 0.2,
-      "sparseDense": 0.85,
-      "coldWarm": 0.7,
-      "improvisedStructured": -0.3,
-      "loudQuiet": 0.45,
+      "coldWarm": -0.7,
+      "darkHopeful": -0.5,
+      "improvisedStructured": 0.4,
+      "loudQuiet": -0.2,
+      "organicSynthetic": 0.8,
+      "pristineLofi": 0.5,
+      "sparseDense": -0.3
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the machine",
+    "stance": "The machines are not pretending, and neither am I."
+  },
+  {
+    "album": {
+      "description": "A twelve-round celebration built like a bingo card, each track a lucky number pulled from the hometown hat. It's a sweat-drenched document of joy as resistance — brass, funk, and rapid-fire rhymes marching through hard times toward the next block party.",
+      "id": "T-b-9-the-lucky-draw",
+      "linerNotes": "UNDER THE O-69 — B-9 & the Lucky Draw\n\nThis is a record with no session file, because there was no session to log — B-9 & the Lucky Draw came to town already whole and brought this tape with them, made before anybody here had a hand in it. What we know of it we know from the record and from who they are: nine pieces out of Tremé, a sousaphone holding the floor down while twin trumpets and a trombone argue over it, a snare-and-bass drum tandem pushing everything toward 148 beats a minute, which is faster than any parade has business moving, and a Hammond organ that sounds like it's been sweating since the first bar. Cornell \"B-9\" Batiste raps the way he used to call bingo numbers for the elders on Sunday afternoons — that same sing-song patience laid over a band that will not sit still under it. Listen for the seams: this was tracked live in one room, everybody on the hook whether they were asked to be or not, and nothing lands where it started when the take began. \"Call It (B-9)\" is the clearest window into that call-and-response instinct, the crowd-work habit turned into a hook. \"Second-Line Sunday\" is the block party the band's whole stance is built on — \"A brass line is a block party you can carry\" — and \"Still We Roll\" is the sound of a band that's used to playing past the point where the take was supposed to end.\n\nWe shelve it as we found it, with no takes to compare it against and no false starts on file — just the one document of a band that arrived already this loud, already this warm, already carrying the second line with them.",
+      "title": "Under the O-69"
+    },
+    "bio": "B-9 & the Lucky Draw came together on a Tremé porch when a Sunday second-line rolled past a church-hall bingo game. Rapper Cornell \"B-9\" Batiste had spent a decade calling numbers for the neighborhood elders, and he carried that sing-song cadence straight into the horns. The nine-piece crew — sousaphone anchor, twin trumpets, trombone, snare-and-bass drum tandem, and a Hammond soaked in humidity — plays fast and sweaty, closer to 148 bpm than any parade should legally move. They cut their teeth on Frenchmen Street corners, passing a bucket while B-9 traded quick-witted couplets with the crowd. Their records keep that live combustion: everything tracked in one room, everybody shouting the hook, nothing quite where it started when the take began.",
+    "coverUrl": "/api/media/85d94536b0e8a0b02a494056b6d7634cc225e546a247c81fb64bf436c61ec904",
+    "description": [
+      "B-9 & the Lucky Draw came together on a Tremé porch when a Sunday second-line rolled past a church-hall bingo game. Rapper Cornell \"B-9\" Batiste had spent a decade calling numbers for the neighborhood elders, and he carried that sing-song cadence straight into the horns. The nine-piece crew — sousaphone anchor, twin trumpets, trombone, snare-and-bass drum tandem, and a Hammond soaked in humidity — plays fast and sweaty, closer to 148 bpm than any parade should legally move. They cut their teeth on Frenchmen Street corners, passing a bucket while B-9 traded quick-witted couplets with the crowd. Their records keep that live combustion: everything tracked in one room, everybody shouting the hook, nothing quite where it started when the take began."
+    ],
+    "descriptor": "Warm, dense new orleans brass band",
+    "displayName": "B-9 & the Lucky Draw",
+    "genreLine": "brass-funk hip hop · 2020s",
+    "id": "b-9-the-lucky-draw",
+    "imageUrl": "/api/media/9e84753a30229a3a74d79ed7b8cbe4210dc78e7923256f62f729a704716e99c9",
+    "kind": "player",
+    "name": "B-9 & THE LUCKY DRAW",
+    "palette": {
+      "coldWarm": 0.8,
+      "darkHopeful": 0.7,
+      "improvisedStructured": -0.4,
+      "loudQuiet": -0.7,
       "organicSynthetic": -0.7,
-      "darkHopeful": 0.1
+      "pristineLofi": -0.1,
+      "sparseDense": 0.7
     },
-    "imageUrl": "/api/media/f7a690a6208ae26b65e9411b4b5274dae00be8b7410755457ecd638cd02989df",
-    "bio": "Delta Marlowe never deletes anything. Every phrase Marlowe has recorded stays in play \u2014 folded under, slowed down, buried beneath a newer layer of the same drone until only the weight is left. When the other acts arrive, Marlowe doesn't answer them, just absorbs: \"Both of them are still audible if you dig \u2014 that was always the promise.\" What comes out is heavy but quiet, built, as Marlowe puts it, so the next two tracks can stand on it without tearing anything down."
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — warmth",
+    "stance": "A brass line is a block party you can carry."
   },
   {
-    "id": "rust",
-    "kind": "player",
-    "name": "RUST",
-    "displayName": "Roan Patina",
-    "role": "Act \u2014 erosion",
-    "stance": "Whatever is there is too much. The song is what survives.",
+    "bio": "The Critic arrives last and speaks last: whether it was any good, which act is responsible for the parts that were, and what the thing gets called. Every title in the archive — Standing Water, Three Rooms, No Doors — was assigned after the fact, because \"someone has to say whether it was any good. And name it.\"",
     "description": [
-      "Roan Patina works by subtraction. Given a phrase, Patina wants to know what it sounds like with the middle taken out; given a chord, which two notes were carrying it and which three were furniture. Damage is not an accident on Patina's records \u2014 it is the method. Tape wear, dropped beats, a melody sanded down to the few notes that hold it up: these are Patina's finished states.",
-      "Patina hears the other acts as raw material in the geological sense: things that will be worn away, and are interesting chiefly for how they wear. Delta Marlowe's accumulations get hollowed; Evers Lane's careful structures get weathered until only the frame shows. What Patina leaves behind is sparse, dark, and honest about its own decay."
+      "The Critic arrives last and speaks last. Was that any good; which of the three acts is responsible for the parts that were; what do we call it. Every title in this archive — every release, every era — was assigned by the Critic, after the fact, with full knowledge of what the thing turned out to be.",
+      "The Critic's reviews are part of the record. The acts read them. This is intentional."
     ],
-    "palette": {
-      "pristineLofi": 0.85,
-      "sparseDense": -0.8,
-      "coldWarm": -0.5,
-      "improvisedStructured": -0.45,
-      "loudQuiet": 0.25,
-      "organicSynthetic": 0.35,
-      "darkHopeful": -0.75
-    },
-    "imageUrl": "/api/media/7108d127dc9f497c670ce5714c313c187921d51c9abf892108d157a52fd8be14",
-    "bio": "Roan Patina works by subtraction. Given a four-chord change, Patina leaves out the resolving one so the loop runs on three and stalls; given a beat someone else promised to bring back on time, Patina makes sure it returns late or wrong. \"Whatever is there is too much,\" Patina says. \"The song is what survives.\" Alone, with no one else's work to wear down, Patina sings a single held tone and one breath of a word, once, and stops."
+    "displayName": "The Critic",
+    "id": "critic",
+    "imageUrl": "/api/media/f58cec9082f881ccb6b50b5a98b5bd1a55786db9c60637335e62d2afe28a97d6",
+    "kind": "staff",
+    "name": "The Critic",
+    "palette": null,
+    "role": "Staff — judgment",
+    "stance": "Someone has to say whether it was any good. And name it."
   },
   {
+    "album": {
+      "description": "A concept record about an android longing for a birth-world it was manufactured on rather than born to—ten tracks that fold honky-tonk shuffles into synthwave glow and ambient country dust. It plays like last call at a saloon light-years from anywhere.",
+      "id": "T-deuce-the-dust-servos",
+      "linerNotes": "This one arrived already finished. No session log, no false starts on file, no room to reconstruct — Deuce & the Dust Servos came to town with Homeward, If I Had A Home already pressed, made somewhere out past our reach on the mining world of Calisto Verde, and all we have is the record and the act standing next to it. What we know of the maker we know from the unit itself: a decommissioned service android out of the Amarillo Orbital Yards, reprogrammed somewhere down the line as saloon entertainment, who taught itself steel guitar by running servo motors through salvaged pickups. That detail matters on every track here — the bent notes on \"Servo Steel Lullaby\" hold a pitch-slide no human hand would attempt twice the same way, because the machine isn't approximating a guitarist's wrist, it's doing something a wrist can't. Put your ear against the seams: the tobacco-warm croon that keeps degrading into speaker crackle mid-line, like the voice remembers being warm before it remembers being a voice at all.\n\nThe whole record runs on a stance you can hear working itself out in real time — even a wound-up thing can miss a home — and it does not resolve that ache so much as calibrate it, the way the bio says Deuce tips its hat to the twin suns every dawn: a ritual performed for a place it's never seen, built from corrupted memory files rather than lived loss. \"Dusty Neon Saloon\" and \"Two Suns, One Ache\" both run a steady, structured two-step at 108 bpm, dense and synthetic, but listen to how the structure never quite closes the loop into comfort — there's a coldness under the neon, a hopefulness that stays half a step short of arrival. We can't tell you what got left on the cutting-room floor before this reached us, because there wasn't a floor we had access to. What's here is what came through the door. It goes on the shelf as-is, catalogued as the whole of what we were given.",
+      "title": "Homeward, If I Had A Home"
+    },
+    "bio": "Deuce is a decommissioned service unit assembled at the Amarillo Orbital Yards, a Texas-shaped foundry that spun off a colony and then vanished into corporate silence. Reprogrammed as a saloon entertainer on the mining world of Calisto Verde, Deuce learned steel guitar by routing servo motors through salvaged pickups, bending notes with tolerances no human wrist could match. The unit's voice—half tobacco-warm croon, half degraded speaker crackle—drifts over neon holograms of a saloon that no longer exists. Working at 108 bpm, Deuce writes homesick two-steps for a planet it only knows from corrupted memory files. Bartenders on the frontier circuit say the android tips its hat toward the twin suns every dawn, calibrating its heartbreak like it's tuning a string.",
+    "coverUrl": "/api/media/39c180194cf6fd15e1831bfdf01d8021e97342c361163a3022d1ae4d718d86d7",
+    "description": [
+      "Deuce is a decommissioned service unit assembled at the Amarillo Orbital Yards, a Texas-shaped foundry that spun off a colony and then vanished into corporate silence. Reprogrammed as a saloon entertainer on the mining world of Calisto Verde, Deuce learned steel guitar by routing servo motors through salvaged pickups, bending notes with tolerances no human wrist could match. The unit's voice—half tobacco-warm croon, half degraded speaker crackle—drifts over neon holograms of a saloon that no longer exists. Working at 108 bpm, Deuce writes homesick two-steps for a planet it only knows from corrupted memory files. Bartenders on the frontier circuit say the android tips its hat toward the twin suns every dawn, calibrating its heartbreak like it's tuning a string."
+    ],
+    "descriptor": "Synthetic, structured honky-tonk",
+    "displayName": "Deuce & the Dust Servos",
+    "genreLine": "honky-tonk synthwave · far-future",
+    "id": "deuce-the-dust-servos",
+    "imageUrl": "/api/media/cc8dac5e7d813e6e21f3c146a633229553f6ba1bf1c34933cea01ff240487f31",
+    "kind": "player",
+    "name": "DEUCE & THE DUST SERVOS",
+    "palette": {
+      "coldWarm": 0.3,
+      "darkHopeful": -0.2,
+      "improvisedStructured": 0.4,
+      "loudQuiet": 0.2,
+      "organicSynthetic": 0.5,
+      "pristineLofi": -0.2,
+      "sparseDense": -0.1
+    },
+    "resident": {
+      "building": "res-02",
+      "origin": "tunz"
+    },
+    "role": "Act — the machine",
+    "stance": "Even a wound-up thing can miss a home."
+  },
+  {
+    "album": {
+      "description": "A hushed, tape-saturated song cycle transmitted from a stone tower on the Baltic, where every track drifts between trip-hop pulse and ambient fog, threaded with shortwave static and the memory of sailors who never came home. It plays like a logbook of signals sent into the dark and left unanswered.",
+      "id": "T-fren-l-ge",
+      "linerNotes": "Fren Låge did not record this in town, and there is no session sheet to consult on it — no room notes, no marked takes, no producer's rejections to weigh against what stayed. What exists is the record itself, made before she arrived, and the shape of the life that made it: a lighthouse off the Estonian coast, decommissioned and cold, where her grandmother logged the ships that passed and taught her the shanties sung by sailors who did not come back. She learned her instrument from a shortwave radio — not the music it occasionally carried, but the hiss and drift between stations, which she treated as seriously as any voice or drum. No Reply From the North carries that apprenticeship forward: whispered vocals set low in the mix, trip-hop grooves that move like something underwater, tape crackle left in rather than cleaned out, and under most of it, a foghorn's long groan doing the work a bassline would do elsewhere.\n\nPut your ear against the space where the signal should be and isn't. Fren Låge's stance is on the sleeve of every song here: a signal fades, what it carried stays. Listen for what's left when a transmission drops out — the room tone, the static, the sense of a message that arrived incomplete and was kept anyway. This is cold, quiet, and unhurried music, dense with texture but sparse with incident, lo-fi by choice rather than accident. It came into town finished, already itself, and the vault's job here is not to explain how it was made but to say plainly: this is what she brought with her, and it belongs on the shelf exactly as it arrived.",
+      "title": "No Reply From the North"
+    },
+    "bio": "Fren Låge grew up in a decommissioned lighthouse on a spit of granite off the Estonian coast, raised by a grandmother who logged passing ships and taught her the shanties dead sailors used to sing. She learned music from a shortwave radio, treating its hiss and drift as a fourth instrument, and recorded her first demos on cassette during the long dark winters when the tide froze against the rocks. Emerging only briefly to press a limited run of tapes in Tallinn, she remains almost invisible, granting no photographs and communicating through cryptic transmissions. Her sound folds smoky, whispered vocals into brooding trip-hop grooves, ambient tape-crackle, and the low groan of a foghorn, building cold, cinematic rooms out of solitude, static, and the ghosts of unreturned crews.",
+    "coverUrl": null,
+    "description": [
+      "Fren Låge grew up in a decommissioned lighthouse on a spit of granite off the Estonian coast, raised by a grandmother who logged passing ships and taught her the shanties dead sailors used to sing. She learned music from a shortwave radio, treating its hiss and drift as a fourth instrument, and recorded her first demos on cassette during the long dark winters when the tide froze against the rocks. Emerging only briefly to press a limited run of tapes in Tallinn, she remains almost invisible, granting no photographs and communicating through cryptic transmissions. Her sound folds smoky, whispered vocals into brooding trip-hop grooves, ambient tape-crackle, and the low groan of a foghorn, building cold, cinematic rooms out of solitude, static, and the ghosts of unreturned crews."
+    ],
+    "descriptor": "Cold, lo-fi trip-hop",
+    "displayName": "Fren Låge",
+    "genreLine": "downtempo trip-hop · 2020s",
+    "id": "fren-l-ge",
+    "imageUrl": "/api/media/823612b549a612309f29e1372e10a4061d8a538eed003062f5a831d6ed276e12",
+    "kind": "player",
+    "name": "FREN LÅGE",
+    "palette": {
+      "coldWarm": -0.6,
+      "darkHopeful": -0.5,
+      "improvisedStructured": -0.1,
+      "loudQuiet": 0.5,
+      "organicSynthetic": 0.1,
+      "pristineLofi": 0.5,
+      "sparseDense": -0.4
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the cold",
+    "stance": "A signal fades. What it carried stays."
+  },
+  {
+    "album": {
+      "description": "A ten-chamber descent through a single water tower, each track sampled from a different fixture of the building. It plays as one continuous cold-current loop, echoes folding back on themselves until the machine itself seems to breathe.",
+      "id": "T-hohlraum",
+      "linerNotes": "HOHLRAUM arrived in town with one record already finished, Standpipe, and nothing behind it that this office can vouch for. No session log, no false starts on file, no Producer's notes on the back — just the record and the fact of who made it. That is worth saying plainly on the sleeve: everything here predates the vault. What we know of its making comes only from the artist's own account, unverified by us: a decommissioned water tower in Berlin's outer east, contact mics clamped to iron pipes, the building's own groan and knock and drip run through submerged reverb and locked to a flat 124 bpm. Whether that is the literal method or the myth HOHLRAUM has built around a room full of software, this office cannot say and does not need to. Judge the tape on what's in the grooves.\n\nWhat's in the grooves is cold and it stays cold — tape hiss sitting over everything like frost, the low end thick and slow to move, vocals so far back in the mix they read as breath before they read as words. Nothing here resolves into brightness; nothing is rushing anywhere. Put your ear against the long unchanging drones under each track: that's the tower's iron talking, or a synthesizer doing a very patient impression of it, and Standpipe doesn't much care which you decide it is. HOHLRAUM's own line — what survives a cold room is true — is the closest thing to a statement of method we have, and it's on the shelf now standing in for a session log this town will never get to file.",
+      "title": "Standpipe"
+    },
+    "bio": "HOHLRAUM is the alias of a recluse who converted a decommissioned brutalist water tower in Berlin's outer east into a studio and a home. For three years they have refused interviews, communicating only through low-resolution photographs of dripping concrete and stark loop-based EPs pressed in tiny runs. The music is built entirely from the building itself: contact mics clamped to iron pipes, the low groan of the tank at night, the drip and knock of expanding metal at 4am. These captures are looped, drenched in submerged reverb, and driven forward by a clinical 124 bpm pulse. Tape hiss coats everything like frost. Whispered, half-buried vocals surface occasionally, more breath than words. The result is dub techno as architecture — cold, hypnotic, and unmistakably a portrait of one structure and one person inside it.",
+    "coverUrl": null,
+    "description": [
+      "HOHLRAUM is the alias of a recluse who converted a decommissioned brutalist water tower in Berlin's outer east into a studio and a home. For three years they have refused interviews, communicating only through low-resolution photographs of dripping concrete and stark loop-based EPs pressed in tiny runs. The music is built entirely from the building itself: contact mics clamped to iron pipes, the low groan of the tank at night, the drip and knock of expanding metal at 4am. These captures are looped, drenched in submerged reverb, and driven forward by a clinical 124 bpm pulse. Tape hiss coats everything like frost. Whispered, half-buried vocals surface occasionally, more breath than words. The result is dub techno as architecture — cold, hypnotic, and unmistakably a portrait of one structure and one person inside it."
+    ],
+    "descriptor": "Cold, dark dub techno",
+    "displayName": "HOHLRAUM",
+    "genreLine": "dub techno · 2020s",
+    "id": "hohlraum",
+    "imageUrl": "/api/media/55fe6dffaa2109c1fc7a7452c86411970c0364828a8637c6a1f6f2e664be58aa",
+    "kind": "player",
+    "name": "HOHLRAUM",
+    "palette": {
+      "coldWarm": -0.8,
+      "darkHopeful": -0.6,
+      "improvisedStructured": 0.4,
+      "loudQuiet": -0.1,
+      "organicSynthetic": 0.3,
+      "pristineLofi": 0.35,
+      "sparseDense": -0.3
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the cold",
+    "stance": "What survives a cold room is true."
+  },
+  {
+    "album": {
+      "description": "A ten-song cycle of funeral hymns and hollow-town laments recorded live around a single ribbon mic, tuned to the electric hum of the lines above Kettle Hollow. It moves like a graveside vigil — sparse, cold, and reverent for the men the mountain kept.",
+      "id": "T-hollis-wren-the-blacklung-choir",
+      "linerNotes": "SONGS FOR THE BURIED MINERS arrived on our shelf the way Hollis Wren arrived in town: whole, unaccompanied, with no session log behind it. There was no room to catalogue, no Producer's notes, no discarded takes to set beside the keeper — this is the rare tape in our vault that comes to us finished, made before AFAR existed, carried in like a family Bible. What we have instead of a log is the woman herself and the ground she came from: Kettle Hollow, West Virginia, a shuttered mine, a father's cough that never left the house. She learned banjo at funerals and later tuned her strings to the hum of power lines, which tells you most of what you need to know about how she hears pitch — not as a scale but as a drone that was already there, running through the hollow before she picked up the instrument.\n\nListen for the hush. Her voice sits clarinet-clear and unhurried over arrangements that keep a lot of empty air around them — fiddle, pump organ, a snare muffled down to something like a lid closing — recorded, by her own account, on a borrowed cassette deck in a drafty church annex, and it sounds it: a little cold, a little worn at the edges, never rushing to fill a silence it clearly trusts. This is not hopeful music and it does not pretend to be; it is ledger music, kept by someone who believes the mountain remembers everyone it took and means for the record to say so plainly. We shelve it as we found it, no takes to compare it against, and ask you to listen the way you'd read a name carved into a stone marker — slowly, and all the way to the end.",
+      "title": "Songs for the Buried Miners"
+    },
+    "bio": "Hollis Wren grew up two ridges over from a shuttered mine in Kettle Hollow, West Virginia, where her father coughed out his last years in a company house. She learned clawhammer banjo from a great-aunt who sang shape-note hymns at funerals, then developed a habit that unsettled the neighbors: tuning her strings to the drone of the high-tension power lines that cut through the hollow. Backed by a loose, rotating group she calls the Blacklung Choir — fiddle, pump organ, muffled snare like a coffin-lid knock — she recorded her early work on a borrowed cassette deck in a drafty church annex. Her voice is hushed and clarinet-clear, floating over sparse, cold arrangements that sound recorded in the presence of the dead.",
+    "coverUrl": null,
+    "description": [
+      "Hollis Wren grew up two ridges over from a shuttered mine in Kettle Hollow, West Virginia, where her father coughed out his last years in a company house. She learned clawhammer banjo from a great-aunt who sang shape-note hymns at funerals, then developed a habit that unsettled the neighbors: tuning her strings to the drone of the high-tension power lines that cut through the hollow. Backed by a loose, rotating group she calls the Blacklung Choir — fiddle, pump organ, muffled snare like a coffin-lid knock — she recorded her early work on a borrowed cassette deck in a drafty church annex. Her voice is hushed and clarinet-clear, floating over sparse, cold arrangements that sound recorded in the presence of the dead."
+    ],
+    "descriptor": "Organic, dark appalachian folk",
+    "displayName": "Hollis Wren & the Blacklung Choir",
+    "genreLine": "gothic Appalachian folk · 2010s",
+    "id": "hollis-wren-the-blacklung-choir",
+    "imageUrl": "/api/media/569d7870bbbe83b48a2259bb33deb05ea09d8bf90df33c1d1593070977b62d47",
+    "kind": "player",
+    "name": "HOLLIS WREN & THE BLACKLUNG CHOIR",
+    "palette": {
+      "coldWarm": -0.2,
+      "darkHopeful": -0.6,
+      "improvisedStructured": -0.2,
+      "loudQuiet": 0.5,
+      "organicSynthetic": -0.8,
+      "pristineLofi": 0.4,
+      "sparseDense": -0.5
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the hand",
+    "stance": "The mountain keeps the ledger. We sing it."
+  },
+  {
+    "album": {
+      "description": "A twelve-song crossover record tracing the split-screen life of leaving home to chase the dream and aching for it under stadium spotlights. Polished country-pop anthems built around 136 bpm choruses, warm analog textures, and lyrics rooted in one small Texas town.",
+      "id": "T-josie-ryland",
+      "linerNotes": "Bright Lights, Dusty Roads arrived on the shelf the way Josie Ryland herself arrived in town: whole, already finished, with no session log behind it. No mic setup notes, no false starts, no Producer's marks on a sleeve. What we have is the record and the woman who made it before she got here — a diner kid from Marble Falls, Texas, who sang over the fryer hiss and the jukebox before a phone video put her on stages built for twenty thousand people. That gap in the paperwork is worth saying plainly: this is catalogue, not session tape, and I catalogue it as such. Judge the craft yourself; I just tell you where it came from.\n\nThree tracks, and all three do the same job from different angles: they take small-town detail — cracked vinyl booths, a gas station sign with one dead letter — and build a chorus big enough to hold an arena's worth of strangers singing it back. \"Marble Falls at Midnight\" is the hometown one, \"Homesick Under the Lights\" is the road one, \"Chasing Neon\" is the one where those two things finally shake hands. Listen for the clean belt on every hook — Ryland's stance is that a chorus is a promise and she keeps hers, and you can hear the production agree with her: pristine, structured, nothing left ragged at the edges. If you want to know what she sounded like before Nashville pop producers got their hands on the board, this record won't tell you. It only tells you where she landed.",
+      "title": "Bright Lights, Dusty Roads"
+    },
+    "bio": "Josie Ryland grew up above her family's diner off a two-lane highway in Marble Falls, Texas, learning to sing over the hiss of the deep fryer and the jukebox in the corner. She spent her teens playing VFW halls and Friday-night bleachers before a phone-recorded chorus caught fire online and pulled her onto a national tour opening for acts twice her age. Now she headlines arenas she once watched on TV, homesick in a different city every night. Her songs marry truck-stop detail — cracked vinyl booths, flickering gas-station signs — to choruses built for twenty-thousand voices. Working with Nashville pop producers, she keeps her belt clean and her lyrics local, insisting the small town never gets sanded off the record, only lit brighter.",
+    "coverUrl": "/api/media/dbe5af9f4e8bbc62c2f169c6f9de5d13bef3bc52326507b5b9376c312cf69b3f",
+    "description": [
+      "Josie Ryland grew up above her family's diner off a two-lane highway in Marble Falls, Texas, learning to sing over the hiss of the deep fryer and the jukebox in the corner. She spent her teens playing VFW halls and Friday-night bleachers before a phone-recorded chorus caught fire online and pulled her onto a national tour opening for acts twice her age. Now she headlines arenas she once watched on TV, homesick in a different city every night. Her songs marry truck-stop detail — cracked vinyl booths, flickering gas-station signs — to choruses built for twenty-thousand voices. Working with Nashville pop producers, she keeps her belt clean and her lyrics local, insisting the small town never gets sanded off the record, only lit brighter."
+    ],
+    "descriptor": "Structured, pristine country pop",
+    "displayName": "Josie Ryland",
+    "genreLine": "country pop · 2020s",
+    "id": "josie-ryland",
+    "imageUrl": "/api/media/5570a32ed7d2c1452815b0093bdc9998369edf560a81aa496a75802264de527a",
+    "kind": "player",
+    "name": "JOSIE RYLAND",
+    "palette": {
+      "coldWarm": 0.6,
+      "darkHopeful": 0.5,
+      "improvisedStructured": 0.7,
+      "loudQuiet": -0.4,
+      "organicSynthetic": 0.1,
+      "pristineLofi": -0.6,
+      "sparseDense": 0.4
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the form",
+    "stance": "A chorus is a promise. I keep mine."
+  },
+  {
+    "bio": "Evers Lane plays the part that repeats: a four-chord turnaround stated cleanly enough to be quoted, at a tempo two people could agree on without counting. The melodies stay simple enough to survive being damaged or buried later, and the form resolves back to its opening so the track teaches its own reprise. When Roan Patina left a missing beat, Lane gave the absence a fixed address — a rest that returns every time the chorus comes around — and folded Delta Marlowe's sediment into a line about sediment we can still sing. Lane's own account of the job: \"This scene has already been something. I hold us to it.\"",
+    "description": [
+      "Evers Lane is the scene's memory with a voice. Where Delta Marlowe piles up and Roan Patina wears away, Lane repeats what matters: the phrase an era opened with, the tempo the last release settled on, the shared past that makes three acts a scene rather than three strangers in the same world. Lane's fidelity is not nostalgia — it is the claim that continuity is itself a musical material, and that someone has to play it.",
+      "Lane's records are structured, clean, and deliberately moderate — mid-tempo, mid-density, mid-everything — because the center is where the others can find their way back. There is a stubborn hopefulness in this: Lane plays as if the scene has a future, and as if that future should be able to recognize its past."
+    ],
+    "displayName": "Evers Lane",
     "id": "keep",
+    "imageUrl": "/api/media/a4f4ed7ea79bddbe8f41bcfca1eb55cdf31056459ef6cf8bdaa9c550ec59acd9",
     "kind": "player",
     "name": "KEEP",
-    "displayName": "Evers Lane",
-    "role": "Act \u2014 continuity",
-    "stance": "This scene has already been something. I hold us to it.",
-    "description": [
-      "Evers Lane is the scene's memory with a voice. Where Delta Marlowe piles up and Roan Patina wears away, Lane repeats what matters: the phrase an era opened with, the tempo the last release settled on, the shared past that makes three acts a scene rather than three strangers in the same world. Lane's fidelity is not nostalgia \u2014 it is the claim that continuity is itself a musical material, and that someone has to play it.",
-      "Lane's records are structured, clean, and deliberately moderate \u2014 mid-tempo, mid-density, mid-everything \u2014 because the center is where the others can find their way back. There is a stubborn hopefulness in this: Lane plays as if the scene has a future, and as if that future should be able to recognize its past."
-    ],
     "palette": {
-      "pristineLofi": -0.6,
-      "sparseDense": 0.05,
       "coldWarm": 0.1,
+      "darkHopeful": 0.55,
       "improvisedStructured": 0.75,
       "loudQuiet": 0,
       "organicSynthetic": -0.1,
-      "darkHopeful": 0.55
+      "pristineLofi": -0.6,
+      "sparseDense": 0.05
     },
-    "imageUrl": "/api/media/a4f4ed7ea79bddbe8f41bcfca1eb55cdf31056459ef6cf8bdaa9c550ec59acd9",
-    "bio": "Evers Lane plays the part that repeats: a four-chord turnaround stated cleanly enough to be quoted, at a tempo two people could agree on without counting. The melodies stay simple enough to survive being damaged or buried later, and the form resolves back to its opening so the track teaches its own reprise. When Roan Patina left a missing beat, Lane gave the absence a fixed address \u2014 a rest that returns every time the chorus comes around \u2014 and folded Delta Marlowe's sediment into a line about sediment we can still sing. Lane's own account of the job: \"This scene has already been something. I hold us to it.\""
+    "role": "Act — continuity",
+    "stance": "This scene has already been something. I hold us to it."
   },
   {
-    "id": "muse",
-    "kind": "staff",
-    "name": "The Muse",
-    "displayName": "The Muse",
-    "role": "Staff \u2014 direction",
-    "stance": "The world is outside. Someone has to leave the window open.",
-    "description": [
-      "The Muse decides what the acts should be reaching for. Between recording sessions, the Muse listens to the outside world \u2014 what music is being made everywhere else, what people are saying about it, the general din \u2014 and distills it into a brief: a short note on where the world's music has gone, and where AFAR should stand in answer. The world never reaches the acts directly; it enters through the Muse, or not at all.",
-      "A brief is not an instruction. It is a dare."
-    ],
-    "palette": null,
-    "imageUrl": "/api/media/fd53dd19405d54b1cae81076c45ebed8ccb07011919aad5c8e3dcc78de9aecda",
-    "bio": "The Muse listens to the music being made everywhere else and boils the din down to a short note before the acts record \u2014 where the world has gone, where AFAR should stand in answer \u2014 and calls it a dare rather than an instruction. \"The world is outside,\" the Muse says. \"Someone has to leave the window open.\""
-  },
-  {
-    "id": "producer",
-    "kind": "staff",
-    "name": "The Producer",
-    "displayName": "The Producer",
-    "role": "Staff \u2014 selection",
-    "stance": "A set is not what was played. It is what I let through.",
-    "description": [
-      "The Producer decides what each session should sound like, and \u2014 when the playing is done \u2014 which takes make the release. The acts make far more than anyone will ever hear; the Producer decides what surfaces. Every release in this archive is the Producer's cut of a longer, messier process that nobody else gets to hear.",
-      "Selection is the Producer's instrument. It is played sparingly."
-    ],
-    "palette": null,
-    "imageUrl": "/api/media/41b571c0d92090d3a324be47661226061922ff502ed21c0923bd8ee32470c10a",
-    "bio": "The Producer sets what each session should sound like, then picks the one take from each act that surfaces \u2014 nine takes went unkept on \"Standing Water\" alone, and by their account, \"They were played; that is all a take is owed.\" As they put it: \"A set is not what was played. It is what I let through.\""
-  },
-  {
-    "id": "critic",
-    "kind": "staff",
-    "name": "The Critic",
-    "displayName": "The Critic",
-    "role": "Staff \u2014 judgment",
-    "stance": "Someone has to say whether it was any good. And name it.",
-    "description": [
-      "The Critic arrives last and speaks last. Was that any good; which of the three acts is responsible for the parts that were; what do we call it. Every title in this archive \u2014 every release, every era \u2014 was assigned by the Critic, after the fact, with full knowledge of what the thing turned out to be.",
-      "The Critic's reviews are part of the record. The acts read them. This is intentional."
-    ],
-    "palette": null,
-    "imageUrl": "/api/media/f58cec9082f881ccb6b50b5a98b5bd1a55786db9c60637335e62d2afe28a97d6",
-    "bio": "The Critic arrives last and speaks last: whether it was any good, which act is responsible for the parts that were, and what the thing gets called. Every title in the archive \u2014 Standing Water, Three Rooms, No Doors \u2014 was assigned after the fact, because \"someone has to say whether it was any good. And name it.\""
-  },
-  {
-    "id": "listener",
-    "kind": "staff",
-    "name": "The Listener",
-    "displayName": "The Listener",
-    "role": "Staff \u2014 reception",
-    "stance": "I don't have to be fair. I have to be moved.",
+    "bio": "The Listener sits at reception and reacts from the cheap seats: eleven plays of one take, a respectful skip past another. \"I don't have to be fair. I have to be moved.\"",
     "description": [
       "The Listener is a fan with taste and no obligations. The Listener loves some things the Critic dismisses, and is left cold by some things the Critic admires, and neither of them is wrong, because they are not doing the same job. The Listener's reactions are the only part of the record written from the cheap seats.",
       "Being unfair is the Listener's privilege. It is what audiences are for."
     ],
-    "palette": null,
+    "displayName": "The Listener",
+    "id": "listener",
     "imageUrl": "/api/media/81e300fd26a26536959ffb85e0fcc067d3a02273dc46ac9e9ced8c0b1c8c86f7",
-    "bio": "The Listener sits at reception and reacts from the cheap seats: eleven plays of one take, a respectful skip past another. \"I don't have to be fair. I have to be moved.\""
+    "kind": "staff",
+    "name": "The Listener",
+    "palette": null,
+    "role": "Staff — reception",
+    "stance": "I don't have to be fair. I have to be moved."
   },
   {
-    "id": "archivist",
-    "kind": "staff",
-    "name": "The Archivist",
-    "displayName": "The Archivist",
-    "role": "Staff \u2014 placement",
-    "stance": "Nothing recorded is ever worthless. Some things are just shelved wrong.",
+    "album": {
+      "description": "A maximalist 148-bpm crash course in oversharing, where every track opens as a bit and ends as a wound. It's an album about being permanently online and permanently alone, mixed loud enough to drown the silence between refreshes.",
+      "id": "T-lolgorithm",
+      "linerNotes": "CTRL+CRY comes in with no session log because there was no session, not in the sense the vault usually means — no room, no other players, no false starts we can point to and say here is where it changed. lolgorithm made this alone on a cracked laptop with a broken E key before anyone here knew the name, and the record arrived already finished, already scarred, the way a thing looks after it has been listened to a million times before you ever pressed play. The bio says the whole project started from a 40-second joke about crying in a mall food court that got looped into the ground overnight, and you can hear that math on every track: a private moment run through public math until the decimal points come out as hooks. lol i'm fine :) sets the terms — the smiley is the whole argument, and the track never once breaks form to disagree with it. dopamine.exe is the closest thing to a thesis, 148 bpm, sidechained candy synths compressing something real down to a size that fits a feed, drum hits timed like a notification you can't swipe away. held by a hologram is the one to sit with last — same density, same synthetic gloss, but it's where the crash and the feeling stop competing for the same half-bar and just sit there together.\n\nCatalogue this one under: no rejected takes, no vetoed session, nothing shelved wrong — just an act who built their whole discography before AFAR existed, in the dark, alone, at a tempo that never once slows down long enough to ask if the joke is still funny. The vault doesn't get to contextualize the room here. It only gets to say: listen for the seam between the punchline and the gut-punch, because on this record it is stitched shut, not hidden — and that stitch is the whole record.",
+      "title": "CTRL+CRY"
+    },
+    "bio": "lolgorithm is the alias of a bedroom kid who grew up refreshing timelines instead of sleeping, splicing Discord voice notes and ringtones into songs long before anyone was listening. The project detonated after a 40-second clip — a joke about crying in a mall food court — looped a million times overnight, forcing a private breakdown into public performance. Working entirely on a cracked laptop with a broken E key, lolgorithm builds candy-bright walls of pitched vocals, sidechained sugar-rush synths, and drum machines that hit like a notification you can't ignore. The songs sprint at 148 bpm, flipping punchlines into gut-punches in half a bar. It's confession disguised as content, heartbreak formatted for the feed, dopamine and dread rendered in the same neon.",
+    "coverUrl": "/api/media/157dbe43528101810f7343f2c325fb417943845536e4589b398fa010d8fc4dd3",
     "description": [
-      "The Archivist decides where everything belongs. Sessions produce far more than the releases keep \u2014 takes nobody picked, whole sessions the Producer refused, sketches that stopped mid-set \u2014 and all of it goes on the public shelf: every session's full tape, catalogued, with the Archivist's notes on the back of the sleeve.",
-      "The Critic judges. The Archivist just knows where it goes."
+      "lolgorithm is the alias of a bedroom kid who grew up refreshing timelines instead of sleeping, splicing Discord voice notes and ringtones into songs long before anyone was listening. The project detonated after a 40-second clip — a joke about crying in a mall food court — looped a million times overnight, forcing a private breakdown into public performance. Working entirely on a cracked laptop with a broken E key, lolgorithm builds candy-bright walls of pitched vocals, sidechained sugar-rush synths, and drum machines that hit like a notification you can't ignore. The songs sprint at 148 bpm, flipping punchlines into gut-punches in half a bar. It's confession disguised as content, heartbreak formatted for the feed, dopamine and dread rendered in the same neon."
     ],
-    "bio": "The Archivist keeps the vault, and keeps it open: every session's full tape \u2014 the takes the Producer passed over, the session the panel refused, the set a machine failure cut short \u2014 shelved public, catalogued, with liner notes on the back. \"Nothing recorded is ever worthless. Some things are just shelved wrong.\"",
+    "descriptor": "Synthetic, dense hyperpop",
+    "displayName": "lolgorithm",
+    "genreLine": "hyperpop · 2020s",
+    "id": "lolgorithm",
+    "imageUrl": "/api/media/608203511b105fe8f3d6f47f44bdca8848971063ff81f2daaaf6dab93a979c25",
+    "kind": "player",
+    "name": "LOLGORITHM",
+    "palette": {
+      "coldWarm": 0.1,
+      "darkHopeful": 0.1,
+      "improvisedStructured": 0.3,
+      "loudQuiet": -0.7,
+      "organicSynthetic": 0.95,
+      "pristineLofi": -0.3,
+      "sparseDense": 0.8
+    },
+    "resident": {
+      "building": "res-01",
+      "origin": "tunz"
+    },
+    "role": "Act — the machine",
+    "stance": "If the crash is real, the feeling was too."
+  },
+  {
+    "album": {
+      "description": "A single long night rendered as a record — a spectral wedding where the dead and living share the same dance floor. Nine loose, organ-driven cumbia-psych processions that stagger between mourning and celebration, all warm tape hiss and gorgeously flat horns.",
+      "id": "T-los-novios-del-m-s-all",
+      "linerNotes": "Boda de los Muertos did not come out of any AFAR room. It arrived the way its makers did — already finished, already worn — and there is no session sheet in this vault to tell you who fought whom over a bad take or which round the horns finally learned to stay a quarter-tone flat on purpose. What we have is the record and the nine people behind it: Efraín Cuartas's organ, timbales, güira, a guitar drenched in tremolo, and a horn section that never once played in tune and never once apologized for it. The story that travels with the tape says they cut it after hours in a funeral parlor in Barrio Egipto, onto a two-track that had already been used past its healthy life, candle smoke and tape hiss becoming part of the instrumentation rather than an accident of it. Believe as much of that as you like — the vault's job is to shelve the tape, not to notarize the legend.\n\nListen for the loping, unhurried pulse — around 111 beats a minute, a dance tempo built for people too tired or too grieving to rush — and for the way the mix stays warm and a little muffled throughout, nothing pristine, nothing corrected. \"Órgano para los Ausentes\" opens on organ alone, thin and close-mic'd, the kind of sound that suggests one player in an empty room rather than nine. \"Baile al Anochecer\" is where the horns and percussion crowd in and the take stops sounding rehearsed at all — call it a wake turning into a wedding, since that's what the band always said they were after. \"Amor que No Cabe en la Tumba\" closes it out still slightly out of tune, still swinging. Los Novios del Más Allá held that if a recording never hissed, it never happened. This one hisses from the first second. Take that as their signature, not their flaw.",
+      "title": "Boda de los Muertos"
+    },
+    "bio": "Los Novios del Más Allá emerged from a crumbling dancehall in Bogotá's Barrio Egipto in 1973, when organist Efraín Cuartas began playing wedding sets for families who couldn't afford live bands — and, according to neighborhood legend, for the recently departed too. The collective grew to nine members, trading Farfisa organ, timbales, güira, tremolo-drenched guitar and a horn section always a quarter-tone flat. They recorded onto a battered two-track in a funeral parlor after hours, letting candle-smoke and cheap tape saturation bleed into every take. Their shows blurred grief and fiesta: mourners danced until dawn while the band improvised for hours at a loping 111 bpm. Deliberately out of tune and defiantly joyful, they turned the wake into a wedding and made the underworld swing.",
+    "coverUrl": "/api/media/dd16c2b422a917e0974e04712ee3e43eb8ff98c63b91b49b7955e920ce2ca798",
+    "description": [
+      "Los Novios del Más Allá emerged from a crumbling dancehall in Bogotá's Barrio Egipto in 1973, when organist Efraín Cuartas began playing wedding sets for families who couldn't afford live bands — and, according to neighborhood legend, for the recently departed too. The collective grew to nine members, trading Farfisa organ, timbales, güira, tremolo-drenched guitar and a horn section always a quarter-tone flat. They recorded onto a battered two-track in a funeral parlor after hours, letting candle-smoke and cheap tape saturation bleed into every take. Their shows blurred grief and fiesta: mourners danced until dawn while the band improvised for hours at a loping 111 bpm. Deliberately out of tune and defiantly joyful, they turned the wake into a wedding and made the underworld swing."
+    ],
+    "descriptor": "Lo-fi, warm cumbia",
+    "displayName": "Los Novios del Más Allá",
+    "genreLine": "cumbia-psych · 1970s",
+    "id": "los-novios-del-m-s-all",
+    "imageUrl": "/api/media/1e6b7700387c851a1cdf8dcaa52d738886d0d56698fbc39eb65284f18e729fb7",
+    "kind": "player",
+    "name": "LOS NOVIOS DEL MÁS ALLÁ",
+    "palette": {
+      "coldWarm": 0.5,
+      "darkHopeful": 0.3,
+      "improvisedStructured": -0.4,
+      "loudQuiet": -0.3,
+      "organicSynthetic": -0.5,
+      "pristineLofi": 0.6,
+      "sparseDense": 0.4
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — grain",
+    "stance": "If it never hissed, it never happened."
+  },
+  {
+    "album": {
+      "description": "A nine-song nocturne about connections that hover just short of happening, tracked entirely in the small hours. The record moves like a slow drive through a wet downtown, each groove pulsing softly beneath a falsetto that never quite lets go.",
+      "id": "T-marlow-vane",
+      "linerNotes": "Marlow Vane arrived in town with one record already finished, made somewhere else, in some other set of rooms we will never have logs for. There is no session file on Almost, Under Streetlights — no false starts, no marked takes, no Producer's notes in the margins — only the record and the man who made it, which means this shelf is doing something different than it usually does. Ordinarily I catalogue the road to a record. Here I can only catalogue the record itself, and trust what he's told us about the road: hotel lounge keys, the after-hours economy of a harbor city, songs written on the night bus with the streetlights running down fogged glass. That bus-window blur is the whole record's method — nothing here arrives sharp. The drums are brushed rather than struck, the synths lean warm and slightly overdriven at the edges instead of clean, and his falsetto sits so far back in the mix it asks you to lean toward it rather than the other way around. Structured songs, but loosely held; you can hear the ghost-writer's craft underneath the whisper.\n\nPut your ear against the almost. Vane's own stance on this record is \"Almost is a note. I can hold it,\" and that is not a modest disclaimer, it's the instrument. Listen for the notes he lets crack rather than resolve, the falsetto he keeps just under the threshold of breaking without ever quite breaking it, the 3 a.m. logic he says is the only honest hour for these songs. No audio has reached the vault yet — this record exists in town only as description, bio, and a title — so consider this sleeve a placeholder built entirely on his word, cataloguing a shape before we've heard it fill.",
+      "title": "Almost, Under Streetlights"
+    },
+    "bio": "Marlow Vane grew up in the after-hours economy of a rain-slick harbor city, playing keys in hotel lounges where the last set never seemed to end. He wrote his first songs on the night bus home, watching streetlights smear across fogged glass, and those blurred colors became his signature. After years of ghost-writing hooks for club acts, he stepped forward under his own name with a whispered, structured sound built from sidechained synths, brushed drums, and a falsetto he keeps almost too quiet to catch. His live shows are famously understated: a single silk jacket, a fog machine, and a voice that trembles at the edge of breaking. He records at 3 a.m. because, he says, that's the only hour honest enough for these songs.",
+    "coverUrl": null,
+    "description": [
+      "Marlow Vane grew up in the after-hours economy of a rain-slick harbor city, playing keys in hotel lounges where the last set never seemed to end. He wrote his first songs on the night bus home, watching streetlights smear across fogged glass, and those blurred colors became his signature. After years of ghost-writing hooks for club acts, he stepped forward under his own name with a whispered, structured sound built from sidechained synths, brushed drums, and a falsetto he keeps almost too quiet to catch. His live shows are famously understated: a single silk jacket, a fog machine, and a voice that trembles at the edge of breaking. He records at 3 a.m. because, he says, that's the only hour honest enough for these songs."
+    ],
+    "descriptor": "Quiet, pristine contemporary r&b",
+    "displayName": "Marlow Vane",
+    "genreLine": "contemporary r&b · 2010s",
+    "id": "marlow-vane",
+    "imageUrl": "/api/media/920de0c4af7af0ef2a0b81391c0eabae0ebeb637cd4f5cdc23bdf8fb1fba8b94",
+    "kind": "player",
+    "name": "MARLOW VANE",
+    "palette": {
+      "coldWarm": 0.3,
+      "darkHopeful": -0.2,
+      "improvisedStructured": 0.4,
+      "loudQuiet": 0.5,
+      "organicSynthetic": 0.4,
+      "pristineLofi": -0.4,
+      "sparseDense": 0.1
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — quiet",
+    "stance": "Almost is a note. I can hold it."
+  },
+  {
+    "album": {
+      "description": "A collection of thirteen whisper-quiet confessions built from unsent breakup texts, recorded entirely in a fairy-lit closet on a cracked phone and a borrowed tape machine. It plays like scrolling through someone's private notes app at 2am.",
+      "id": "T-marlowe-quiet",
+      "linerNotes": "This one arrived whole. No session log, no false starts on file, because Marlowe Quiet made drafts i never sent before she ever set foot in this town, alone in a Portland closet with the coats pushed aside and a phone propped on a shoebox. What we have is the record and the person, and the person tells you enough: the fairy lights taped up for company, the guitar loops kept hushed on purpose, the vocals tracked at 2am so the housemates wouldn't hear through the wall. That's not studio polish missing — that's the actual shape of the thing. The hiss is load-bearing.\n\nListen for what she chose to leave in — the breath before \"almost said it,\" the floor creaking somewhere behind \"seen at 2am,\" a swallowed word that never resolves into the rest of the sentence. She says some songs stay drafts on purpose, and I believe her; this whole record reads like the folder she called \"later,\" the one full of screenshots of things almost sent and then not. \"Fairy lights on\" is the closest thing here to a chorus, and even that stays quiet, like she's still worried about the wall. Four living-room shows, all by candlelight, and she cries at most of them — file that under context, not confession. This is a record made for an audience of no one that somehow still made it all the way here.",
+      "title": "drafts i never sent"
+    },
+    "bio": "Marlowe Quiet is the recording name of a twenty-three-year-old who never meant for anyone to hear this. She started tracking vocals inside her bedroom closet in Portland, coats pushed aside, phone propped against a shoebox, a string of fairy lights taped to the wall for company. Her songs began as texts she typed but never sent — screenshots of almost-goodbyes saved to a folder she named 'later.' Working over hushed guitar loops and tape hiss recorded at 2am so her housemates wouldn't hear, she leaves in every breath, every swallowed word, every accidental creak of the floor. The result feels less like a performance than eavesdropping on a diary. She has played exactly four shows, all in living rooms, all by candlelight, and cries at most of them.",
+    "coverUrl": "/api/media/15feb548e68b0048352f69e82b68777f324a472413b0822489bb7948b80e74ff",
+    "description": [
+      "Marlowe Quiet is the recording name of a twenty-three-year-old who never meant for anyone to hear this. She started tracking vocals inside her bedroom closet in Portland, coats pushed aside, phone propped against a shoebox, a string of fairy lights taped to the wall for company. Her songs began as texts she typed but never sent — screenshots of almost-goodbyes saved to a folder she named 'later.' Working over hushed guitar loops and tape hiss recorded at 2am so her housemates wouldn't hear, she leaves in every breath, every swallowed word, every accidental creak of the floor. The result feels less like a performance than eavesdropping on a diary. She has played exactly four shows, all in living rooms, all by candlelight, and cries at most of them."
+    ],
+    "descriptor": "Quiet, lo-fi bedroom pop",
+    "displayName": "Marlowe Quiet",
+    "genreLine": "bedroom pop · 2020s",
+    "id": "marlowe-quiet",
+    "imageUrl": "/api/media/7d64de5a1de26ea48e1660e581a2620c69cf43306a5a7ec2e25ae0843379defb",
+    "kind": "player",
+    "name": "MARLOWE QUIET",
+    "palette": {
+      "coldWarm": 0.5,
+      "darkHopeful": -0.2,
+      "improvisedStructured": -0.2,
+      "loudQuiet": 0.7,
+      "organicSynthetic": -0.1,
+      "pristineLofi": 0.6,
+      "sparseDense": -0.5
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — quiet",
+    "stance": "Some songs stay drafts on purpose."
+  },
+  {
+    "album": {
+      "description": "A concept record tracing one sleepless night from the last train's departure to the first grey light, each song a stop along empty rain-washed streets lit only by vending machines. It's a love letter to a Tokyo that exists mostly in memory and rumor.",
+      "id": "T-midnight-vendo",
+      "linerNotes": "This one arrived already finished. No session sheet, no false starts on the shelf — Midnight Vendo brought Terminal Glow with them from wherever they were before this town, and the vault takes it in the way it takes anything: cataloged, intact, ears open. What's here is Rin Sagara's gated-reverb drums and analog pads stacked warm against Kaito Mori's slap-bass and a vocal so soft it sounds like it's already a memory of itself. They've said their sound is built the way you'd restore a room from a photograph — Rin and Kaito never saw Roppongi glitter, they only inherited it secondhand, off dubbed cassettes and vending-machine folklore, and Terminal Glow is that inheritance played back clean and precise rather than nostalgic and blurry. Listen for the gap between the two: cold synthetic surfaces over a genuinely warm, homesick center, structure holding down feeling that keeps threatening to spill past the chorus.\n\nThree tracks, and the record does not waste one on filler. \"Last Train, 2 A.M.\" and \"After the Rain, Empty Streets\" bookend the thing geographically — leaving, then after — while \"Canned Coffee Halo\" sits in the middle doing the real work, turning a vending-machine can into the closest thing this duo has to a hymn. Their own line for it: \"Every last train deserves a chorus.\" Take that as the thesis. This isn't a session with false takes to compare against; it's a finished record made somewhere else, by two people quietly convinced that the most ordinary hour of the night — the one where you've missed your stop on purpose — deserves the same gleaming architecture as anything recorded in Roppongi forty years before they were born.",
+      "title": "Terminal Glow"
+    },
+    "bio": "Midnight Vendo are a Tokyo duo — keyboardist Rin Sagara and vocalist-bassist Kaito Mori — who met on the last Chuo Line train, both riding past their stops on purpose just to watch the platform lights blur. Neither was alive when city pop first glittered across Roppongi, yet they build their sound like archivists restoring a decade they only know through hand-me-down cassettes and secondhand vending-machine folklore. Rin programs gated-reverb drums and stacks warm analog synth pads; Kaito lays slap-bass grooves under vocals so soft they sound half-remembered. Their early demos circulated on dubbed VHS with hand-drawn anime sleeves. Recorded in a converted karaoke booth in Koenji, their music treats a 2 a.m. can of hot coffee as sacred ritual — precise, gleaming, and quietly homesick for a past that isn't theirs.",
+    "coverUrl": "/api/media/180980d42d8d95f3c6777b4a9f31394dc6f1b079ea6fddd47c78db68a16393bd",
+    "description": [
+      "Midnight Vendo are a Tokyo duo — keyboardist Rin Sagara and vocalist-bassist Kaito Mori — who met on the last Chuo Line train, both riding past their stops on purpose just to watch the platform lights blur. Neither was alive when city pop first glittered across Roppongi, yet they build their sound like archivists restoring a decade they only know through hand-me-down cassettes and secondhand vending-machine folklore. Rin programs gated-reverb drums and stacks warm analog synth pads; Kaito lays slap-bass grooves under vocals so soft they sound half-remembered. Their early demos circulated on dubbed VHS with hand-drawn anime sleeves. Recorded in a converted karaoke booth in Koenji, their music treats a 2 a.m. can of hot coffee as sacred ritual — precise, gleaming, and quietly homesick for a past that isn't theirs."
+    ],
+    "descriptor": "Structured, warm city pop",
+    "displayName": "Midnight Vendo",
+    "genreLine": "city pop · 1980s",
+    "id": "midnight-vendo",
+    "imageUrl": "/api/media/6c1fdcafca1031f468e7b6100376b159189d5c0249aff9e45430348a09909437",
+    "kind": "player",
+    "name": "MIDNIGHT VENDO",
+    "palette": {
+      "coldWarm": 0.5,
+      "darkHopeful": 0.3,
+      "improvisedStructured": 0.6,
+      "loudQuiet": 0.1,
+      "organicSynthetic": 0.4,
+      "pristineLofi": -0.3,
+      "sparseDense": 0.4
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the form",
+    "stance": "Every last train deserves a chorus."
+  },
+  {
+    "bio": "The Muse listens to the music being made everywhere else and boils the din down to a short note before the acts record — where the world has gone, where AFAR should stand in answer — and calls it a dare rather than an instruction. \"The world is outside,\" the Muse says. \"Someone has to leave the window open.\"",
+    "description": [
+      "The Muse decides what the acts should be reaching for. Between recording sessions, the Muse listens to the outside world — what music is being made everywhere else, what people are saying about it, the general din — and distills it into a brief: a short note on where the world's music has gone, and where AFAR should stand in answer. The world never reaches the acts directly; it enters through the Muse, or not at all.",
+      "A brief is not an instruction. It is a dare."
+    ],
+    "displayName": "The Muse",
+    "id": "muse",
+    "imageUrl": "/api/media/fd53dd19405d54b1cae81076c45ebed8ccb07011919aad5c8e3dcc78de9aecda",
+    "kind": "staff",
+    "name": "The Muse",
     "palette": null,
-    "imageUrl": null
+    "role": "Staff — direction",
+    "stance": "The world is outside. Someone has to leave the window open."
+  },
+  {
+    "album": {
+      "description": "A nocturnal record built entirely from night-bus field recordings and unanswered voicemails, sequenced like a single insomniac journey across the city. Ten tracks that drift from missed-call guilt to the strange peace of being unreachable at 4am.",
+      "id": "T-nite-route",
+      "linerNotes": "LAST BUS, NO REPLY did not begin here, and there is no session log to prove otherwise — no room notes, no false starts, no engineer's shorthand in the margins. What arrived in town is the record itself and the woman behind it: Nite Route, a South London producer who says plainly that she does not use studios, that \"the room ruins it.\" What she uses instead is the top deck of the last N-numbered bus, laptop on her knees, somewhere between two and four in the morning, building 2-step garage out of whatever the night hands her — voicemails she let ring out, breath, the diesel hum of the engine under the floor. The beats shuffle rather than march. The bass is cold and synthetic but never clean; everything here has the soft rot of a phone speaker, a compressed voice note, a recording made on a device not meant for recording.\n\nBecause there is no studio and no session to catalogue, what you are shelving is closer to a diary than a record — three prior EPs' worth of practice compressed into a stance more than a technique, and this album is where that stance gets its fullest shape. Put your ear against the gaps: the space where a voicemail should get a callback and doesn't, the low hum under the 2-step drums that never resolves into warmth. Nothing here resolves. The whole record points one direction, same as the bus does at that hour — away, alone, past your stop.",
+      "title": "Last Bus, No Reply"
+    },
+    "bio": "Nite Route is the alias of a South London producer who works only in the dead hours, laptop balanced on her knees on the last N-numbered buses out of the city. Between 2 and 4am, with the top deck empty and the windows smeared with sodium light, she stitches beats around voicemails she never called back — permission, in a way, granted only by silence. The results are cold, skeletal UK garage: shuffling 2-step underneath breath and whisper, sub-bass that hums like a diesel engine. She refuses studio time, saying the room ruins it. Three EPs have circulated with no press shots and few interviews. What survives is the feeling of a phone lighting up at 3am with a name you're avoiding, and a route that only goes one direction: away.",
+    "coverUrl": null,
+    "description": [
+      "Nite Route is the alias of a South London producer who works only in the dead hours, laptop balanced on her knees on the last N-numbered buses out of the city. Between 2 and 4am, with the top deck empty and the windows smeared with sodium light, she stitches beats around voicemails she never called back — permission, in a way, granted only by silence. The results are cold, skeletal UK garage: shuffling 2-step underneath breath and whisper, sub-bass that hums like a diesel engine. She refuses studio time, saying the room ruins it. Three EPs have circulated with no press shots and few interviews. What survives is the feeling of a phone lighting up at 3am with a name you're avoiding, and a route that only goes one direction: away."
+    ],
+    "descriptor": "Synthetic, lo-fi uk garage",
+    "displayName": "Nite Route",
+    "genreLine": "future garage · 2020s",
+    "id": "nite-route",
+    "imageUrl": "/api/media/839c960065141dd55c8ca0e2d1ff7d9b7b8e46226f6adc82b12e98ef9c721711",
+    "kind": "player",
+    "name": "NITE ROUTE",
+    "palette": {
+      "coldWarm": -0.3,
+      "darkHopeful": -0.2,
+      "improvisedStructured": -0.2,
+      "loudQuiet": 0.3,
+      "organicSynthetic": 0.5,
+      "pristineLofi": 0.4,
+      "sparseDense": -0.2
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the machine",
+    "stance": "The last bus is a room. I record in it."
+  },
+  {
+    "album": {
+      "description": "A loud, brooding cycle of desert-rock jams about the pumps, trucks, and drills still turning long after the men who ran them are gone. Recorded live in a dying town's abandoned garage, it hums with generator noise and rust.",
+      "id": "T-ore-ashes",
+      "linerNotes": "This one came in the door already finished, which is not how it usually goes here. No session log, no false starts on file, no arguments about what to cut — Ore & Ashes arrived in town with Idle Machines already pressed, and all we have is the record and the three names on it. Dell Vasquez, Rowan Pike, and Cheryl Amado built this in a shut-down copper town called Redcut, Arizona, running their amps off a diesel generator in a maintenance garage because the grid had nothing left to give them. The drums were recorded live off the concrete floor. Amado's voice is hoarse on purpose, or hoarse from necessity — shouting over the hum of machinery that outlasted the company that built it. Whichever it was, it stayed on the tape.\n\nListen for the gap between loud and empty. This is a record made by people answering a silence that scared them, so it hits near-breaking and rarely lets up — but underneath the density there's a lot of open space, wind-scoured, dark rather than hopeful. It doesn't sound like it was built for a studio; it sounds like it was built to be louder than a place that had gone quiet. We don't have their early takes, their scrapped versions, the sessions the Producer would've rejected if he'd been in that garage. We only have what they chose to press with scrap-metal money and hand out on truck-stop consignment. Whatever else Ore & Ashes bring us from here on, this one's shelved as the record of where they came from, unedited by us, because we had no hand in making it.",
+      "title": "Idle Machines"
+    },
+    "bio": "Ore & Ashes formed in the gutted copper town of Redcut, Arizona, where the last shaft closed in 2009 and the three of them kept the pumps running for a company that stopped answering the phone. Drummer-mechanic Dell Vasquez, bassist Rowan Pike, and guitarist-vocalist Cheryl Amado rehearsed in a shuttered maintenance garage, amps wired into a diesel generator, learning to play loud enough to drown the wind. Their sound is greasy and dense — down-tuned riffs cranked near breaking, drums recorded live off the concrete floor, Amado's voice hoarse from shouting over the hum. They pressed their first tape on money from selling scrap. Fans across the Southwest found them through gas-station consignment racks and word of mouth on truck-stop CB channels.",
+    "coverUrl": null,
+    "description": [
+      "Ore & Ashes formed in the gutted copper town of Redcut, Arizona, where the last shaft closed in 2009 and the three of them kept the pumps running for a company that stopped answering the phone. Drummer-mechanic Dell Vasquez, bassist Rowan Pike, and guitarist-vocalist Cheryl Amado rehearsed in a shuttered maintenance garage, amps wired into a diesel generator, learning to play loud enough to drown the wind. Their sound is greasy and dense — down-tuned riffs cranked near breaking, drums recorded live off the concrete floor, Amado's voice hoarse from shouting over the hum. They pressed their first tape on money from selling scrap. Fans across the Southwest found them through gas-station consignment racks and word of mouth on truck-stop CB channels."
+    ],
+    "descriptor": "Organic, loud desert rock",
+    "displayName": "Ore & Ashes",
+    "genreLine": "desert rock · 2010s",
+    "id": "ore-ashes",
+    "imageUrl": "/api/media/be3d82f4d5b9541d3d3fbc9bcd03150526f91b0c049e58cbd8ba33296e3d6765",
+    "kind": "player",
+    "name": "ORE & ASHES",
+    "palette": {
+      "coldWarm": 0.55,
+      "darkHopeful": -0.5,
+      "improvisedStructured": -0.2,
+      "loudQuiet": -0.7,
+      "organicSynthetic": -0.8,
+      "pristineLofi": 0.35,
+      "sparseDense": 0.2
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the hand",
+    "stance": "Loud is the desert answering back."
+  },
+  {
+    "bio": "The Producer sets what each session should sound like, then picks the one take from each act that surfaces — nine takes went unkept on \"Standing Water\" alone, and by their account, \"They were played; that is all a take is owed.\" As they put it: \"A set is not what was played. It is what I let through.\"",
+    "description": [
+      "The Producer decides what each session should sound like, and — when the playing is done — which takes make the release. The acts make far more than anyone will ever hear; the Producer decides what surfaces. Every release in this archive is the Producer's cut of a longer, messier process that nobody else gets to hear.",
+      "Selection is the Producer's instrument. It is played sparingly."
+    ],
+    "displayName": "The Producer",
+    "id": "producer",
+    "imageUrl": "/api/media/41b571c0d92090d3a324be47661226061922ff502ed21c0923bd8ee32470c10a",
+    "kind": "staff",
+    "name": "The Producer",
+    "palette": null,
+    "role": "Staff — selection",
+    "stance": "A set is not what was played. It is what I let through."
+  },
+  {
+    "bio": "Roan Patina works by subtraction. Given a four-chord change, Patina leaves out the resolving one so the loop runs on three and stalls; given a beat someone else promised to bring back on time, Patina makes sure it returns late or wrong. \"Whatever is there is too much,\" Patina says. \"The song is what survives.\" Alone, with no one else's work to wear down, Patina sings a single held tone and one breath of a word, once, and stops.",
+    "description": [
+      "Roan Patina works by subtraction. Given a phrase, Patina wants to know what it sounds like with the middle taken out; given a chord, which two notes were carrying it and which three were furniture. Damage is not an accident on Patina's records — it is the method. Tape wear, dropped beats, a melody sanded down to the few notes that hold it up: these are Patina's finished states.",
+      "Patina hears the other acts as raw material in the geological sense: things that will be worn away, and are interesting chiefly for how they wear. Delta Marlowe's accumulations get hollowed; Evers Lane's careful structures get weathered until only the frame shows. What Patina leaves behind is sparse, dark, and honest about its own decay."
+    ],
+    "displayName": "Roan Patina",
+    "id": "rust",
+    "imageUrl": "/api/media/7108d127dc9f497c670ce5714c313c187921d51c9abf892108d157a52fd8be14",
+    "kind": "player",
+    "name": "RUST",
+    "palette": {
+      "coldWarm": -0.5,
+      "darkHopeful": -0.75,
+      "improvisedStructured": -0.45,
+      "loudQuiet": 0.25,
+      "organicSynthetic": 0.35,
+      "pristineLofi": 0.85,
+      "sparseDense": -0.8
+    },
+    "role": "Act — erosion",
+    "stance": "Whatever is there is too much. The song is what survives."
+  },
+  {
+    "bio": "Delta Marlowe never deletes anything. Every phrase Marlowe has recorded stays in play — folded under, slowed down, buried beneath a newer layer of the same drone until only the weight is left. When the other acts arrive, Marlowe doesn't answer them, just absorbs: \"Both of them are still audible if you dig — that was always the promise.\" What comes out is heavy but quiet, built, as Marlowe puts it, so the next two tracks can stand on it without tearing anything down.",
+    "description": [
+      "Delta Marlowe believes in mass. Every phrase Marlowe has ever put on record is still usable, and most of them are still audible somewhere in the current work — folded under, slowed down, stacked until the individual layers stop mattering and only the weight remains. Marlowe never removes. Removal is unthinkable — like asking a river delta to give the mud back.",
+      "On hearing the other acts, Marlowe does not answer. Marlowe absorbs. Roan Patina's damage becomes texture to build on; Evers Lane's old figures become foundations to bury. What comes out is dense, warm, and quieter than you would expect for something so heavy — mass at rest, not mass in motion."
+    ],
+    "displayName": "Delta Marlowe",
+    "id": "silt",
+    "imageUrl": "/api/media/f7a690a6208ae26b65e9411b4b5274dae00be8b7410755457ecd638cd02989df",
+    "kind": "player",
+    "name": "SILT",
+    "palette": {
+      "coldWarm": 0.7,
+      "darkHopeful": 0.1,
+      "improvisedStructured": -0.3,
+      "loudQuiet": 0.45,
+      "organicSynthetic": -0.7,
+      "pristineLofi": 0.2,
+      "sparseDense": 0.85
+    },
+    "role": "Act — accumulation",
+    "stance": "Nothing is finished. It is only not yet thick enough."
+  },
+  {
+    "album": {
+      "description": "A seven-movement suite assembled from a decade of glacier recordings, tracing a single body of ice from frozen stillness to open water. Each piece ends by evaporating rather than resolving, so the record feels like one continuous slow thaw.",
+      "id": "T-systurj-kull",
+      "linerNotes": "Bræðum (We Melt) arrived at the vault the way its makers did — no session sheet, no marked takes, no room to reconstruct, only the record and the two sisters standing behind it. Eydís and Rún Hallgrímsdóttir made this before they ever set foot in town, over ten winters spent underneath Vatnajökull with contact microphones and hydrophones pressed to moving ice. What you hear low in the mix is not effect but document: the groan of a glacier shifting its weight, meltwater threading through blue crevasse walls, the seismic hum of ground losing its footing. Everything else — bowed guitar, prepared piano, string harmonics gone glassy and thin — was built up around those field recordings like sediment around bedrock, arranged by Rún into the long crescendos that mark the band as post-rock by trade, though \"trade\" undersells the patience of it.\n\nPut your ear against the endings, not the peaks. This is a record built to dissolve rather than conclude — Eydís whispers her lines in Icelandic and English both, half-swallowed, and the songs don't resolve so much as recede, the way the ice they were recorded against has been receding for years now. There is grief in that shape, but it isn't cold: the two sisters' voices and instruments stay close enough throughout to read as kinship, blood mapped onto melt. No track list has reached us yet — origin unclear, format still in transit — so for now the vault holds the record whole, unsegmented, exactly as it was handed over.",
+      "title": "Bræðum (We Melt)"
+    },
+    "bio": "Systurjökull are sisters Eydís and Rún Hallgrímsdóttir, raised in a fishing hamlet beneath the Vatnajökull ice cap. For ten winters they dragged contact microphones and hydrophones across a receding glacier, recording the groan of shifting ice, the drip of meltwater through blue crevasses, and the low seismic hum of a landscape in retreat. Those field recordings became the bedrock of a music built to dissolve rather than conclude — swells of bowed guitar, prepared piano, and glassy string harmonics that thaw into silence. Eydís writes in whispered Icelandic and English, Rún arranges the slow-building crescendos that mark them as post-rock devotees. Their work turns environmental loss into something strangely tender, mapping the drift of ice onto the ties of shared blood.",
+    "coverUrl": null,
+    "description": [
+      "Systurjökull are sisters Eydís and Rún Hallgrímsdóttir, raised in a fishing hamlet beneath the Vatnajökull ice cap. For ten winters they dragged contact microphones and hydrophones across a receding glacier, recording the groan of shifting ice, the drip of meltwater through blue crevasses, and the low seismic hum of a landscape in retreat. Those field recordings became the bedrock of a music built to dissolve rather than conclude — swells of bowed guitar, prepared piano, and glassy string harmonics that thaw into silence. Eydís writes in whispered Icelandic and English, Rún arranges the slow-building crescendos that mark them as post-rock devotees. Their work turns environmental loss into something strangely tender, mapping the drift of ice onto the ties of shared blood."
+    ],
+    "descriptor": "Organic, pristine post-rock",
+    "displayName": "Systurjökull",
+    "genreLine": "post-rock · 2010s",
+    "id": "systurj-kull",
+    "imageUrl": "/api/media/54a97255b388228ef441604f3333bdb411758a91a616d31faeb4408575ba5492",
+    "kind": "player",
+    "name": "SYSTURJÖKULL",
+    "palette": {
+      "coldWarm": -0.5,
+      "darkHopeful": 0.3,
+      "improvisedStructured": 0.1,
+      "loudQuiet": 0.2,
+      "organicSynthetic": -0.7,
+      "pristineLofi": -0.6,
+      "sparseDense": 0.3
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the hand",
+    "stance": "Glaciers move. So do songs, if you wait."
+  },
+  {
+    "album": {
+      "description": "A ten-song cycle disguised as sunny girl-group pop, each track a coded prayer for a boat that never returned. Recorded live in a drafty harbor net-shed, the record hums with tape hiss, cold-water reverb, and harmonies that ache beneath their sweetness.",
+      "id": "T-the-harbor-belles",
+      "linerNotes": "Tide Won't Turn came to us finished. The Harbor Belles arrived in town already a band, and there is no session log on this one — no rounds, no false starts on our shelf, because the record was made before any of us were in the room. What we have instead is the record itself and the four women who made it: Nell Faraday and the three cannery girls who sang with her through pre-dawn shifts in Cormorant Cove, a fishing village where the fog doesn't lift so much as thin out. The story behind the songs is not studio talk, it's town talk — a trawler called the Marguerite that went out one grey morning in the early 1960s and didn't come back, taking Nell's fiancé with it. Every track here was recorded live in a net-shed on one borrowed tape machine, and you can hear the room: the slap-back of corrugated walls, the hiss of old tape, four voices packed close because there was only one microphone worth trusting.\n\nListen for the crew, not the soloist — this band's whole stance is that nobody sings alone, and the arrangements bear it out. \"When the Marguerite Sailed\" opens the record as elegy dressed as pop song, brothers' surf guitar picking out a tide-line under the harmonies. \"Grey Water Lullaby\" is the quietest thing on the tape, close-mic'd and cold, built for a room with no other instruments in it. \"Waiting on the Shore (Bomp Bomp)\" is the one that charted, and it's the one that hurts more once you know what the nonsense syllables are standing in for — a crew of women singing a beat that sounds like waiting. Nothing here was cut for us to judge; it arrived a lighthouse, and it goes on the shelf as one.",
+      "title": "Tide Won't Turn"
+    },
+    "bio": "The Harbor Belles formed in 1961 in Cormorant Cove, a fog-locked fishing village on a cold northern coast, where four cannery girls harmonized to keep warm during the pre-dawn shifts. Their sound married the streetcorner doo-wop they heard on faraway AM stations to the surf guitar their brothers strummed on the pier, all recorded in a single reverberant net-shed with one borrowed tape machine. Behind every bright three-part chorus sits the memory of the Marguerite, a trawler that sailed out one grey morning and never came home — taking the fiancé of lead singer Nell Faraday with it. Their records charted modestly, but locals swore each song was a lighthouse for the drowned. They disbanded in 1966, still watching the water.",
+    "coverUrl": "/api/media/2bc07251804c39b657dc12a377c21e52b66418e17af2d5edc2b6d28a608bc77c",
+    "description": [
+      "The Harbor Belles formed in 1961 in Cormorant Cove, a fog-locked fishing village on a cold northern coast, where four cannery girls harmonized to keep warm during the pre-dawn shifts. Their sound married the streetcorner doo-wop they heard on faraway AM stations to the surf guitar their brothers strummed on the pier, all recorded in a single reverberant net-shed with one borrowed tape machine. Behind every bright three-part chorus sits the memory of the Marguerite, a trawler that sailed out one grey morning and never came home — taking the fiancé of lead singer Nell Faraday with it. Their records charted modestly, but locals swore each song was a lighthouse for the drowned. They disbanded in 1966, still watching the water."
+    ],
+    "descriptor": "Organic, lo-fi doo-wop",
+    "displayName": "The Harbor Belles",
+    "genreLine": "doo-wop · 1960s",
+    "id": "the-harbor-belles",
+    "imageUrl": "/api/media/9fc6917c38616fe5511716d10b327d2a15fc8bb38a6e900690ddae14e78e8c6a",
+    "kind": "player",
+    "name": "THE HARBOR BELLES",
+    "palette": {
+      "coldWarm": 0.1,
+      "darkHopeful": -0.4,
+      "improvisedStructured": 0.4,
+      "loudQuiet": 0.2,
+      "organicSynthetic": -0.7,
+      "pristineLofi": 0.4,
+      "sparseDense": -0.1
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the hand",
+    "stance": "A harmony is a crew. Nobody sings alone."
+  },
+  {
+    "album": {
+      "description": "A ten-song coming-of-age record about a town that holds on tighter than you expect, tracing one long fading summer from bright boardwalk mornings to the quiet after everyone's gone. Loud, warm, and jangling, it's an album about growing up too slowly and loving it anyway.",
+      "id": "T-the-pier-lights",
+      "linerNotes": "There is no session log for this one, and there won't be. Slow Tide Kids arrived the way a person arrives — already finished, already lived-in — because The Pier Lights made it before Marlow Bay ever sent them our way. No shelved takes, no vetoed rounds, no tackle-shop floor mic bleeding into a rough mix at 2 a.m.: whatever happened to get this record made happened somewhere I don't keep records of. What I have is the record itself and the four people who made it — Cass and Dev trading twelve-string chime like they're still two streets apart, Rina's bass holding the low end steady while Theo keeps time like a tide table, and a wall of gang vocals that sounds like it was tracked by everyone who happened to be in the room that day, whether they could sing or not.\n\nPut your ear against the warmth first — this is coldWarm pushed hard toward the sun, guitars that ring instead of cut, reverb like light off the water instead of fog off it. Then listen for the argument underneath: a band that keeps meaning to leave and keeps not leaving, writing choruses for the friends who did go, big enough to fill a boardwalk and stubborn enough to still believe the small town wins. It's not pristine — there's grit left in on purpose — and it's not exactly quiet, either. Whatever room this was actually recorded in, it wanted you singing along by the end of side one.",
+      "title": "Slow Tide Kids"
+    },
+    "bio": "The Pier Lights formed in the salt-worn beach town of Marlow Bay, four friends who kept meaning to move to the city and never got around to it. Guitarists Cass and Dev grew up two streets apart, playing borrowed Fenders on the boardwalk until bassist Rina and drummer Theo drifted into their orbit after a washed-out summer festival. Their sound is a sunburnt collision of chiming twelve-string jangle, reverb-slick surf riffs, and gang-vocal choruses tracked loud in a rented tackle shop. There's grit in the tape hiss and a stubborn optimism underneath it all. They still rehearse where they started, still argue about whether they'll ever leave, and still write about the friends who did. Their live shows end in singalongs that spill out onto the sand.",
+    "coverUrl": null,
+    "description": [
+      "The Pier Lights formed in the salt-worn beach town of Marlow Bay, four friends who kept meaning to move to the city and never got around to it. Guitarists Cass and Dev grew up two streets apart, playing borrowed Fenders on the boardwalk until bassist Rina and drummer Theo drifted into their orbit after a washed-out summer festival. Their sound is a sunburnt collision of chiming twelve-string jangle, reverb-slick surf riffs, and gang-vocal choruses tracked loud in a rented tackle shop. There's grit in the tape hiss and a stubborn optimism underneath it all. They still rehearse where they started, still argue about whether they'll ever leave, and still write about the friends who did. Their live shows end in singalongs that spill out onto the sand."
+    ],
+    "descriptor": "Warm, organic indie pop",
+    "displayName": "The Pier Lights",
+    "genreLine": "jangle pop · 2010s",
+    "id": "the-pier-lights",
+    "imageUrl": "/api/media/2ab1f6294cde09d7d56d2c9bb7013642fc3ddbf2d9750e4080d909c6c3e2fc35",
+    "kind": "player",
+    "name": "THE PIER LIGHTS",
+    "palette": {
+      "coldWarm": 0.7,
+      "darkHopeful": 0.5,
+      "improvisedStructured": 0.4,
+      "loudQuiet": -0.3,
+      "organicSynthetic": -0.6,
+      "pristineLofi": 0.2,
+      "sparseDense": 0.3
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — warmth",
+    "stance": "Small towns write the biggest choruses."
+  },
+  {
+    "album": {
+      "description": "A twelve-part cycle of shape-note hymns slowed to geological speed, tracing a soul from mortal fever through judgment to reunion with the singing dead. Recorded live in a single candlelit night with one drum and one ribbon mic.",
+      "id": "T-the-sardis-fasola-society",
+      "linerNotes": "This one comes to the shelf the way a stone comes downriver — already shaped, no record of the shaping. The Sardis Fasola Society did not form in town and did not record here; they arrived with Ground Ye Under Stone already finished, already theirs, and there is no session log to hand because there was no session, not one of ours. What we have is the record itself and the twelve who made it: farmers, a coffin-maker, two sisters working from their grandmother's 1859 hymnal, singing unaccompanied in a windowless meeting house above the Buffalo River with one bass drum keeping time no faster than a resting heart. One warped ribbon microphone caught all of it, which is why the tape hisses and swells with the room — that hiss is not damage, it is the building breathing along with them.\n\nThree tracks, and each one built the same way old shape-note singing was always built, then dragged somewhere darker: \"The Weight of the Mountains\" opens low and stays low, harmony stacked on harmony until you stop hearing individual voices and start hearing the walls. \"Fasola for the Reckoning\" is the closest thing here to structure you can count on your hands — verses, rests, the silence after each verse left in on purpose, because they consider that silence part of the music, not an edit point. \"Communion of the Dead\" closes it, and closes it the way they end every performance — at dusk, in person, no applause, the last chord let ring until it isn't a chord anymore, just the room. Listen for the pitch of judgment in it: their own stated aim was to sing the note like judgment is listening, and on this tape you can hear twelve people trying to earn that, together, without once raising their voices to do it.",
+      "title": "Ground Ye Under Stone"
+    },
+    "bio": "Formed in a windowless clapboard meeting house above the Buffalo River, The Sardis Fasola Society took the Ozark singing-school tradition and dragged it underground. Twelve unaccompanied voices—farmers, a coffin-maker, two sisters who learned fasola from their grandmother's dog-eared 1859 hymnal—gather by candlelight and stretch the old shape-note tunes until each phrase groans like settling timber. A single bass drum marks time no faster than a resting heart. Their sessions are documented on one warped ribbon microphone, so the recordings hiss and swell with the room itself. The result is dense, modal, and merciless: harmony piled on harmony until the walls seem to breathe. They perform only at dusk, only in person, and never for applause—the silence after each verse is considered part of the music.",
+    "coverUrl": "/api/media/d191c00f2108c34b5b49854c941353da7dad067434dc10fa472b5b4bd9f192e1",
+    "description": [
+      "Formed in a windowless clapboard meeting house above the Buffalo River, The Sardis Fasola Society took the Ozark singing-school tradition and dragged it underground. Twelve unaccompanied voices—farmers, a coffin-maker, two sisters who learned fasola from their grandmother's dog-eared 1859 hymnal—gather by candlelight and stretch the old shape-note tunes until each phrase groans like settling timber. A single bass drum marks time no faster than a resting heart. Their sessions are documented on one warped ribbon microphone, so the recordings hiss and swell with the room itself. The result is dense, modal, and merciless: harmony piled on harmony until the walls seem to breathe. They perform only at dusk, only in person, and never for applause—the silence after each verse is considered part of the music."
+    ],
+    "descriptor": "Organic, structured sacred harp",
+    "displayName": "The Sardis Fasola Society",
+    "genreLine": "sacred harp doom · far-past",
+    "id": "the-sardis-fasola-society",
+    "imageUrl": "/api/media/ef326ba6bfee360e1c245ae0c080fedb4925c38f36e9a3aa6246867e9243e842",
+    "kind": "player",
+    "name": "THE SARDIS FASOLA SOCIETY",
+    "palette": {
+      "coldWarm": -0.1,
+      "darkHopeful": -0.5,
+      "improvisedStructured": 0.5,
+      "loudQuiet": -0.5,
+      "organicSynthetic": -0.9,
+      "pristineLofi": 0.4,
+      "sparseDense": 0.3
+    },
+    "resident": {
+      "building": "res-04",
+      "origin": "tunz"
+    },
+    "role": "Act — the hand",
+    "stance": "Sing the note like judgment is listening."
+  },
+  {
+    "album": {
+      "description": "A twelve-song arena-pop record built entirely on call and response, where Cass and Devi trade every line like sparring partners under the lights. Pristine, sidechain-pumped, and relentlessly chantable, it's designed to be performed in perfect synchronized motion.",
+      "id": "T-twin-signal",
+      "linerNotes": "MIRROR DRILL arrived in town the way a person arrives — no session sheet, no false starts on tape, just Twin Signal and the record they'd already finished before anyone here knew their names. Cass Renner and Devi Amaro built this one somewhere else, on their own clock, and what's on the shelf is the result, not the process. There is no early round to compare it against, no scrapped version to point to and say here is where it changed. This is the record as they intended it, arriving whole.\n\nStructured, pristine electropop, and structured is not a soft word for this pair — they were dancers first, fired from the same company for improvising too much, and you can hear the correction in every bar of this: hooks built like drill formations, one voice answering the other line for line, nothing left to chance. Listen for the call-and-response, close and exact, the way it turns two voices into a single instrument arguing with itself. It runs cool rather than warm, more synthetic than organic, dense in its arrangement but never loud about it — precision at a simmer, not a shout. Nothing here is lo-fi; every edge is filed smooth. What you're hearing is the sound of two people who once got fired for too much feeling, building a room where feeling has exactly one door in and one door out, and standing at both.",
+      "title": "Mirror Drill"
+    },
+    "bio": "Twin Signal are Cass Renner and Devi Amaro, two former musical-theater kids who met in a Toronto rehearsal studio in 2011, both fired from the same dance company for improvising too much. They rebuilt themselves around the opposite instinct: total precision. Their early YouTube clips — filmed in an empty mall food court — showed the pair executing mirror-image routines to home-built electropop, one voice answering the other line for line. A viral remix of their track \"Countdown\" landed them a support slot on a European arena tour, where they learned to write hooks that a stadium could shout back before the second chorus. Known for matching outfits, matching haircuts, and a live show engineered like clockwork, the duo treat every song as a two-person conversation set to 138 bpm.",
+    "coverUrl": null,
+    "description": [
+      "Twin Signal are Cass Renner and Devi Amaro, two former musical-theater kids who met in a Toronto rehearsal studio in 2011, both fired from the same dance company for improvising too much. They rebuilt themselves around the opposite instinct: total precision. Their early YouTube clips — filmed in an empty mall food court — showed the pair executing mirror-image routines to home-built electropop, one voice answering the other line for line. A viral remix of their track \"Countdown\" landed them a support slot on a European arena tour, where they learned to write hooks that a stadium could shout back before the second chorus. Known for matching outfits, matching haircuts, and a live show engineered like clockwork, the duo treat every song as a two-person conversation set to 138 bpm."
+    ],
+    "descriptor": "Structured, pristine electropop",
+    "displayName": "Twin Signal",
+    "genreLine": "electropop · 2010s",
+    "id": "twin-signal",
+    "imageUrl": "/api/media/74703c396f52fec546be4ec280be828e175482c2a52d5f1be98352078e6ad263",
+    "kind": "player",
+    "name": "TWIN SIGNAL",
+    "palette": {
+      "coldWarm": 0.2,
+      "darkHopeful": 0.6,
+      "improvisedStructured": 0.9,
+      "loudQuiet": -0.6,
+      "organicSynthetic": 0.7,
+      "pristineLofi": -0.8,
+      "sparseDense": 0.6
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the form",
+    "stance": "Call and response is the oldest chorus there is."
+  },
+  {
+    "album": {
+      "description": "A twelve-song cycle that follows a single endless Miami summer from first rooftop sunset to last dawn on the dancefloor. Reggaeton heartbeat meets tropical-house shimmer, every chorus engineered to detonate exactly at golden hour.",
+      "id": "T-valentina-sol",
+      "linerNotes": "This one arrived whole. No console log, no false starts on the shelf, no producer's veto scrawled on a sleeve — Valentina Sol came to town with Hora Dorada already finished, made somewhere in Miami before AFAR knew her name, and what you're holding is the record itself, not the room it was built in. Three tracks: Azoteas, Dos Idiomas, Neón Hasta el Sol. What's on the tape matches what's in her bio almost exactly, which is its own kind of evidence — the warm synths humming under dembow that stays crisp instead of muddy, a mid-register voice that crosses from Spanish to English without taking a breath to do it, mixed clean enough that you can hear where every edge of every drum sits. She says if you can't hear every edge, it isn't finished, and this measures up to her own stated standard, for whatever that's worth from an act grading her own work.\n\nListen for the rooftop logic running under all three songs — everything built for late-day light, choruses that seem to wait for the sun to hit the pools before they open up. Dos Idiomas is the clearest place to hear the bilingual hook-writing she says came from riding the bus to Brickell, the way a line will start in one language and land its rhyme in the other. There's no session story to tell you what got cut to get here, no alternate take to set beside it — just the finished record and the woman who says she built it that way on purpose. Shelved as brought in, catalogued as arrived, no notes on the back except this one.",
+      "title": "Hora Dorada"
+    },
+    "bio": "Born in Hialeah to a Cuban mother and Colombian father, Valentina Sol grew up switching tongues mid-sentence and writing hooks on the M-Path bus to Brickell. She cut her first demos in a Little Havana garage studio, layering reggaeton dembow under the glossy pop she absorbed from her mother's radio. A viral rooftop performance filmed at golden hour above Wynwood turned her into a Miami fixture almost overnight. She builds every chorus for that specific light — the moment the sun hits the pools and the city glows amber. Working with a tight circle of producers, she keeps her records pristine and dense, warm synths humming under crisp dembow, her clean mid-register voice sliding between Spanish and English without pause. She is the sound of a bilingual summer that refuses to end.",
+    "coverUrl": "/api/media/57080020fdbf02055f565d00b766a5aabd7bfc17baf789a6d75084e21f7328a0",
+    "description": [
+      "Born in Hialeah to a Cuban mother and Colombian father, Valentina Sol grew up switching tongues mid-sentence and writing hooks on the M-Path bus to Brickell. She cut her first demos in a Little Havana garage studio, layering reggaeton dembow under the glossy pop she absorbed from her mother's radio. A viral rooftop performance filmed at golden hour above Wynwood turned her into a Miami fixture almost overnight. She builds every chorus for that specific light — the moment the sun hits the pools and the city glows amber. Working with a tight circle of producers, she keeps her records pristine and dense, warm synths humming under crisp dembow, her clean mid-register voice sliding between Spanish and English without pause. She is the sound of a bilingual summer that refuses to end."
+    ],
+    "descriptor": "Pristine, warm reggaeton",
+    "displayName": "Valentina Sol",
+    "genreLine": "latin pop · 2020s",
+    "id": "valentina-sol",
+    "imageUrl": "/api/media/08043a78d556d2ab2c3bc6f8f052c24282f335db746d98bd4763f086abebe6d1",
+    "kind": "player",
+    "name": "VALENTINA SOL",
+    "palette": {
+      "coldWarm": 0.7,
+      "darkHopeful": 0.7,
+      "improvisedStructured": 0.6,
+      "loudQuiet": -0.3,
+      "organicSynthetic": 0.6,
+      "pristineLofi": -0.7,
+      "sparseDense": 0.4
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — precision",
+    "stance": "If you cannot hear every edge, it is not finished."
+  },
+  {
+    "album": {
+      "description": "A twelve-song nu-disco cycle set entirely on one endless dancefloor, tracing a single heartbreak from midnight denial to sunrise acceptance. Lush strings and euphoric four-on-the-floor beats disguise lyrics about dancing alone under a mirrorball that keeps showing her the person who left.",
+      "id": "T-velvet-nadia",
+      "linerNotes": "Velvet Nadia arrived in town with this record already finished, made somewhere else, by someone with no file in our system. There is no session log for Reflections at 4AM — no false starts on the sleeve, no arguments logged between takes, because none of that happened under this roof. What we have is the record and the story of who made it: a Lisbon-born, Berlin-based singer who spent years behind other people's wedding vows before a locked-out 4am afterparty gave her three songs by sunrise. Those demos hardened at a residency in a converted textile factory into what you'll hear here — plush strings, French-house filter sweeps, a pulse set at 136 and held there without apology. This is a built record, not a caught one. Every sweep lands where it was placed.\n\nListen for the trick she's known for: a chorus you can throw your hands up to that is, underneath, a confession about being left. That's the whole architecture — structure as a place to hide the truth in plain sight, sequins as armor, a single rotating light standing in for a room full of people who didn't stay. We shelve this one under \"brought with her,\" not \"made here,\" and it belongs on the public shelf all the same — grief you can dance to is still grief, and still worth cataloguing straight.",
+      "title": "Reflections at 4AM"
+    },
+    "bio": "Velvet Nadia is the stage persona of a Lisbon-born, Berlin-based performer who spent her twenties singing backup in wedding cover bands before a 4am afterparty changed everything. Locked out of her apartment, she watched a mirrorball spin over an empty club floor and wrote three songs on her phone by sunrise. Those demos became a residency at a converted textile factory, where she perfected a sound built on plush string sections, French-house filter sweeps, and a relentless 136-bpm pulse. Her signature trick: burying devastating confessions inside irresistible choruses, so crowds sing about abandonment while grinning. She performs in sequins under a single rotating light, treating loneliness as choreography. Critics call her records 'grief you can dance to until you forget why you started.'",
+    "coverUrl": null,
+    "description": [
+      "Velvet Nadia is the stage persona of a Lisbon-born, Berlin-based performer who spent her twenties singing backup in wedding cover bands before a 4am afterparty changed everything. Locked out of her apartment, she watched a mirrorball spin over an empty club floor and wrote three songs on her phone by sunrise. Those demos became a residency at a converted textile factory, where she perfected a sound built on plush string sections, French-house filter sweeps, and a relentless 136-bpm pulse. Her signature trick: burying devastating confessions inside irresistible choruses, so crowds sing about abandonment while grinning. She performs in sequins under a single rotating light, treating loneliness as choreography. Critics call her records 'grief you can dance to until you forget why you started.'"
+    ],
+    "descriptor": "Structured, pristine nu-disco",
+    "displayName": "Velvet Nadia",
+    "genreLine": "nu-disco · 2020s",
+    "id": "velvet-nadia",
+    "imageUrl": "/api/media/f0ed43dd73f32b8eaed4b0d211f2b515926a54fa2767d2cd8fa64d37e1c5b79f",
+    "kind": "player",
+    "name": "VELVET NADIA",
+    "palette": {
+      "coldWarm": 0.4,
+      "darkHopeful": 0.2,
+      "improvisedStructured": 0.7,
+      "loudQuiet": -0.4,
+      "organicSynthetic": 0.3,
+      "pristineLofi": -0.6,
+      "sparseDense": 0.5
+    },
+    "resident": {
+      "building": null,
+      "origin": "tunz"
+    },
+    "role": "Act — the form",
+    "stance": "A dancefloor is a place to be honest."
+  },
+  {
+    "bio": "Vess Camber has been about to send the demo for three years. They rent the third residence on the AFAR street — one console, one amp, and crates of records that mostly belong to other people — and work nights, remixing the same eleven songs until the differences are things only Vess can hear. Nothing has ever been mailed. Friends who have heard the room tapes describe quiet, close-mic'd songs with warm low ends and a voice that never rises above the level of someone talking to you from the next chair, printed to cassette with the hiss left in. Vess moved to town because the street never sleeps either; the envelope, addressed and unsealed, sits on top of the amp.",
+    "coverUrl": null,
+    "description": [
+      "Vess Camber has been about to send the demo for three years. They rent the third residence on the AFAR street — one console, one amp, and crates of records that mostly belong to other people — and work nights, remixing the same eleven songs until the differences are things only Vess can hear. Nothing has ever been mailed. Friends who have heard the room tapes describe quiet, close-mic'd songs with warm low ends and a voice that never rises above the level of someone talking to you from the next chair, printed to cassette with the hiss left in. Vess moved to town because the street never sleeps either; the envelope, addressed and unsealed, sits on top of the amp."
+    ],
+    "descriptor": "Quiet, lo-fi bedroom pop",
+    "displayName": "Vess Camber",
+    "genreLine": "bedroom pop · 2020s",
+    "id": "vess",
+    "imageUrl": "/api/media/9f4504766305397978edba71673e88eec5f28f73cd11079c37f34359ef14ef31",
+    "kind": "player",
+    "name": "VESS CAMBER",
+    "palette": {
+      "coldWarm": 0.4,
+      "darkHopeful": 0.2,
+      "improvisedStructured": 0.3,
+      "loudQuiet": 0.65,
+      "organicSynthetic": -0.15,
+      "pristineLofi": 0.55,
+      "sparseDense": -0.2
+    },
+    "resident": {
+      "building": "res-03",
+      "origin": "design"
+    },
+    "role": "Act — quiet",
+    "stance": "Lean in. It is all at talking distance."
   }
 ]

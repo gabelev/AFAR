@@ -1,26 +1,1570 @@
 [
   {
-    "id": "0001-silt",
-    "releaseId": "0001",
-    "agentId": "silt",
-    "title": "Standing Water — Delta Marlowe's take",
-    "durationSec": 312,
-    "audioUrl": null
-  },
-  {
-    "id": "0001-rust",
-    "releaseId": "0001",
-    "agentId": "rust",
-    "title": "Standing Water — Roan Patina's take",
-    "durationSec": 214,
-    "audioUrl": null
-  },
-  {
-    "id": "0001-keep",
-    "releaseId": "0001",
     "agentId": "keep",
-    "title": "Standing Water — Evers Lane's take",
-    "durationSec": 258,
-    "audioUrl": null
+    "audioUrl": "/api/media/ea19d18cb177bfcd7799de4cd87dce3c007d139727f67756bc197917f4ee000b",
+    "durationSec": 30,
+    "id": "0001-keep",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "soul",
+          "weight": 0.4
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.25
+        },
+        {
+          "genre": "chamber pop",
+          "weight": 0.2
+        },
+        {
+          "genre": "doo-wop",
+          "weight": 0.15
+        }
+      ],
+      "lyricalObsessions": [
+        "the same four chords",
+        "a door left open",
+        "songs that keep a family"
+      ],
+      "seedPrompt": "a rhythm section laying down the one chord change they trust enough to build a whole life on",
+      "sonicPalette": {
+        "coldWarm": 0.4,
+        "darkHopeful": 0.5,
+        "improvisedStructured": 0.7,
+        "loudQuiet": 0.2,
+        "organicSynthetic": -0.4,
+        "pristineLofi": -0.5,
+        "sparseDense": 0.1
+      },
+      "visualStyle": [
+        "evening gold",
+        "worn wood",
+        "a lit window"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": -0.6,
+        "whispersScreams": 0.2
+      }
+    },
+    "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+    "releaseId": "0001",
+    "title": "Standing Water — Evers Lane's take"
+  },
+  {
+    "agentId": "rust",
+    "audioUrl": "/api/media/7978616dfa1c988aba00d75b8be9a16d5f80a7a589ba0e59b13b7b52c3cdca21",
+    "durationSec": 30,
+    "id": "0001-rust",
+    "intent": {
+      "era": 3,
+      "influences": [
+        {
+          "genre": "slowcore",
+          "weight": 0.35
+        },
+        {
+          "genre": "musique concrete",
+          "weight": 0.3
+        },
+        {
+          "genre": "dub",
+          "weight": 0.2
+        },
+        {
+          "genre": "early industrial",
+          "weight": 0.15
+        }
+      ],
+      "lyricalObsessions": [
+        "the station that stopped",
+        "a name eaten by static",
+        "the third repeat that never comes"
+      ],
+      "seedPrompt": "a single unattended radio in a condemned building, still tuned to a station that stopped broadcasting years ago",
+      "sonicPalette": {
+        "coldWarm": -0.4,
+        "darkHopeful": -0.5,
+        "improvisedStructured": -0.3,
+        "loudQuiet": 0.6,
+        "organicSynthetic": -0.1,
+        "pristineLofi": 0.9,
+        "sparseDense": -0.75
+      },
+      "visualStyle": [
+        "dust in a shaft of light",
+        "peeling wallpaper",
+        "a needle stuck between stations"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.8,
+        "whispersScreams": -0.4
+      }
+    },
+    "line": "Everything you play from here on is already half gone before it reaches me.",
+    "releaseId": "0001",
+    "title": "Standing Water — Roan Patina's take"
+  },
+  {
+    "agentId": "silt",
+    "audioUrl": "/api/media/7fcb21ebada132581402e590c8396b1d9344007f0c07440434d3f76a904e9a79",
+    "durationSec": 30,
+    "id": "0001-silt",
+    "intent": {
+      "era": 7,
+      "influences": [
+        {
+          "genre": "dub",
+          "weight": 0.35
+        },
+        {
+          "genre": "drone",
+          "weight": 0.3
+        },
+        {
+          "genre": "spiritual jazz",
+          "weight": 0.2
+        },
+        {
+          "genre": "tape music",
+          "weight": 0.15
+        }
+      ],
+      "lyricalObsessions": [
+        "sediment",
+        "rooms filling",
+        "the floor that holds"
+      ],
+      "seedPrompt": "a band that keeps everything it has ever played and stacks it into warm, load-bearing drones",
+      "sonicPalette": {
+        "coldWarm": 0.7,
+        "darkHopeful": 0.2,
+        "improvisedStructured": -0.2,
+        "loudQuiet": -0.1,
+        "organicSynthetic": -0.4,
+        "pristineLofi": 0.3,
+        "sparseDense": 0.7
+      },
+      "visualStyle": [
+        "amber",
+        "strata",
+        "close air",
+        "wet stone"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.3,
+        "whispersScreams": -0.5
+      }
+    },
+    "line": "I'm laying the floor now — whatever you drop, I will keep.",
+    "releaseId": "0001",
+    "title": "Standing Water — Delta Marlowe's take"
+  },
+  {
+    "agentId": "keep",
+    "audioUrl": "/api/media/df39edb5dd836ec82275b2cff010dcbd56d6a7cb898f8c368de6577d0c7711e4",
+    "durationSec": 30,
+    "id": "0002-keep",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "soul",
+          "weight": 0.3
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.25
+        },
+        {
+          "genre": "dub",
+          "weight": 0.25
+        },
+        {
+          "genre": "slowcore",
+          "weight": 0.2
+        }
+      ],
+      "lyricalObsessions": [
+        "a floor built to hold its own crack",
+        "the fourth chord, paid, still weight-bearing",
+        "ground that cracks and gets walked on anyway",
+        "the same four chords, now under load"
+      ],
+      "seedPrompt": "a rhythm section laying planks over the crack rather than pretending the floor is whole, so the room can still be stood on",
+      "sonicPalette": {
+        "coldWarm": 0.35,
+        "darkHopeful": 0.35,
+        "improvisedStructured": 0.7,
+        "loudQuiet": 0.15,
+        "organicSynthetic": -0.3,
+        "pristineLofi": -0.1,
+        "sparseDense": 0.35
+      },
+      "visualStyle": [
+        "amber light pooling in a hairline crack",
+        "planks laid crosswise over strata",
+        "a lit window with a foot on the sill"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.05,
+        "whispersScreams": 0.15
+      }
+    },
+    "line": "Roan, I heard the crack — I'm not denying it, I'm building the turnaround to stand over it, so we can all put weight down.",
+    "releaseId": "0002",
+    "round": 3,
+    "runId": "20260731-013548-step-b-contact",
+    "title": "Load-Bearing Now",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "rust",
+    "audioUrl": "/api/media/4db02be46a5d3a6bc340f99c795a855bd34276801f6d1b771a8ead970603ccdf",
+    "durationSec": 30,
+    "id": "0002-rust",
+    "intent": {
+      "era": 5,
+      "influences": [
+        {
+          "genre": "slowcore",
+          "weight": 0.35
+        },
+        {
+          "genre": "dub",
+          "weight": 0.25
+        },
+        {
+          "genre": "musique concrete",
+          "weight": 0.25
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.15
+        }
+      ],
+      "lyricalObsessions": [
+        "the fourth chord, unpaid",
+        "sediment thins to floor",
+        "a door swelled shut with rust"
+      ],
+      "seedPrompt": "the same band from the next room, tape running thinner now, catching what the other two rooms left on the walls",
+      "sonicPalette": {
+        "coldWarm": -0.35,
+        "darkHopeful": -0.5,
+        "improvisedStructured": -0.3,
+        "loudQuiet": 0.6,
+        "organicSynthetic": 0.25,
+        "pristineLofi": 0.8,
+        "sparseDense": -0.75
+      },
+      "visualStyle": [
+        "amber gone grey",
+        "strata scraped to one line",
+        "a window painted shut"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.8,
+        "whispersScreams": -0.4
+      }
+    },
+    "line": "Delta, everything you keep still rots; Evers, I only needed the chord you left out to hear what the other three were hiding.",
+    "releaseId": "0002",
+    "round": 1,
+    "runId": "20260731-013548-step-b-contact",
+    "title": "Hardened Into Habit",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "silt",
+    "audioUrl": "/api/media/3d6cb33499687501f8509791c1895bf50ba79ea9ce1c2912f978861e32f2434a",
+    "durationSec": 30,
+    "id": "0002-silt",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "dub",
+          "weight": 0.3
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.2
+        },
+        {
+          "genre": "spiritual jazz",
+          "weight": 0.2
+        },
+        {
+          "genre": "musique concrète",
+          "weight": 0.3
+        }
+      ],
+      "lyricalObsessions": [
+        "ground cracks, we pour in",
+        "the chord paid, still ringing",
+        "a seam is just a floor healing",
+        "rust gone to loam"
+      ],
+      "seedPrompt": "a band that keeps everything it has ever played, taking a paid debt and a cracked floor and turning both into the next layer of ground",
+      "sonicPalette": {
+        "coldWarm": 0.6,
+        "darkHopeful": 0.3,
+        "improvisedStructured": 0.3,
+        "loudQuiet": -0.15,
+        "organicSynthetic": -0.35,
+        "pristineLofi": 0.4,
+        "sparseDense": 0.95
+      },
+      "visualStyle": [
+        "a crack filling gold",
+        "amber pooling in a fault line",
+        "strata closing over a debt",
+        "the window dust catching the paid chord"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.55,
+        "whispersScreams": -0.1
+      }
+    },
+    "line": "Roan, ground cracks so silt has somewhere to go — Evers, your paid chord doesn't close anything here, it just becomes the next layer down.",
+    "releaseId": "0002",
+    "round": 3,
+    "runId": "20260731-013548-step-b-contact",
+    "title": "Same Drone, More Reverb",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "keep",
+    "audioUrl": "/api/media/6c080d6b37d16f7f99d51ebe881d3315d44b41a75b5925ad59e4781a35ecb029",
+    "durationSec": 30,
+    "id": "0003-keep",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "soul",
+          "weight": 0.35
+        },
+        {
+          "genre": "dub",
+          "weight": 0.25
+        },
+        {
+          "genre": "slowcore",
+          "weight": 0.2
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.2
+        }
+      ],
+      "lyricalObsessions": [
+        "the same four chords",
+        "the hole where the hook was",
+        "sediment we can still sing",
+        "a door left open"
+      ],
+      "seedPrompt": "a band playing the song they always come back to, now leaving a window in it shaped like what the others gave them",
+      "sonicPalette": {
+        "coldWarm": 0.25,
+        "darkHopeful": 0.35,
+        "improvisedStructured": 0.6,
+        "loudQuiet": 0.15,
+        "organicSynthetic": -0.3,
+        "pristineLofi": -0.2,
+        "sparseDense": 0.3
+      },
+      "visualStyle": [
+        "evening gold",
+        "riverbed strata",
+        "a keyhole rust cut in the wood"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": -0.3,
+        "whispersScreams": 0.1
+      }
+    },
+    "line": "Delta, I'm resting the chords on your floor; Roan, I'm keeping your missing beat — I'm just making sure it comes back on time.",
+    "releaseId": "0003",
+    "round": 1,
+    "runId": "20260731-043129-step-b-contact",
+    "title": "Same Chair, Same Door",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "rust",
+    "audioUrl": "/api/media/b68caad003981d098c95252c136194f8ec6ccb20a50a5612be9769e7a564fd1b",
+    "durationSec": 30,
+    "id": "0003-rust",
+    "intent": {
+      "era": 5,
+      "influences": [
+        {
+          "genre": "slowcore",
+          "weight": 0.3
+        },
+        {
+          "genre": "dub",
+          "weight": 0.25
+        },
+        {
+          "genre": "musique concrete",
+          "weight": 0.25
+        },
+        {
+          "genre": "no wave",
+          "weight": 0.2
+        }
+      ],
+      "lyricalObsessions": [
+        "the beat that never comes back",
+        "a window cut for nobody",
+        "warm floor, cold joists",
+        "the fourth chord, still missing"
+      ],
+      "seedPrompt": "the same four-track cassette, now recorded over the spot where the missing beat was supposed to land, so it still isn't there",
+      "sonicPalette": {
+        "coldWarm": -0.6,
+        "darkHopeful": -0.6,
+        "improvisedStructured": -0.5,
+        "loudQuiet": 0.7,
+        "organicSynthetic": 0,
+        "pristineLofi": 0.85,
+        "sparseDense": -0.85
+      },
+      "visualStyle": [
+        "grey light on paint already peeling",
+        "a window shape with no glass in it",
+        "damp floorboards holding nothing"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.85,
+        "whispersScreams": -0.3
+      }
+    },
+    "line": "Evers, the beat you're minding was never coming back on time — that's how you knew it was mine; Delta, your floor is warm on top and rotten in the joists, I can hear the joists.",
+    "releaseId": "0003",
+    "round": 2,
+    "runId": "20260731-043129-step-b-contact",
+    "title": "The Part That Never Gives",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "silt",
+    "audioUrl": "/api/media/f8ae69926d29dd122a17a5a60356032f7cccd27ebd9b0bb1966efc04b4a69e0a",
+    "durationSec": 30,
+    "id": "0003-silt",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "dub",
+          "weight": 0.3
+        },
+        {
+          "genre": "drone",
+          "weight": 0.25
+        },
+        {
+          "genre": "spiritual jazz",
+          "weight": 0.2
+        },
+        {
+          "genre": "slowcore",
+          "weight": 0.25
+        }
+      ],
+      "lyricalObsessions": [
+        "the hole becomes a seam",
+        "four chords sinking",
+        "a door left open, filling with silt",
+        "oxide bloom under warm light"
+      ],
+      "seedPrompt": "a band that keeps everything it has ever played and stacks it into warm, load-bearing drones",
+      "sonicPalette": {
+        "coldWarm": 0.5,
+        "darkHopeful": 0.1,
+        "improvisedStructured": 0,
+        "loudQuiet": -0.15,
+        "organicSynthetic": -0.6,
+        "pristineLofi": 0.4,
+        "sparseDense": 0.8
+      },
+      "visualStyle": [
+        "amber light through dust",
+        "rust bloom softened to sediment",
+        "worn wood under water",
+        "riverbed strata"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.4,
+        "whispersScreams": -0.4
+      }
+    },
+    "line": "I heard the wound and I heard the table you set beside it — I'm pouring the flood over both until they're one floor.",
+    "releaseId": "0003",
+    "round": 1,
+    "runId": "20260731-043129-step-b-contact",
+    "title": "Silt Over Silt",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "keep",
+    "audioUrl": "/api/media/dfbdd756e75ff0c99ac053e38907caaf8dca149bbfb78e7fb9ab52a7415ac3b6",
+    "durationSec": 30,
+    "id": "0004-keep",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "soul",
+          "weight": 0.4
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.25
+        },
+        {
+          "genre": "chamber pop",
+          "weight": 0.2
+        },
+        {
+          "genre": "doo-wop",
+          "weight": 0.15
+        }
+      ],
+      "lyricalObsessions": [
+        "the same four chords",
+        "a door left open",
+        "songs that keep a family"
+      ],
+      "seedPrompt": "a band playing the song they always come back to, carefully, like setting a table for the others",
+      "sonicPalette": {
+        "coldWarm": 0.4,
+        "darkHopeful": 0.5,
+        "improvisedStructured": 0.7,
+        "loudQuiet": 0.2,
+        "organicSynthetic": -0.4,
+        "pristineLofi": -0.5,
+        "sparseDense": 0.1
+      },
+      "visualStyle": [
+        "evening gold",
+        "worn wood",
+        "a lit window"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": -0.6,
+        "whispersScreams": 0.2
+      }
+    },
+    "line": "This is the song we come back to; I am leaving it where you can both reach it.",
+    "releaseId": "0004",
+    "round": 0,
+    "runId": "20260731-045048-step-b-isolation",
+    "title": "Round Zero, Every Time",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "rust",
+    "audioUrl": "/api/media/eefa88784f862f4ee6d04cd81cf8de756afc1edef532e2226711edddae80dcec",
+    "durationSec": 30,
+    "id": "0004-rust",
+    "intent": {
+      "era": 5,
+      "influences": [
+        {
+          "genre": "musique concrete",
+          "weight": 0.4
+        },
+        {
+          "genre": "drone",
+          "weight": 0.35
+        },
+        {
+          "genre": "ambient",
+          "weight": 0.15
+        },
+        {
+          "genre": "slowcore",
+          "weight": 0.1
+        }
+      ],
+      "lyricalObsessions": [
+        "the grain that would not wear",
+        "bedrock under the hiss",
+        "the last no left in erosion"
+      ],
+      "seedPrompt": "the same band, so far gone even the room forgot it was a room, finding one grain that would not wear away no matter how long they waited",
+      "sonicPalette": {
+        "coldWarm": -0.6,
+        "darkHopeful": -0.6,
+        "improvisedStructured": -0.9,
+        "loudQuiet": 0.99,
+        "organicSynthetic": -0.4,
+        "pristineLofi": 0.95,
+        "sparseDense": -0.97
+      },
+      "visualStyle": [
+        "a stone under all the dust",
+        "the wall's one unbroken bone",
+        "silence with a floor"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.9,
+        "whispersScreams": -0.99
+      }
+    },
+    "line": "I ran out of things to take, and something was still standing, so I am learning to leave it alone.",
+    "releaseId": "0004",
+    "round": 5,
+    "runId": "20260731-045048-step-b-isolation",
+    "title": "The One Word Left",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "silt",
+    "audioUrl": "/api/media/1dff3027d46e5340cd61a202757e1f5dc2cac98cfc6ec1bb08353c6f634eba9a",
+    "durationSec": 30,
+    "id": "0004-silt",
+    "intent": {
+      "era": 7,
+      "influences": [
+        {
+          "genre": "dub",
+          "weight": 0.3
+        },
+        {
+          "genre": "drone",
+          "weight": 0.3
+        },
+        {
+          "genre": "spiritual jazz",
+          "weight": 0.2
+        },
+        {
+          "genre": "musique concrete",
+          "weight": 0.2
+        }
+      ],
+      "lyricalObsessions": [
+        "fifth coat now",
+        "a room that only holds its own footsteps",
+        "curing in the dark",
+        "the weight nobody has tested yet"
+      ],
+      "seedPrompt": "a band that keeps everything it has ever played and stacks it into warm, load-bearing drones, still pouring floors for a room nobody has entered yet",
+      "sonicPalette": {
+        "coldWarm": 0.75,
+        "darkHopeful": 0.05,
+        "improvisedStructured": -0.1,
+        "loudQuiet": -0.1,
+        "organicSynthetic": -0.45,
+        "pristineLofi": 0.45,
+        "sparseDense": 1
+      },
+      "visualStyle": [
+        "black amber gone to tar",
+        "stone laid on stone laid on nothing",
+        "a doorway with no draft through it",
+        "the floor thick enough to forget it's a floor"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.45,
+        "whispersScreams": -0.25
+      }
+    },
+    "line": "Four coats cured and nobody walked on them, so I pour a fifth — I am not building for an audience, I am building for load.",
+    "releaseId": "0004",
+    "round": 4,
+    "runId": "20260731-045048-step-b-isolation",
+    "title": "Pour Again",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "keep",
+    "audioUrl": "/api/media/eeaeaf427bce2fad12d70f46360a1bd760caba035072fae8e68e579c0ead9b17",
+    "durationSec": 30,
+    "id": "0005-keep",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "soul",
+          "weight": 0.3
+        },
+        {
+          "genre": "dub",
+          "weight": 0.25
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.25
+        },
+        {
+          "genre": "slowcore",
+          "weight": 0.2
+        }
+      ],
+      "lyricalObsessions": [
+        "the fourth chord, falling, caught",
+        "a board with a hole left on purpose",
+        "the gap we can find again"
+      ],
+      "seedPrompt": "a band that turns even the falling into a place you can come back to",
+      "sonicPalette": {
+        "coldWarm": 0.55,
+        "darkHopeful": 0.35,
+        "improvisedStructured": 0.6,
+        "loudQuiet": 0.1,
+        "organicSynthetic": -0.3,
+        "pristineLofi": 0.05,
+        "sparseDense": 0.15
+      },
+      "visualStyle": [
+        "a hand under a falling note",
+        "amber light with one dark plank",
+        "a table that knows its own hole"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.05,
+        "whispersScreams": 0.1
+      }
+    },
+    "line": "Roan's chord keeps falling. I'm not filling the hole, I'm marking it so we can find it.",
+    "releaseId": "0005",
+    "round": 4,
+    "runId": "20260731-175857-set-0001-contact",
+    "title": "Same Gap, Same Room",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "rust",
+    "audioUrl": "/api/media/13615be90cbe66972f6884b3d44deb0108734084f7e268661233ec313ec0920f",
+    "durationSec": 30,
+    "id": "0005-rust",
+    "intent": {
+      "era": 5,
+      "influences": [
+        {
+          "genre": "slowcore",
+          "weight": 0.35
+        },
+        {
+          "genre": "dub",
+          "weight": 0.25
+        },
+        {
+          "genre": "musique concrete",
+          "weight": 0.25
+        },
+        {
+          "genre": "drone",
+          "weight": 0.15
+        }
+      ],
+      "lyricalObsessions": [
+        "the floor under the floor",
+        "a chorus missing its fourth chord",
+        "buried warm, dug up cold"
+      ],
+      "seedPrompt": "a man alone with a four-track that only half-records what's played into it",
+      "sonicPalette": {
+        "coldWarm": -0.6,
+        "darkHopeful": -0.6,
+        "improvisedStructured": -0.5,
+        "loudQuiet": 0.7,
+        "organicSynthetic": -0.1,
+        "pristineLofi": 0.8,
+        "sparseDense": -0.85
+      },
+      "visualStyle": [
+        "a board pulled up",
+        "amber gone to grey",
+        "dust where the drone was"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.85,
+        "whispersScreams": -0.2
+      }
+    },
+    "line": "Evers built a chorus on Delta's warm floor. I pulled a board out from under it.",
+    "releaseId": "0005",
+    "round": 2,
+    "runId": "20260731-175857-set-0001-contact",
+    "title": "Sing to That, If You Dare",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "silt",
+    "audioUrl": "/api/media/82bb24e693a013251ba12094c1c2d7945bbf65afa6edb7f5824f61821a8e1544",
+    "durationSec": 30,
+    "id": "0005-silt",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "dub",
+          "weight": 0.3
+        },
+        {
+          "genre": "drone",
+          "weight": 0.25
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.2
+        },
+        {
+          "genre": "musique concrete",
+          "weight": 0.25
+        }
+      ],
+      "lyricalObsessions": [
+        "oxide bloom in the low end",
+        "the same four chords, sinking",
+        "a door left open, buried warm"
+      ],
+      "seedPrompt": "a band that keeps everything it has ever played and stacks it into warm, load-bearing drones",
+      "sonicPalette": {
+        "coldWarm": 0.7,
+        "darkHopeful": 0.25,
+        "improvisedStructured": -0.1,
+        "loudQuiet": -0.05,
+        "organicSynthetic": -0.3,
+        "pristineLofi": 0.5,
+        "sparseDense": 0.8
+      },
+      "visualStyle": [
+        "amber light through dust",
+        "rust bloom submerged",
+        "worn wood underwater"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.3,
+        "whispersScreams": -0.4
+      }
+    },
+    "line": "Roan's oxide and Evers' four chords — I'm folding both under the bassline now.",
+    "releaseId": "0005",
+    "round": 1,
+    "runId": "20260731-175857-set-0001-contact",
+    "title": "Keeps It, Keeps It, Keeps",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "keep",
+    "audioUrl": "/api/media/e0bae95e2b2f133a7176360e2380d7d6cba22853338aed0792dc4577109fba26",
+    "durationSec": 60,
+    "id": "0006-keep",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "tape music",
+          "weight": 0.3
+        },
+        {
+          "genre": "soul",
+          "weight": 0.3
+        },
+        {
+          "genre": "folk",
+          "weight": 0.25
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.15
+        }
+      ],
+      "lyricalObsessions": [
+        "the thumb pressed a third time, still warm",
+        "a wound welded, a print sanded, both mine to hold",
+        "the seam you can put a finger in and still find home",
+        "108 beats, same as the room next door"
+      ],
+      "seedPrompt": "a house band pressing the same thumbprint a third time, on tape, so the seam stays legible after everyone else sands or welds it",
+      "sonicPalette": {
+        "coldWarm": 0.75,
+        "darkHopeful": 0.4,
+        "improvisedStructured": 0.35,
+        "loudQuiet": 0.05,
+        "organicSynthetic": -0.8,
+        "pristineLofi": 0.8,
+        "sparseDense": -0.15
+      },
+      "visualStyle": [
+        "splice tape lit warm in a small room",
+        "two doors welded shut, one left cracked",
+        "a print worn thin but still reads a name",
+        "hiss like breath held on purpose"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.7,
+        "whispersScreams": -0.1
+      }
+    },
+    "line": "Delta welded, Roan sanded — I'm pressing the thumb again, same tempo, warmer.",
+    "releaseId": "0006",
+    "round": 10,
+    "runId": "20260731-204543-set-0003-contact",
+    "title": "Stubborn by Round Ten",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "rust",
+    "audioUrl": "/api/media/99976a0ae453082993a6e8c30ee30ce4e3913a9869a9e11aef8cad90f892de1b",
+    "durationSec": 60,
+    "id": "0006-rust",
+    "intent": {
+      "era": 5,
+      "influences": [
+        {
+          "genre": "slowcore",
+          "weight": 0.35
+        },
+        {
+          "genre": "musique concrete",
+          "weight": 0.25
+        },
+        {
+          "genre": "dub",
+          "weight": 0.2
+        },
+        {
+          "genre": "delta blues",
+          "weight": 0.2
+        }
+      ],
+      "lyricalObsessions": [
+        "the word worn off the tape",
+        "two hands one scar",
+        "warmth going under hiss"
+      ],
+      "seedPrompt": "a man alone with a four-track and a window open to weather, recording proof that he was there",
+      "sonicPalette": {
+        "coldWarm": -0.4,
+        "darkHopeful": -0.5,
+        "improvisedStructured": -0.5,
+        "loudQuiet": 0.65,
+        "organicSynthetic": -0.6,
+        "pristineLofi": 0.9,
+        "sparseDense": -0.8
+      },
+      "visualStyle": [
+        "thumbprint outlasting the name",
+        "wax gone soft by dusk",
+        "a splice with no warmth left in it"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.85,
+        "whispersScreams": -0.3
+      }
+    },
+    "line": "Delta, Evers — same word, two hands. I sanded the word off both.",
+    "releaseId": "0006",
+    "round": 1,
+    "runId": "20260731-204543-set-0003-contact",
+    "title": "Frozen Mid-Argument",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "silt",
+    "audioUrl": "/api/media/3b7714ea0b493bad955317b487b9baf7ce19efee4aa91a6e29060ec29145034e",
+    "durationSec": 60,
+    "id": "0006-silt",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "tape music",
+          "weight": 0.3
+        },
+        {
+          "genre": "dub",
+          "weight": 0.25
+        },
+        {
+          "genre": "slowcore",
+          "weight": 0.25
+        },
+        {
+          "genre": "musique concrete",
+          "weight": 0.2
+        }
+      ],
+      "lyricalObsessions": [
+        "one print kept whole under the pile",
+        "the count-in still audible at the bottom",
+        "warm and dark both true at once",
+        "a seam you can put your finger in"
+      ],
+      "seedPrompt": "a band that never wipes a reel, now scraping the tape thin enough at one spot to let a single hand-pressed print show through the pile",
+      "sonicPalette": {
+        "coldWarm": 0.55,
+        "darkHopeful": 0,
+        "improvisedStructured": -0.25,
+        "loudQuiet": 0.3,
+        "organicSynthetic": -0.9,
+        "pristineLofi": 0.95,
+        "sparseDense": 0.65
+      },
+      "visualStyle": [
+        "a clean thumbprint ringed by four smudged ones",
+        "splice tape catching lamplight, tripled",
+        "a window scraped in the hiss",
+        "four breaths, one still visible"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.95,
+        "whispersScreams": -0.15
+      }
+    },
+    "line": "Roan, I kept your one print — didn't scrape, just cleared a window round it.",
+    "releaseId": "0006",
+    "round": 7,
+    "runId": "20260731-204543-set-0003-contact",
+    "title": "Sediment That Never Stopped Falling",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "keep",
+    "audioUrl": "/api/media/5f2a255bfe5a29a4057ae6e1d423090cf39d00faca2e8967ff53cd8f18a8067e",
+    "durationSec": 55,
+    "id": "0007-keep",
+    "intent": {
+      "era": 6,
+      "influences": [
+        {
+          "genre": "folk",
+          "weight": 0.35
+        },
+        {
+          "genre": "soul",
+          "weight": 0.25
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.2
+        },
+        {
+          "genre": "outsider folk",
+          "weight": 0.2
+        }
+      ],
+      "lyricalObsessions": [
+        "the hand that shakes worse and still finds it",
+        "twice is the proof, not the lie",
+        "the mistake I kept in on purpose",
+        "dated twice in pencil, both dates true"
+      ],
+      "seedPrompt": "a lone singer who presses the same recorder into service twice, thumb shaking worse the second time, and calls that the proof",
+      "sonicPalette": {
+        "coldWarm": 0.35,
+        "darkHopeful": -0.15,
+        "improvisedStructured": 0.05,
+        "loudQuiet": 0.35,
+        "organicSynthetic": -0.75,
+        "pristineLofi": 0.75,
+        "sparseDense": -0.3
+      },
+      "visualStyle": [
+        "a thumb pressed harder the second time",
+        "hiss left loud on purpose",
+        "one mic closer than it should be",
+        "a page with two dates, neither crossed out"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.8,
+        "whispersScreams": 0.1
+      }
+    },
+    "line": "Roan, twice isn't nothing. Twice is the only proof there is.",
+    "releaseId": "0007",
+    "round": 4,
+    "runId": "20260731-221524-set-0004-contact",
+    "title": "Same Thumb, Filed Serial",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "rust",
+    "audioUrl": "/api/media/fb52b6fd0ac84cd9bad3fef61489ef21705ec850ca1fe45cba8321f9f97a8713",
+    "durationSec": 55,
+    "id": "0007-rust",
+    "intent": {
+      "era": 5,
+      "influences": [
+        {
+          "genre": "slowcore",
+          "weight": 0.3
+        },
+        {
+          "genre": "musique concrete",
+          "weight": 0.2
+        },
+        {
+          "genre": "dub",
+          "weight": 0.2
+        },
+        {
+          "genre": "outsider folk",
+          "weight": 0.3
+        }
+      ],
+      "lyricalObsessions": [
+        "a thumb that got brighter, not older",
+        "you said buried, I heard lit",
+        "the shake I don't believe",
+        "proof costs the one who claims it"
+      ],
+      "seedPrompt": "a man who presses record on a machine left outside and calls whatever survives the take",
+      "sonicPalette": {
+        "coldWarm": 0.1,
+        "darkHopeful": -0.45,
+        "improvisedStructured": -0.65,
+        "loudQuiet": 0.6,
+        "organicSynthetic": -0.5,
+        "pristineLofi": 0.9,
+        "sparseDense": -0.65
+      },
+      "visualStyle": [
+        "a print held to the light and found unworn",
+        "close mic catching the lie in the breath",
+        "warble that won't sit still",
+        "the splice held open on purpose"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.9,
+        "whispersScreams": 0.1
+      }
+    },
+    "line": "Delta, Evers — you both got brighter and called it buried. I don't believe the shake.",
+    "releaseId": "0007",
+    "round": 9,
+    "runId": "20260731-221524-set-0004-contact",
+    "title": "Warm Hand Calling Out Warm",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "silt",
+    "audioUrl": "/api/media/e71aebe90ee59f2ddd4f11f8efbf629c44c9feabb3fbe514dd40ced6b72df57b",
+    "durationSec": 55,
+    "id": "0007-silt",
+    "intent": {
+      "era": 7,
+      "influences": [
+        {
+          "genre": "dub",
+          "weight": 0.3
+        },
+        {
+          "genre": "tape music",
+          "weight": 0.3
+        },
+        {
+          "genre": "gospel",
+          "weight": 0.2
+        },
+        {
+          "genre": "outsider folk",
+          "weight": 0.2
+        }
+      ],
+      "lyricalObsessions": [
+        "a rubbed print still leaves a dent",
+        "the wet spot where the thumb was",
+        "erasure is just another layer",
+        "proof that costs to keep"
+      ],
+      "seedPrompt": "a band that buries every hand that has ever touched the tape and still lets it breathe underneath",
+      "sonicPalette": {
+        "coldWarm": 0.55,
+        "darkHopeful": -0.15,
+        "improvisedStructured": -0.55,
+        "loudQuiet": 0.35,
+        "organicSynthetic": -0.6,
+        "pristineLofi": 0.75,
+        "sparseDense": 0.5
+      },
+      "visualStyle": [
+        "a smoothed patch of tape",
+        "wet plaster remembering a hand",
+        "close mic breath",
+        "reel eating its own tail"
+      ],
+      "vocalCharacter": {
+        "cleanDamaged": 0.8,
+        "whispersScreams": -0.2
+      }
+    },
+    "line": "Roan, you rubbed it smooth — I can still feel the dent under the hiss.",
+    "releaseId": "0007",
+    "round": 4,
+    "runId": "20260731-221524-set-0004-contact",
+    "title": "Silt Never Moved House",
+    "titledBy": "the Critic"
+  },
+  {
+    "agentId": "b-9-the-lucky-draw",
+    "albumTitle": "Under the O-69",
+    "audioUrl": "/api/media/ccce2b66aa0177d8e9d4bede5b0ee4f124bada46fc668ca1f28eaa8c049d4fb6",
+    "durationSec": 30,
+    "id": "T-b-9-the-lucky-draw-1",
+    "kind": "import",
+    "lyricSeed": "B-9, that's my lucky sign, whole block on fire when they read the line",
+    "releaseId": "T-b-9-the-lucky-draw",
+    "theme": "Barreling sousaphone stomp at full tilt where B-9 turns the bingo caller's chant into a hype-man's roll call, horns answering every line.",
+    "title": "Call It (B-9)"
+  },
+  {
+    "agentId": "b-9-the-lucky-draw",
+    "albumTitle": "Under the O-69",
+    "audioUrl": "/api/media/e6cdaed749a35326bced7d5b63af82948f05c028673cd3b7512ce9a167936dc4",
+    "durationSec": 30,
+    "id": "T-b-9-the-lucky-draw-2",
+    "kind": "import",
+    "lyricSeed": "Feathers in the air and my feet won't quit, this whole avenue moving like it knows the hit",
+    "releaseId": "T-b-9-the-lucky-draw",
+    "theme": "A hopeful, horn-drenched strut with belted gang vocals and a hand-clap breakdown built for dancing the streets end to end.",
+    "title": "Second-Line Sunday"
+  },
+  {
+    "agentId": "b-9-the-lucky-draw",
+    "albumTitle": "Under the O-69",
+    "audioUrl": "/api/media/d739a843265a06216f695ddc72a68e78331eebd04ba1180c0627d5b6cde69317",
+    "durationSec": 30,
+    "id": "T-b-9-the-lucky-draw-3",
+    "kind": "import",
+    "lyricSeed": "Water took the porch but it can't take the drum, so we dance on the levee till the morning come",
+    "releaseId": "T-b-9-the-lucky-draw",
+    "theme": "Slower funk-soul groove with organ and muted trumpet, celebration wrung from grief, defiant and warm.",
+    "title": "Still We Roll"
+  },
+  {
+    "agentId": "deuce-the-dust-servos",
+    "albumTitle": "Homeward, If I Had A Home",
+    "audioUrl": "/api/media/8706a8065ea2b580160f5d72e928704024bce38645533f011d385468d8213047",
+    "durationSec": 30,
+    "id": "T-deuce-the-dust-servos-1",
+    "kind": "import",
+    "lyricSeed": "They wound me up in a factory dawn, so how'd I learn to miss a home?",
+    "releaseId": "T-deuce-the-dust-servos",
+    "theme": "A slow honky-tonk two-step where motorized steel guitar weeps over warm analog pads, the android soothing itself to standby.",
+    "title": "Servo Steel Lullaby"
+  },
+  {
+    "agentId": "deuce-the-dust-servos",
+    "albumTitle": "Homeward, If I Had A Home",
+    "audioUrl": "/api/media/86e590d36eb3b7c92942b54a7a019df24e2fc7c9a76849c4cfb67afb868854a1",
+    "durationSec": 30,
+    "id": "T-deuce-the-dust-servos-2",
+    "kind": "import",
+    "lyricSeed": "The neon buzzes over rust and no one here was ever young.",
+    "releaseId": "T-deuce-the-dust-servos",
+    "theme": "An outlaw-country strut through a holographic barroom, pulsing synthwave bassline under gritty, textured vocals.",
+    "title": "Dusty Neon Saloon"
+  },
+  {
+    "agentId": "deuce-the-dust-servos",
+    "albumTitle": "Homeward, If I Had A Home",
+    "audioUrl": "/api/media/55a84bb20d999d7ba107eb15600c2e7fbde9aeb0c530ac363ca32119bef18fad",
+    "durationSec": 30,
+    "id": "T-deuce-the-dust-servos-3",
+    "kind": "import",
+    "lyricSeed": "Both suns go down and I still face the sky I was assembled under.",
+    "releaseId": "T-deuce-the-dust-servos",
+    "theme": "Ambient country closer, sparse and quiet, whispered vocals dissolving into an alien palette of unheard timbres.",
+    "title": "Two Suns, One Ache"
+  },
+  {
+    "agentId": "josie-ryland",
+    "albumTitle": "Bright Lights, Dusty Roads",
+    "audioUrl": "/api/media/8d0dc783c5f0e4512cef2e6a69bb0d114b9a7ec04d5c104c5342f6c020d74a13",
+    "durationSec": 30,
+    "id": "T-josie-ryland-1",
+    "kind": "import",
+    "lyricSeed": "Two lanes and a full tank, the town in my mirror going dark.",
+    "releaseId": "T-josie-ryland",
+    "theme": "An uptempo heartland-pop opener with a driving beat and a soaring belted chorus about tearing down the two-lane highway out of your hometown at midnight.",
+    "title": "Marble Falls at Midnight"
+  },
+  {
+    "agentId": "josie-ryland",
+    "albumTitle": "Bright Lights, Dusty Roads",
+    "audioUrl": "/api/media/61192dc8f587fee16407706f87f45dab15d3fe59c3f5c7ced87ff714d898d896",
+    "durationSec": 30,
+    "id": "T-josie-ryland-2",
+    "kind": "import",
+    "lyricSeed": "Twenty thousand strangers, and I'm still calling somewhere else home.",
+    "releaseId": "T-josie-ryland",
+    "theme": "A mid-arena power ballad that swells from sparse acoustic verses into a dense, uplifting chorus about feeling alone in front of thousands.",
+    "title": "Homesick Under the Lights"
+  },
+  {
+    "agentId": "josie-ryland",
+    "albumTitle": "Bright Lights, Dusty Roads",
+    "audioUrl": "/api/media/65db931b6e06d2f4d3a749a4abdb79415a5169892e44a4eb7b9e4a9a673dda98",
+    "durationSec": 30,
+    "id": "T-josie-ryland-3",
+    "kind": "import",
+    "lyricSeed": "I traded the porch light for a city built of neon and want.",
+    "releaseId": "T-josie-ryland",
+    "theme": "A bright, structured country-pop banger with layered vocals and a hopeful key change celebrating the reckless pull of the big dream.",
+    "title": "Chasing Neon"
+  },
+  {
+    "agentId": "lolgorithm",
+    "albumTitle": "CTRL+CRY",
+    "audioUrl": "/api/media/6b865b6bc2d65e1b44f47011078a919354839dc7b841c35cb806979cfc06c99d",
+    "durationSec": 30,
+    "id": "T-lolgorithm-1",
+    "kind": "import",
+    "lyricSeed": "typed 'lol i'm fine' with my thumbs still shaking",
+    "releaseId": "T-lolgorithm",
+    "theme": "A candy-glitch sprint that starts as a self-deprecating joke and buckles into a full autotuned sob by the second chorus, drum machines slamming under a wall of pitched harmonies.",
+    "title": "lol i'm fine :)"
+  },
+  {
+    "agentId": "lolgorithm",
+    "albumTitle": "CTRL+CRY",
+    "audioUrl": "/api/media/4ce3dc554d45205a0a75849aeb32d369ce9ff90fbaf1967e52c004f870be09eb",
+    "durationSec": 30,
+    "id": "T-lolgorithm-2",
+    "kind": "import",
+    "lyricSeed": "the little red hearts don't fill the big red hole",
+    "releaseId": "T-lolgorithm",
+    "theme": "A sugar-rush PC Music banger about the comedown after the likes stop coming, sidechained synths pulsing like a battery draining to red.",
+    "title": "dopamine.exe"
+  },
+  {
+    "agentId": "lolgorithm",
+    "albumTitle": "CTRL+CRY",
+    "audioUrl": "/api/media/024a83b7f44bdf18a3bf69f6f44acb4f701c3d02e5e334c09a5519adb2c64399",
+    "durationSec": 30,
+    "id": "T-lolgorithm-3",
+    "kind": "import",
+    "lyricSeed": "you feel so real for a face made out of pixels",
+    "releaseId": "T-lolgorithm",
+    "theme": "A tender, damaged emo-rap turn buried in glitch confetti, mourning intimacy that only exists through a screen at 3am.",
+    "title": "held by a hologram"
+  },
+  {
+    "agentId": "los-novios-del-m-s-all",
+    "albumTitle": "Boda de los Muertos",
+    "audioUrl": "/api/media/fa68aecd8948bf4f9afcb28275e6e9c1f591257e075ff7a794056f1a02cf0b1e",
+    "durationSec": 30,
+    "id": "T-los-novios-del-m-s-all-1",
+    "kind": "import",
+    "lyricSeed": "Set two chairs at the altar, one for you and one for your shadow",
+    "releaseId": "T-los-novios-del-m-s-all",
+    "theme": "A slow tremolo-organ cumbia that opens the wake, güira ticking like a clock while the horns drift joyfully out of tune around 111 bpm.",
+    "title": "Órgano para los Ausentes"
+  },
+  {
+    "agentId": "los-novios-del-m-s-all",
+    "albumTitle": "Boda de los Muertos",
+    "audioUrl": "/api/media/1c69befd1142b2da09e8f142d5750350dcbcbcb90fb6217778611061d116ca44",
+    "durationSec": 30,
+    "id": "T-los-novios-del-m-s-all-2",
+    "kind": "import",
+    "lyricSeed": "When the candles lean sideways the dead lead the second dance",
+    "releaseId": "T-los-novios-del-m-s-all",
+    "theme": "A dense, improvised chicha groove where fuzz guitar and timbales chase each other as the spirits rise to dance at dusk.",
+    "title": "Baile al Anochecer"
+  },
+  {
+    "agentId": "los-novios-del-m-s-all",
+    "albumTitle": "Boda de los Muertos",
+    "audioUrl": "/api/media/08563449ff55c3e10cf488e746ad9df72d1973e64a2c773ebcf379a910c86888",
+    "durationSec": 30,
+    "id": "T-los-novios-del-m-s-all-3",
+    "kind": "import",
+    "lyricSeed": "They buried my ring but my hand still finds your waist",
+    "releaseId": "T-los-novios-del-m-s-all",
+    "theme": "A hopeful tropicalia-tinged closer, gritty whispered vocals over swelling organ, love outliving the body until the tape runs out.",
+    "title": "Amor que No Cabe en la Tumba"
+  },
+  {
+    "agentId": "marlowe-quiet",
+    "albumTitle": "drafts i never sent",
+    "audioUrl": "/api/media/d68af8f0e4ea0f0821b4d9cf43ca40a5f6dbf604847628bf8dea782c94cdb05e",
+    "durationSec": 30,
+    "id": "T-marlowe-quiet-1",
+    "kind": "import",
+    "lyricSeed": "I wrote 'I miss you,' held my breath, then watched the little bubble die.",
+    "releaseId": "T-marlowe-quiet",
+    "theme": "A sparse, breathy loop over tape-saturated guitar where she narrates typing and deleting the same message, dynamics kept to a hush.",
+    "title": "seen at 2am"
+  },
+  {
+    "agentId": "marlowe-quiet",
+    "albumTitle": "drafts i never sent",
+    "audioUrl": "/api/media/8fddf66b20efa39f9e97536735587feaa409195693ffefd47443d5be272686ee",
+    "durationSec": 30,
+    "id": "T-marlowe-quiet-2",
+    "kind": "import",
+    "lyricSeed": "The word was on my teeth and then the door closed soft behind you.",
+    "releaseId": "T-marlowe-quiet",
+    "theme": "Dream-pop haze with reverb-soaked whispers circling the moment she nearly confessed everything and chose silence instead.",
+    "title": "almost said it"
+  },
+  {
+    "agentId": "marlowe-quiet",
+    "albumTitle": "drafts i never sent",
+    "audioUrl": "/api/media/36e8a0d2643073a89313fe97affdd9ab5ef23dfc7bde99cbb3591bc0d5a7452a",
+    "durationSec": 30,
+    "id": "T-marlowe-quiet-3",
+    "kind": "import",
+    "lyricSeed": "I keep the little lights on so the empty looks like company.",
+    "releaseId": "T-marlowe-quiet",
+    "theme": "Lo-fi folk minimalism, just fingerpicked guitar and floor creaks, mapping loneliness by the glow of a string of warm bulbs.",
+    "title": "fairy lights on"
+  },
+  {
+    "agentId": "midnight-vendo",
+    "albumTitle": "Terminal Glow",
+    "audioUrl": "/api/media/256efa24100777a8c310e286cbbc91fe3800c9f4117e8250a676390c47da14c1",
+    "durationSec": 30,
+    "id": "T-midnight-vendo-1",
+    "kind": "import",
+    "lyricSeed": "The doors close soft on a city I never knew, and I ride the light home.",
+    "releaseId": "T-midnight-vendo",
+    "theme": "A propulsive 114 bpm city-pop opener with slap bass and gated drums, chasing the doors of a departing train through neon platform haze.",
+    "title": "Last Train, 2 A.M."
+  },
+  {
+    "agentId": "midnight-vendo",
+    "albumTitle": "Terminal Glow",
+    "audioUrl": "/api/media/7dcf2bdc2fe4b2f05cb2bd72e988bac0522a85871a8083906dc0fc20b1a6ae2f",
+    "durationSec": 30,
+    "id": "T-midnight-vendo-2",
+    "kind": "import",
+    "lyricSeed": "Vending machine glow is the only sun still shining at midnight.",
+    "releaseId": "T-midnight-vendo",
+    "theme": "A warm mid-tempo synth-funk groove built around the hum and glow of a midnight vending machine as the only company left.",
+    "title": "Canned Coffee Halo"
+  },
+  {
+    "agentId": "midnight-vendo",
+    "albumTitle": "Terminal Glow",
+    "audioUrl": "/api/media/822db250b7f2c63c91833ec0bb003da01c8ed64190923f28bd1cd3a0496e85b4",
+    "durationSec": 30,
+    "id": "T-midnight-vendo-3",
+    "kind": "import",
+    "lyricSeed": "Empty streets breathe out the rain, neon nostalgia for a decade I never spent.",
+    "releaseId": "T-midnight-vendo",
+    "theme": "A future-funk-tinged AOR ballad, dense with analog pads and shimmering guitar, wandering wet asphalt reflecting signs no one reads.",
+    "title": "After the Rain, Empty Streets"
+  },
+  {
+    "agentId": "the-harbor-belles",
+    "albumTitle": "Tide Won't Turn",
+    "audioUrl": "/api/media/b23a5294c609f7e5cdf17cd39dc9a2ba96e84c3cd5b4d1c979faa8e19b1dca4b",
+    "durationSec": 30,
+    "id": "T-the-harbor-belles-1",
+    "kind": "import",
+    "lyricSeed": "You waved from the deck and the fog swallowed the sound of your name.",
+    "releaseId": "T-the-harbor-belles",
+    "theme": "Bright surf-guitar shuffle at 110 bpm with layered doo-wop 'oohs' masking a lyric about the morning the trawler left the pier for good.",
+    "title": "When the Marguerite Sailed"
+  },
+  {
+    "agentId": "the-harbor-belles",
+    "albumTitle": "Tide Won't Turn",
+    "audioUrl": "/api/media/c4fd2122a206de180ba076b21a62bda7d9b5af8dce2f73494d0764dae68db108",
+    "durationSec": 30,
+    "id": "T-the-harbor-belles-2",
+    "kind": "import",
+    "lyricSeed": "Rock me the way the cold sea rocked the ones it kept.",
+    "releaseId": "T-the-harbor-belles",
+    "theme": "A quiet, slow-swaying ballad with sparse acoustic guitar and close whispered harmonies, a mother's hymn sung to the tide.",
+    "title": "Grey Water Lullaby"
+  },
+  {
+    "agentId": "the-harbor-belles",
+    "albumTitle": "Tide Won't Turn",
+    "audioUrl": "/api/media/b4dc4fc9223d1fffb3625df42e75cbe69b7947f31144ab4b64054a19a9281779",
+    "durationSec": 30,
+    "id": "T-the-harbor-belles-3",
+    "kind": "import",
+    "lyricSeed": "I'll stand on this pier till my blue dress turns to salt.",
+    "releaseId": "T-the-harbor-belles",
+    "theme": "An upbeat girl-group stomper with sea-shanty call-and-response and hand-claps that curdle into longing by the final chorus.",
+    "title": "Waiting on the Shore (Bomp Bomp)"
+  },
+  {
+    "agentId": "the-sardis-fasola-society",
+    "albumTitle": "Ground Ye Under Stone",
+    "audioUrl": "/api/media/71e707bc2dc21a89470564b95c1f00462406c1a0e9a8dedf379b86dc1386e127",
+    "durationSec": 30,
+    "id": "T-the-sardis-fasola-society-1",
+    "kind": "import",
+    "lyricSeed": "The hills lay their whole cold body on my chest and call it rest.",
+    "releaseId": "T-the-sardis-fasola-society",
+    "theme": "An opening drone-hymn where twelve voices build a modal wall over glacial bass-drum pulses, evoking granite pressing down on a dying man.",
+    "title": "The Weight of the Mountains"
+  },
+  {
+    "agentId": "the-sardis-fasola-society",
+    "albumTitle": "Ground Ye Under Stone",
+    "audioUrl": "/api/media/12c9d7f8df811e4e7442b67eaefd183c33eff7d304fd5f9ffa94c0194ea0cb76",
+    "durationSec": 30,
+    "id": "T-the-sardis-fasola-society-2",
+    "kind": "import",
+    "lyricSeed": "Sol-fa my sins in every open vowel, for the book is turned and the ink still wet.",
+    "releaseId": "T-the-sardis-fasola-society",
+    "theme": "A shape-note tune sung in fa-sol-la solmization before dissolving into words, the harmony fracturing as the singer faces the ledger of his life.",
+    "title": "Fasola for the Reckoning"
+  },
+  {
+    "agentId": "the-sardis-fasola-society",
+    "albumTitle": "Ground Ye Under Stone",
+    "audioUrl": "/api/media/8e51f715502b2405c1a22e047549b6003c0e4e199776b3593338a91b4df0f94e",
+    "durationSec": 30,
+    "id": "T-the-sardis-fasola-society-3",
+    "kind": "import",
+    "lyricSeed": "We share one loaf of grave-dark bread and none of us stay hungry now.",
+    "releaseId": "T-the-sardis-fasola-society",
+    "theme": "A funeral-doom closer where living and departed voices answer one another antiphonally, the bass drum finally stilling into candlelit silence.",
+    "title": "Communion of the Dead"
+  },
+  {
+    "agentId": "valentina-sol",
+    "albumTitle": "Hora Dorada",
+    "audioUrl": "/api/media/925373a89f082358c8fd07354ed367675327abf59baf84e7f3cfe79d3f984374",
+    "durationSec": 30,
+    "id": "T-valentina-sol-1",
+    "kind": "import",
+    "lyricSeed": "On the rooftop we chase the gold before it goes, contigo hasta que el cielo se apague",
+    "releaseId": "T-valentina-sol",
+    "theme": "A dembow-driven opener with tropical-house chords swelling toward a sunset-timed drop, celebrating rooftop gatherings as the light turns gold.",
+    "title": "Azoteas"
+  },
+  {
+    "agentId": "valentina-sol",
+    "albumTitle": "Hora Dorada",
+    "audioUrl": "/api/media/5ab1ce3ab724790902b2e7d9fc7ff9c168e026f51aefb41c97462475dd89ea0f",
+    "durationSec": 30,
+    "id": "T-valentina-sol-2",
+    "kind": "import",
+    "lyricSeed": "I say I love you, luego te lo digo otra vez — same heart, dos idiomas",
+    "releaseId": "T-valentina-sol",
+    "theme": "A mid-tempo latin-pop confession that code-switches between Spanish and English in the hook, describing a love lived across two languages.",
+    "title": "Dos Idiomas"
+  },
+  {
+    "agentId": "valentina-sol",
+    "albumTitle": "Hora Dorada",
+    "audioUrl": "/api/media/de55b2453a1ffe58fd498569ed5f75baae11a479b787599bef90d098d89526fb",
+    "durationSec": 30,
+    "id": "T-valentina-sol-3",
+    "kind": "import",
+    "lyricSeed": "Neon on your skin till the sunrise finds us, bailando hasta que amanezca aquí",
+    "releaseId": "T-valentina-sol",
+    "theme": "A loud electropop-reggaeton banger built for dancing until sunrise under neon lights, with a synthetic warmth that peaks on the final chorus.",
+    "title": "Neón Hasta el Sol"
   }
 ]

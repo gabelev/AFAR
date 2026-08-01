@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "fixtures:export": "node scripts/export_fixtures.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
