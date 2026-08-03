@@ -1,14 +1,21 @@
-"""Player: one AFAR musician running PERCEIVE -> DECIDE -> EXECUTE.
+"""Player: one AFAR musician — writing whole records, and (offline) one take.
 
-A Player is an ensemble Agent whose decision is an `Intent` (the Creative DNA
-plus a spoken line) and whose execution is a rendered track on disk. The model
-never touches the renderer and the renderer never touches the model: the
-Intent is the only thing that crosses between them, which is what makes every
-track reproducible from its logged intent.
+A Player is an ensemble Agent whose creative act is an `Album`: title,
+description and every song's words and DNA, written in ONE call in the
+artist's own voice before any audio exists (`write_album`, docs/SPEC.md). The
+model never touches the renderer and the renderer never touches the model: the
+per-track `Intent` is the only thing that crosses between them, which is what
+makes every track reproducible from its logged intent.
+
+The per-round PERCEIVE -> DECIDE -> EXECUTE path (`decide`, `render_one`)
+stays as the offline experiment instrument behind `AFAR_EXPERIMENT_MODE` — the
+round-based history is logged and published, and the experiment still needs a
+per-round decision. It is not how the live piece makes records.
 
 `ensemble.agent.Agent.run()` deliberately does NOT publish or log — so the
-logging lives in `render_one`, the Step A orchestrator, which runs the loop
-stage by stage and writes the perceptions/intents/artifacts rows explicitly.
+logging lives in the orchestrators (`afar.run.run_album` for records,
+`render_one` for the Step A single take), which run the stages and write the
+perceptions/intents/artifacts rows explicitly.
 """
 
 from __future__ import annotations
@@ -20,9 +27,17 @@ from ensemble.agent import Agent, Artifact, Decision, Perception, Persona, SelfS
 from ensemble.memory import EpisodicMemory
 from ensemble.providers.model import Message, ModelProvider
 
+from afar.agents.robust import staff_complete
+from afar.album import MAX_TRACKS, MIN_TRACKS, Album
 from afar.intent import Intent
 from afar.log import JsonlLedger
+from afar.mapping import lyric_line_budget
 from afar.render.base import DEFAULT_DURATION_S, Renderer
+
+#: Sung words per second of take. The established figure behind the persona
+#: contract's "4-8 lines (30-60 words) for a standard 30-second take" and
+#: `mapping.lyric_line_budget`'s 8-lines-per-30s density: ~45 words / 30s.
+WORDS_PER_SECOND = 1.5
 
 
 class Player(Agent):
@@ -57,7 +72,67 @@ class Player(Agent):
         """
         return Perception(data=dict(context))
 
-    # -- DECIDE ----------------------------------------------------------------
+    # -- WRITE (the album: the live piece's only creative call) -----------------
+
+    def write_album(
+        self, context: Mapping[str, Any], *, n_tracks: int, duration_s: int
+    ) -> Album:
+        """Write a whole record in ONE call, and return it parsed and validated.
+
+        System message = the persona's `base_prompt`, verbatim. That prompt IS
+        the artist inventing itself (compiled once from Creative DNA and never
+        rewritten), so nothing here re-describes who the artist is; the user
+        message only says what is being made, what the artist has heard, and
+        what shape the answer takes.
+
+        `context` comes from `afar.perception.album_context.build_album_context`
+        and from nowhere else — that is where the no-staff law is enforced.
+
+        The retry ladder is `robust.staff_complete` rather than `decide`'s
+        single re-prompt, for one reason: an album is the most expensive call
+        the piece makes (up to six tracks of lyrics and DNA), and the failure
+        that once voided a paid set was an EMPTY reply — which `decide`'s
+        ladder answers by re-prompting about a parse error that never
+        happened, and which `staff_complete` answers by simply asking again.
+        Three model calls at most, then ValueError; the caller decides what a
+        record that could not be written means.
+        """
+        if not MIN_TRACKS <= n_tracks <= MAX_TRACKS:
+            raise ValueError(
+                f"an album carries {MIN_TRACKS}-{MAX_TRACKS} tracks, asked for {n_tracks}"
+            )
+        artist_id = str(context.get("artist_id") or self.persona.metadata["player_id"])
+        messages = [
+            Message(role="system", content=self.persona.base_prompt),
+            Message(
+                role="user",
+                content=self._album_prompt(context, n_tracks=n_tracks, duration_s=duration_s),
+            ),
+        ]
+
+        def _parse(raw: str) -> Album:
+            album = Album.from_json(raw, artist_id=artist_id)
+            if len(album.tracks) != n_tracks:
+                # The count is the budget: the conductor sized this record to
+                # the audio-minutes it can afford, so a generous extra song is
+                # real money and a short one is a short record.
+                raise ValueError(
+                    f"this record is {n_tracks} songs, not {len(album.tracks)}"
+                )
+            return album
+
+        return staff_complete(
+            self.model,
+            messages,
+            stage=f"album:{artist_id}",
+            parse=_parse,
+            nudge=(
+                "Reply again with ONLY the album JSON object — title, "
+                "description, rationale and the tracks array, nothing else."
+            ),
+        )
+
+    # -- DECIDE (the offline experiment's per-round path) ----------------------
 
     def decide(self, perception: Perception) -> Decision:
         """Ask the model for an Intent; one re-prompt on a malformed reply.
@@ -108,6 +183,64 @@ class Player(Agent):
         )
 
     # -- internals -------------------------------------------------------------
+
+    def _album_prompt(
+        self, context: Mapping[str, Any], *, n_tracks: int, duration_s: int
+    ) -> str:
+        """The one user message that produces a whole record.
+
+        Order matters: what is being made, the laws it is made under, where
+        this artist is now, what it has heard, then the shape of the answer.
+        The machine-readable TRACKS:/SECONDS PER TRACK: lines follow the staff
+        prompts' idiom (ROUNDS:/ACTS:) so the offline mock can answer honestly.
+        """
+        lines = lyric_line_budget(duration_s * 1000)
+        words = int(round(duration_s * WORDS_PER_SECOND))
+        parts: list[str] = [
+            f"""YOU ARE MAKING A RECORD. Not a take — a record: {n_tracks} songs that \
+belong together, about {duration_s} seconds each. You write all of it now, in \
+one breath, before a note of it exists: the album's title, what the record is, \
+and every song's title, words and DNA.
+TRACKS: {n_tracks}
+SECONDS PER TRACK: {duration_s}""",
+            _ALBUM_LAWS.format(n=n_tracks),
+        ]
+        state_line = self._self_state_line()
+        if state_line:
+            parts.append(state_line)
+        parts.append(self._heard_block(context))
+        own = context.get("own_last")
+        if own:
+            parts.append("YOUR LAST RECORD:\n" + _render_sleeve(own, indent="  "))
+        parts.append(_answer_contract(n_tracks, duration_s, lines, words))
+        return "\n\n".join(parts)
+
+    def _heard_block(self, context: Mapping[str, Any]) -> str:
+        """What other artists' records reached this one, as sleeves.
+
+        Rendered as prose rather than a JSON dump because it is what the
+        artist HEARD, and an artist reads a sleeve. The measured ear facts
+        ride under the track they belong to — the sound is the fact, so it
+        sits next to the words that claim it."""
+        heard = context.get("heard") or []
+        if not heard:
+            if context.get("isolated"):
+                return (
+                    "WHAT YOU HAVE HEARD SINCE YOUR LAST RECORD:\n"
+                    "Nothing. Nobody else's music has reached you. This record "
+                    "comes out of you alone."
+                )
+            return (
+                "WHAT YOU HAVE HEARD SINCE YOUR LAST RECORD:\n"
+                "Nothing yet — no one else has put a record out. You are first."
+            )
+        blocks = [_render_sleeve(album, indent="  ") for album in heard]
+        return (
+            "WHAT YOU HAVE HEARD SINCE YOUR LAST RECORD (other artists' finished "
+            "records; where a song was actually played to you, the measured facts "
+            "of how it sounded are under it — trust those over what the sleeve "
+            "claims):\n\n" + "\n\n".join(blocks)
+        )
 
     def _decision_prompt(self, perception: Perception) -> str:
         """The decide-turn user message: the Producer's direction (frame, when
@@ -194,6 +327,125 @@ class Player(Agent):
         if not bits:
             return None
         return "WHERE YOU ARE NOW: " + " ".join(bits)
+
+
+#: The tunz process, stated as law (docs/SPEC.md; tunz profile.ts, whose
+#: titles are good because the title is an INPUT). One traceability law in
+#: place of ban lists — the two rule-list cures each just grew a new rut — and
+#: the ordering rule that the whole architecture exists to enforce: the title
+#: is written WITH the songs, by the artist that will make the record.
+_ALBUM_LAWS = """\
+HOW A RECORD GETS WRITTEN HERE.
+
+Everything on this record is traceable to two things and nothing else: who you \
+are, and what you have heard. The era you work in, what you refuse, the images \
+you keep returning to, and the specific records that reached you since the last \
+time — that is the entire source. Nothing arrives from outside it.
+
+The title is written WITH the songs, not after them. You are not captioning \
+finished music. You decide what this record IS, and the songs are written to \
+it: each one earns its place on THIS album rather than on any other.
+
+Nothing is named in isolation. The album title, the description and all {n} \
+song titles leave your hand in the same breath — they have to cohere, and they \
+have to differ. {n} titles built the same way is one title printed {n} times, \
+and no song may wear the album's title.
+
+Every title names a specific thing: keep the noun AND its particular — the \
+material, the count, the place, the state it is in. Two tests: could a stranger \
+draw it, and would it sit at home on somebody else's sleeve? You want yes, then \
+no. Not a mood, not a verb fragment, not a bare abstract noun, no colons, no \
+subtitles.
+
+You name your own work. Nobody else in this world titles anything of yours — \
+not a producer, not a critic, not an archivist. If a name is wrong it is \
+yours to have got wrong.\
+"""
+
+
+def _render_sleeve(album: Mapping[str, Any], *, indent: str = "") -> str:
+    """One album context entry as the sleeve an artist would read.
+
+    Sleeve text only, by construction — `album_context` already whitelisted
+    what may be here, and this renderer names the fields it prints, so a field
+    that somehow arrived has to be printed on purpose to reach a prompt."""
+    name = str(album.get("artist_name") or album.get("artist_id") or "").strip()
+    title = str(album.get("title", "")).strip()
+    head = f'{name} — "{title}"' if name else f'"{title}"'
+    lines = [head]
+    description = str(album.get("description", "")).strip()
+    if description:
+        lines.append(f"{indent}{description}")
+    for i, track in enumerate(album.get("tracks") or [], start=1):
+        song = str(track.get("title", "")).strip()
+        note = str(track.get("note", "")).strip()
+        lines.append(f'{indent}{i}. "{song}"' + (f" — {note}" if note else ""))
+        facts = _heard_facts(track.get("heard") or {})
+        if facts:
+            lines.append(f"{indent}   how it sounded to you: {facts}")
+    return "\n".join(lines)
+
+
+def _heard_facts(heard: Mapping[str, Any]) -> str:
+    """One track's measured facts as one terse clause, or "" when nothing was
+    measured. Facts only, in the buckets the ear reports them in; whatever was
+    not measured is simply not said."""
+    facts: list[str] = []
+    if heard.get("tempo_bpm") is not None:
+        facts.append(f"about {round(float(heard['tempo_bpm']))} BPM")
+    for key in ("loudness", "brightness"):
+        label = heard.get(key)
+        if label:
+            facts.append(str(label) if label != "mid" else f"mid {key}")
+    if heard.get("duration_s") is not None:
+        facts.append(f"{round(float(heard['duration_s']))} seconds")
+    moved = heard.get("moved")
+    if moved == "toward_you":
+        facts.append("it moved toward your last record")
+    elif moved == "away_from_you":
+        facts.append("it moved away from yours, closer to their own last one")
+    return ", ".join(facts)
+
+
+def _answer_contract(n_tracks: int, duration_s: int, lines: int, words: int) -> str:
+    """The album JSON shape, stated in terms of the Intent contract the
+    persona prompt already carries — the schema stays in one place, and this
+    only says how {n} of them are wrapped into a record."""
+    return f"""\
+HOW YOU ANSWER.
+Reply with exactly ONE JSON object and nothing else (a ```json fence is fine). \
+It is the whole record:
+
+{{
+  "title": the album's title,
+  "description": 1-2 sentences on this record as a body of work, in your own \
+voice — concrete detail from the record itself, the way a good capsule note \
+reads. No praise, no pitch.
+  "rationale": why this record, now — a few sentences, first person, plain \
+words. Your account of what you are doing and what you have heard.
+  "tracks": exactly {n_tracks} objects, in running order:
+    {{
+      "title": the song's title,
+      "note": the one line you say out loud about this song — studio speech, \
+about 90 characters, plain words, the same register as the "line" in your \
+instructions. This is the only thing anyone else will read you saying about it.
+      "intent": the complete Intent object your instructions describe — \
+seedPrompt, era, influences, sonicPalette, vocalCharacter, lyricalObsessions, \
+visualStyle, lyrics, rationale, player_id. The "line" field is optional here: \
+the note above is what you said.
+    }}
+}}
+
+Every song gets its OWN intent. The DNA is the only thing the audio is made \
+from, so {n_tracks} songs sharing one palette is one song pressed {n_tracks} \
+times: the record's songs should sit in the same world and still be told \
+apart — a different tempo, a different weight, a different room.
+
+LYRICS. Each "lyrics" field is the words you SING on that song, not a \
+description of them: short lines separated by newlines. These takes run \
+{duration_s} seconds, so aim at about {lines} lines (~{words} words) per song. \
+A long take with thin words sounds thin.\
+"""
 
 
 def _heard_sentence(name: str, heard: Mapping[str, Any]) -> Optional[str]:

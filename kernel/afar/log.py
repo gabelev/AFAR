@@ -33,6 +33,7 @@ TABLES: tuple[str, ...] = (
     "eras",
     "sets",
     "rounds",
+    "albums",
     "perceptions",
     "intents",
     "artifacts",

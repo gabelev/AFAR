@@ -92,3 +92,66 @@ def test_intent_vector_is_deterministic_and_version_pinned():
 def test_intent_vectors_distinguish_the_personas():
     vecs = {pid: features.intent_vector(_intent(pid)) for pid in ("silt", "rust", "keep")}
     assert len({tuple(v) for v in vecs.values()}) == 3
+
+
+# --- album cadence -------------------------------------------------------------
+
+
+def test_album_vector_is_the_centroid_of_its_tracks():
+    assert features.album_vector([[1.0, 0.0], [0.0, 1.0]]) == pytest.approx([0.5, 0.5])
+    assert features.album_vector([[2.0, 4.0]]) == pytest.approx([2.0, 4.0])
+
+
+def test_an_album_with_no_tracks_has_no_position():
+    with pytest.raises(ValueError):
+        features.album_vector([])
+
+
+def test_album_influence_is_positive_when_the_new_record_moved_toward_what_it_heard():
+    mine, theirs, own_prev = [1.0, 0.1], [1.0, 0.0], [0.0, 1.0]
+    block = features.album_features(mine, heard={"AFAR-0002": theirs}, own_past=[own_prev])
+    assert block["influence"]["AFAR-0002"] > 0
+
+
+def test_album_influence_is_negative_when_the_artist_stayed_home():
+    mine, theirs, own_prev = [0.0, 1.0], [1.0, 0.0], [0.1, 1.0]
+    block = features.album_features(mine, heard={"AFAR-0002": theirs}, own_past=[own_prev])
+    assert block["influence"]["AFAR-0002"] < 0
+
+
+def test_a_debut_has_no_influence_edges_and_no_novelty():
+    block = features.album_features([1.0, 0.0], heard={"AFAR-0002": [0.0, 1.0]})
+    assert block["influence"] == {}  # nothing of its own to have moved from
+    assert block["novelty"] == 0.0
+
+
+def test_album_convergence_reads_the_new_record_against_everything_it_heard():
+    same = features.album_features([1.0, 0.0], heard={"a": [1.0, 0.0], "b": [1.0, 0.0]})
+    assert same["convergence"] == pytest.approx(1.0)
+    apart = features.album_features([1.0, 0.0], heard={"a": [0.0, 1.0]})
+    assert apart["convergence"] == pytest.approx(0.0)
+    alone = features.album_features([1.0, 0.0], heard={})
+    assert alone["convergence"] == pytest.approx(1.0)  # no pairs to disagree
+
+
+def test_album_novelty_measures_departure_from_the_artists_own_catalogue():
+    repeat = features.album_features([1.0, 0.0], heard={}, own_past=[[1.0, 0.0]])
+    assert repeat["novelty"] == pytest.approx(0.0)
+    departure = features.album_features([0.0, 1.0], heard={}, own_past=[[1.0, 0.0]])
+    assert departure["novelty"] == pytest.approx(1.0)
+
+
+def test_album_features_compute_identically_in_either_space():
+    """The block is pure in its vectors — audio or intent, same function."""
+    args = dict(heard={"AFAR-0002": [0.4, 0.6]}, own_past=[[0.9, 0.1]])
+    assert features.album_features([0.5, 0.5], **args) == features.album_features(
+        [0.5, 0.5], **args
+    )
+
+
+def test_the_per_round_features_are_untouched_by_the_album_cadence():
+    """The experiment path still computes exactly what it always did."""
+    embs = {"a": [[1.0, 0.0], [0.0, 1.0]], "b": [[0.0, 1.0], [0.0, 1.0]]}
+    graph = features.influence_graph(embs, 1)
+    assert set(graph) == {("a", "b"), ("b", "a")}
+    assert features.convergence_curve(embs) == pytest.approx([0.0, 1.0])

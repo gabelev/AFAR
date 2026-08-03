@@ -1,4 +1,18 @@
-"""run_set: three players, N rounds, cross-perception, one interaction record.
+"""The orchestrators: `run_album` (the piece) and `run_set` (the experiment).
+
+`run_album` is the live spine (docs/SPEC.md): one artist, one record. It
+builds what that artist has heard through the ONE chokepoint
+(`build_album_context` — no staff channel), asks for the whole album in a
+single call, renders every track deterministically from its own DNA, embeds
+each track in both spaces, computes the album-cadence features against the
+records it heard, and logs all of it append-only. It returns an `AlbumResult`
+the conductor can publish.
+
+`run_set` below is the round-based experiment instrument, kept whole behind
+`AFAR_EXPERIMENT_MODE`: the published round-based history stands as logged,
+and the Ensemble Effect still needs per-round contact/isolation/parallel.
+
+--- run_set: three players, N rounds, cross-perception, one interaction record.
 
 The Step B orchestrator — the first thing that is actually the piece. Each
 round it builds every player's context (`build_context`, the single condition
@@ -38,15 +52,17 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any, Callable, Mapping, Optional, Sequence
 
-from ensemble.agent import Artifact
+from ensemble.agent import Artifact, Decision
 from ensemble.pipeline import Stage, fan_out
 
 from afar import features
 from afar.agents.player import Player
+from afar.album import Album
 from afar.config import AfarConfig
 from afar.intent import Intent
 from afar.log import JsonlLedger
 from afar.perception import ear
+from afar.perception.album_context import Ears, HeardAlbum, build_album_context
 from afar.perception.context import (
     CONDITIONS,
     RoundEntry,
@@ -173,6 +189,388 @@ def player_seed(seed: int, player_id: str, t: int) -> int:
     """
     offset = int(hashlib.sha256(f"{player_id}:{t}".encode("utf-8")).hexdigest()[:8], 16)
     return seed + offset
+
+
+def track_seed(seed: int, artist_id: str, album_id: str, index: int) -> int:
+    """Derive one track's render seed from the album's seed.
+
+    Same hash-offset shape as `player_seed`, with the album's content hash in
+    the key: a given (artist, album, track) always renders from the same seed,
+    so a record replays byte-identically — and two different albums by the
+    same artist under the same conductor seed cannot collide into the same
+    audio.
+    """
+    key = f"{artist_id}:{album_id}:{index}".encode("utf-8")
+    return seed + int(hashlib.sha256(key).hexdigest()[:8], 16)
+
+
+# --- the album: the live piece's orchestrator ---------------------------------
+
+
+@dataclass(frozen=True)
+class RenderedTrack:
+    """One finished song: what the artist decided, and what it became."""
+
+    index: int
+    title: str
+    note: str
+    intent: Intent
+    intent_id: str
+    audio_path: Path
+    content_hash: str
+    seed: int
+    duration_s: int
+
+    @property
+    def lyrics(self) -> str:
+        return self.intent.lyrics
+
+
+@dataclass(frozen=True)
+class AlbumResult:
+    """One finished record, and everything a publisher needs to ship it.
+
+    `album` is what the artist wrote (title, description, per-track words and
+    DNA); `tracks` pairs each song with the audio it became; `record` is the
+    content-addressed album record — the same double-duty shape `run_set`'s
+    release record has: logged as an `albums` row, written to disk beside the
+    run, and the thing the conductor's publish path reads. Nothing in it is
+    staff-written, because nothing staff-written exists yet: the reactions
+    happen after this returns.
+    """
+
+    album: Album
+    album_id: str  # the album's content hash: what the artist decided
+    artist_id: str
+    tracks: tuple[RenderedTrack, ...]
+    #: space -> {"influence": {album_id: float}, "convergence": float, "novelty": float}
+    features: dict[str, dict[str, Any]]
+    record: dict[str, Any]
+    paths: dict[str, Path]
+
+    @property
+    def duration_s(self) -> int:
+        return sum(t.duration_s for t in self.tracks)
+
+
+def measure_heard_albums(
+    albums: Sequence[HeardAlbum], ears: Ears
+) -> tuple[HeardAlbum, ...]:
+    """Attach the measured ear facts to the tracks this artist actually heard.
+
+    `afar.perception.ear`, at album cadence: DSP runs ONCE per track (a failed
+    measurement degrades that track to the embedding relations — it never
+    blocks a record), and the loudness/brightness terciles are taken against
+    THIS listening pass's pool, because "quiet" is only meaningful as a
+    comparison and the honest comparison is the other records that reached
+    this artist at the same time.
+
+    A track with no logged audio vector was not heard — it keeps no `heard`
+    dict at all, rather than a dict of Nones that would read as "I heard it
+    and it had no qualities".
+    """
+    audio_vecs = ears.space("audio")
+    if not audio_vecs:
+        return tuple(albums)
+    dsp_by: dict[str, Optional[dict[str, float]]] = {}
+    rms_pool: list[float] = []
+    centroid_pool: list[float] = []
+    for album in albums:
+        for track in album.tracks:
+            digest = track.content_hash
+            if not digest or digest in dsp_by or digest not in audio_vecs:
+                continue
+            path = ears.audio.get(digest)
+            facts = ear.dsp_facts(path) if path is not None else None
+            dsp_by[digest] = facts
+            if facts is not None:
+                rms_pool.append(facts["rms"])
+                centroid_pool.append(facts["centroid_hz"])
+
+    your_vec = ears.own_last("audio")
+    your_prev_vec = ears.own_before_last("audio")
+    maker_past = ears.maker_past.get("audio", {})
+    measured: list[HeardAlbum] = []
+    for album in albums:
+        heard_by_hash: dict[str, dict[str, Any]] = {}
+        for track in album.tracks:
+            digest = track.content_hash
+            if digest not in dsp_by:
+                continue
+            heard_by_hash[digest] = ear.hear(
+                ears.audio.get(digest) or Path(""),
+                audio_vecs[digest],
+                {
+                    "your_vec": your_vec,
+                    "your_prev_vec": your_prev_vec,
+                    "their_prev_vec": maker_past.get(album.artist_id),
+                    "rms_pool": list(rms_pool),
+                    "centroid_pool": list(centroid_pool),
+                    "dsp": dsp_by[digest],
+                },
+            )
+        measured.append(album.with_heard(heard_by_hash) if heard_by_hash else album)
+    return tuple(measured)
+
+
+def run_album(
+    player: Player,
+    *,
+    n_tracks: int,
+    duration_s: int,
+    config: AfarConfig,
+    ledger: JsonlLedger,
+    embedder: AudioEmbedder,
+    seed: int,
+    heard: Sequence[HeardAlbum] = (),
+    own_last: Optional[HeardAlbum] = None,
+    ears: Optional[Ears] = None,
+    isolated: bool = False,
+) -> AlbumResult:
+    """One artist, one record, start to finish. See the module docstring.
+
+    `heard` is the other artists' recent records this one gets to hear and
+    `own_last` is its own previous record — both as sleeves; `ears` is the
+    runner-side measurement material (audio files and logged vectors, keyed by
+    artifact hash) which never enters the prompt as anything but measured
+    facts. `isolated=True` is the experiment's control: the artist hears no
+    one.
+
+    Everything is logged before this returns: the perceptions row carries the
+    context verbatim (what the artist saw, not a paraphrase), one intents +
+    artifacts + two embeddings rows per track, the album-cadence features in
+    both spaces, and the album record itself.
+    """
+    artist_id = player.persona.metadata["player_id"]
+    ears = ears or Ears()
+    heard = measure_heard_albums(tuple(heard), ears) if not isolated else tuple(heard)
+    context = build_album_context(
+        artist_id, heard=heard, own_last=own_last, isolated=isolated
+    )
+
+    ledger.write(
+        "runs",
+        {
+            "id": ledger.run_id,
+            "kind": "album",
+            "artist": artist_id,
+            "n_tracks": n_tracks,
+            "duration_s": duration_s,
+            "seed": seed,
+            "isolated": isolated,
+            "heard": [a.album_id or a.title for a in heard],
+            "live": config.live,
+            "renderer": config.renderer.name,
+            "embedder": embedder.name,
+        },
+    )
+
+    album = player.write_album(context, n_tracks=n_tracks, duration_s=duration_s)
+    album_id = album.content_hash()
+    album_stamps = {"seed": seed, "album": album_id, "player": artist_id}
+    ledger.write("perceptions", {**album_stamps, "context": context})
+
+    tracks: list[RenderedTrack] = []
+    vectors: dict[str, list[list[float]]] = {space: [] for space in SPACES}
+    for index, track in enumerate(album.tracks):
+        player.seed = track_seed(seed, artist_id, album_id, index)
+        player.duration_s = duration_s
+        artifact = player.execute(Decision(data={"intent": track.intent}))
+        content_hash = artifact.metadata["content_hash"]
+        intent_id = track.intent.content_hash()
+        stamps = {
+            **album_stamps,
+            "seed": player.seed,
+            "track": index,
+            "renderer_version": artifact.metadata["renderer_version"],
+            "prompt_sha": artifact.metadata["prompt_sha"],
+        }
+        ledger.write(
+            "intents",
+            {
+                **stamps,
+                "id": intent_id,
+                "title": track.title,
+                "intent": track.intent.to_dna_dict(),
+                "line": track.note,
+                "lyrics": track.intent.lyrics,
+                "rationale": track.intent.rationale,
+            },
+        )
+        ledger.write(
+            "artifacts",
+            {
+                **stamps,
+                "id": content_hash,
+                "kind": artifact.kind,
+                "title": track.title,
+                "path": artifact.body,
+                "hash": content_hash,
+                "intent_id": intent_id,
+            },
+        )
+        audio_vec = embedder.embed(Path(artifact.body))
+        intent_vec = features.intent_vector(track.intent)
+        ledger.write(
+            "embeddings",
+            {
+                **stamps,
+                "space": "audio",
+                "model_id": embedder.name,
+                "dim": embedder.dim,
+                "artifact_id": content_hash,
+                "vector": audio_vec,
+            },
+        )
+        ledger.write(
+            "embeddings",
+            {
+                **stamps,
+                "space": "intent",
+                "model_id": "intent-vector",
+                "dim": len(intent_vec),
+                "intent_vector_version": features.INTENT_VECTOR_VERSION,
+                "intent_id": intent_id,
+                "vector": intent_vec,
+            },
+        )
+        vectors["audio"].append(audio_vec)
+        vectors["intent"].append(intent_vec)
+        tracks.append(
+            RenderedTrack(
+                index=index,
+                title=track.title,
+                note=track.note,
+                intent=track.intent,
+                intent_id=intent_id,
+                audio_path=Path(artifact.body),
+                content_hash=content_hash,
+                seed=player.seed,
+                duration_s=duration_s,
+            )
+        )
+
+    feature_block = _album_features(
+        album_id, artist_id, heard, ears, vectors, ledger=ledger, stamps=album_stamps
+    )
+
+    # The record is a pure function of (artist, album, seed, adapters, ears):
+    # no run_id, timestamps or filesystem paths, so an identical record hashes
+    # identically — that stability is the proof the whole album is
+    # reproducible from its inputs.
+    record_body: dict[str, Any] = {
+        "album_id": album_id,
+        "artist_id": artist_id,
+        "album": album.to_row(),
+        "session": {
+            "n_tracks": n_tracks,
+            "duration_s": duration_s,
+            "seed": seed,
+            "isolated": isolated,
+            "embedder": {"name": embedder.name, "dim": embedder.dim},
+            "intent_vector_version": features.INTENT_VECTOR_VERSION,
+        },
+        "heard": [
+            {"album_id": a.album_id, "artist_id": a.artist_id, "title": a.title}
+            for a in heard
+        ],
+        "tracks": [
+            {
+                "index": t.index,
+                "title": t.title,
+                "note": t.note,
+                "lyrics": t.lyrics,
+                "hash": t.content_hash,
+                "intent_id": t.intent_id,
+                "seed": t.seed,
+                "duration_s": t.duration_s,
+            }
+            for t in tracks
+        ],
+        "features": feature_block,
+    }
+    canonical = json.dumps(record_body, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    record_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    record = {"record_id": record_id, **record_body}
+    ledger.write("albums", {**album_stamps, "id": album_id, "record": record})
+    record_path = ledger.run_dir / f"album-{album_id[:12]}.json"
+    record_path.write_text(
+        json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    return AlbumResult(
+        album=album,
+        album_id=album_id,
+        artist_id=artist_id,
+        tracks=tuple(tracks),
+        features=feature_block,
+        record=record,
+        paths={"run_dir": ledger.run_dir, "record": record_path},
+    )
+
+
+def _album_features(
+    album_id: str,
+    artist_id: str,
+    heard: Sequence[HeardAlbum],
+    ears: Ears,
+    vectors: Mapping[str, Sequence[Sequence[float]]],
+    *,
+    ledger: JsonlLedger,
+    stamps: Mapping[str, Any],
+) -> dict[str, dict[str, Any]]:
+    """Compute and log the album-cadence features in BOTH spaces.
+
+    The heard albums' own positions are the centroids of the vectors the log
+    already holds for their tracks (`ears.vectors`), so influence between two
+    records is computed from exactly the coordinates both records were logged
+    at — the same no-drift discipline `_hear_round` keeps per round. An album
+    with no logged vectors simply is not an edge: it was on the sleeve, but
+    nothing measurable of it reached here.
+    """
+    block: dict[str, dict[str, Any]] = {}
+    for space in SPACES:
+        space_vecs = ears.space(space)
+        heard_vecs: dict[str, Sequence[float]] = {}
+        for album in heard:
+            track_vecs = [
+                space_vecs[t.content_hash]
+                for t in album.tracks
+                if t.content_hash in space_vecs
+            ]
+            if track_vecs:
+                heard_vecs[album.album_id or album.title] = features.album_vector(track_vecs)
+        mine = features.album_vector(vectors[space])
+        computed = features.album_features(
+            mine, heard=heard_vecs, own_past=ears.own_past.get(space, ())
+        )
+        block[space] = computed
+        for heard_id, value in computed["influence"].items():
+            ledger.write(
+                "features",
+                {
+                    **stamps,
+                    "space": space,
+                    "feature": "influence",
+                    "cadence": "album",
+                    "from_album": heard_id,
+                    "value": value,
+                },
+            )
+        for name in ("convergence", "novelty"):
+            ledger.write(
+                "features",
+                {
+                    **stamps,
+                    "space": space,
+                    "feature": name,
+                    "cadence": "album",
+                    "value": computed[name],
+                },
+            )
+    return block
+
+
+# --- the set: the offline experiment's orchestrator ---------------------------
 
 
 def _hear_round(
