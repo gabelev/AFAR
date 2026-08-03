@@ -176,6 +176,66 @@ def convergence_curve(
     ]
 
 
+# --- album cadence ------------------------------------------------------------
+# The album is the unit of work now (docs/SPEC.md), so the same four features
+# are computed between a NEW ALBUM and the albums that artist heard, at album
+# cadence instead of round cadence. The math is unchanged and deliberately so:
+# an album is represented by the centroid of its tracks' vectors, and then it
+# is just another point — influence, convergence and novelty read exactly as
+# they did per round, which is what lets the round-based history and the
+# album-based history be plotted on one axis.
+
+
+def album_vector(track_vectors: Sequence[Sequence[float]]) -> list[float]:
+    """One album's position in a space: the centroid of its tracks' vectors.
+
+    Works in either space — MERT vectors of the rendered tracks, or
+    `intent_vector` of each track's DNA. Raises on an empty album: a record
+    with no tracks has no position, and silently returning a zero vector would
+    put it at the origin, equidistant from everything.
+    """
+    vectors = [list(v) for v in track_vectors]
+    if not vectors:
+        raise ValueError("an album vector needs at least one track vector")
+    return _centroid(vectors)
+
+
+def album_features(
+    album_vec: Sequence[float],
+    *,
+    heard: Mapping[str, Sequence[float]],
+    own_past: Sequence[Sequence[float]] = (),
+) -> dict[str, Any]:
+    """The album-cadence feature block for one new record, in one space.
+
+    - influence: I(new <- heard_b) for every album heard, keyed by that
+      album's id. Needs the artist's own previous album to compare against
+      (the zero-centring is "closer to them than to my own last record"), so a
+      debut — nothing in `own_past` — yields an empty influence map rather
+      than a number that would mean nothing.
+    - convergence: mean pairwise cosine over the new album and everything it
+      heard. 1.0 means this corner of the world has collapsed into one voice.
+      With nothing heard there are no pairs, so it reads 1.0 by the same
+      convention `convergence` already uses.
+    - novelty: how far the new record left the artist's own history. 0.0 for a
+      debut, by definition — there is nothing yet to depart from.
+
+    `own_past` is the artist's previous albums as album vectors, oldest first.
+    Pure: the caller supplies every vector, so this computes identically over
+    either space and is reproducible from the log alone.
+    """
+    influences: dict[str, float] = {}
+    own_prev = own_past[-1] if own_past else None
+    if own_prev is not None:
+        for album_id, heard_vec in heard.items():
+            influences[album_id] = influence(album_vec, heard_vec, own_prev)
+    return {
+        "influence": influences,
+        "convergence": convergence([album_vec, *heard.values()]),
+        "novelty": novelty(album_vec, list(own_past)),
+    }
+
+
 # --- intent space -------------------------------------------------------------
 
 

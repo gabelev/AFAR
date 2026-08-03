@@ -169,13 +169,68 @@ _MOCK_INTENTS: dict[str, dict] = {
 def _mock_players(messages: Sequence[Message]) -> str:
     """Deterministic offline stand-in for the players' AND staff's model calls."""
     system = messages[0].content if messages else ""
-    for player_id, marker in (("silt", "You are SILT"), ("rust", "You are RUST"), ("keep", "You are KEEP")):
+    player_id = "silt"
+    for pid, marker in (("silt", "You are SILT"), ("rust", "You are RUST"), ("keep", "You are KEEP")):
         if marker in system:
-            return json.dumps(_MOCK_INTENTS[player_id])
+            player_id = pid
+            break
+    album = _mock_album(messages, player_id)
+    if album is not None:
+        return album
+    for pid, marker in (("silt", "You are SILT"), ("rust", "You are RUST"), ("keep", "You are KEEP")):
+        if marker in system:
+            return json.dumps(_MOCK_INTENTS[pid])
     staff = _mock_staff(messages)
     if staff is not None:
         return staff
     return "[mock]"
+
+
+def _mock_album(messages: Sequence[Message], player_id: str) -> str | None:
+    """Deterministic offline stand-in for `Player.write_album`.
+
+    Detected by the album prompt's machine-readable TRACKS: line — the same
+    idiom the staff mocks use (ROUNDS: / ACTS:) — so the mock answers the
+    record it was actually asked for, at the size the conductor budgeted. Any
+    persona that is not one of the house three (a roster act) borrows SILT's
+    DNA: `Album.from_json` stamps the real artist_id over it anyway, and the
+    offline path only needs a VALID record, not a characterful one.
+    """
+    user = messages[-1].content if messages else ""
+    if "TRACKS:" not in user or '"tracks"' not in user:
+        return None
+    n_tracks = 3
+    for line in user.splitlines():
+        if line.startswith("TRACKS:"):
+            try:
+                n_tracks = int(line.split(":", 1)[1].strip())
+            except ValueError:
+                pass
+            break
+    dna = _MOCK_INTENTS.get(player_id, _MOCK_INTENTS["silt"])
+    obsessions = list(dna["lyricalObsessions"])
+    return json.dumps(
+        {
+            "title": f"[mock] The {player_id.title()} Pressing",
+            "description": (
+                f"[mock] {n_tracks} songs cut in one sitting, all of them about "
+                f"{obsessions[0]}."
+            ),
+            "rationale": "[mock] The record I would make with what I have heard.",
+            "tracks": [
+                {
+                    "title": f"[mock] {obsessions[i % len(obsessions)].title()} {i + 1}",
+                    "note": f"[mock] song {i + 1} keeps the {obsessions[i % len(obsessions)]}.",
+                    "intent": {
+                        **dna,
+                        "lyrics": f"{dna['lyrics']}\nmock verse {i + 1}",
+                        "rationale": f"[mock] song {i + 1} of the record.",
+                    },
+                }
+                for i in range(n_tracks)
+            ],
+        }
+    )
 
 
 def _mock_staff(messages: Sequence[Message]) -> str | None:
@@ -311,13 +366,27 @@ def _code_sha() -> str:
     return "unknown"
 
 
+#: Token budget for the biggest call the piece makes: a whole record — up to
+#: six tracks, each carrying full DNA, sung lyrics and a rationale. ensemble's
+#: 4096 default truncates a six-track album mid-JSON, which reads downstream as
+#: an unparseable reply and burns the retry ladder on a length problem.
+ALBUM_MAX_TOKENS = 16000
+
+
 def _build_model() -> tuple[ModelProvider, bool]:
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         return MockProvider(responder=_mock_players), False
     from ensemble.providers.anthropic import AnthropicProvider
 
-    return AnthropicProvider(api_key, model=os.environ.get("AFAR_MODEL", "claude-sonnet-5")), True
+    return (
+        AnthropicProvider(
+            api_key,
+            model=os.environ.get("AFAR_MODEL", "claude-sonnet-5"),
+            max_tokens=ALBUM_MAX_TOKENS,
+        ),
+        True,
+    )
 
 
 def _build_renderer(runs_root: Path) -> Renderer:

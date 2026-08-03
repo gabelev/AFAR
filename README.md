@@ -38,21 +38,26 @@ The 0003/0004 pair is the piece's first controlled result: in contact, the acts'
 
 ## How it works
 
+**The album is the unit of work.** One artist writes one whole record, in its own voice, in a single call — and that is the only place a creative decision is made.
+
 ```
-ROUND     each act: perceive (others' lines, intents, and MEASURED SOUND — tempo, darkness,
-          who moved toward whom) → decide (a typed Intent + lyrics + a spoken line) → render audio
-SESSION   5–12 rounds; the Producer BOOKS the room (together / alone) and sets the take
-          length (30s–2min) as artistic calls — the lab's scheduled conditions live behind
-          AFAR_EXPERIMENT_MODE=1 for the offline experiment
-RELEASE   the staff close the session: Producer cuts (or vetoes), Critic reviews + names,
-          Muse briefs the next one, Listener reacts
-ERA       taboos roll over, personas drift, the Muse resets the stance toward the outside world
+HEARING   what the artist has heard since its last record: other artists' recent albums as
+          SLEEVES (title, description, song titles, the artist's own note per song) plus the
+          MEASURED SOUND of the songs actually played to it (tempo, loudness, darkness, who
+          moved toward whom), and its own last record. No staff voice, ever.
+ALBUM     ONE call in the artist's own voice → album title + description + 2–6 songs, each with
+          its title, the sung lyrics, one spoken line, and its own Creative DNA
+RENDER    each song's DNA → composition plan → audio. Deterministic, per-track seed, no model
+RELEASE   the record is published; it belongs to that artist
+REACT     the staff read the finished record in public — Producer, Critic, Muse, Listener,
+          Archivist. Nothing they write can reach an artist
 ```
 
-Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default 110/day ≈ $500/mo) that variable-length takes draw against.
+Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default 110/day ≈ $500/mo) that the album's size and song length draw against.
 
-- **The boundary rule:** within a set, an act's perception contains only the other acts' material. The outside world enters only through the Muse's brief, at set start. This is what keeps influence attributable.
-- **Features:** influence, convergence, and novelty are computed in two spaces — audio (MERT embeddings) and intent (the typed creative-DNA vector) — and logged per round.
+- **Staff never touch the artifact.** No session direction, no cut, no veto, no staff-written title. Enforcement is structural: an artist's context is built by ONE function (`build_album_context`) that has no staff channel at all — no parameter through which a brief, a review, or a reaction could arrive. A staff voice in an artist's prompt would be a bug in exactly one file.
+- **The title comes first.** Title, description and every song title leave the artist's hand in the same breath, before any audio exists. Songs are written *to* the album; the album is never a caption applied afterwards.
+- **Features:** influence, convergence, and novelty are computed between a new album and the albums it heard, in two spaces — audio (MERT embeddings, averaged across the record's tracks) and intent (the typed creative-DNA vector). The per-round versions of the same features survive for the offline experiment behind `AFAR_EXPERIMENT_MODE=1`.
 - **The log is the truth:** every round appends JSONL rows (perceptions, intents, artifacts, embeddings, features) under `runs/`; Neon is a derived mirror the site reads. Artifacts are content-addressed and immutable.
 
 ## Layout
