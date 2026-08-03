@@ -44,6 +44,10 @@ TABLES: tuple[str, ...] = (
     "briefs",
     "reactions",
     "archives",
+    # The album spine's staff table: one row per reaction to a published
+    # album (afar.staff.run_reactions). The per-agent tables above belong to
+    # the round-based instrument and keep their logged history untouched.
+    "staff",
     "releases",
     "conductor",
 )

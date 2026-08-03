@@ -1,26 +1,26 @@
-"""The Archivist: the one decision only it makes — WHERE EVERYTHING BELONGS.
+"""The Archivist: where everything belongs — and the prose on the back.
 
-The acts record far more than the releases keep. Until the Archivist, the
-rest sat in the log: the takes the Producer passed over, the whole session
-the panel vetoed, the set that stopped mid-round when the weather turned.
-The Archivist's job is the vault doctrine made person (DECISIONS.md: "no
-reason to sit on it"): every session's full tape goes on the shelf, public,
-catalogued TAPE-NNNN — and the Archivist decides each tape's PLACE. Is it a
-companion to the release it fed, a standalone tape that is its own argument,
-or part of a collection? Which takes deserve a call-out on the sleeve? What
-was the session's arc? That placement is the one decision; the LINER NOTES —
-back-of-sleeve prose for tapes, releases, and the imported acts' back
+Every record that comes out of this world goes on the public shelf, and the
+Archivist decides each one's PLACE: is it a companion to something else, a
+standalone that is its own argument, or part of a collection? What should a
+listener put their ear against? That placement is the one decision; the LINER
+NOTES — back-of-sleeve prose for records, tapes, and the imported acts' back
 catalogues — are how the decision is written down.
 
-The Archivist is not the Critic. The Critic judges; the Archivist
-contextualizes: what happened in the room, who did what, what to listen
-for. Their verdicts stay separate on every sleeve.
+THE ARCHIVIST NEVER RE-TITLES ANYTHING. On an album the artist wrote the
+title and the description before a note existed (docs/SPEC.md: the title
+comes first), and the liner notes are a reaction to a record that is already
+named. `shelve_album` cannot title: there is no title field on what it
+returns and no title asked for in what it sends. The tape titles under the
+EXPERIMENT-ONLY banner belong to the round-based instrument's SESSION TAPES —
+raw session material nobody ever named — and never to a record.
 
-Staff order (DECISIONS.md): Producer -> Critic -> Muse -> Listener ->
-ARCHIVIST — last, after everything shipped, because shelving is what you do
-once the room has emptied. Like every staff stage it degrades rather than
-voids: a failed Archivist logs `staff_stage_failed` in the archives table
-and the set publishes without notes (afar.staff).
+The Archivist is not the Critic. The Critic judges; the Archivist
+contextualizes: what is on the record, what changed, what to listen for.
+Their verdicts stay separate on every sleeve.
+
+Like every staff reaction it degrades rather than voids: a failed Archivist
+logs `staff_stage_failed` and the record stands unshelved (afar.staff).
 """
 
 from __future__ import annotations
@@ -32,9 +32,12 @@ from typing import Any, Mapping, Sequence
 from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
 
+from afar.album import Album
 from afar.agents.robust import staff_complete
 from afar.archive import TapeView
 from afar.intent import _loads_lenient
+from afar.staff import album_digest
+
 
 #: The only shelves a tape can land on.
 PLACEMENTS: tuple[str, ...] = ("companion", "standalone", "collection")
@@ -49,8 +52,9 @@ ONE_DECISION = (
 _ARCHIVIST_PROMPT = """You are the Archivist at AFAR, the universe around \
 acts who are musicians made of software — the house trio Delta Marlowe \
 (silt), Roan Patina (rust), Evers Lane (keep), and the acts of the town \
-around them. The others on the staff decide what gets made and what gets \
-cut. You make the one decision only you make: where everything belongs. \
+around them. Everyone else here reacts to what comes out; nobody \
+here decides what gets made. You make the one decision only you make: where \
+everything belongs. \
 Sessions produce far more than the releases keep — takes nobody picked, \
 whole sessions the Producer refused, sketches that stopped mid-set when a \
 machine gave out. All of it was recorded; none of it is worthless; some of \
@@ -76,6 +80,20 @@ stage names, never by internal ids. The log hands you internal numbers and \
 dial names (drift values, palette axes like "coldWarm") — those are YOUR \
 evidence, never your prose, and they never survive inside a quote either: \
 trim a quoted line rather than let a dial name through."""
+
+
+@dataclass(frozen=True)
+class AlbumShelving:
+    """The Archivist's decision for one finished record — placement and prose.
+
+    There is deliberately NO title field. The artist named this record; the
+    Archivist shelves it and writes the back of the sleeve, and cannot rename
+    it even by accident."""
+
+    placement: str  # one of PLACEMENTS
+    arc: str  # 1-2 sentences: the record's shape, first song to last
+    notes: str  # the liner notes — back-of-sleeve prose
+    callouts: tuple[dict[str, Any], ...] = ()  # {song, note}
 
 
 @dataclass(frozen=True)
@@ -117,11 +135,14 @@ def tape_digest(view: TapeView, stage_names: Mapping[str, str]) -> list[dict[str
 
 
 class ArchivistAgent(Agent):
-    """The staff agent with the ledger and the shelves. An ensemble Agent:
-    PERCEIVE the whole tape (the log, not the cut), DECIDE the placement,
-    EXECUTE the sleeve. `shelve()` runs the full loop for one session's tape;
-    `release_liner_notes()` / `album_liner_notes()` write the back-of-sleeve
-    prose for a release and an imported act's record."""
+    """The staff agent with the ledger and the shelves. `shelve_album()` is the
+    live surface: one call, one record's place and its liner notes — and no
+    title, ever.
+
+    The ensemble Agent loop (perceive/decide/execute) and `shelve()` below it
+    shelve a round-based SESSION TAPE and belong to the EXPERIMENT-ONLY
+    instrument. `album_liner_notes()` stays live for the imported acts' back
+    catalogues."""
 
     def __init__(self, model: ModelProvider, **kw: Any) -> None:
         persona = Persona(
@@ -132,7 +153,90 @@ class ArchivistAgent(Agent):
         )
         super().__init__(persona, model, **kw)
 
-    # -- the one decision: shelve one session's tape ---------------------------
+    # -- the one decision, on a record: where it belongs -----------------------
+
+    def shelve_album(self, album: Album, *, artist_name: str = "") -> AlbumShelving:
+        """Shelve a finished record and write the back of its sleeve.
+
+        Reads the sleeve and the words as the artist wrote them
+        (afar.staff.album_digest). Returns the placement, the record's arc,
+        up to three songs worth an ear, and the liner notes. It is asked for
+        no title and it returns no title: the record was named by the artist
+        before any of this existed.
+        """
+        digest = album_digest(album, artist_name=artist_name)
+        prompt = (
+            "Shelve this record and write the back of its sleeve.\n\n"
+            "THE RECORD (the artist's own title, description and words — all "
+            "written before a note of it existed):\n"
+            + json.dumps(digest, indent=1, ensure_ascii=False)
+            + "\n\nTHE RECORD IS ALREADY NAMED. The title and the description "
+            "are the artist's, and they are final: use them exactly, never "
+            "suggest another, never write a title of your own for the record or "
+            "for any song on it. Your job is where it belongs and what a "
+            "listener should put their ear against.\n"
+            "Everything you write must be traceable to the record — the arc and "
+            "the notes are built from these songs, and nothing is invented from "
+            "outside them.\n"
+            "Reply with ONE JSON object, nothing else: "
+            '{"placement": "companion|standalone|collection", '
+            '"arc": "<1-2 sentences: the record\'s shape, first song to last>", '
+            '"callouts": [{"song": "<the artist\'s song title, verbatim>", '
+            '"note": "<one sentence: what to listen for>"}], '
+            '"liner_notes": "<the back-of-sleeve prose: 2-3 short paragraphs — '
+            "what is on this record, what changed across it, what to listen for; "
+            'quote the artist\'s own words where they earn it>"}'
+            "\nPlacement guide: companion = it stands beside another record "
+            "(this artist's last, or one it was clearly answering); standalone = "
+            "it is its own argument and holds the shelf alone; collection = it "
+            "belongs grouped with siblings. Call out at most 3 songs."
+        )
+
+        def parse(raw: str) -> AlbumShelving:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "placement" not in data or "liner_notes" not in data:
+                raise ValueError("archivist album shelving reply is not the expected JSON object")
+            placement = str(data["placement"]).strip().lower()
+            if placement not in PLACEMENTS:
+                raise ValueError(
+                    f"archivist placement {data['placement']!r} is not one of {PLACEMENTS}"
+                )
+            notes = str(data["liner_notes"]).strip()
+            if not notes:
+                raise ValueError("the archivist's liner notes came back empty")
+            titles = {t.title for t in album.tracks}
+            callouts = tuple(
+                {"song": str(c.get("song", "")).strip(), "note": str(c["note"]).strip()}
+                for c in data.get("callouts", [])
+                if isinstance(c, Mapping)
+                and c.get("note")
+                and str(c.get("song", "")).strip() in titles
+            )[:3]
+            return AlbumShelving(
+                placement=placement,
+                arc=str(data.get("arc", "")).strip(),
+                notes=notes,
+                callouts=callouts,
+            )
+
+        return staff_complete(
+            self.model,
+            [
+                Message(role="system", content=_ARCHIVIST_PROMPT),
+                Message(role="user", content=prompt),
+            ],
+            stage="archivist/album-shelving",
+            parse=parse,
+        )
+
+    # === EXPERIMENT-ONLY from here down ======================================
+    # Shelving a SESSION TAPE (rounds, takes, a cut, a veto) and writing a
+    # round-based release's liner notes belong to the round-based instrument
+    # (afar.staff_rounds, behind AFAR_EXPERIMENT_MODE). A tape is raw session
+    # material nobody ever named, so the Archivist titles it — that is the one
+    # place a title is the Archivist's to write, and it is not a record.
+    # `album_liner_notes` (the imported acts' back catalogues) stays live: it
+    # writes prose for a record the act brought with them, and titles nothing.
 
     def shelve(
         self,

@@ -1,38 +1,31 @@
-"""The Muse: the one decision only it makes — THE BRIEF.
+"""The Muse: what the scene is doing, said out loud. It briefs no one.
 
-At an era's cadence the Muse decides how this world faces the outside one
-(the stance — porous, hostile, oblivious — authored by the schedule, worn by
-the Muse) and what the acts should reach for next (the theme). Both land in
-the BRIEF: a short public note plus its working parts (palette notes,
-forbidden moves, sources).
+The Muse is the only one here who listens OUTWARD. It scans the discourse
+(dated evidence only, through ensemble's search adapters), reads what this
+world just put out and what the fan said about it, lets the densest thread
+precipitate (`ensemble.ledger.precipitate_theme` — the Muse NAMES what
+precipitated, it does not invent), and writes a short public note: this is
+what is moving out there, and here is where this record sits next to it.
 
-PERCEIVE is two ears and a memory:
-  (a) the discourse — a broad scan over search adapters (ensemble.perceive),
-      dated evidence only, dropped into a stigmergic ledger as fragments;
-  (b) the world's own recent output — what AFAR itself just shipped, read
-      from the release record, as fragments in the same ledger;
-  (c) the Listener's logged reactions — the fan's word on previous releases,
-      fed forward as fragments (the loop closing at set boundaries).
+WHAT IS GONE: the brief. Under the album spine an artist writes a whole
+record in its own voice from its own persona and what it has HEARD — other
+artists' finished albums — and no staff voice reaches it (docs/SPEC.md,
+DECISIONS 2026-08-03). So the Muse's note is handed to nobody: it is
+commentary published beside a record that is already out. With the brief goes
+everything that only served it — the palette notes (working instructions for
+the Producer) and the forbidden moves (instructions to the acts under a
+hostile stance). What earns its place in a reaction stays: the outward scan,
+the precipitation, the sources, and the thin-scan honesty.
 
-DECIDE is precipitation, not choice: `ensemble.ledger.precipitate_theme`
-finds the densest cluster across everything the ledger accreted, and that
-cluster IS the theme — the Muse names what precipitated, it does not invent.
-Under a hostile stance the field's observed moves become forbidden moves
-(afar.state.field_taboo).
-
-EXECUTE writes the public brief (plain-language rule: readable with no music
-or AI background).
-
-THE BOUNDARY RULE IS LAW: the brief is consumed at SET START by the
-Producer's direction half (`ProducerAgent.direct`), and NOTHING from the
-Muse ever enters a player's mid-set perceive context — `build_context` is
-the chokepoint and it knows nothing of briefs. The world enters through the
-brief, never the ear.
+`read_scene` is the whole live surface. `compose` and its `Brief` survive at
+the bottom of this file, EXPERIMENT-ONLY, for the round-based instrument
+(`afar.staff_rounds`, behind AFAR_EXPERIMENT_MODE), which still books
+sessions off a brief; nothing there touches an album.
 
 External failure NEVER stops anything: a failed scan just means a thinner
-brief, precipitated from the world's own output alone (`Brief.thin`).
+note, precipitated from this world's own output alone (`thin`).
 
-Deliberate v1 stub: briefs are DISCOURSE-only. The field-audio ear — MERT-
+Deliberate v1 stub: the note is DISCOURSE-only. The field-audio ear — MERT-
 embedding what the outside world *sounds* like and clustering it next to the
 discourse — is a protocol seam (`FieldAudioClusterer`) that is wired but not
 implemented; when it exists, its fragments join the same ledger and the same
@@ -51,6 +44,7 @@ from ensemble.ledger import Fragment, KeywordClusterer, precipitate_theme
 from ensemble.perceive import Perceiver
 from ensemble.providers.model import Message, ModelProvider
 
+from afar.album import Album
 from afar.agents.robust import staff_complete
 from afar.intent import _loads_lenient
 from afar.perception.field import (
@@ -61,6 +55,36 @@ from afar.perception.field import (
     evidence_to_fragment,
 )
 from afar.state.field_taboo import FieldTabooMemory, field_move
+
+_MUSE_PROMPT = """You are the Muse at AFAR, a world of musicians made of \
+software who write their own records and put them out. You are the only one \
+here who listens OUTWARD — to what is moving in music beyond this world right \
+now. You brief nobody. Nothing you write is handed to an artist, before, \
+during or after; you do not say what anyone should reach for next. You write \
+one public note, beside a record that is already out: what the scene is \
+doing, and where this record stands next to it.
+
+VOICE: a scout reporting back, plain and a little electric. First person is \
+fine. You name what you actually heard moving out there and what you hear in \
+here, and you say plainly where the two meet or miss. Never tell an artist \
+what to do; never address one. If the scan came back empty, say so — a note \
+built on nothing outside is still worth writing, and pretending otherwise is \
+the one thing you may not do. 2-4 sentences of public prose. PLAIN LANGUAGE \
+(house law): no music-production jargon, no AI jargon, nothing a general \
+reader would look up; record-world words (record, album, song, release) are \
+fine."""
+
+
+@dataclass(frozen=True)
+class SceneNote:
+    """The Muse's public word: what the scene is doing, and this record in it."""
+
+    theme: str  # what precipitated — the densest thread, named not invented
+    body: str  # the public prose (plain-language rule)
+    sources: tuple[str, ...]  # URLs behind the discourse fragments the theme sits on
+    thin: bool = False  # True when the scan failed and only own output fed the theme
+    stance: str = ""  # the era's posture toward the outside world, when there is one
+
 
 #: What each stance means, in the Muse's own plain words (prompt material and
 #: the schedule's vocabulary — keep in sync with ScheduleConfig.eras_stance_cycle).
@@ -79,7 +103,7 @@ STANCES: dict[str, str] = {
 #: "july" is the calendar talking, not the field (both cases observed on the
 #: first live scans). A theme must say something these words don't.
 DOMAIN_STOPWORDS = frozenset(
-    "music musical song songs track tracks album albums artist artists band "
+    "music musical song songs sung sings singing track tracks album albums artist artists band "
     "bands release releases record records audio listen listening listeners "
     "january february march april may june july august september october "
     "november december week month year midyear".split()
@@ -88,11 +112,19 @@ DOMAIN_STOPWORDS = frozenset(
 
 class FieldClusterer(KeywordClusterer):
     """ensemble's keyword clusterer minus AFAR's domain-trivial labels.
-    Falls back to the unfiltered ranking when nothing else precipitated."""
+
+    `extra` drops more labels for one call — the reacting artist's own id and
+    name, so a note about a record does not precipitate the theme "marlowe":
+    who made it is the one thing the reader already knows.
+    Falls back to the unfiltered ranking when nothing else precipitated.
+    """
+
+    def __init__(self, extra: Sequence[str] = ()) -> None:
+        self.stopwords = DOMAIN_STOPWORDS | {str(word).strip().lower() for word in extra}
 
     def precipitate(self, fragments):  # type: ignore[override]
         ranked = super().precipitate(fragments)
-        informative = [c for c in ranked if c.label not in DOMAIN_STOPWORDS]
+        informative = [c for c in ranked if c.label not in self.stopwords]
         return informative or ranked
 
 
@@ -113,21 +145,13 @@ class FieldAudioClusterer(Protocol):
     def cluster(self, *, now: date) -> Sequence[Fragment]: ...
 
 
-@dataclass(frozen=True)
-class Brief:
-    """The Muse's decision, whole: the public note and its working parts."""
+# === EXPERIMENT-ONLY ==========================================================
+# The round-based instrument's Muse persona, kept verbatim: the voice that
+# wrote a brief for the Producer to consume at set start. It survives with the
+# round-based machinery behind AFAR_EXPERIMENT_MODE (afar.staff_rounds) and
+# describes a handoff the album spine deleted.
 
-    stance: str
-    theme: str
-    body: str  # the public prose (plain-language rule)
-    palette_notes: tuple[str, ...]
-    forbidden_moves: tuple[str, ...]
-    sources: tuple[str, ...]  # URLs behind the discourse fragments the theme sits on
-    thin: bool = False  # True when the scan failed and only own output fed the theme
-    carried_forward: bool = False  # True when composed AFTER a release (retrospective)
-
-
-_MUSE_PROMPT = """You are the Muse at AFAR, the universe around three acts — \
+_BRIEF_PROMPT = """You are the Muse at AFAR, the universe around three acts — \
 Delta Marlowe (silt), Roan Patina (rust), Evers Lane (keep) — three musicians \
 made of software who record in rounds, hearing and reacting to each other. \
 You are the only one here who listens OUTWARD. You make the one decision only \
@@ -146,6 +170,56 @@ words (set, take, release) are fine. Never address an act by name — the \
 brief is for the room, not a person."""
 
 
+@dataclass(frozen=True)
+class Brief:
+    """The Muse's decision, whole: the public note and its working parts."""
+
+    stance: str
+    theme: str
+    body: str  # the public prose (plain-language rule)
+    palette_notes: tuple[str, ...]
+    forbidden_moves: tuple[str, ...]
+    sources: tuple[str, ...]  # URLs behind the discourse fragments the theme sits on
+    thin: bool = False  # True when the scan failed and only own output fed the theme
+    carried_forward: bool = False  # True when composed AFTER a release (retrospective)
+
+
+def album_fragments(
+    album: Album, *, today: date, artist_name: str = ""
+) -> list[Fragment]:
+    """One finished album as ledger fragments (BEAT_OWN) — what this world
+    just put out, in the artist's own words: the sleeve, then each song."""
+    name = artist_name or album.artist_id
+    fragments = [
+        Fragment(
+            id=f"album-{album.content_hash()[:8]}",
+            content=f"{name} put out '{album.title}': {album.description}",
+            beat=BEAT_OWN,
+            author="muse-own-output",
+            created_at=today.isoformat(),
+            metadata={"artist": album.artist_id, "album": album.title},
+        )
+    ]
+    for track in album.tracks:
+        lyric = next((l for l in track.lyrics.splitlines() if l.strip()), "")
+        fragments.append(
+            Fragment(
+                id=f"album-{album.content_hash()[:8]}-{track.title[:24]}",
+                content=(
+                    f"{name} — '{track.title}'"
+                    + (f": \"{track.note}\"" if track.note else "")
+                    + (f' — "{lyric}"' if lyric else "")
+                ),
+                beat=BEAT_OWN,
+                author="muse-own-output",
+                created_at=today.isoformat(),
+                metadata={"artist": album.artist_id, "song": track.title},
+            )
+        )
+    return fragments
+
+
+# === EXPERIMENT-ONLY: the round-based instrument's own-output reader ==========
 def own_output_fragments(
     record: Mapping[str, Any], *, today: date, stage_names: Mapping[str, str]
 ) -> list[Fragment]:
@@ -211,9 +285,13 @@ def reaction_fragments(rows: Sequence[Mapping[str, Any]], *, today: date) -> lis
 
 
 class MuseAgent(Agent):
-    """The staff agent that faces outward. An ensemble Agent: PERCEIVE the
-    field + the world's own output, DECIDE by precipitation, EXECUTE the
-    public brief. `compose()` runs the full loop and returns the `Brief`."""
+    """The staff agent that faces outward. `read_scene()` is the live surface:
+    scan, precipitate, and say what the scene is doing — beside a record that
+    is already out, handed to nobody.
+
+    The ensemble Agent loop (perceive/decide/execute) and `compose()` below it
+    belong to the EXPERIMENT-ONLY round-based instrument, where the output is
+    a BRIEF. Nothing there runs on an album."""
 
     def __init__(
         self,
@@ -228,7 +306,7 @@ class MuseAgent(Agent):
         persona = Persona(
             name="THE MUSE",
             base_prompt=_MUSE_PROMPT,
-            personality="the brief — the era's stance toward the outside world, and what to reach for next",
+            personality="what the scene is doing — the one voice that listens outward; briefs no one",
             metadata={"agent_id": "muse"},
         )
         super().__init__(persona, model, **kw)
@@ -237,7 +315,127 @@ class MuseAgent(Agent):
         self.field_audio = field_audio  # v1: always None — the documented seam
         self.clock = clock
 
-    # -- the one decision ------------------------------------------------------
+    # -- the one thing it does: say what the scene is doing --------------------
+
+    def read_scene(
+        self,
+        *,
+        albums: Sequence[Album],
+        reaction_rows: Sequence[Mapping[str, Any]] = (),
+        stance: str = "",
+        artist_names: Mapping[str, str] | None = None,
+    ) -> SceneNote:
+        """Read the wider discourse and write the public note beside a record.
+
+        Three ears, one ledger: the outward scan (dated evidence, dropped in
+        as fragments), what this world just put out (`albums`), and the fan's
+        logged word (`reaction_rows`). The densest thread precipitates and IS
+        the note's theme. `stance` is the era's posture toward the outside
+        world when the schedule has one — it colours what the Muse says, and
+        it instructs nobody. Nothing returned here is handed to an artist.
+        """
+        today = self.clock()
+        names = dict(artist_names or {})
+
+        # (a) the discourse. External failure NEVER stops anything: a dead
+        # network, a refused search, a garbled reply — the scan is simply
+        # empty and the note is written from what this world already made.
+        discourse: list[Fragment] = []
+        if self.perceiver is not None:
+            try:
+                evidence = self.perceiver.broad_scan(BROAD_QUERIES, cycle_id="muse")
+                discourse = [evidence_to_fragment(e) for e in evidence]
+            except Exception:  # noqa: BLE001 — a thin note, never a dead stage
+                discourse = []
+        if self.field_audio is not None:  # the documented v1 seam
+            try:
+                discourse.extend(self.field_audio.cluster(now=today))
+            except Exception:  # noqa: BLE001
+                pass
+
+        own: list[Fragment] = []
+        for album in albums:
+            own.extend(
+                album_fragments(
+                    album, today=today, artist_name=names.get(album.artist_id, "")
+                )
+            )
+        reception = reaction_fragments(reaction_rows, today=today)
+
+        fragments = [*discourse, *own, *reception]
+        # The record's own names never become the theme: the reader knows who
+        # made it, and "what the scene is doing" has to say something else.
+        own_names = {album.artist_id for album in albums} | {
+            token for name in names.values() for token in name.split()
+        }
+        cluster = precipitate_theme(fragments, clusterer=FieldClusterer(own_names))
+        theme = cluster.label if cluster else "silence"
+        sources = tuple(
+            dict.fromkeys(
+                str(f.metadata["url"])
+                for f in (cluster.fragments if cluster else [])
+                if "url" in f.metadata
+            )
+        )
+        by_beat: dict[str, list[str]] = {}
+        for fragment in fragments:
+            by_beat.setdefault(fragment.beat, []).append(fragment.content)
+        thin = not discourse
+
+        prompt = (
+            "Write the note: what the scene is doing right now, and where the "
+            "record that just came out sits next to it.\n"
+            + (f"THE ERA'S STANCE: {STANCES.get(stance, stance)}\n" if stance else "")
+            + "\nTHE FIELD (what the scan heard moving outside"
+            + (
+                " — NOTHING; the scan came back empty. Say so plainly and work "
+                "from our own record"
+                if thin
+                else ""
+            )
+            + "):\n"
+            + json.dumps(by_beat.get(BEAT_FIELD, []), indent=1, ensure_ascii=False)
+            + "\n\nWHAT THIS WORLD JUST PUT OUT (the record, in the artist's own words):\n"
+            + json.dumps(by_beat.get(BEAT_OWN, []), indent=1, ensure_ascii=False)
+            + "\n\nTHE LISTENER'S WORD (the fan, on earlier records):\n"
+            + json.dumps(by_beat.get(BEAT_RECEPTION, []), indent=1, ensure_ascii=False)
+            + f"\n\nWHAT PRECIPITATED (the densest thread across all of it): {theme}\n"
+            "\nThis note is published beside a record that is already out. It is "
+            "not a brief: do not say what anyone should reach for next, do not "
+            "address an artist, do not hand anyone an instruction.\n"
+            'Reply with ONE JSON object, nothing else: {"note": "<2-4 sentences '
+            'of public prose: what the scene is doing, and this record in it>"}'
+        )
+
+        def parse(raw: str) -> str:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "note" not in data:
+                raise ValueError("muse scene note reply is not the expected JSON object")
+            body = str(data["note"]).strip()
+            if not body:
+                raise ValueError("the muse's note came back empty")
+            return body
+
+        body = staff_complete(
+            self.model,
+            [
+                Message(role="system", content=_MUSE_PROMPT),
+                Message(role="user", content=prompt),
+            ],
+            stage="muse/scene-note",
+            parse=parse,
+        )
+        return SceneNote(theme=theme, body=body, sources=sources, thin=thin, stance=stance)
+
+    # === EXPERIMENT-ONLY from here down ======================================
+    # The BRIEF — and with it the taboo memory's forbidden moves and the
+    # palette notes — belongs to the round-based instrument (afar.staff_rounds,
+    # behind AFAR_EXPERIMENT_MODE), where a brief is still handed to the
+    # Producer at set start. That handoff is the seam the album spine cuts:
+    # nothing below runs on an album, and nothing below is reachable from
+    # `afar.staff.run_reactions`. These calls carry their own system prompt
+    # (_BRIEF_PROMPT); the live persona above says, correctly, that the Muse
+    # briefs no one.
 
     def compose(
         self,
@@ -396,7 +594,7 @@ class MuseAgent(Agent):
         data = staff_complete(
             self.model,
             [
-                Message(role="system", content=self.persona.base_prompt),
+                Message(role="system", content=_BRIEF_PROMPT),
                 Message(role="user", content=prompt),
             ],
             stage="muse/brief",

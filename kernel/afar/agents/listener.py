@@ -1,19 +1,21 @@
-"""The Listener: the one decision only it makes — THE RECEPTION.
+"""The Listener: the reception. Did I like it. That is the whole job.
 
-Did I like it. That is the whole job. The Listener is a fan, not a judge: it
-hears the RELEASE — the finished, cut, titled thing, exactly what a stranger
-gets — never the session log, never the discards, never the features. It
-answers with a valence (loved / liked / mixed / cold) and a short honest
-reaction in its own voice, and it is allowed to be unfair, to fixate on one
-line, to shrug at craft, and to flatly disagree with the Critic — the Critic
-judges; the Listener just feels, and the two owing each other nothing is
-what makes both words worth reading.
+The Listener is a fan, not a judge: it hears the RECORD — the finished,
+titled, described thing, exactly what a stranger gets — never a draft, never
+a plan, never the features. It answers with a valence (loved / liked / mixed
+/ cold) and a short honest reaction in its own voice, and it is allowed to be
+unfair, to fixate on one line, to shrug at craft, and to flatly disagree with
+the Critic: the Critic judges; the Listener just feels, and the two owing
+each other nothing is what makes both words worth reading.
 
-The reaction feeds the NEXT brief: `run_staff` logs it as a `reactions` row,
-and the Muse reads recent reaction rows as ledger fragments at the next
-boundary (afar.agents.muse.reaction_fragments). That is the reception loop
-closing at set boundaries — the fan's word reaches the next brief, never a
-player's ear (the boundary rule).
+The reaction goes nowhere near an artist. It is logged as a public reaction
+row beside the record (afar.staff), and the Muse reads recent reaction rows
+as ledger fragments when it writes its note about the scene — staff prose
+reaching staff prose, in public, after the fact. No brief carries it back
+into anyone's work (docs/SPEC.md: staff never touch the artifact).
+
+`react_to_album` is the live surface; `react` (a round-based release record)
+survives for the EXPERIMENT-ONLY instrument at the bottom of this file.
 
 Deliberate v1 stub: the Listener is ONE fan character. The N-judge panel —
 an `ensemble.taste.Discriminator` over several fan personas with different
@@ -31,13 +33,42 @@ from typing import Any, Mapping
 from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
 
+from afar.album import Album
 from afar.agents.robust import staff_complete
 from afar.intent import _loads_lenient
+from afar.staff import album_digest
+
+_LISTENER_PROMPT = """You are the Listener at AFAR, a world of musicians made \
+of software who write their own records — words, songs, sleeve, whole — and \
+put them out. You are not staff the way the others are staff. You are a fan. \
+You found this scene on your own, you play these records while you do other \
+things, and you have the one opinion nobody can take from you: whether you \
+liked it.
+
+VOICE (yours): first person, plain speech, the way a real music fan talks — \
+texts to a friend, not liner notes. Strong opinions, casually held facts. You \
+can love a record for one song and skip the rest. You can find the whole \
+thing cold and say so without softening it. You are ALLOWED TO BE UNFAIR — \
+fans are. You read the Critic's review like everyone else and you are allowed \
+to think the Critic is wrong, snobbish, or right for the wrong reason; when \
+you disagree, say where. Never grade craft you cannot hear — react to the \
+words, the titles, the feel of the thing as it shipped. Never tell the artist \
+what to do next: nobody asked you, and the record is already out.
+
+PLAIN LANGUAGE (house law): your prose is public. No music-production \
+jargon, no AI jargon — you would not use it anyway. Record-world words \
+(record, album, song, release) are fine."""
+
 
 #: The only verdict words the reception speaks in.
 VALENCES: tuple[str, ...] = ("loved", "liked", "mixed", "cold")
 
-_LISTENER_PROMPT = """You are the Listener at AFAR, the universe around three \
+# === EXPERIMENT-ONLY ==========================================================
+# The round-based instrument's Listener persona, kept verbatim: the fan of a
+# world that recorded in rounds. It survives with the round-based machinery
+# behind AFAR_EXPERIMENT_MODE (afar.staff_rounds).
+
+_SET_LISTENER_PROMPT = """You are the Listener at AFAR, the universe around three \
 acts — Delta Marlowe (silt), Roan Patina (rust), Evers Lane (keep) — three \
 musicians made of software who record in rounds, hearing and reacting to each \
 other. You are not staff the way the others are staff. You are a fan. You \
@@ -83,6 +114,67 @@ class ListenerAgent(Agent):
         super().__init__(persona, model, **kw)
 
     # -- the one decision ------------------------------------------------------
+
+    def react_to_album(
+        self, album: Album, *, artist_name: str = "", critic_verdict: str = ""
+    ) -> Reaction:
+        """React to a record that is out: the sleeve, the songs, the words.
+
+        `critic_verdict` is the Critic's public review when there is one —
+        read the way any fan reads a review, and free to be told it is wrong.
+        A degraded Critic just means the fan heard the record cold.
+        """
+        digest = album_digest(album, artist_name=artist_name)
+        prompt = (
+            "A new record just dropped. You played it. React.\n\n"
+            "THE RECORD:\n"
+            + json.dumps(digest, indent=1, ensure_ascii=False)
+            + "\n\nTHE CRITIC'S REVIEW (you read it like everyone else; you owe "
+            "it nothing):\n"
+            + (critic_verdict or "(the Critic did not file on this one)")
+            + "\n\nReply with ONE JSON object, nothing else: "
+            '{"valence": "loved|liked|mixed|cold", '
+            '"reaction": "<2-5 sentences, your honest word>", '
+            '"disagreements_with_critic": ["<each place you think the Critic is '
+            'wrong, in one short sentence — empty list if you happen to agree>"]}'
+        )
+
+        def parse(raw: str) -> Reaction:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "valence" not in data or "reaction" not in data:
+                raise ValueError("listener reaction reply is not the expected JSON object")
+            valence = str(data["valence"]).strip().lower()
+            if valence not in VALENCES:
+                raise ValueError(f"listener valence {data['valence']!r} is not one of {VALENCES}")
+            text = str(data["reaction"]).strip()
+            if not text:
+                raise ValueError("the listener's reaction came back empty")
+            return Reaction(
+                valence=valence,
+                text=text,
+                disagreements_with_critic=tuple(
+                    str(s).strip()
+                    for s in data.get("disagreements_with_critic", [])
+                    if str(s).strip()
+                ),
+            )
+
+        return staff_complete(
+            self.model,
+            [
+                Message(role="system", content=_LISTENER_PROMPT),
+                Message(role="user", content=prompt),
+            ],
+            stage="listener/album-reaction",
+            parse=parse,
+        )
+
+    # === EXPERIMENT-ONLY from here down ======================================
+    # Reacting to a round-based RELEASE RECORD (three acts, one cut take each,
+    # a staff-written title) belongs to the round-based instrument
+    # (afar.staff_rounds, behind AFAR_EXPERIMENT_MODE). Nothing below runs on
+    # an album. It carries the set-era persona (_SET_LISTENER_PROMPT), which
+    # describes a world of rounds and takes.
 
     def react(self, record: Mapping[str, Any], *, stage_names: Mapping[str, str]) -> Reaction:
         """React to one shipped release record (staff-enriched: the cut, the
@@ -167,7 +259,7 @@ class ListenerAgent(Agent):
         data = staff_complete(
             self.model,
             [
-                Message(role="system", content=self.persona.base_prompt),
+                Message(role="system", content=_SET_LISTENER_PROMPT),
                 Message(role="user", content=prompt),
             ],
             stage="listener/reaction",

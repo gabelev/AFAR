@@ -1,5 +1,10 @@
 """The staff at the set boundary: the Producer's cut and the Critic's word.
 
+EXPERIMENT-ONLY: these cover the ROUND-BASED instrument (afar.staff_rounds,
+behind AFAR_EXPERIMENT_MODE) — the panel, the cut, the veto, the Critic's
+naming call, the Muse's brief. None of it runs on an album; the live album
+reactions are tested in test_reactions.py.
+
 Offline end to end. A mock set is played (MockProvider + MockRenderer +
 MockEmbedder), then the staff run retrospectively on its log. Under test:
 the Producer's selection mechanics (panel winner, dissents, the choose()==-1
@@ -25,11 +30,11 @@ from afar.config import AfarConfig, _mock_players
 from afar.log import JsonlLedger, RunContext
 from afar.perception.embedder import MockEmbedder
 from afar.render.base import MockRenderer
-from afar.staff import (
+from afar.staff import newest_release_path
+from afar.staff_rounds import (
     load_recent_tape_titles,
     load_recent_titles,
     load_set_view,
-    newest_release_path,
     run_muse_listener,
     run_staff,
 )

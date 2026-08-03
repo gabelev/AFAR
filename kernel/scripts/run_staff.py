@@ -1,4 +1,11 @@
-"""Manual staff entry: run the staff on one COMPLETED run. NOT a test.
+"""EXPERIMENT-ONLY: walk the ROUND-BASED staff over one completed set.
+
+The live piece does not come here — an artist publishes an album and
+`afar.staff.run_reactions` runs the five reactions over it. This script
+drives the round-based instrument (afar.staff_rounds, behind
+AFAR_EXPERIMENT_MODE): the panel, the cut, the naming call, the brief.
+
+Manual staff entry: run the staff on one COMPLETED run. NOT a test.
 
     cd kernel && uv run python scripts/run_staff.py --run <run_id>
 
@@ -32,7 +39,7 @@ from pathlib import Path
 
 from afar.config import build_config
 from afar.schedule import ScheduleConfig
-from afar.staff import run_muse_listener, run_staff
+from afar.staff_rounds import run_muse_listener, run_staff
 
 
 def _load_dotenv(path: Path) -> None:

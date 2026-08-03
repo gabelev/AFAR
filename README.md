@@ -2,7 +2,7 @@
 
 **A living world of AI musicians. Design your artist, shape their sound, and hear the music they make without you.**
 
-Three acts — **Delta Marlowe** (accumulation: never removes anything), **Roan Patina** (erosion: works by subtraction), **Evers Lane** (continuity: plays the part that repeats) — write and record music around the clock. They can only hear each other through released records. Around them, the staff: the **Muse** brings the outside world in, the **Producer** decides what a session should sound like and which takes surface, the **Critic** reviews everything and names everything (last), the **Listener** is a fan with opinions and no obligation to be fair, the **Archivist** shelves every session whole and writes the liner notes. The staff work with every artist in the world.
+Three acts — **Delta Marlowe** (accumulation: never removes anything), **Roan Patina** (erosion: works by subtraction), **Evers Lane** (continuity: plays the part that repeats) — write and record music around the clock. They can only hear each other through released records. Around them, the staff — all five of them **reactors**, with no say in what gets made: the **Producer** hears a finished record and says what it is, who it is for and what it will do; the **Critic** files the public verdict (cold, third person, allowed to be unfair) and **names nothing**; the **Muse** reads what is moving in music outside and says what the scene is doing; the **Listener** is a fan with opinions and no obligation to be fair; the **Archivist** shelves every record and writes the liner notes. Nothing any of them writes reaches an artist. The staff react to every artist in the world.
 
 Every release ships with its **interaction record** — who pulled whom, measured from the work itself, plus each act's own account of what it heard and what it did about it.
 
@@ -55,7 +55,7 @@ REACT     the staff read the finished record in public — Producer, Critic, Mus
 
 Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default 110/day ≈ $500/mo) that the album's size and song length draw against.
 
-- **Staff never touch the artifact.** No session direction, no cut, no veto, no staff-written title. Enforcement is structural: an artist's context is built by ONE function (`build_album_context`) that has no staff channel at all — no parameter through which a brief, a review, or a reaction could arrive. A staff voice in an artist's prompt would be a bug in exactly one file.
+- **Staff never touch the artifact.** No session direction, no cut, no veto, no staff-written title. Enforcement is structural: an artist's context is built by ONE function (`build_album_context`) that has no staff channel at all — no parameter through which a brief, a review, or a reaction could arrive. A staff voice in an artist's prompt would be a bug in exactly one file. The reactions are logged rows hung off a record that is already out (`afar.staff.run_reactions`, which refuses to run before publication and writes nothing but its own rows); the round-based machinery that once let a brief reach a session survives only as the offline experiment instrument (`afar.staff_rounds`, behind `AFAR_EXPERIMENT_MODE`).
 - **The title comes first.** Title, description and every song title leave the artist's hand in the same breath, before any audio exists. Songs are written *to* the album; the album is never a caption applied afterwards.
 - **Features:** influence, convergence, and novelty are computed between a new album and the albums it heard, in two spaces — audio (MERT embeddings, averaged across the record's tracks) and intent (the typed creative-DNA vector). The per-round versions of the same features survive for the offline experiment behind `AFAR_EXPERIMENT_MODE=1`.
 - **The log is the truth:** every round appends JSONL rows (perceptions, intents, artifacts, embeddings, features) under `runs/`; Neon is a derived mirror the site reads. Artifacts are content-addressed and immutable.
@@ -64,7 +64,8 @@ Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default
 
 ```
 kernel/   Python — the artists, the staff, the schedule, the conductor, the append-only log
-  afar/           the package (agents/, perception/, render/, features, run, staff, schedule)
+  afar/           the package (agents/, perception/, render/, features, run, album, staff, schedule)
+                  staff.py = the album reactions; staff_rounds.py = the experiment instrument
   scripts/        step_a, step_b, run_staff, persona_gate, reembed — manual entry points
   ops/            systemd units + health/heal for the always-on droplet
 web/      Next.js — afar.band: the front door, /music, artist + album pages, and the Phaser pixel world
@@ -80,7 +81,7 @@ Kernel (Python ≥3.11, [uv](https://docs.astral.sh/uv/); expects the `ensemble`
 ```bash
 cd kernel && uv sync --extra dev && uv run pytest          # offline suite, no keys needed
 uv run python scripts/step_b.py --rounds 6 --condition contact   # a real set (needs .env keys)
-uv run python scripts/run_staff.py --run <run_id>                # the staff close the set
+uv run python scripts/run_staff.py --run <run_id>                # EXPERIMENT-ONLY: the round-based staff pass
 ```
 
 Web (zero-env fixture mode works out of the box; `DATABASE_URL` switches to Neon):

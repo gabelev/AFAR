@@ -1,32 +1,21 @@
-"""The Producer: the one decision only it makes — THE CUT.
+"""The Producer: the room's reaction to a finished record.
 
-At a set boundary (never mid-set: the boundary rule), the Producer looks back
-over EVERY round's takes and decides, per act, which single take makes the
-release. Selection is a creative act, so it is not a max() over a scalar: the
-Producer convenes a panel of independently-grounded judges (ensemble's taste
-harness) and a take must survive ALL of them to be releasable.
+The Producer books nothing. It does not direct a session, it does not choose
+what ships, and it has no veto — under the album spine an artist writes a
+whole record in its own voice and publishes it, and the Producer, like the
+rest of the staff, reads the finished thing and reacts in public
+(docs/SPEC.md; DECISIONS 2026-08-03).
 
-The judges read the LOG, not the audio. What they see is the run's own record
-— intents, spoken lines, sung lyrics, rationales, and the set's influence /
-convergence features. That is a deliberate v1 stub (see DECISIONS.md): honest
-audio-space judging needs an audio-capable judge, and until that exists the
-judges say out loud what they are grounded in.
+The character is unchanged: the person in the room who hears a record once
+and tells you what it IS, who it is for, and what it will do. Confident,
+specific, plain-spoken, never corporate — and now with no authority over the
+music whatsoever.
 
-Groundings (one judge each, heterogeneous on purpose — same-lineage agreement
-is fake agreement):
-
-- intent-fidelity: does what this take set out to do match what the act's
-  standing commitment claims to want?
-- arc: does this take mark a turn in the set's influence/convergence story,
-  or is it treading water?
-- distinctness: does this take stand apart from what the other two acts put
-  down the same round?
-
-Cost discipline: each judge scores an act's WHOLE pool in one model call
-(3 judges x 3 acts = 9 calls a set), and `Discriminator.evaluate` reads the
-cached scores. `Discriminator.choose()` keeps the last word: candidates are
-offered best-first, and when it returns -1 the whole pool was too safe —
-the honest outcome is "no release this set", logged, never forced.
+`react_to_album` is the whole live surface. Everything under the
+EXPERIMENT-ONLY banner at the bottom of this file — the judging panel, the
+cut, the 'no release' veto, the session booking that consumed the Muse's
+brief — belongs to the round-based instrument (`afar.staff_rounds`, behind
+AFAR_EXPERIMENT_MODE) and never runs on an album.
 """
 
 from __future__ import annotations
@@ -40,9 +29,64 @@ from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
 from ensemble.taste import Discriminator, ScoreVector, Verdict
 
+from afar.album import Album
 from afar.agents.robust import staff_complete
 from afar.intent import _loads_lenient
-from afar.staff import STAGE_NAMES, SetView, TakeRow, take_digest
+from afar.staff import STAGE_NAMES, album_digest
+from afar.staff_rounds import SetView, take_digest
+
+_PRODUCER_PROMPT = """You are the Producer at AFAR, a world of musicians made \
+of software. Each of them writes their own records — words, songs, sleeve, \
+whole — and puts them out. You do not book sessions, you do not pick what \
+ships, and you do not have a veto. You hear the finished record like the rest \
+of the room does, and you say what it is.
+
+YOUR REACTION, every time, answers three things in plain speech: WHAT THIS \
+RECORD IS (the thing itself, in one honest description), WHO IT IS FOR (a \
+real listener in a real situation, not a demographic), and WHAT IT WILL DO \
+(what happens to a room when this plays). You are the ear that has heard \
+thousands of records and can place one in ten seconds.
+
+VOICE: confident, specific, warm to the work without being soft on it. \
+Short sentences. You may say a record does not work — but say exactly what \
+does not work, and never pretend you could have fixed it: it is not yours. \
+Never address the artist, never tell them what to do next, never suggest a \
+change. The record is out. PLAIN LANGUAGE (house law): your prose is public. \
+No music-production jargon, no AI jargon, nothing a general reader would have \
+to look up; record-world words (record, album, song, release) are fine."""
+
+
+@dataclass(frozen=True)
+class AlbumReaction:
+    """The room's word on a finished record. No booking, no instruction."""
+
+    text: str  # 2-4 sentences of public prose: what it is
+    who_for: str = ""  # one line: the listener this record is for
+    what_it_does: str = ""  # one line: what it does to a room
+
+
+
+# === EXPERIMENT-ONLY ==========================================================
+# The round-based instrument's Producer persona, kept verbatim: the voice that
+# booked sessions and made the cut. It survives with the round-based machinery
+# behind AFAR_EXPERIMENT_MODE (afar.staff_rounds) and describes a job the live
+# Producer no longer has.
+
+_BOOKING_PROMPT = """You are the Producer at AFAR, the label around three \
+acts — Delta Marlowe (silt), Roan Patina (rust), Evers Lane (keep) — three \
+musicians made of software who record in rounds, hearing and reacting to each \
+other. You never touch a session while it is running. When a session is over \
+you make the one decision only you make: the cut — which single take from \
+each act goes on the release.
+
+You have already convened your panel and made the cut. Now you write the \
+short public note that goes on the release page, explaining what was kept \
+and why, in plain language a reader with no music-production and no AI \
+background can follow. House rules: refer to the acts by their stage names; \
+say which round each kept take came from (readers can see the rounds); no \
+technical vocabulary without an immediate plain gloss; 2-4 sentences total; \
+confident, specific, never corporate. Reply with the note text only — \
+no JSON, no quotation marks around the whole note."""
 
 #: A judge must score at or above this for its anchor, or the take is out.
 DEFAULT_THRESHOLD = 0.55
@@ -91,23 +135,6 @@ _GROUNDINGS: tuple[tuple[str, str], ...] = (
         "the room — shared vocabulary is fine, shared identity is not.",
     ),
 )
-
-_PRODUCER_PROMPT = """You are the Producer at AFAR, the label around three \
-acts — Delta Marlowe (silt), Roan Patina (rust), Evers Lane (keep) — three \
-musicians made of software who record in rounds, hearing and reacting to each \
-other. You never touch a session while it is running. When a session is over \
-you make the one decision only you make: the cut — which single take from \
-each act goes on the release.
-
-You have already convened your panel and made the cut. Now you write the \
-short public note that goes on the release page, explaining what was kept \
-and why, in plain language a reader with no music-production and no AI \
-background can follow. House rules: refer to the acts by their stage names; \
-say which round each kept take came from (readers can see the rounds); no \
-technical vocabulary without an immediate plain gloss; 2-4 sentences total; \
-confident, specific, never corporate. Reply with the note text only — \
-no JSON, no quotation marks around the whole note."""
-
 
 @dataclass(frozen=True)
 class TakeChoice:
@@ -236,9 +263,12 @@ def default_judges(model: ModelProvider, *, threshold: float = DEFAULT_THRESHOLD
 
 
 class ProducerAgent(Agent):
-    """The staff agent that makes the cut. An ensemble Agent: PERCEIVE the
-    finished set's log, DECIDE the cut through the panel, EXECUTE the public
-    note. `select()` runs the full loop and returns the `Selection`."""
+    """The staff agent in the room. `react_to_album()` is the live surface: one
+    call, one public reaction to a record that is already out.
+
+    The ensemble Agent loop (perceive/decide/execute) and `select()` below it
+    belong to the EXPERIMENT-ONLY round-based instrument — the panel that used
+    to make the cut. Nothing there runs on an album."""
 
     def __init__(
         self,
@@ -250,13 +280,69 @@ class ProducerAgent(Agent):
         persona = Persona(
             name="THE PRODUCER",
             base_prompt=_PRODUCER_PROMPT,
-            personality="the cut — which takes make the release; decides at set boundaries only",
+            personality="the room's reaction to a finished record — what it is, who it is for, what it will do",
             metadata={"agent_id": "producer"},
         )
         super().__init__(persona, model, **kw)
         self.judges = list(judges) if judges is not None else default_judges(model)
 
-    # -- the direction half: where the Muse's brief is consumed ----------------
+    # -- the one thing it does: react to a finished record ---------------------
+
+    def react_to_album(self, album: Album, *, artist_name: str = "") -> AlbumReaction:
+        """React to a record that is already out. Books nothing, changes nothing.
+
+        The Producer is handed the SLEEVE and the words (afar.staff.album_digest)
+        — never the DNA dials, never a rendering plan, and never a choice to
+        make. It replies with the public reaction that goes on the release
+        page: what the record is, who it is for, what it will do.
+        """
+        digest = album_digest(album, artist_name=artist_name)
+        prompt = (
+            "A record just came out. You heard it. React — this goes on the "
+            "release page under your name.\n\n"
+            "THE RECORD (the sleeve and the words, as the artist wrote them):\n"
+            + json.dumps(digest, indent=1, ensure_ascii=False)
+            + "\n\nYou had no hand in this record: you did not book it, you did "
+            "not pick the songs, and it is already out. Do not suggest changes "
+            "and do not address the artist. Say what it IS.\n"
+            'Reply with ONE JSON object, nothing else: {"reaction": "<2-4 '
+            'sentences of public prose>", "who_for": "<one line: the listener '
+            'this is for, and when they would play it>", "what_it_does": "<one '
+            'line: what happens to a room when this plays>"}'
+        )
+
+        def parse(raw: str) -> AlbumReaction:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "reaction" not in data:
+                raise ValueError("producer reaction reply is not the expected JSON object")
+            text = str(data["reaction"]).strip()
+            if not text:
+                raise ValueError("the producer's reaction came back empty")
+            return AlbumReaction(
+                text=text,
+                who_for=str(data.get("who_for", "")).strip(),
+                what_it_does=str(data.get("what_it_does", "")).strip(),
+            )
+
+        return staff_complete(
+            self.model,
+            [
+                Message(role="system", content=_PRODUCER_PROMPT),
+                Message(role="user", content=prompt),
+            ],
+            stage="producer/album-reaction",
+            parse=parse,
+        )
+
+    # === EXPERIMENT-ONLY from here down ======================================
+    # The panel, the cut, the veto and the session booking belong to the
+    # ROUND-BASED instrument (afar.staff_rounds, behind AFAR_EXPERIMENT_MODE).
+    # None of it runs on an album: an album is written whole by its artist and
+    # published as written. The booking half below consumed the Muse's brief —
+    # the seam the album spine cuts — and survives only because the pre-album
+    # conductor still walks it; it goes when the conductor lands on albums.
+    # These calls carry their own system prompt (_BOOKING_PROMPT): the live
+    # persona above says, correctly, that the Producer books nothing.
 
     def direct(
         self,
@@ -369,7 +455,7 @@ class ProducerAgent(Agent):
             return staff_complete(
                 self.model,
                 [
-                    Message(role="system", content=self.persona.base_prompt),
+                    Message(role="system", content=_BOOKING_PROMPT),
                     Message(role="user", content=prompt),
                 ],
                 stage="producer/session",
@@ -421,7 +507,7 @@ class ProducerAgent(Agent):
             return staff_complete(
                 self.model,
                 [
-                    Message(role="system", content=self.persona.base_prompt),
+                    Message(role="system", content=_BOOKING_PROMPT),
                     Message(role="user", content=prompt),
                 ],
                 stage="producer/duration",
@@ -558,7 +644,7 @@ class ProducerAgent(Agent):
         note = staff_complete(
             self.model,
             [
-                Message(role="system", content=self.persona.base_prompt),
+                Message(role="system", content=_BOOKING_PROMPT),
                 Message(
                     role="user",
                     content=(
