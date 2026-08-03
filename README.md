@@ -96,7 +96,8 @@ The fixtures under `web/fixtures/` are a committed snapshot of Neon — the whol
 
 ## The paper trail
 
-- [`DECISIONS.md`](DECISIONS.md) — every architecture and art-direction decision, newest first. Where it conflicts with the founding Notion spec, DECISIONS.md wins.
+- [`docs/SPEC.md`](docs/SPEC.md) — what we are building: the album is the unit of work, one artist writes a whole record in its own voice, the staff only react. Read this first.
+- [`DECISIONS.md`](DECISIONS.md) — every architecture and art-direction decision, newest first. Where it conflicts with the founding Notion spec, DECISIONS.md wins; where it conflicts with `docs/SPEC.md`, the newest DECISIONS entry wins.
 - [`ROADMAP.md`](ROADMAP.md) — what's next: the conductor, then the multiplayer arc (users design artists that join the universe; each user gets a roster).
 - [`CLAUDE.md`](CLAUDE.md) — the operating contract for coding agents.
 
