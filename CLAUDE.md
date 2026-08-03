@@ -1,6 +1,6 @@
 # CLAUDE.md — AFAR
 
-**Gabe's global working agreement (`~/.claude/CLAUDE.md`) applies here.** Repo-specific mappings: the ADR it requires is this repo's root `DECISIONS.md`; the spec it references is the Notion MAS Design Brief + the approved plan file. Additionally, per Gabe: **every PR that changes what the project IS (features, entities, pages, doctrine) updates `README.md` in the same PR** — the README must always describe the current system. Branch names follow `<category>/<prio>-<short-name>` (e.g. `feature/P2-album-pages`). Confirm before adding a new runtime dependency.
+**Gabe's global working agreement (`~/.claude/CLAUDE.md`) applies here.** Repo-specific mappings: the ADR it requires is this repo's root `DECISIONS.md`; the spec it references is `docs/SPEC.md` (authoritative; the Notion MAS Design Brief is the founding document behind it). Additionally, per Gabe: **every PR that changes what the project IS (features, entities, pages, doctrine) updates `README.md` in the same PR** — the README must always describe the current system. Branch names follow `<category>/<prio>-<short-name>` (e.g. `feature/P2-album-pages`). Confirm before adding a new runtime dependency.
 
 The build brief lives in Notion: "afar — MAS Design Brief". **DECISIONS.md in this repo records every decision since — where they conflict, DECISIONS.md wins.** When you make or receive a non-obvious decision (architecture or art direction), append it to DECISIONS.md in the same PR.
 
@@ -15,8 +15,8 @@ Key overrides already in effect: each personality is its own band/act (AFAR is t
 
 ## Architecture rules (load-bearing — violations poison the data)
 
-1. **The boundary rule.** Staff (Muse/Producer/Critic/Listener) act on the *frame* between sets. Players act on *each other* within a set. A player's perceive context contains ONLY other players' material, mid-set. The loop closes at set boundaries, never round boundaries. `build_context()` in `kernel/afar/perception/context.py` is the single chokepoint.
-2. **The world enters through the brief, never the ear.** Field audio/discourse reaches players only via the Muse → Producer brief at set start.
+1. **Staff never touch the artifact.** The Producer, Critic, Muse, Listener and Archivist read finished albums and react in public. Nothing they write reaches an artist before or during the writing of a record: no session direction, no cut, no veto, no staff-written title. Enforcement is structural — the artist's context is built by ONE function with no staff channel at all, so a staff voice in an artist's prompt is a bug in exactly one place. (See `docs/SPEC.md`; supersedes the old boundary rule and the "world enters through the brief" rule, which belonged to the round-based set architecture.)
+2. **The album is the unit, and the artist names its own work.** One artist writes a whole record — title, description, every song's words and DNA — in one call, in its own voice, before any audio exists. Hearing is album-to-album: an artist hears other artists' finished records, never a staff brief. The round-based `run_set` machinery survives only as the offline experiment instrument behind `AFAR_EXPERIMENT_MODE`.
 3. **Append-only log is authoritative.** JSONL under `runs/` is the source of truth; Neon is a derived mirror. Never edit logged rows. Artifacts are content-addressed and immutable.
 4. **Personas are defined by aesthetic commitment, never by their relationship to influence.** (No "the mimic", no "the refuser".) Influence behaviour must emerge.
 5. **The cover is a function, not an agent.** Deterministic render of the interaction record.
