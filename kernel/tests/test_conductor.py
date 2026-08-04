@@ -670,3 +670,48 @@ def test_smoke_cli_runs_in_a_sibling_root_never_the_canonical_log(
     smoke_root = tmp_path / "runs-smoke"
     assert (smoke_root / "conductor" / "conductor.jsonl").exists()
     assert any(p.name.startswith("2") and "smoke-album-" in p.name for p in smoke_root.iterdir())
+
+
+# --- publish preflight: never spend before the record has somewhere to land ---
+
+
+def test_preflight_is_silent_for_a_mock_renderer(tmp_path) -> None:
+    """Mock runs publish dry, so they need no driver and no database."""
+    from afar.publish import publish_preflight
+
+    class _Cfg:
+        renderer = type("R", (), {"name": "mock"})()
+
+    assert publish_preflight(_Cfg()) == []
+
+
+def test_preflight_names_a_missing_driver_for_a_live_renderer(monkeypatch) -> None:
+    """AFAR-0008 rendered four paid tracks before psycopg turned up missing."""
+    import builtins
+
+    from afar.publish import publish_preflight
+
+    class _Cfg:
+        renderer = type("R", (), {"name": "elevenlabs"})()
+
+    real_import = builtins.__import__
+
+    def _no_psycopg(name, *args, **kw):
+        if name == "psycopg":
+            raise ImportError("no psycopg")
+        return real_import(name, *args, **kw)
+
+    monkeypatch.setattr(builtins, "__import__", _no_psycopg)
+    reasons = publish_preflight(_Cfg())
+    assert any("psycopg" in r for r in reasons)
+    assert any("--extra publish" in r for r in reasons)
+
+
+def test_preflight_names_a_missing_database_url(monkeypatch) -> None:
+    from afar import publish as publish_mod
+
+    class _Cfg:
+        renderer = type("R", (), {"name": "elevenlabs"})()
+
+    monkeypatch.setattr(publish_mod, "load_database_url", lambda *a, **kw: None)
+    assert any("DATABASE_URL" in r for r in publish_mod.publish_preflight(_Cfg()))

@@ -1077,6 +1077,19 @@ class Conductor:
             self._log("stopped", note="SIGTERM while disabled")
             return 0
 
+        from afar.publish import publish_preflight
+
+        missing = publish_preflight(self.config)
+        if missing:
+            # Refuse to spend before the record has anywhere to land: the
+            # publish deps failing AFTER four paid renders is exactly how
+            # AFAR-0008 nearly went in the bin (a deploy synced only the
+            # `listen` extra, so psycopg was gone). Cheap to check, and the
+            # healer restarts us once the box is fixed.
+            self._log("preflight_failed", missing=missing)
+            print(f"publish preflight failed: {'; '.join(missing)}", flush=True)
+            return 1
+
         self._log(
             "boot",
             mode="set" if self.config.experiment_mode else "album",
