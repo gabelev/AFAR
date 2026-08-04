@@ -49,7 +49,7 @@ def _config(
         code_sha="test-sha",
         enabled=enabled,
         sets_per_day=3.0,
-        albums_per_day=3.0,
+        asks_per_day=8.0,
         daily_audio_minutes=minutes,
         experiment_mode=experiment_mode,
     )

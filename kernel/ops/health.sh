@@ -9,10 +9,13 @@ set -uo pipefail
 
 AFAR_ROOT=${AFAR_ROOT:-/root/projects/AFAR}
 RUNS_ROOT=${AFAR_RUNS_ROOT:-$AFAR_ROOT/runs}
-# The live loop paces on albums; the experiment loop on sets. Whichever knob
-# is set governs the staleness threshold — they mean the same thing here:
-# how long a healthy loop may go between finished records.
-PER_DAY=${AFAR_ALBUMS_PER_DAY:-${AFAR_SETS_PER_DAY:-3}}
+# The live loop paces on ASKS (a tick happens whether or not anyone records);
+# the experiment loop on sets. Whichever knob is set governs the staleness
+# threshold — they mean the same thing here: how long a healthy loop may go
+# without writing a row. A tick always writes one, so this is a liveness check
+# on the LOOP, never on the artists (a town that declines for a week is
+# healthy, and its ticks keep the log fresh).
+PER_DAY=${AFAR_ASKS_PER_DAY:-${AFAR_ALBUMS_PER_DAY:-${AFAR_SETS_PER_DAY:-8}}}
 ENABLED=${AFAR_ENABLED:-0}
 FAILED=0
 
@@ -38,7 +41,7 @@ fi
 # 4. Staleness watchdog: the "all green but nothing happening" failure.
 #    Newest mtime across every JSONL row file under runs/. Threshold:
 #    - disabled: heartbeats land hourly -> 3h of silence means a wedged loop;
-#    - enabled: one record interval (24h / AFAR_ALBUMS_PER_DAY), floor 3h — the
+#    - enabled: one tick interval (24h / AFAR_ASKS_PER_DAY), floor 3h — the
 #      pacing sleep also heartbeats hourly, so this is generous.
 newest=$(find "$RUNS_ROOT" -name '*.jsonl' -printf '%T@\n' 2>/dev/null | sort -rn | head -1 | cut -d. -f1)
 if [ -z "${newest:-}" ]; then

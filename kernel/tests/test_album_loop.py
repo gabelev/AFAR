@@ -4,7 +4,6 @@ Everything offline (MockProvider + MockRenderer + MockEmbedder, publish
 forced dry or against a recording fake connection). What this file is for:
 
 - the LOOP walks a whole record end to end and logs every step;
-- the ROTATION reads the log, so the town takes turns and a restart resumes;
 - the BUDGET is charged before the first render and blocks a record it
   cannot afford;
 - the ORDER is publish-then-react, which is architecture rule 1 in the call
@@ -44,7 +43,7 @@ def _config(root: Path, *, minutes: float = 110.0, tracks: int = 2, seconds: int
         live=False,
         code_sha="test-sha",
         enabled=True,
-        albums_per_day=3.0,
+        asks_per_day=8.0,
         album_tracks=tracks,
         track_seconds=seconds,
         daily_audio_minutes=minutes,
@@ -53,6 +52,17 @@ def _config(root: Path, *, minutes: float = 110.0, tracks: int = 2, seconds: int
 
 def _conductor(root: Path, **kw) -> Conductor:
     return Conductor(_config(root, **kw), embedder=MockEmbedder())
+
+
+def _booking(conductor: Conductor, index: int = 0, minutes: float | None = None, artist: str | None = None):
+    """What the conductor builds once an artist has said yes: the affordable
+    size plus the mechanical half (clock position, seed, run id)."""
+    size = conductor.affordable(
+        conductor.budget.remaining_minutes if minutes is None else minutes
+    )
+    if size is None:
+        return None
+    return conductor.plan_record(artist or conductor.roster[0], index, size)
 
 
 def _rows(root: Path) -> list[dict]:
@@ -67,7 +77,7 @@ def _rows(root: Path) -> list[dict]:
 
 def test_one_booked_album_walks_the_whole_chain(tmp_path: Path):
     conductor = _conductor(tmp_path)
-    booking = conductor.book(0, conductor.budget.remaining_minutes)
+    booking = _booking(conductor)
     assert booking is not None
     outcome = conductor.run_one_album(booking)
 
@@ -93,23 +103,6 @@ def test_one_booked_album_walks_the_whole_chain(tmp_path: Path):
     assert len(reread) == 1 and reread[0]["record"] == record
 
 
-def test_the_rotation_takes_turns_because_it_reads_the_log(tmp_path: Path):
-    conductor = _conductor(tmp_path)
-    recorded = []
-    for index in range(3):
-        booking = conductor.book(index, conductor.budget.remaining_minutes)
-        conductor.run_one_album(booking)
-        recorded.append(booking.artist_id)
-    assert len(set(recorded)) == 3, "the same artist recorded twice while others waited"
-    assert album_log.recorded_history(album_log.album_rows(tmp_path)) == recorded
-
-
-def test_a_restart_resumes_the_same_booking_it_would_have_made(tmp_path: Path):
-    booking = _conductor(tmp_path).book(4, 110.0)
-    again = _conductor(tmp_path).book(4, 110.0)  # a brand-new process, same log
-    assert (again.artist_id, again.size) == (booking.artist_id, booking.size)
-
-
 def test_the_cursor_resumes_past_completed_and_failed_records():
     assert next_album_index([]) == 0
     assert next_album_index([{"kind": "album_completed", "album_index": 0}]) == 1
@@ -132,7 +125,7 @@ def test_the_whole_record_is_charged_before_the_first_render(tmp_path: Path):
     """A crash mid-record must never leave spend uncounted — the safe
     direction to be wrong in is 'already paid for'."""
     conductor = _conductor(tmp_path, tracks=3, seconds=60)
-    booking = conductor.book(0, conductor.budget.remaining_minutes)
+    booking = _booking(conductor)
     charged: list[float] = []
 
     def exploding(artist_id: str):
@@ -146,14 +139,16 @@ def test_the_whole_record_is_charged_before_the_first_render(tmp_path: Path):
     assert conductor.budget.spent_minutes == pytest.approx(3.0)
 
 
-def test_a_day_with_nothing_left_books_nothing_at_all(tmp_path: Path):
+def test_a_day_with_nothing_left_asks_nobody_at_all(tmp_path: Path):
+    """A yes the conductor could not honour would be a lie — so on a spent day
+    nobody is even asked."""
     conductor = _conductor(tmp_path, minutes=0.5)  # below the 1-minute floor
-    assert conductor.book(0, conductor.budget.remaining_minutes) is None
+    assert conductor.affordable(conductor.budget.remaining_minutes) is None
 
 
 def test_the_last_record_of_a_day_is_shrunk_not_skipped(tmp_path: Path):
     conductor = _conductor(tmp_path, tracks=4, seconds=120)
-    booking = conductor.book(0, 2.0)
+    booking = _booking(conductor, minutes=2.0)
     assert booking is not None and booking.minutes <= 2.0
     assert booking.size.tracks >= MIN_TRACKS
 
@@ -303,7 +298,7 @@ def test_the_ears_carry_measured_facts_the_context_never_does(tmp_path: Path):
     the sleeve: `Ears` is what the instruments recorded, the context is what
     the artist reads."""
     conductor = _conductor(tmp_path)
-    first = conductor.book(0, 110.0)
+    first = _booking(conductor, minutes=110.0)
     conductor.run_one_album(first)
 
     rows = album_log.album_rows(tmp_path)
@@ -331,7 +326,7 @@ def test_album_ids_continue_the_one_afar_sequence_across_both_tables():
 
 def test_the_album_row_puts_the_artist_and_their_own_words_first(tmp_path: Path):
     conductor = _conductor(tmp_path)
-    booking = conductor.book(0, 110.0)
+    booking = _booking(conductor, minutes=110.0)
     conductor.run_one_album(booking)
     run_dir = tmp_path / booking.run_id
     record = json.loads(sorted(run_dir.glob("album-*.json"))[0].read_text())
@@ -356,7 +351,7 @@ def test_reactions_are_additive_and_never_rewrite_the_record(tmp_path: Path):
     from afar.staff import load_reactions
 
     conductor = _conductor(tmp_path)
-    booking = conductor.book(0, 110.0)
+    booking = _booking(conductor, minutes=110.0)
     conductor.run_one_album(booking)
     run_dir = tmp_path / booking.run_id
     record = json.loads(sorted(run_dir.glob("album-*.json"))[0].read_text())
@@ -428,7 +423,7 @@ class _FakeConn:
 
 def test_publish_allocates_past_the_legacy_catalogue_and_is_idempotent(tmp_path: Path):
     conductor = _conductor(tmp_path)
-    booking = conductor.book(0, 110.0)
+    booking = _booking(conductor, minutes=110.0)
     conductor.run_one_album(booking)
     run_dir = tmp_path / booking.run_id
 
@@ -448,7 +443,7 @@ def test_publish_allocates_past_the_legacy_catalogue_and_is_idempotent(tmp_path:
 
 def test_publish_dry_writes_nothing_and_still_computes_everything(tmp_path: Path):
     conductor = _conductor(tmp_path)
-    booking = conductor.book(0, 110.0)
+    booking = _booking(conductor, minutes=110.0)
     conductor.run_one_album(booking)
     outcome = publish_album(tmp_path / booking.run_id, dry_run=True)
     assert outcome.dry_run is True and outcome.release_id == "0000"

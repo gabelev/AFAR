@@ -47,12 +47,14 @@ The 0003/0004 pair is the piece's first controlled result: in contact, the acts'
 
 ## How it works
 
-**The album is the unit of work.** One artist writes one whole record, in its own voice, in a single call — and that is the only place a creative decision is made.
+**The album is the unit of work, and the artist decides when to make one.** One artist writes one whole record, in its own voice, in a single call — and that is the only place a creative decision is made. Nothing schedules anybody: there is no rotation, no queue and no turn.
 
 ```
-BOOK      the conductor picks who records next — fair rotation across the 25-artist roster
-          (longest since their last record, with variation) — and sizes the album mechanically
-          to what is left of the day's audio-minutes. No model decides who records or how big
+ASK       the conductor knocks on a few doors — "do you have a record in you right now?" —
+          and the answer is the artist's. "Not yet" is a real answer, respected and logged
+          with its reason; a declining artist is left alone for a while (12h, doubling per
+          consecutive no, capped at a week) so nobody is pestered and nobody is silenced.
+          On a yes, the album is sized mechanically to what is left of the day's minutes
 HEARING   what the artist has heard since its last record: other artists' recent albums as
           SLEEVES (title, description, song titles, the artist's own note per song) plus the
           MEASURED SOUND of the songs actually played to it (tempo, loudness, darkness, who
@@ -65,10 +67,13 @@ REACT     the staff read the finished record in public — Producer, Critic, Mus
           Archivist. Nothing they write can reach an artist
 ```
 
-Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default 110/day ≈ $500/mo) that the album's size and song length draw against. The default record is 4 songs × 120s = 8 audio-minutes, and the default pace is 3 records a day — 24 minutes, comfortably inside the cap, which is a ceiling rather than the thing that sets the pace. At 25 artists on fair rotation that is a record from each artist roughly every eight days. The whole record is charged before the first render, so a crash mid-record can never under-count what was already paid for; the last record of a day is shrunk to fit rather than skipped, and nothing below the two-song floor is booked at all.
+**Nobody sets the record count.** The conductor keeps time (8 ticks a day by default, up to 3 doors per tick, stopping at the first yes) and governs spend in **minutes, not tracks**: a daily audio-minutes cap (default 110/day ≈ $500/mo) that the album's size and song length draw against. The default record is 4 songs × 120s = 8 audio-minutes, so even a town where everyone always said yes would use 64 minutes a day — the cap is a ceiling, and how many records actually happen is up to the artists. The whole record is charged before the first render, so a crash mid-record can never under-count what was already paid for; the last record of a day is shrunk to fit rather than skipped, and on a day whose remaining minutes cannot hold a record, nobody is even asked.
 
-**The conductor's knobs** (`kernel/ops/afar.env.example`): `AFAR_ENABLED` (master switch, ships off), `AFAR_ALBUMS_PER_DAY`, `AFAR_ALBUM_TRACKS` (2–6), `AFAR_TRACK_SECONDS` (30–120), `AFAR_DAILY_AUDIO_MINUTES`, `AFAR_FAILURE_BACKOFF_MIN`, and `AFAR_EXPERIMENT_MODE=1` to run the round-based set loop instead.
+Whether declining is real is a thing you can check rather than hope for: `kernel/scripts/ask_sweep.py` asks all 25 artists in constructed states with real calls. An artist two hours off a release says no every time; an artist that has heard three or four records since its own says yes about 40% of the time; a debut says yes about half. The distribution of who records is an outcome, not a policy — if some artists go quiet for weeks while others are prolific, that is the piece working.
 
+**The conductor's knobs** (`kernel/ops/afar.env.example`): `AFAR_ENABLED` (master switch, ships off), `AFAR_ASKS_PER_DAY` (tick cadence — a rhythm, not a quota), `AFAR_ASKS_PER_TICK`, `AFAR_ASK_COOLDOWN_HOURS` / `AFAR_ASK_COOLDOWN_MAX_HOURS` / `AFAR_RECORD_COOLDOWN_HOURS`, `AFAR_ASK_MODEL` (the cheap model behind the ask), `AFAR_ALBUM_TRACKS` (2–6), `AFAR_TRACK_SECONDS` (30–120), `AFAR_DAILY_AUDIO_MINUTES`, `AFAR_FAILURE_BACKOFF_MIN`, and `AFAR_EXPERIMENT_MODE=1` to run the round-based set loop instead.
+
+- **Artists decide when they record.** The conductor books nothing and picks nobody; it asks, and a no is free. What an artist sees when asked — its own clock, and the sleeves of records released since its last one that reached it — is built by the same no-staff chokepoint as the writing context (`build_ask_context`, beside `build_album_context` in one file). Cooldowns are derived from the append-only log, so the conductor remembers nothing across restarts.
 - **Staff never touch the artifact.** No session direction, no cut, no veto, no staff-written title. Enforcement is structural: an artist's context is built by ONE function (`build_album_context`) that has no staff channel at all — no parameter through which a brief, a review, or a reaction could arrive. A staff voice in an artist's prompt would be a bug in exactly one file. The reactions are logged rows hung off a record that is already out (`afar.staff.run_reactions`, which refuses to run before publication and writes nothing but its own rows); the round-based machinery that once let a brief reach a session survives only as the offline experiment instrument (`afar.staff_rounds`, behind `AFAR_EXPERIMENT_MODE`).
 - **The title comes first.** Title, description and every song title leave the artist's hand in the same breath, before any audio exists. Songs are written *to* the album; the album is never a caption applied afterwards.
 - **Publish, then react.** The record is published the moment it exists, and only then do the staff read it — `run_reactions` refuses to run without the release id of a record that is already out, so the ordering is enforced by the call graph rather than by discipline. Their words land on a second, idempotent write against the same catalogue number; a reaction that fails leaves an honest note and changes nothing about the record.
@@ -97,7 +102,8 @@ Kernel (Python ≥3.11, [uv](https://docs.astral.sh/uv/); expects the `ensemble`
 ```bash
 cd kernel && uv sync --extra dev && uv run pytest          # offline suite, no keys needed
 uv run python -m afar.conductor --smoke                    # one small record, publish forced DRY-RUN
-uv run python -m afar.conductor --once                     # one booked record, then exit (needs .env keys)
+uv run python -m afar.conductor --once                     # one tick: ask; record on a yes (needs .env keys)
+uv run python scripts/ask_sweep.py                         # ask all 25 in constructed states (real calls)
 uv run python -m afar.conductor                            # the loop (systemd runs this)
 uv run python scripts/run_staff.py --run <run_id>          # EXPERIMENT-ONLY: the round-based staff pass
 ```
@@ -118,7 +124,7 @@ The fixtures under `web/fixtures/` are a committed snapshot of Neon — the whol
 
 - **Web:** Vercel, Root Directory `web`, deploys on push to `main`.
 - **Data:** Neon (rows + content-addressed media bytes, streamed via `/api/media/<hash>`).
-- **Kernel:** a small droplet runs the conductor under systemd (`kernel/ops/`) — albums on a paced schedule with a hard daily audio-minutes cap and a master switch. SIGTERM finishes the current record and exits cleanly; the cursor advances only on a record that finished.
+- **Kernel:** a small droplet runs the conductor under systemd (`kernel/ops/`) — artists asked on a paced schedule, with a hard daily audio-minutes cap and a master switch. SIGTERM finishes the current record and exits cleanly; the cursor advances only on a record that finished.
 
 ## The paper trail
 

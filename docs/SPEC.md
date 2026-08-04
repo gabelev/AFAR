@@ -17,6 +17,9 @@ place creative decisions are made.
 ```
 persona prompt (persistent, compiled from DNA — does not change)
         │
+        ├── THE ASK: "do you have a record in you right now?"  → no → nothing happens
+        │            (the artist's own decision; a no is respected and logged)
+        │
         ├── what the artist has heard: other artists' recent albums + its own last one
         ▼
 ONE call, the artist's own voice
@@ -42,6 +45,34 @@ staff-written title.
 Enforcement is structural, not by convention: the artist's context is built by
 one function, and that function has no staff channel at all. If a staff voice
 ever appears in an artist's prompt, that function is the bug.
+
+### The law: artists decide when they record
+
+**Nothing schedules an artist.** There is no rotation, no queue, no turn, and
+no fairness rule. The conductor is a clock and a budget governor: it knocks on
+doors and asks one question — *do you have a record in you right now?* — and
+the answer belongs entirely to the artist.
+
+"Not yet" is a real answer. An artist that just released, or has nothing new
+to say, or is still living with something it heard, says no, and nothing bad
+happens: no slot is lost, nobody is displeased, and the question comes back on
+its own. Declining costs nothing precisely so that it can mean something —
+if every artist always said yes, this would be rotation with extra steps.
+
+What the artist sees when asked is exactly three things: how long since its own
+last record, the sleeves of records released since then that reached it, and
+its own last record. It is built by the same no-staff chokepoint as the writing
+context — the ask is artist material, so the first law covers it identically.
+
+**A declined artist is left alone, never silenced.** Cooldown grows with
+consecutive declines (12h, doubling) and is capped at one week, so an artist in
+a fallow season is not pestered, and every artist on the roster is asked at
+least weekly forever. An artist that just said yes waits a day. All of it is
+derived from the append-only log; the conductor remembers nothing.
+
+The consequence is deliberate and is the point: **the distribution of who
+records is an outcome, not a policy.** If some artists go quiet for weeks while
+others are prolific, that is the piece working.
 
 ### The law: the title comes first
 
@@ -129,9 +160,12 @@ reaction never blocks a release. The material always outranks the commentary.
   to committed fixtures.
 - **Renderer** — ElevenLabs `music_v2`, swappable. DNA → composition plan is
   pure and deterministic, oracle-matched to afar_music's TypeScript tests.
-- **Conductor** — the loop on the droplet. Picks who records next, sizes the
-  album to the remaining budget, publishes, then runs the staff reactions.
-  Spend is governed in audio-minutes per day, not generation counts.
+- **Conductor** — the loop on the droplet. Books nothing and picks nobody: it
+  keeps time, decides who may be ASKED (cooldowns, read from the log), sizes
+  whatever record follows a yes to the remaining budget, publishes, then runs
+  the staff reactions. Spend is governed in audio-minutes per day, not
+  generation counts; on a day whose remaining minutes cannot hold a record,
+  nobody is even asked.
 - **The world** — a pixel town where every artist has a building and a sprite,
   and staff walk to deliver their reactions. Driven entirely from logged rows.
 
@@ -139,7 +173,7 @@ reaction never blocks a release. The material always outranks the commentary.
 
 1. The log is append-only.
 2. Staff never influence an artifact.
-3. The artist names its own work.
+3. The artist decides when it records, and names its own work.
 4. Everything generated gets released; nothing is sat on.
 5. Every public surface is readable by someone who knows nothing about AI or
    music production.
