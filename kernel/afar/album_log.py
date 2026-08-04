@@ -4,13 +4,15 @@ Architecture rule 3 — the JSONL log under `runs/` is authoritative — has a
 practical consequence for the loop: the conductor must not REMEMBER anything.
 Who recorded last, what the town has released, which records reached whose
 ears and at what coordinates the audio was logged: all of it is read back out
-of the log on every booking, so a fresh process on a fresh machine books and
-hears exactly what the last one would have.
+of the log on every tick, so a fresh process on a fresh machine asks and hears
+exactly what the last one would have.
 
 Three reads, in order of how much they touch:
 
-- `album_rows` / `recorded_history` — the `albums.jsonl` rows across every
-  run, oldest first, and the artist ids in that order (the rotation's input).
+- `album_rows` — the `albums.jsonl` rows across every run, oldest first.
+- `since_last_record` — the ask's window: how long since this artist's own
+  last record, how many records the town released in that time, and the
+  sleeves of the ones that reached it (`afar.asking`).
 - `heard_for` — the sleeves an artist about to record gets to hear: the most
   recent albums by OTHER artists, one per artist so a prolific act cannot
   crowd the room, plus that artist's own last record. Every one of them goes
@@ -27,6 +29,7 @@ Nothing here writes. Nothing here decides.
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Optional, Sequence
 
@@ -67,17 +70,6 @@ def album_rows(runs_root: Path) -> list[dict[str, Any]]:
         rows.extend(_read_jsonl(run_dir / "albums.jsonl"))
     rows.sort(key=lambda r: str(r.get("ts", "")))
     return rows
-
-
-def recorded_history(rows: Sequence[Mapping[str, Any]]) -> list[str]:
-    """The artist ids of every recorded album, oldest first — the rotation's
-    whole memory (`afar.booking.rotation_order`)."""
-    history: list[str] = []
-    for row in rows:
-        artist_id = str(row.get("player") or _record(row).get("artist_id") or "")
-        if artist_id:
-            history.append(artist_id)
-    return history
 
 
 def _record(row: Mapping[str, Any]) -> Mapping[str, Any]:
@@ -158,6 +150,79 @@ def heard_for(
         )
     others.reverse()  # oldest of the heard set first — the order they landed
     return tuple(others), own_last
+
+
+@dataclass(frozen=True)
+class SinceLastRecord:
+    """What has happened to one artist since it last made a record — the
+    whole of what it sees when the conductor asks whether it has another one
+    in it (`afar.asking`).
+
+    `heard` is the newest record by each of the last few OTHER artists to
+    release SINCE this artist's own last one (one per artist, so a prolific
+    act cannot fill the room), every sleeve through `heard_album_from_row`'s
+    whitelist. `released` counts every record others put out in that window,
+    heard or not — the difference is honest: an artist is told how loud the
+    town has been, and shown only what actually reached it.
+    """
+
+    heard: tuple[HeardAlbum, ...] = ()
+    own_last: Optional[HeardAlbum] = None
+    released: int = 0
+    #: ISO timestamp of this artist's own last record, or "" for a debut.
+    last_record_ts: str = ""
+
+
+def since_last_record(
+    rows: Sequence[Mapping[str, Any]],
+    artist_id: str,
+    *,
+    names: Mapping[str, str] = {},
+    limit: int = HEARD_LIMIT,
+) -> SinceLastRecord:
+    """Read the ask's whole window out of the album log.
+
+    An artist that has never recorded sees the town's entire history through
+    the same window — which is right: everything released is "since" a record
+    that never happened.
+    """
+    ordered = list(rows)
+    own_index = -1
+    for position, row in enumerate(ordered):
+        if str(_sleeve_row(row)["artist_id"]) == artist_id:
+            own_index = position
+    own_last: Optional[HeardAlbum] = None
+    if own_index >= 0:
+        sleeve = _sleeve_row(ordered[own_index])
+        own_last = heard_album_from_row(
+            sleeve,
+            artist_name=names.get(artist_id, artist_id),
+            album_id=sleeve["album_id"],
+        )
+    released = 0
+    heard: list[HeardAlbum] = []
+    seen: set[str] = set()
+    for row in reversed(ordered[own_index + 1 :]):
+        sleeve = _sleeve_row(row)
+        maker = str(sleeve["artist_id"])
+        if not maker or maker == artist_id:
+            continue
+        released += 1
+        if maker in seen or len(heard) >= limit:
+            continue
+        seen.add(maker)
+        heard.append(
+            heard_album_from_row(
+                sleeve, artist_name=names.get(maker, maker), album_id=sleeve["album_id"]
+            )
+        )
+    heard.reverse()  # oldest first — the order they landed
+    return SinceLastRecord(
+        heard=tuple(heard),
+        own_last=own_last,
+        released=released,
+        last_record_ts=str(ordered[own_index].get("ts", "")) if own_index >= 0 else "",
+    )
 
 
 # --- the instruments' side: what was measured, not what was said --------------

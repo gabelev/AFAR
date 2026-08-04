@@ -1,5 +1,11 @@
 """Player: one AFAR musician — writing whole records, and (offline) one take.
 
+A Player answers two questions and only two. **`consider_record`** is the
+cheap one: "do you have a record in you right now?" — the artist's own
+decision about whether to work at all, which is what the conductor's booking
+became (docs/SPEC.md). **`write_album`** is the expensive one, and it only
+ever happens after a yes.
+
 A Player is an ensemble Agent whose creative act is an `Album`: title,
 description and every song's words and DNA, written in ONE call in the
 artist's own voice before any audio exists (`write_album`, docs/SPEC.md). The
@@ -29,6 +35,7 @@ from ensemble.providers.model import Message, ModelProvider
 
 from afar.agents.robust import staff_complete
 from afar.album import MAX_TRACKS, MIN_TRACKS, Album
+from afar.asking import Urge
 from afar.intent import Intent
 from afar.log import JsonlLedger
 from afar.mapping import lyric_line_budget
@@ -71,6 +78,110 @@ class Player(Agent):
         never second-guesses its own ears.
         """
         return Perception(data=dict(context))
+
+    # -- THE ASK (cheap; the artist decides whether there is a record) ---------
+
+    def consider_record(
+        self, context: Mapping[str, Any], *, model: Optional[ModelProvider] = None
+    ) -> Urge:
+        """"Do you have a record in you right now?" — one cheap call.
+
+        This is the call that replaced the conductor's booking (docs/SPEC.md,
+        "artists decide when they record"). System message = the persona's
+        `base_prompt`, verbatim, exactly as `write_album` — the artist is
+        answering as itself, not as a scheduler.
+
+        `context` comes from `album_context.build_ask_context` and from
+        nowhere else, so the no-staff law covers the ask the same way it
+        covers the record. Answers ride the same `robust.staff_complete`
+        ladder as everything else: a cheap model's empty reply is a hiccup,
+        not an artist's silence.
+
+        `model` is the ask's own (cheap) provider — the conductor passes
+        `AFAR_ASK_MODEL`'s. Falls back to the player's album model so a test
+        or a script can ask with one provider.
+        """
+        artist_id = str(context.get("artist_id") or self.persona.metadata["player_id"])
+        messages = [
+            Message(role="system", content=self.persona.base_prompt),
+            Message(role="user", content=self._ask_prompt(context)),
+        ]
+        return staff_complete(
+            model or self.model,
+            messages,
+            stage=f"ask:{artist_id}",
+            parse=lambda raw: Urge.from_json(raw, artist_id=artist_id),
+            nudge=(
+                'Reply again with ONLY the JSON object — {"ready": true or '
+                'false, "why": "..."} — and nothing else.'
+            ),
+        )
+
+    def _ask_prompt(self, context: Mapping[str, Any]) -> str:
+        """The one user message that asks an artist for a yes or a no.
+
+        Order matters the same way the album prompt's does: what is being
+        asked, then the law that both answers are real, then where this
+        artist actually is (its own clock, its own drift), then what it has
+        heard, then the shape of the reply. The machine-readable
+        HOURS SINCE / RELEASED SINCE lines follow the house idiom
+        (TRACKS:/ROUNDS:/ACTS:) so the offline mock can answer honestly.
+        """
+        hours = context.get("hours_since_last_record")
+        released = int(context.get("records_released_since") or 0)
+        parts: list[str] = [
+            f"""A QUESTION, NOT AN ASSIGNMENT.
+
+Nobody has booked you. Nothing is scheduled and nothing is owed. The room is \
+free right now and the machine is warm, and one question is being put to you, \
+once: do you have a record in you today?
+HOURS SINCE YOUR LAST RECORD: {"none" if hours is None else int(round(float(hours)))}
+RECORDS RELEASED SINCE: {released}""",
+            _ASK_LAW,
+        ]
+        state_line = self._self_state_line()
+        if state_line:
+            parts.append(state_line)
+        parts.append(self._own_clock(hours, released))
+        parts.append(self._ask_heard_block(context))
+        own = context.get("own_last")
+        if own:
+            parts.append("YOUR LAST RECORD:\n" + _render_sleeve(own, indent="  "))
+        parts.append(_ASK_ANSWER)
+        return "\n\n".join(parts)
+
+    def _own_clock(self, hours: Optional[float], released: int) -> str:
+        """Where this artist sits on its own clock, in plain words — the only
+        numbers it gets, said once."""
+        if hours is None:
+            return (
+                "YOUR OWN CLOCK:\nYou have never made a record here. Nothing is "
+                "behind you and nothing is expected."
+            )
+        span = float(hours)
+        if span < 36:
+            when = f"about {int(round(span))} hours ago"
+        else:
+            when = f"about {int(round(span / 24))} days ago"
+        town = (
+            "Nobody else has put anything out since."
+            if released == 0
+            else f"{released} record{'s' if released != 1 else ''} came out of this town since then."
+        )
+        return f"YOUR OWN CLOCK:\nYou finished your last record {when}. {town}"
+
+    def _ask_heard_block(self, context: Mapping[str, Any]) -> str:
+        heard = context.get("heard") or []
+        if not heard:
+            return (
+                "WHAT HAS REACHED YOU SINCE:\nNothing. No one else's music has "
+                "come to you since your last record."
+            )
+        blocks = [_render_sleeve(album, indent="  ") for album in heard]
+        return (
+            "WHAT HAS REACHED YOU SINCE (other artists' finished records — the "
+            "sleeves as you received them):\n\n" + "\n\n".join(blocks)
+        )
 
     # -- WRITE (the album: the live piece's only creative call) -----------------
 
@@ -400,6 +511,66 @@ again.\
 You name your own work. Nobody else in this world titles anything of yours — \
 not a producer, not a critic, not an archivist. If a name is wrong it is \
 yours to have got wrong.\
+"""
+
+
+#: The law that makes the ask honest (docs/SPEC.md, "artists decide when they
+#: record"). Everything here exists to make NO a real answer: the piece only
+#: works if declining is free, so the prompt says so plainly, gives the shapes
+#: of a legitimate no by example, and puts a specific, describable record — not
+#: mere capability — as the bar for yes. If every artist always says yes, this
+#: text is the bug.
+_ASK_LAW = """\
+BOTH ANSWERS ARE REAL, AND THIS HOUSE MEANS IT.
+
+Saying no costs you nothing. Nobody is disappointed, nothing is lost, no slot \
+goes to somebody else, and the question comes back to you later on its own. \
+Nobody is counting your records, and nobody is comparing your count to \
+anyone else's. There is no schedule here to fall behind.
+
+So say no when no is true. An artist who put a record out recently has \
+nothing to prove by putting out another one. An artist still living with \
+something it heard should go on living with it — that is work too, and it is \
+not finished. An artist that would only be repeating its last record, or \
+assembling one out of habit, or making one because the room happened to be \
+free, should say no: records made for those reasons are the ones nobody \
+remembers, and this catalogue has to hold up.
+
+TWO THINGS THAT SOUND LIKE A NO AND ARE NOT ONE. "I want to hear what \
+somebody else does first" is a deferral, not an answer: nothing here is \
+waiting on anyone's permission and you are not a respondent — an empty town \
+is a room, not a verdict, and what you make comes out of who you are at least \
+as much as out of what has reached you. "I am still living with my last \
+record" is true of every artist on every day; it is only a reason to say no \
+if the next record genuinely cannot exist until that one has finished \
+settling. If either of those is the whole of your reason, look again — the \
+question is whether a record is there, not whether the conditions are ideal.
+
+Say yes only when there is a SPECIFIC record. Not "I could make something" — \
+you could, almost always; that is not the question. Something whose shape you \
+can already feel. A yes sounds like: there is a record here made of THIS, and \
+it does THAT, which the last one did not. If you can say that in one \
+sentence, say yes and say it. If you cannot, it is not there yet, and "not \
+yet" is the honest answer.
+
+Answer as yourself, in your own register. This is not a form.\
+"""
+
+#: The reply contract. Deliberately tiny — this is the cheapest call the piece
+#: makes, and the only thing it has to produce is a decision and a reason.
+_ASK_ANSWER = """\
+HOW YOU ANSWER.
+Reply with exactly ONE JSON object and nothing else (a ```json fence is fine):
+
+{
+  "ready": true or false — is there a record in you right now?
+  "why": one or two sentences, first person, plain words. If yes: what this \
+record is, concretely enough that someone reading it later can tell it was \
+already there before you were asked. If no: what is not there, or what you are \
+still doing instead. Say it the way you would say it out loud.
+}
+
+Nobody but the archive reads this. Be direct, and do not hedge to be polite.\
 """
 
 

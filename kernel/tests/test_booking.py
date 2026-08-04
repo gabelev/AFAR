@@ -1,8 +1,9 @@
-"""Booking: who records next, and how big the record is.
+"""Sizing: how big a record is allowed to be.
 
-Both halves are pure (`afar.booking`), and both are load-bearing: the rotation
-is the only thing that decides whose voice the town hears next, and the sizing
-is the only thing standing between the piece and its ElevenLabs bill.
+Pure (`afar.booking`) and load-bearing: it is the only thing standing between
+the piece and its ElevenLabs bill. WHO records is not decided here any more
+and is not decided anywhere in the conductor — the artists decide
+(`tests/test_asking.py`, `tests/test_ask_loop.py`).
 """
 
 from __future__ import annotations
@@ -15,66 +16,8 @@ from afar.booking import (
     MAX_TRACK_SECONDS,
     MIN_TRACK_SECONDS,
     album_minutes,
-    book_artist,
     fit_album,
-    rotation_order,
 )
-
-ROSTER = ("silt", "rust", "keep", "vess", "lolgorithm")
-
-
-# --- who records next ---------------------------------------------------------
-
-
-def test_rotation_puts_the_longest_wait_first_and_a_debut_ahead_of_everyone():
-    # silt recorded most recently, keep before that; vess/lolgorithm never have.
-    order = rotation_order(ROSTER, ["rust", "keep", "rust", "silt"])
-    assert order[:2] == ["lolgorithm", "vess"]  # never recorded, alphabetical
-    assert order[2:] == ["keep", "rust", "silt"]  # then by how long ago
-
-
-def test_rotation_is_a_pure_function_of_its_inputs():
-    history = ["keep", "silt", "rust"]
-    assert rotation_order(ROSTER, history) == rotation_order(ROSTER, history)
-    assert rotation_order(tuple(reversed(ROSTER)), history) == rotation_order(ROSTER, history)
-
-
-def test_booking_is_deterministic_given_the_log_and_varies_with_position():
-    history = ["silt", "rust"]
-    picks = [book_artist(ROSTER, history, index=i, seed=7) for i in range(12)]
-    again = [book_artist(ROSTER, history, index=i, seed=7) for i in range(12)]
-    assert picks == again, "the same log and seed must book the same artist"
-    # Variation is the point of the window: the same standings do not always
-    # yield the same name.
-    assert len(set(picks)) > 1
-
-
-def test_booking_only_ever_picks_from_the_longest_waiting_window():
-    history = ["a", "b", "c", "d", "e"]
-    roster = ["a", "b", "c", "d", "e", "f"]
-    front = set(rotation_order(roster, history)[:3])
-    for i in range(40):
-        assert book_artist(roster, history, index=i, seed=3) in front
-
-
-def test_an_artist_cannot_be_passed_over_forever():
-    """The window bounds the wait: whoever is at the front stays at the front
-    until they record, and with a window of 3 they can be skipped at most
-    twice before they are the only candidate left."""
-    roster = list("abcde")
-    history: list[str] = []
-    waited = {a: 0 for a in roster}
-    for i in range(60):
-        picked = book_artist(roster, history, index=i, seed=11)
-        history.append(picked)
-        for a in roster:
-            waited[a] = 0 if a == picked else waited[a] + 1
-    assert max(waited.values()) <= len(roster) + 2
-
-
-def test_booking_an_empty_roster_is_an_error_not_a_silent_skip():
-    with pytest.raises(ValueError):
-        book_artist([], [], index=0)
 
 
 # --- how big the record is ----------------------------------------------------

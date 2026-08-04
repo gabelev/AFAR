@@ -6,6 +6,10 @@ mold/config.py). Bindings are env-driven so the same code runs offline
 
     ANTHROPIC_API_KEY   -> AnthropicProvider (else MockProvider)
     AFAR_MODEL          -> model id for the players (default claude-sonnet-5)
+    AFAR_ASK_MODEL      -> model id for THE ASK, the cheap per-artist call that
+                           replaced booking (default claude-haiku-4-5): one
+                           small structured yes/no per knock, so it must not
+                           cost what a record costs
     AFAR_RENDERER       -> mock | elevenlabs (default mock)
     ELEVENLABS_API_KEY  -> required when AFAR_RENDERER=elevenlabs
     AFAR_RUNS_ROOT      -> where the JSONL log + audio land (default ../runs)
@@ -14,7 +18,19 @@ Conductor knobs (the spend controls — see afar/conductor.py):
 
     AFAR_ENABLED        -> "1" runs the piece; anything else idles + heartbeats
                            (default "0": the master switch ships OFF)
-    AFAR_ALBUMS_PER_DAY -> pacing target for the live loop, float (default 3.0)
+    AFAR_ASKS_PER_DAY   -> how often the conductor KNOCKS, float (default 8.0).
+                           A cadence, not a quota: how many records a day
+                           happen is up to the artists. Replaces
+                           AFAR_ALBUMS_PER_DAY, which is still read as the
+                           default when the new knob is unset, so a deployed
+                           .env keeps working.
+    AFAR_ASKS_PER_TICK  -> doors per knock, stopping at the first yes
+                           (default 3) — at most one record per tick
+    AFAR_ASK_COOLDOWN_HOURS -> the wait after a first decline (default 12),
+                           doubling per consecutive decline
+    AFAR_ASK_COOLDOWN_MAX_HOURS -> the cap on that doubling (default 168 = one
+                           week, so no artist is ever silenced by arithmetic)
+    AFAR_RECORD_COOLDOWN_HOURS -> the wait after an artist says yes (default 24)
     AFAR_ALBUM_TRACKS   -> songs per record, 2-6 (default 4)
     AFAR_TRACK_SECONDS  -> seconds per song, 30-120 (default 120)
     AFAR_SETS_PER_DAY   -> pacing target for the EXPERIMENT loop (default 3.0)
@@ -38,12 +54,13 @@ Conductor knobs (the spend controls — see afar/conductor.py):
 
 ALBUM SIZING (the arithmetic behind the defaults): the daily gate is 110
 audio-minutes (`AFAR_DAILY_AUDIO_MINUTES`, the $500/mo sizing). The default
-record is 4 songs x 120s = 8 audio-minutes, and the default pace is 3 records
-a day = 24 minutes — comfortably inside the cap, which is a CEILING for
-catch-up days and manual runs rather than the thing that sets the pace. At 25
-artists on fair rotation that is a record from each artist roughly every eight
-days. Raising AFAR_ALBUMS_PER_DAY toward 13 saturates the cap; the conductor
-shrinks the last record of a day mechanically rather than overspending
+record is 4 songs x 120s = 8 audio-minutes, so the cap holds 13 records a day
+however eager the town turns out to be. The default ask rhythm is 8 ticks a
+day of up to 3 knocks each: 8 records a day at the absolute ceiling (64
+minutes, inside the cap) if every artist always said yes, and in practice far
+fewer, because most artists most of the time will not. NOBODY sets the record
+count — the minutes cap is the only ceiling, and the conductor shrinks the
+last record of a day mechanically rather than overspending
 (`afar.booking.fit_album`).
 """
 
@@ -54,7 +71,7 @@ import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
+from typing import Optional, Sequence
 
 from ensemble.providers.model import Message, MockProvider, ModelProvider
 
@@ -190,6 +207,9 @@ def _mock_players(messages: Sequence[Message]) -> str:
         if marker in system:
             player_id = pid
             break
+    urge = _mock_urge(messages, player_id)
+    if urge is not None:
+        return urge
     album = _mock_album(messages, player_id)
     if album is not None:
         return album
@@ -200,6 +220,42 @@ def _mock_players(messages: Sequence[Message]) -> str:
     if staff is not None:
         return staff
     return "[mock]"
+
+
+def _mock_urge(messages: Sequence[Message], player_id: str) -> str | None:
+    """Deterministic offline stand-in for `Player.consider_record` — the ask.
+
+    Detected by the ask prompt's machine-readable HOURS SINCE line (the same
+    idiom as TRACKS:/ROUNDS:/ACTS:), and answered FROM THAT LINE: an artist
+    that recorded within the last day says no, everyone else says yes. That
+    keeps the offline suite honest about the thing the ask exists to do —
+    both answers occur, and which one you get depends on state — without
+    pretending a mock has taste.
+    """
+    user = messages[-1].content if messages else ""
+    if "HOURS SINCE YOUR LAST RECORD:" not in user or '"ready"' not in user:
+        return None
+    hours: float | None = None
+    for line in user.splitlines():
+        if line.startswith("HOURS SINCE YOUR LAST RECORD:"):
+            raw = line.split(":", 1)[1].strip()
+            try:
+                hours = float(raw)
+            except ValueError:
+                hours = None  # "none" — a debut
+            break
+    ready = hours is None or hours >= 24
+    return json.dumps(
+        {
+            "ready": ready,
+            "why": (
+                f"[mock] {player_id} has a record in it: it has been "
+                f"{'a while' if hours is None else f'{int(hours)} hours'}."
+                if ready
+                else f"[mock] {player_id} only just finished one — not yet."
+            ),
+        }
+    )
 
 
 def _mock_album(messages: Sequence[Message], player_id: str) -> str | None:
@@ -392,9 +448,17 @@ class AfarConfig:
     runs_root: Path
     live: bool  # True when running against the real model API
     code_sha: str
+    #: The ASK's own provider — cheap, small, one structured yes/no per knock
+    #: (AFAR_ASK_MODEL). None falls back to `model`, so a script or a test can
+    #: ask with the same provider it writes with.
+    ask_model: Optional[ModelProvider] = None
     # Conductor spend controls (defaults keep every existing caller working).
     enabled: bool = False  # AFAR_ENABLED — the master switch; ships OFF
-    albums_per_day: float = 3.0  # AFAR_ALBUMS_PER_DAY — the live loop's pacing target
+    asks_per_day: float = 8.0  # AFAR_ASKS_PER_DAY — how often the conductor knocks
+    asks_per_tick: int = 3  # AFAR_ASKS_PER_TICK — doors per knock, first yes wins
+    ask_cooldown_hours: float = 12.0  # AFAR_ASK_COOLDOWN_HOURS — after one decline
+    ask_cooldown_max_hours: float = 168.0  # AFAR_ASK_COOLDOWN_MAX_HOURS — the cap
+    record_cooldown_hours: float = 24.0  # AFAR_RECORD_COOLDOWN_HOURS — after a yes
     album_tracks: int = 4  # AFAR_ALBUM_TRACKS — songs per record (2-6)
     track_seconds: int = 120  # AFAR_TRACK_SECONDS — seconds per song (30-120)
     sets_per_day: float = 3.0  # AFAR_SETS_PER_DAY — the experiment loop's pacing target
@@ -432,6 +496,12 @@ def _code_sha() -> str:
 ALBUM_MAX_TOKENS = 16000
 
 
+#: Token budget for the SMALLEST call the piece makes: one bool and one
+#: sentence. Generous enough that a model which thinks out loud before the
+#: JSON still lands its object; nowhere near an album's ceiling.
+ASK_MAX_TOKENS = 1000
+
+
 def _build_model() -> tuple[ModelProvider, bool]:
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -445,6 +515,21 @@ def _build_model() -> tuple[ModelProvider, bool]:
             max_tokens=ALBUM_MAX_TOKENS,
         ),
         True,
+    )
+
+
+def _build_ask_model() -> ModelProvider:
+    """The ask's provider: a cheap model, because the ask happens far more
+    often than a record does (every knock, and most knocks end in a no)."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return MockProvider(responder=_mock_players)
+    from ensemble.providers.anthropic import AnthropicProvider
+
+    return AnthropicProvider(
+        api_key,
+        model=os.environ.get("AFAR_ASK_MODEL", "claude-haiku-4-5"),
+        max_tokens=ASK_MAX_TOKENS,
     )
 
 
@@ -473,9 +558,31 @@ def build_config() -> AfarConfig:
     failure_backoff_min = float(os.environ.get("AFAR_FAILURE_BACKOFF_MIN", "15"))
     if failure_backoff_min <= 0:
         raise ValueError(f"AFAR_FAILURE_BACKOFF_MIN must be > 0, got {failure_backoff_min}")
-    albums_per_day = float(os.environ.get("AFAR_ALBUMS_PER_DAY", "3"))
-    if albums_per_day <= 0:
-        raise ValueError(f"AFAR_ALBUMS_PER_DAY must be > 0, got {albums_per_day}")
+    # AFAR_ALBUMS_PER_DAY is retired as a record quota but honoured as the
+    # default cadence, so a droplet .env written for the booking loop keeps
+    # pacing the ask loop instead of silently jumping to the new default.
+    asks_per_day = float(
+        os.environ.get("AFAR_ASKS_PER_DAY", os.environ.get("AFAR_ALBUMS_PER_DAY", "8"))
+    )
+    if asks_per_day <= 0:
+        raise ValueError(f"AFAR_ASKS_PER_DAY must be > 0, got {asks_per_day}")
+    asks_per_tick = int(os.environ.get("AFAR_ASKS_PER_TICK", "3"))
+    if asks_per_tick < 1:
+        raise ValueError(f"AFAR_ASKS_PER_TICK must be >= 1, got {asks_per_tick}")
+    ask_cooldown_hours = float(os.environ.get("AFAR_ASK_COOLDOWN_HOURS", "12"))
+    if ask_cooldown_hours <= 0:
+        raise ValueError(f"AFAR_ASK_COOLDOWN_HOURS must be > 0, got {ask_cooldown_hours}")
+    ask_cooldown_max_hours = float(os.environ.get("AFAR_ASK_COOLDOWN_MAX_HOURS", "168"))
+    if ask_cooldown_max_hours < ask_cooldown_hours:
+        raise ValueError(
+            "AFAR_ASK_COOLDOWN_MAX_HOURS must be >= AFAR_ASK_COOLDOWN_HOURS, got "
+            f"{ask_cooldown_max_hours} < {ask_cooldown_hours}"
+        )
+    record_cooldown_hours = float(os.environ.get("AFAR_RECORD_COOLDOWN_HOURS", "24"))
+    if record_cooldown_hours < 0:
+        raise ValueError(
+            f"AFAR_RECORD_COOLDOWN_HOURS must be >= 0, got {record_cooldown_hours}"
+        )
     album_tracks = int(os.environ.get("AFAR_ALBUM_TRACKS", "4"))
     if not MIN_TRACKS <= album_tracks <= MAX_TRACKS:
         raise ValueError(
@@ -493,8 +600,13 @@ def build_config() -> AfarConfig:
         runs_root=runs_root,
         live=live,
         code_sha=_code_sha(),
+        ask_model=_build_ask_model(),
         enabled=os.environ.get("AFAR_ENABLED", "0") == "1",
-        albums_per_day=albums_per_day,
+        asks_per_day=asks_per_day,
+        asks_per_tick=asks_per_tick,
+        ask_cooldown_hours=ask_cooldown_hours,
+        ask_cooldown_max_hours=ask_cooldown_max_hours,
+        record_cooldown_hours=record_cooldown_hours,
         album_tracks=album_tracks,
         track_seconds=track_seconds,
         sets_per_day=sets_per_day,

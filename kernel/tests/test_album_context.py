@@ -21,6 +21,7 @@ from afar.perception.album_context import (
     HeardAlbum,
     HeardTrack,
     build_album_context,
+    build_ask_context,
     heard_album_from_row,
 )
 
@@ -67,6 +68,88 @@ def test_the_context_builder_has_no_staff_channel_in_its_signature():
     assert params == {"artist_id", "heard", "own_last", "isolated"}
     for name in params:
         assert not any(word in name.lower() for word in _STAFF_WORDS)
+
+
+def test_the_ask_builder_has_no_staff_channel_either():
+    """The ask is artist material, so the law covers it identically: the
+    question "do you have a record in you?" must not be able to arrive
+    carrying a review, a brief or a verdict."""
+    params = set(inspect.signature(build_ask_context).parameters)
+    assert params == {
+        "artist_id",
+        "heard",
+        "own_last",
+        "hours_since_last_record",
+        "records_released_since",
+    }
+    for name in params:
+        assert not any(word in name.lower() for word in _STAFF_WORDS)
+    with pytest.raises(TypeError):
+        build_ask_context("silt", review={"verdict": "cold"})  # type: ignore[call-arg]
+
+
+def test_the_asks_context_carries_the_sleeve_and_not_one_staff_word():
+    """Same hostile row as the writing context's test, through the ask."""
+    row = {
+        "artist_id": "rust",
+        "title": "Oxide in the Joist",
+        "description": "Four takes left outdoors for a season.",
+        "tracks": [{"title": "Standpipe", "note": "I kept the hiss.", "content_hash": "h1"}],
+        "staff": {
+            "critic": {"review": "SECRETCRITIC"},
+            "producer": {"direction": "SECRETDIRECTION"},
+            "muse": {"brief": "SECRETBRIEF"},
+            "listener": {"reaction": "SECRETREACTION"},
+            "archivist": {"liner_notes": "SECRETLINER"},
+        },
+        "rationale": "SECRETRATIONALE",
+    }
+    hostile = heard_album_from_row(row, artist_name="Roan Patina")
+    context = build_ask_context(
+        "silt",
+        heard=(hostile,),
+        own_last=_album("silt", title="Mine"),
+        hours_since_last_record=71.5,
+        records_released_since=3,
+    )
+    assert set(context) == {
+        "artist_id",
+        "hours_since_last_record",
+        "records_released_since",
+        "heard",
+        "own_last",
+    }
+    assert context["hours_since_last_record"] == 71.5
+    assert context["records_released_since"] == 3
+    blob = json.dumps(context)
+    for marker in (
+        "SECRETCRITIC",
+        "SECRETDIRECTION",
+        "SECRETBRIEF",
+        "SECRETREACTION",
+        "SECRETLINER",
+        "SECRETRATIONALE",
+    ):
+        assert marker not in blob
+    assert "Oxide in the Joist" in blob and "I kept the hiss." in blob
+    for entry in context["heard"]:
+        assert set(entry) == {
+            "artist_id",
+            "artist_name",
+            "album_id",
+            "title",
+            "description",
+            "tracks",
+        }
+
+
+def test_a_debut_is_asked_with_an_honest_empty_window():
+    context = build_ask_context("silt")
+    assert context["hours_since_last_record"] is None
+    assert context["records_released_since"] == 0
+    assert context["heard"] == [] and "own_last" not in context
+    with pytest.raises(ValueError):
+        build_ask_context("")
 
 
 def test_passing_a_staff_channel_is_a_type_error_not_a_silent_pass():

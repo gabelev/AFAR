@@ -2,36 +2,55 @@
 
     uv run python -m afar.conductor            # the piece (systemd runs this)
     uv run python -m afar.conductor --smoke    # one small album, publish dry-run
-    uv run python -m afar.conductor --once     # one booked album, then exit
+    uv run python -m afar.conductor --once     # one tick (ask; record on a yes)
 
-THE LOOP BOOKS ALBUMS. The album is AFAR's unit of work (docs/SPEC.md), so
-one turn of the live loop is one artist making one whole record:
+THE LOOP DOES NOT BOOK. The conductor is a clock and a budget governor: it
+never decides who makes art. One turn of the live loop is a TICK — a few
+doors knocked on, and a record only if somebody answers yes:
 
-    book (who + how big)  ->  run_album  ->  PUBLISH  ->  the staff react
+    tick (who to ASK)  ->  ask  ->  [yes] run_album -> PUBLISH -> staff react
 
-- **Who** is fair rotation across the whole 25-artist roster: the artist who
-  has gone longest without recording, drawn from the three longest-waiting so
-  the town never metronomes through the alphabet. Deterministic given the log
-  (`afar.booking.book_artist`), so a restart resumes the piece rather than
-  rerolling it.
-- **How big** is MECHANICAL, never a model's call: `AFAR_ALBUM_TRACKS` songs
-  of `AFAR_TRACK_SECONDS` each, shrunk to whatever is left of the day's
+- **Who is ASKED** comes from the log's cooldowns (`afar.asking.ask_states`):
+  everyone whose wait has run out, shuffled (`ask_order`, seeded per tick from
+  the schedule's position-stable seed) so the town is never walked
+  alphabetically, then knocked on in that order up to `AFAR_ASKS_PER_TICK`
+  doors, stopping at the first yes. There is NO fairness rule and NO
+  rotation: if some artists go quiet for weeks while others are prolific,
+  that is the piece working.
+- **Whether a record happens** is the artist's, and only the artist's
+  (`Player.consider_record`, one cheap `AFAR_ASK_MODEL` call). A no is a real
+  answer, respected and logged with its reason; the cooldown then grows with
+  consecutive declines (12h doubling to a one-week cap) so a quiet artist is
+  left alone without ever being silenced.
+- **How big** is still MECHANICAL, never a model's call: `AFAR_ALBUM_TRACKS`
+  songs of `AFAR_TRACK_SECONDS` each, shrunk to whatever is left of the day's
   audio-minutes (`afar.booking.fit_album` — length first, then the tracklist,
-  and nothing at all below the two-song floor). The Producer books nothing
-  any more; a budget is arithmetic.
-- **What the artist hears** is read back out of the log every time
-  (`afar.album_log`): the most recent record by each of the last few other
-  artists to release, plus its own last one, every sleeve crossing through
-  `heard_album_from_row`'s whitelist. The conductor remembers nothing.
+  and nothing at all below the two-song floor). Nobody is even ASKED on a day
+  whose remaining minutes cannot hold a record: a yes the conductor could not
+  honour would be a lie.
+- **What the artist hears** — at the ask and again at the writing — is read
+  back out of the log every time (`afar.album_log`): the most recent record by
+  each of the last few other artists to release, plus its own last one, every
+  sleeve crossing through `heard_album_from_row`'s whitelist. The conductor
+  remembers nothing, cooldowns included.
 - **Publish comes BEFORE the reactions**, and that ordering is the law in
   code: `run_reactions` refuses to run without the release id of a record
   that already exists (architecture rule 1 — staff never touch the artifact).
   The record goes out, the staff react to a public record, and a second
   idempotent publish hangs their words off the same catalogue number.
 
-The conductor stays thin: `afar.booking` decides, `afar.album_log` reads,
-`run_album` makes the record, `afar.publish` ships it, `run_reactions` walks
-the staff. This module only WALKS that plan, meters the spend and paces.
+The conductor stays thin: `afar.asking` says who may be asked and when,
+`afar.booking` sizes what is affordable, `afar.album_log` reads, the ARTIST
+decides, `run_album` makes the record, `afar.publish` ships it,
+`run_reactions` walks the staff. This module only WALKS that plan, meters the
+spend and paces.
+
+WHAT THE LOG SHOWS, so the distribution is visible: a `tick` row per knock
+(who was eligible, who is being asked), an `artist_asked` row per answer
+(ready + the artist's verbatim `why` + how long it had been), a
+`nobody_recorded` row for a tick where every door said no, and the usual
+`album_completed`/`album_failed`. Who records, who declines and what they say
+about it are all queryable from `runs/conductor/conductor.jsonl` alone.
 
 THE EXPERIMENT INSTRUMENT (AFAR_EXPERIMENT_MODE=1) runs the ROUND-BASED SET
 loop instead, unchanged: three house acts, rounds, the schedule's 3:1:1
@@ -59,9 +78,12 @@ SPEND CONTROL (hard, by design):
     nothing and sleeps to the next UTC day. Old {day, generations} state
     files migrate on read (minutes estimated at 0.5/generation — every
     pre-migration take was 30s).
-  - AFAR_ALBUMS_PER_DAY paces the live loop (AFAR_SETS_PER_DAY paces the
-    experiment loop): after each record, sleep so the daily count lands near
-    the target, with +/-20% jitter so the piece never metronomes.
+  - AFAR_ASKS_PER_DAY paces the live loop (AFAR_SETS_PER_DAY paces the
+    experiment loop): after each TICK — record or no record — sleep so the
+    daily tick count lands near the target, with +/-20% jitter so the piece
+    never metronomes. It is a cadence, not a quota; the record count is the
+    artists'. (AFAR_ALBUMS_PER_DAY is still read as its default, so a .env
+    written for the booking loop keeps its rhythm.)
   - The ElevenLabs 2-slot concurrency semaphore stays in-process: the
     conductor is a single process (systemd Type=simple, one instance), so a
     process-local semaphore IS the global one. A second kernel writer would
@@ -69,9 +91,10 @@ SPEND CONTROL (hard, by design):
 
 DURABILITY: each album runs under try/except — a failure logs an
 `album_failed` row to the conductor ledger, checkpoints, and the loop
-continues with the next booking (the rotation reads the log, so a failed
-booking simply never enters the history and that artist stays at the front of
-the queue). `album_failed` is reserved for the RECORD failing: a published
+continues with the next tick. The artist that said yes keeps the post-yes
+cooldown (a day) rather than being re-asked immediately: 24 other doors are
+still open, and a failed record is a machine problem, not a change of mind.
+`album_failed` is reserved for the RECORD failing: a published
 album is never voided by a staff failure. Reaction stages degrade
 individually inside `run_reactions` (the material always outranks the
 commentary), the record stays out, and the conductor logs a `staff_degraded`
@@ -99,6 +122,7 @@ artist's version/residue from those rows, so drift survives restarts.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import random
@@ -121,10 +145,12 @@ from afar.agents.producer import (
     ProducerAgent,
 )
 from afar.album import MIN_TRACKS
-from afar.booking import MIN_TRACK_SECONDS, AlbumSize, book_artist, fit_album
+from afar.asking import AskState, Urge, ask_order, ask_states, askable
+from afar.booking import MIN_TRACK_SECONDS, AlbumSize, fit_album
 from afar.config import AfarConfig, build_config
 from afar.intent import PLAYER_IDS
 from afar.log import JsonlLedger, RunContext
+from afar.perception.album_context import build_ask_context
 from afar.perception.embedder import AudioEmbedder, MockEmbedder
 from afar.run import SetAborted, run_album, run_set
 from afar.schedule import Schedule, ScheduleConfig, SetPlan
@@ -204,6 +230,39 @@ def next_album_index(rows: Sequence[Mapping[str, Any]]) -> int:
         if row.get("kind") in ("album_completed", "album_failed") and "album_index" in row
     ]
     return (max(closed) + 1) if closed else 0
+
+
+def next_tick_index(rows: Sequence[Mapping[str, Any]]) -> int:
+    """The ask clock's cursor: one past the highest `tick` row.
+
+    Ticks are what the ask ORDER is seeded on, so this is what makes a
+    restarted conductor knock in the order it would have knocked in rather
+    than replaying the last tick's shuffle forever."""
+    ticks = [int(row["tick"]) for row in rows if row.get("kind") == "tick" and "tick" in row]
+    return (max(ticks) + 1) if ticks else 0
+
+
+def _tick_seed(seed: int, tick: int) -> int:
+    """A stable per-tick seed (the `player_seed` hash-offset idiom): tick N is
+    the same shuffle whether it is reached on the first boot or the fifth."""
+    key = f"tick:{tick}".encode("utf-8")
+    return seed + int(hashlib.sha256(key).hexdigest()[:8], 16)
+
+
+def hours_since(ts: str, now: datetime) -> Optional[float]:
+    """Hours between a logged ISO timestamp and now — None for "never", which
+    is what a debut looks like. Never negative (a clock that ran backwards is
+    reported as "just now" rather than as the future)."""
+    text = str(ts or "").strip()
+    if not text:
+        return None
+    try:
+        stamp = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=timezone.utc)
+    return max(0.0, (now.astimezone(timezone.utc) - stamp).total_seconds() / 3600.0)
 
 
 #: Plain words for a logged condition — what a session's form is called when
@@ -410,7 +469,12 @@ class SetOutcome:
 
 @dataclass(frozen=True)
 class AlbumBooking:
-    """One booked record before it exists: who, when, how big, under what seed."""
+    """One record before it exists: who, when, how big, under what seed.
+
+    Nothing here picks the artist any more — by the time this is built, that
+    artist has already said yes (`afar.asking`). It carries the mechanical
+    half only: the position on the piece's clock, the era it opens under, the
+    seed, and the size the day can afford."""
 
     index: int
     artist_id: str
@@ -491,6 +555,7 @@ class Conductor:
         rows = self._rows()
         self.set_index = next_set_index(rows)
         self.album_index = next_album_index(rows)
+        self.tick_index = next_tick_index(rows)
         self.taboo = FieldTabooMemory(
             stance=self.schedule.set_plan(self._index()).era_stance
         )
@@ -599,6 +664,7 @@ class Conductor:
             self._log(
                 kind,
                 enabled=self.config.enabled,
+                asks_per_day=self.config.asks_per_day,
                 sets_per_day=self.config.sets_per_day,
                 daily_audio_minutes=self.config.daily_audio_minutes,
                 minutes_today=round(self.budget.spent_minutes, 2),
@@ -740,26 +806,115 @@ class Conductor:
 
     # -- one album (the live spine) --------------------------------------------
 
-    def book(self, index: int, remaining_minutes: float) -> Optional[AlbumBooking]:
-        """Book record `index`: who records, and how big the record is.
+    def affordable(self, remaining_minutes: float) -> Optional[AlbumSize]:
+        """The biggest record today can still pay for, or None when not even
+        the floor record fits — in which case nobody is asked at all.
 
-        Both halves are mechanical and both are logged. WHO comes from the
-        log's own history through `afar.booking.book_artist` (longest wait
-        first, drawn from the three longest-waiting, deterministic given the
-        history and the schedule seed). HOW BIG is the env knobs shrunk to the
-        day's remaining minutes. Returns None when not even the floor record
-        fits — the caller sleeps to the next UTC day.
+        A smoke is a rehearsal, not a record: the smallest legal album, so a
+        supervised run exercises the whole chain at floor cost.
         """
-        plan = self.schedule.set_plan(index)
-        # A smoke is a rehearsal, not a record: the smallest legal album, so a
-        # supervised run exercises the whole chain at floor cost.
         tracks = MIN_TRACKS if self.smoke else self.config.album_tracks
         seconds = MIN_TRACK_SECONDS if self.smoke else self.config.track_seconds
-        size = fit_album(tracks, seconds, remaining_minutes)
-        if size is None:
-            return None
-        history = album_log.recorded_history(album_log.album_rows(self.config.runs_root))
-        artist_id = book_artist(self.roster, history, index=index, seed=plan.seed)
+        return fit_album(tracks, seconds, remaining_minutes)
+
+    def _cooldown_kw(self) -> dict[str, float]:
+        return {
+            "base_hours": self.config.ask_cooldown_hours,
+            "max_hours": self.config.ask_cooldown_max_hours,
+            "record_hours": self.config.record_cooldown_hours,
+        }
+
+    def ask(self, artist_id: str, *, state: Optional[AskState] = None) -> Urge:
+        """Ask ONE artist whether it has a record in it right now, and log the
+        answer whatever it is.
+
+        Everything the artist sees is read back out of the album log through
+        `since_last_record` and assembled by `build_ask_context` — the same
+        no-staff chokepoint that builds the writing context, because the ask
+        is artist material too. The logged row carries the artist's verbatim
+        reason and the state it answered in (hours since, how loud the town
+        has been, how many times it had already declined), but not the sleeve
+        text: those live in `albums.jsonl` and join on `album_id`, and the
+        conductor ledger is read on every tick, so it stays small.
+        """
+        now = self.clock()
+        window = album_log.since_last_record(
+            album_log.album_rows(self.config.runs_root),
+            artist_id,
+            names=self.artist_names(),
+        )
+        hours = hours_since(window.last_record_ts, now)
+        context = build_ask_context(
+            artist_id,
+            heard=window.heard,
+            own_last=window.own_last,
+            hours_since_last_record=hours,
+            records_released_since=window.released,
+        )
+        urge = self.artist(artist_id).consider_record(
+            context, model=self.config.ask_model or self.config.model
+        )
+        self._log(
+            "artist_asked",
+            artist=artist_id,
+            ready=urge.ready,
+            why=urge.why,
+            hours_since_last_record=None if hours is None else round(hours, 2),
+            records_released_since=window.released,
+            heard=[a.album_id or a.title for a in window.heard],
+            declines_before=state.declines if state else 0,
+        )
+        return urge
+
+    def ask_round(self, tick: int, seed: int) -> Optional[tuple[str, Urge]]:
+        """One tick's knocking: pick who is eligible, shuffle, ask up to
+        `AFAR_ASKS_PER_TICK` of them, stop at the first yes.
+
+        Returns the artist that said yes and what it said, or None when every
+        door this tick answered no (or there was nobody to knock on — every
+        artist still inside a cooldown, which is a perfectly healthy state for
+        a town that has just been busy).
+        """
+        now = self.clock()
+        states = ask_states(self._rows(), self.roster)
+        candidates = askable(states, now, **self._cooldown_kw())
+        order = ask_order(candidates, random.Random(_tick_seed(seed, tick)))[
+            : self.config.asks_per_tick
+        ]
+        self._log(
+            "tick",
+            tick=tick,
+            album_index=self.album_index,
+            roster=len(self.roster),
+            eligible=len(candidates),
+            asking=list(order),
+            minutes_today=round(self.budget.spent_minutes, 2),
+        )
+        for artist_id in order:
+            try:
+                urge = self.ask(artist_id, state=states.get(artist_id))
+            except Exception as err:  # noqa: BLE001 — a silent model is not an answer
+                # NOT logged as `artist_asked`: the artist did not decline, the
+                # call did, so no cooldown is earned and the door is knocked on
+                # again next tick.
+                self._log(
+                    "ask_failed",
+                    tick=tick,
+                    artist=artist_id,
+                    error=f"{type(err).__name__}: {err}"[:300],
+                )
+                continue
+            if urge.ready:
+                return artist_id, urge
+        return None
+
+    def plan_record(
+        self, artist_id: str, index: int, size: AlbumSize
+    ) -> AlbumBooking:
+        """Everything a record needs that is NOT the artist's decision: where
+        it sits on the piece's clock, its seed, and how big the day can
+        afford it to be."""
+        plan = self.schedule.set_plan(index)
         prefix = "smoke-" if self.smoke else ""
         return AlbumBooking(
             index=index,
@@ -1092,10 +1247,13 @@ class Conductor:
 
         self._log(
             "boot",
-            mode="set" if self.config.experiment_mode else "album",
+            mode="set" if self.config.experiment_mode else "ask",
             resume_album_index=self.album_index,
+            resume_tick_index=self.tick_index,
             resume_set_index=self.set_index,
             roster=len(self.roster),
+            asks_per_day=self.config.asks_per_day,
+            asks_per_tick=self.config.asks_per_tick,
             renderer=self.config.renderer.name,
             embedder=self.embedder.name,
             live_model=self.config.live,
@@ -1103,14 +1261,20 @@ class Conductor:
         return self._set_loop() if self.config.experiment_mode else self._album_loop()
 
     def _album_loop(self) -> int:
-        """The live loop: book a record, make it, publish it, let the staff
-        react, pace, repeat. SIGTERM finishes the current record and exits."""
+        """The live loop: knock on a few doors; if somebody says yes, make
+        their record, publish it, let the staff react; pace; repeat.
+
+        SIGTERM finishes the current record and exits. A tick where every door
+        said no is a normal, healthy turn of the piece — it costs the price of
+        a few haiku calls and produces a `nobody_recorded` row."""
         while not self._stop:
             plan = self.schedule.set_plan(self.album_index)
             self._era_boundary(plan)
 
-            booking = self.book(self.album_index, self.budget.remaining_minutes)
-            if booking is None:
+            size = self.affordable(self.budget.remaining_minutes)
+            if size is None:
+                # Nobody is even asked: a yes we could not honour would be a
+                # lie, and the artist would have spent a decision on it.
                 self._log(
                     "cap_reached",
                     album_index=self.album_index,
@@ -1122,6 +1286,22 @@ class Conductor:
                 continue  # same index; new UTC day, fresh budget
 
             started = time.monotonic()
+            answered = self.ask_round(self.tick_index, plan.seed)
+            self.tick_index += 1
+            if answered is None:
+                self._log(
+                    "nobody_recorded",
+                    tick=self.tick_index - 1,
+                    album_index=self.album_index,
+                    minutes_today=round(self.budget.spent_minutes, 2),
+                )
+                if self.smoke or self.rounds_override:
+                    return 0
+                self._wait(time.monotonic() - started, self.config.asks_per_day)
+                continue  # same index: nothing happened on the piece's clock
+
+            artist_id, urge = answered
+            booking = self.plan_record(artist_id, self.album_index, size)
             try:
                 outcome = self.run_one_album(booking)
                 self._consecutive_failures = 0
@@ -1133,6 +1313,7 @@ class Conductor:
                     album_id=outcome.album_id,
                     release_id=outcome.release_id,
                     title=outcome.title,
+                    why=urge.why,  # the reason this record exists, in the artist's words
                     minutes_today=round(self.budget.spent_minutes, 2),
                     generations_today=self.budget.generations_today,
                 )
@@ -1152,7 +1333,7 @@ class Conductor:
             if self.smoke or self.rounds_override:
                 return 0
             self.album_index += 1
-            self._wait(time.monotonic() - started, self.config.albums_per_day)
+            self._wait(time.monotonic() - started, self.config.asks_per_day)
 
         self._log("stopped", note="SIGTERM between albums")
         return 0
@@ -1281,17 +1462,37 @@ def _load_dotenv(path: Path) -> None:
 
 
 def _once_album(conductor: "Conductor", config: AfarConfig, *, smoke: bool) -> int:
-    """--once / --smoke on the live spine: book one record, make it, report."""
+    """--once / --smoke on the live spine: ONE tick — knock on a few doors and,
+    if somebody says yes, make their record and report.
+
+    A tick where everyone declines is a successful run, not a failure: it is
+    the piece behaving. It exits 0 and prints who said no and why."""
     conductor._install_signal_handlers()
-    booking = conductor.book(conductor.album_index, conductor.budget.remaining_minutes)
-    if booking is None:
+    size = conductor.affordable(conductor.budget.remaining_minutes)
+    if size is None:
         print(
             f"daily audio-minutes budget would be exceeded "
             f"({conductor.budget.spent_minutes:.1f}/{config.daily_audio_minutes:.0f} "
             "minutes spent today) — refusing."
         )
         return 1
-    conductor._era_boundary(conductor.schedule.set_plan(booking.index))
+    plan = conductor.schedule.set_plan(conductor.album_index)
+    conductor._era_boundary(plan)
+    answered = conductor.ask_round(conductor.tick_index, plan.seed)
+    if answered is None:
+        rows = conductor._rows()
+        declined = [
+            f"{r['artist']}: {r['why']}"
+            for r in rows
+            if r.get("kind") == "artist_asked" and not r.get("ready")
+        ][-config.asks_per_tick :]
+        conductor._log("nobody_recorded", tick=conductor.tick_index, album_index=conductor.album_index)
+        print("nobody_recorded: every door said no this tick.")
+        for line in declined:
+            print(f"  {line}")
+        return 0
+    artist_id, urge = answered
+    booking = conductor.plan_record(artist_id, conductor.album_index, size)
     outcome = conductor.run_one_album(booking)
     kind = "smoke_completed" if smoke else "album_completed"
     conductor._log(
@@ -1302,10 +1503,12 @@ def _once_album(conductor: "Conductor", config: AfarConfig, *, smoke: bool) -> i
         album_id=outcome.album_id,
         release_id=outcome.release_id,
         title=outcome.title,
+        why=urge.why,
     )
     print(
         f"{kind}: album {booking.index} by {outcome.artist_id} "
         f"({booking.size.tracks} x {booking.size.track_seconds}s) "
+        f"why={urge.why!r} "
         f"run_id={outcome.run_id} title={outcome.title!r} publish={outcome.publish}"
     )
     return 0
@@ -1341,7 +1544,9 @@ def _once_set(conductor: "Conductor", config: AfarConfig, *, smoke: bool, rounds
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="AFAR's conductor: the continuous loop.")
     parser.add_argument(
-        "--once", action="store_true", help="run exactly one booked album (or set), then exit"
+        "--once",
+        action="store_true",
+        help="run exactly one tick (or one set in experiment mode), then exit",
     )
     parser.add_argument(
         "--smoke",

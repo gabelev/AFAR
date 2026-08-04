@@ -1,11 +1,13 @@
-"""build_album_context: the ONE place an artist's ears are wired.
+"""build_album_context / build_ask_context: the ONE place an artist's ears
+are wired.
 
 Architecture rule 1 / docs/SPEC.md ("the law: staff never touch the artifact").
-What an artist may hear before it writes a record is decided here and nowhere
-else, and the enforcement is STRUCTURAL rather than by convention:
+What an artist may hear — before it writes a record, and before it is even
+ASKED whether it has one in it — is decided here and nowhere else, and the
+enforcement is STRUCTURAL rather than by convention:
 
-- this function's signature has no staff channel at all — no `direction`, no
-  brief, no review, no reaction, no verdict parameter exists to pass one
+- neither function's signature has a staff channel at all — no `direction`,
+  no brief, no review, no reaction, no verdict parameter exists to pass one
   through, so a staff voice in an artist's prompt would have to be a bug in
   this one file;
 - this module imports nothing staff-shaped (`afar.staff`, the staff agents),
@@ -249,6 +251,51 @@ def build_album_context(
         "artist_id": artist_id,
         "isolated": bool(isolated),
         "heard": [] if isolated else others,
+    }
+    if own_last is not None:
+        context["own_last"] = own_last.to_context()
+    return context
+
+
+def build_ask_context(
+    artist_id: str,
+    *,
+    heard: Sequence[HeardAlbum] = (),
+    own_last: Optional[HeardAlbum] = None,
+    hours_since_last_record: Optional[float] = None,
+    records_released_since: int = 0,
+) -> dict[str, Any]:
+    """Everything an artist sees when it is asked whether it has a record in
+    it right now (`afar.asking`, `Player.consider_record`).
+
+    THE SECOND chokepoint, and it lives beside the first on purpose: the ask
+    is artist material, so the no-staff law applies to it in exactly the same
+    way and in exactly the same file. There is no staff parameter here
+    either, and there never may be one.
+
+    An artist sees three things and only three: how long it has been since
+    its own last record, the SLEEVES of records released since then that
+    reached it (whitelisted by `HeardAlbum.to_context`, same as the writing
+    context), and its own last record. Its drift/era state is not here —
+    that is the artist's own residue (`SelfState`), rendered by the player
+    from itself, never built into a context.
+
+    The returned dict is double-duty like `build_album_context`'s: it is the
+    input to `Player.consider_record` AND the `context` of the logged ask, so
+    the log records what the artist actually saw. It must stay
+    JSON-serializable.
+    """
+    if not artist_id:
+        raise ValueError("build_ask_context needs an artist_id")
+    context: dict[str, Any] = {
+        "artist_id": artist_id,
+        "hours_since_last_record": (
+            None if hours_since_last_record is None else float(hours_since_last_record)
+        ),
+        "records_released_since": int(records_released_since),
+        "heard": [
+            album.to_context() for album in heard if album.artist_id != artist_id
+        ],
     }
     if own_last is not None:
         context["own_last"] = own_last.to_context()
