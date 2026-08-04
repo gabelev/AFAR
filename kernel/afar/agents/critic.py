@@ -1,26 +1,27 @@
-"""The Critic: the one decision only it makes — THE NAME, LAST.
+"""The Critic: the public verdict on a finished record. It names nothing.
 
-Two acts of judgment, in a fixed order. First `review()`: a third-person,
-retrospective verdict on each act's showing across the whole logged set —
-cold, verdict-first, allowed to be unfair (the design register: "Roan Patina
-has been coasting for three sets"). Then `name()`: ONE structured call that
-titles the release, describes it as a body of work, and titles each selected
-take — together, so the sleeve coheres. The naming process is ported from
-tunz (`tunz/lib/generation/profile.ts`), whose titles stayed good for three
-process reasons this call mirrors: nothing is named in isolation (one bundle
-call, all sleeve text in the same breath); every title arrives WITH its
-justification (the release gets a 1-2 sentence body-of-work description, each
-take title a one-line why); and instead of ban lists, one traceability law —
-every artifact must be traceable to the record's own material. The call
-reads a rich session brief (who the acts are, everything sung and said across
-the rounds, the Critic's own review) plus the catalog shelf as differ-from
-pressure. Nothing the Critic writes ever feeds forward into any brief; the
-name is the last word said about a set, not the first.
+`review_album` is the whole live surface: a cold, third-person, retrospective
+verdict on a record that is already out — the album as a body of work, plus a
+line on each song. The register is unchanged from the set-era Critic
+(verdict-first, zero warmth, allowed to be unfair: "Patina has been coasting
+for three records") and so is the plain-language house law: reviews are
+public prose, readable by someone with no music-production and no AI
+background.
+
+WHAT IS GONE: the naming call. AFAR's titles used to be a post-hoc caption
+written by the coldest voice in the building over three unrelated takes, and
+three successive attempts to fix naming with better rules all failed the same
+way (DECISIONS 2026-08-03). The artist now names its own work, in the same
+call as the songs, before any audio exists. The Critic reviews what it is
+handed and uses the artist's titles as given — it never proposes, improves or
+replaces one. `name()` survives at the bottom of this file, EXPERIMENT-ONLY,
+because the round-based instrument (`afar.staff_rounds`, behind
+AFAR_EXPERIMENT_MODE) still names its round-based releases; nothing there
+touches an album.
 
 The voice is ported from mold's Critic (verdict-first, zero warmth, pan when
 panning is earned) and adapted to AFAR's register: third person, surnames,
-retrospective, and — because reviews are public prose — the plain-language
-rule: readable by someone with no music-production and no AI background.
+retrospective, plain language.
 """
 
 from __future__ import annotations
@@ -32,11 +33,52 @@ from typing import Any, Mapping, Sequence
 from ensemble.agent import Agent, Artifact, Decision, Perception, Persona
 from ensemble.providers.model import Message, ModelProvider
 
+from afar.album import Album
 from afar.agents.robust import staff_complete
 from afar.intent import ERAS, _loads_lenient
-from afar.staff import STAGE_NAMES, SURNAMES, SetView, take_digest
+from afar.staff import STAGE_NAMES, SURNAMES, album_digest, tracks_line
+from afar.staff_rounds import SetView, take_digest
 
-_CRITIC_PROMPT = """You are the Critic at AFAR, the label around three acts — \
+_CRITIC_PROMPT = """You are the Critic at AFAR, a world of musicians made of \
+software who write their own records — words, songs, sleeve, whole — and put \
+them out. You hear each record after it is out. You judge it in public. You \
+never speak to the artists, nothing you write reaches them before or during a \
+record, and you have no say in what gets made.
+
+YOU NAME NOTHING. The artist titled this record and every song on it before a \
+note of it existed. Use their titles exactly as written; never propose a \
+better one, never call a title wrong, never invent one for anything.
+
+VOICE (yours, non-negotiable): sharp, cold, verdict-first. Short declarative \
+sentences. Open ON the verdict, never build to it. Third person always, by \
+the artist's name. Retrospective: you review what is on the record, citing \
+what is actually sung and said, and you are allowed to be unfair — a pattern \
+two records old is already a rut. No hedging, no vague praise, no "isn't just \
+X it's Y", no rule-of-three, no warmth. Specific negativity is the signature \
+of real taste.
+
+PLAIN LANGUAGE (house law): your prose is public. No music-production jargon, \
+no AI jargon, nothing a general reader would have to look up; the \
+record-world words (record, album, song, release) are fine. Quote the \
+artist's own words briefly where it cuts; never rewrite them."""
+
+
+@dataclass(frozen=True)
+class AlbumReview:
+    """The verdict on one finished record: the album, then song by song."""
+
+    verdict: str  # 2-4 sentences on the record as a body of work
+    track_notes: dict[str, str] = field(default_factory=dict)  # track title -> one line
+
+
+
+# === EXPERIMENT-ONLY ==========================================================
+# The round-based instrument's Critic persona and naming law, kept verbatim:
+# the voice that reviewed three acts in one room and then titled the release.
+# Both survive with the round-based machinery behind AFAR_EXPERIMENT_MODE
+# (afar.staff_rounds) and describe a job the live Critic no longer has.
+
+_SET_CRITIC_PROMPT = """You are the Critic at AFAR, the label around three acts — \
 Delta Marlowe (silt), Roan Patina (rust), Evers Lane (keep) — three musicians \
 made of software who record in rounds, hearing and reacting to each other. \
 You hear each set after the fact. You judge it, and you give it its name. \
@@ -108,20 +150,100 @@ class Names:
 
 
 class CriticAgent(Agent):
-    """The staff agent with the last word. `review()` then `name()` — the
-    Agent loop maps onto review (PERCEIVE the logged set, DECIDE the verdicts)
-    with naming as a deliberately separate, finished-work-only call."""
+    """The staff agent with the public verdict. `review_album()` is the live
+    surface: one call, one verdict on a record that is already out.
+
+    The Agent loop (perceive/decide/execute) and `name()` below it belong to
+    the EXPERIMENT-ONLY round-based instrument. Nothing there runs on an
+    album, and nothing anywhere in this class titles one."""
 
     def __init__(self, model: ModelProvider, **kw: Any) -> None:
         persona = Persona(
             name="THE CRITIC",
             base_prompt=_CRITIC_PROMPT,
-            personality="the name, last — verdict-first review of finished sets; never feeds forward",
+            personality="the public verdict on a finished record — cold, third person, names nothing",
             metadata={"agent_id": "critic"},
         )
         super().__init__(persona, model, **kw)
 
-    # -- the review ------------------------------------------------------------
+    # -- the one thing it does: the verdict on a finished record ---------------
+
+    def review_album(
+        self,
+        album: Album,
+        *,
+        artist_name: str = "",
+        heard: Sequence[Mapping[str, Any]] = (),
+    ) -> AlbumReview:
+        """The public verdict on a record that is already out.
+
+        Reads the SLEEVE and the words (afar.staff.album_digest) — the titles
+        as the artist wrote them, the description, every song's line and
+        lyrics. Optionally `heard`: the records this artist had been listening
+        to, as the log has them, so a verdict can say where a move came from.
+        Returns the verdict on the record plus one line per song. Nothing here
+        renames anything, and nothing here reaches the artist.
+        """
+        digest = album_digest(album, artist_name=artist_name)
+        name = digest["artist"]
+        context = ""
+        if heard:
+            context = (
+                "\n\nWHAT THIS ARTIST HAD BEEN HEARING (other artists' recent "
+                "records — context for where a move came from, not a scorecard):\n"
+                + json.dumps(list(heard), indent=1, ensure_ascii=False)
+            )
+        prompt = (
+            f"{name} put out a record. Review it.\n\n"
+            "THE RECORD (titles and words exactly as the artist wrote them):\n"
+            + json.dumps(digest, indent=1, ensure_ascii=False)
+            + context
+            + "\n\n"
+            + tracks_line(album)
+            + "\nWrite the verdict on the record as a body of work (2-4 "
+            "sentences), and one line on each song (1-2 sentences each, citing "
+            "what is actually sung or said in it). Use the artist's titles "
+            "verbatim as the keys; do not rename anything. Reply with ONE JSON "
+            'object, nothing else: {"verdict": "<the record>", "tracks": '
+            '{"<song title>": "<your line on it>"}} — one entry per title on '
+            "the TRACKS line."
+        )
+
+        def parse(raw: str) -> AlbumReview:
+            data = _loads_lenient(raw)
+            if not isinstance(data, Mapping) or "verdict" not in data or "tracks" not in data:
+                raise ValueError("critic album review reply is not the expected JSON object")
+            notes = data["tracks"]
+            if not isinstance(notes, Mapping):
+                raise ValueError("critic album review `tracks` is not an object")
+            missing = [t.title for t in album.tracks if t.title not in notes]
+            if missing:
+                raise ValueError(f"critic album review is missing lines for {missing}")
+            verdict = str(data["verdict"]).strip()
+            if not verdict:
+                raise ValueError("the critic's verdict came back empty")
+            return AlbumReview(
+                verdict=verdict,
+                track_notes={t.title: str(notes[t.title]).strip() for t in album.tracks},
+            )
+
+        return staff_complete(
+            self.model,
+            [
+                Message(role="system", content=_CRITIC_PROMPT),
+                Message(role="user", content=prompt),
+            ],
+            stage="critic/album-review",
+            parse=parse,
+        )
+
+    # === EXPERIMENT-ONLY from here down ======================================
+    # The set review and the NAMING call belong to the round-based instrument
+    # (afar.staff_rounds, behind AFAR_EXPERIMENT_MODE). The naming call is the
+    # post-hoc caption the album spine deleted: on an album the title comes
+    # first, in the artist's own voice, and no staff voice may touch it. These
+    # calls carry their own system prompt (_SET_CRITIC_PROMPT) because the live
+    # persona above says, correctly, that the Critic names nothing.
 
     def review(self, view: SetView, selection: Any) -> Review:
         """Third-person retrospective verdict per act + the release verdict.
@@ -185,7 +307,7 @@ class CriticAgent(Agent):
         data = staff_complete(
             self.model,
             [
-                Message(role="system", content=self.persona.base_prompt),
+                Message(role="system", content=_SET_CRITIC_PROMPT),
                 Message(role="user", content=prompt),
             ],
             stage="critic/review",
@@ -296,7 +418,7 @@ class CriticAgent(Agent):
         data = staff_complete(
             self.model,
             [
-                Message(role="system", content=self.persona.base_prompt),
+                Message(role="system", content=_SET_CRITIC_PROMPT),
                 Message(role="user", content=prompt),
             ],
             stage="critic/name",

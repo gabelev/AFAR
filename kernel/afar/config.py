@@ -250,6 +250,46 @@ def _mock_staff(messages: Sequence[Message]) -> str | None:
                 return [tok.strip() for tok in line[len(prefix):].split(",") if tok.strip()]
         return []
 
+    # --- the album reactions (the live staff surface) ------------------------
+    if '"who_for"' in text and "A record just came out" in text:
+        return json.dumps(
+            {
+                "reaction": (
+                    "[mock] A short record that knows what it is. It does not "
+                    "argue with you; it just keeps going."
+                ),
+                "who_for": "[mock] anyone driving home later than they meant to",
+                "what_it_does": "[mock] it lowers the volume of a room",
+            }
+        )
+    if '"verdict"' in text and "TRACKS:" in text:
+        return json.dumps(
+            {
+                "verdict": "[mock] The record holds. It is not trying to be liked.",
+                "tracks": {t: f"[mock] '{t}' does its one thing." for t in _listed("TRACKS:")},
+            }
+        )
+    if '"note"' in text and "what the scene is doing" in text:
+        return json.dumps(
+            {
+                "note": (
+                    "[mock] The field is quiet this week and this record is not "
+                    "answering it. That is the news."
+                )
+            }
+        )
+    if '"placement"' in text and "Shelve this record" in text:
+        return json.dumps(
+            {
+                "placement": "standalone",
+                "arc": "[mock] Opens plain, ends plainer.",
+                "callouts": [],
+                "liner_notes": (
+                    "[mock] What is on this record is what the artist put on it, "
+                    "in the order they put it. Shelved where it can be found."
+                ),
+            }
+        )
     if '"scores"' in text and "ROUNDS:" in text:
         return json.dumps(
             {"scores": {r: {"score": 0.9, "why": f"[mock] round {r} holds."} for r in _listed("ROUNDS:")}}

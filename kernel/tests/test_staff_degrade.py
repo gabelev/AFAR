@@ -1,5 +1,12 @@
 """The degradation doctrine: a completed set is never voided by staff failure.
 
+EXPERIMENT-ONLY: these cover the ROUND-BASED instrument (afar.staff_rounds,
+behind AFAR_EXPERIMENT_MODE) — the panel, the cut, the veto, the Critic's
+naming call, the Muse's brief. None of it runs on an album; the live album
+reactions are tested in test_reactions.py.
+The same doctrine on the album side (a failed reaction never blocks or alters
+a release) is tested in test_reactions.py.
+
 The stranded-set lesson (run 20260731-175857-set-0001-contact: 10 paid
 rounds voided by one empty judge reply), now law — DECISIONS.md: the material
 always outranks the commentary. Each staff stage is wrapped individually in
@@ -28,7 +35,8 @@ from afar.perception.embedder import MockEmbedder
 from afar.publish import build_release_row, publish_run, read_jsonl, selected_takes
 from afar.render.base import MockRenderer
 from afar.run import run_set
-from afar.staff import newest_release_path, run_staff
+from afar.staff import newest_release_path
+from afar.staff_rounds import run_staff
 
 _PLAYERS = ("silt", "rust", "keep")
 _ROUNDS = 3

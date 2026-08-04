@@ -50,7 +50,8 @@ from typing import Any, Optional
 from afar.archive import load_tape_view, newest_shelving
 from afar.config import build_config
 from afar.publish import load_database_url, publish_tape
-from afar.staff import STAGE_NAMES, run_archivist
+from afar.staff import STAGE_NAMES
+from afar.staff_rounds import run_archivist
 
 #: Run-dir name fragments that are sessions (everything the vault shelves).
 _RUN_MARKERS = ("step-a", "step-b", "-set-")

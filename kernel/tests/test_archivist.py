@@ -26,7 +26,8 @@ from afar.perception.embedder import MockEmbedder
 from afar.publish import build_tape_row, next_tape_id, publish_tape
 from afar.render.base import MockRenderer
 from afar.run import run_set
-from afar.staff import STAGE_NAMES, run_archivist, run_staff
+from afar.staff import STAGE_NAMES
+from afar.staff_rounds import run_archivist, run_staff
 
 _PLAYERS = ("silt", "rust", "keep")
 _ROUNDS = 3
