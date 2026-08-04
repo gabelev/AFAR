@@ -34,7 +34,13 @@ from afar.render.base import MockRenderer
 from afar.run import SetAborted
 
 
-def _config(root: Path, *, enabled: bool = True, minutes: float = 110.0) -> AfarConfig:
+def _config(
+    root: Path,
+    *,
+    enabled: bool = True,
+    minutes: float = 110.0,
+    experiment_mode: bool = False,
+) -> AfarConfig:
     return AfarConfig(
         model=MockProvider(responder=_mock_players),
         renderer=MockRenderer(root / "audio"),
@@ -43,14 +49,16 @@ def _config(root: Path, *, enabled: bool = True, minutes: float = 110.0) -> Afar
         code_sha="test-sha",
         enabled=enabled,
         sets_per_day=3.0,
+        albums_per_day=3.0,
         daily_audio_minutes=minutes,
+        experiment_mode=experiment_mode,
     )
 
 
 def _conductor(root: Path, **kw) -> Conductor:
     kw.setdefault("embedder", MockEmbedder())
     config = kw.pop("config", None) or _config(root, **{
-        k: kw.pop(k) for k in ("enabled", "minutes") if k in kw
+        k: kw.pop(k) for k in ("enabled", "minutes", "experiment_mode") if k in kw
     })
     return Conductor(config, **kw)
 
@@ -134,7 +142,9 @@ def test_set_failure_gets_a_fast_retry_and_success_resets_the_backoff(tmp_path: 
     """The droplet lesson: a set that died on a transient 500 must not wait
     the full ~8h pace interval for its next attempt — 15 min, doubling per
     consecutive failure, and one completed set resets the schedule."""
-    conductor = _conductor(tmp_path)
+    # The round-based instrument's loop — the backoff is shared, and the
+    # album loop's own version of this test lives in test_album_loop.py.
+    conductor = _conductor(tmp_path, experiment_mode=True)
     outcomes = iter(["fail", "fail", "ok"])
 
     def fake_run_one_set(plan):
@@ -622,7 +632,9 @@ def test_era_boundary_rolls_taboo_and_bumps_personas(tmp_path: Path):
     (era_row,) = [json.loads(line) for line in eras_path.read_text().splitlines()]
     assert era_row["kind"] == "era_open" and era_row["era"] == 1
     persona_rows = [r for r in _conductor_rows(tmp_path) if r["kind"] == "persona_state"]
-    assert {r["player"] for r in persona_rows} == {"silt", "rust", "keep"}
+    # The album loop books the WHOLE roster, so the whole roster drifts.
+    bumped = {r["player"] for r in persona_rows}
+    assert bumped == set(conductor.roster) and {"silt", "rust", "keep"} <= bumped
     assert all(r["version"] == 1 for r in persona_rows)
     for player in conductor.players:
         assert player.self_state.version == 1
@@ -657,4 +669,4 @@ def test_smoke_cli_runs_in_a_sibling_root_never_the_canonical_log(
     assert not any(canonical.iterdir()), "smoke wrote into the canonical runs root"
     smoke_root = tmp_path / "runs-smoke"
     assert (smoke_root / "conductor" / "conductor.jsonl").exists()
-    assert any(p.name.startswith("2") and "smoke-set-" in p.name for p in smoke_root.iterdir())
+    assert any(p.name.startswith("2") and "smoke-album-" in p.name for p in smoke_root.iterdir())

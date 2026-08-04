@@ -10,22 +10,24 @@ import type { AlbumType } from "@/lib/data";
 /**
  * The album grid every browse surface shares (/music, artist discographies):
  * one card per album — cover, title, artist line, a type badge — with
- * optional filter chips over the three album types. Client-side because the
+ * optional filter chips over the album types present. Client-side because the
  * filter is; the card data arrives serialized from the server page
  * (lib/album-cards.toAlbumCard).
  */
 
 const TYPE_LABEL: Record<AlbumType, string> = {
+  record: "ALBUM",
   session: "SESSION",
   tape: "TAPE",
-  album: "ALBUM",
+  album: "BACK CATALOGUE",
 };
 
 const FILTERS: { key: AlbumType | "all"; label: string }[] = [
   { key: "all", label: "ALL" },
+  { key: "record", label: "ALBUMS" },
   { key: "session", label: "SESSIONS" },
   { key: "tape", label: "TAPES" },
-  { key: "album", label: "ALBUMS" },
+  { key: "album", label: "BROUGHT WITH THEM" },
 ];
 
 /** The cover slot: graph cover for sessions, art for imports, a reel plate for tapes. */

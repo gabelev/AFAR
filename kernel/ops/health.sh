@@ -9,7 +9,10 @@ set -uo pipefail
 
 AFAR_ROOT=${AFAR_ROOT:-/root/projects/AFAR}
 RUNS_ROOT=${AFAR_RUNS_ROOT:-$AFAR_ROOT/runs}
-SETS_PER_DAY=${AFAR_SETS_PER_DAY:-3}
+# The live loop paces on albums; the experiment loop on sets. Whichever knob
+# is set governs the staleness threshold — they mean the same thing here:
+# how long a healthy loop may go between finished records.
+PER_DAY=${AFAR_ALBUMS_PER_DAY:-${AFAR_SETS_PER_DAY:-3}}
 ENABLED=${AFAR_ENABLED:-0}
 FAILED=0
 
@@ -35,7 +38,7 @@ fi
 # 4. Staleness watchdog: the "all green but nothing happening" failure.
 #    Newest mtime across every JSONL row file under runs/. Threshold:
 #    - disabled: heartbeats land hourly -> 3h of silence means a wedged loop;
-#    - enabled: one set interval (24h / AFAR_SETS_PER_DAY), floor 3h — the
+#    - enabled: one record interval (24h / AFAR_ALBUMS_PER_DAY), floor 3h — the
 #      pacing sleep also heartbeats hourly, so this is generous.
 newest=$(find "$RUNS_ROOT" -name '*.jsonl' -printf '%T@\n' 2>/dev/null | sort -rn | head -1 | cut -d. -f1)
 if [ -z "${newest:-}" ]; then
@@ -44,7 +47,7 @@ else
   now=$(date +%s)
   age_hours=$(( (now - newest) / 3600 ))
   if [ "$ENABLED" = "1" ]; then
-    threshold=$(awk -v spd="$SETS_PER_DAY" 'BEGIN { t = 24 / spd; if (t < 3) t = 3; printf "%d", t + 0.999 }')
+    threshold=$(awk -v spd="$PER_DAY" 'BEGIN { t = 24 / spd; if (t < 3) t = 3; printf "%d", t + 0.999 }')
   else
     threshold=3
   fi

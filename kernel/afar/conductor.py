@@ -1,39 +1,48 @@
 """The conductor: the thin continuous loop that makes AFAR run forever.
 
     uv run python -m afar.conductor            # the piece (systemd runs this)
-    uv run python -m afar.conductor --smoke    # one 2-round set, publish dry-run
-    uv run python -m afar.conductor --once     # one scheduled set, then exit
+    uv run python -m afar.conductor --smoke    # one small album, publish dry-run
+    uv run python -m afar.conductor --once     # one booked album, then exit
 
-The conductor is deliberately thin: `afar.schedule` already plans every era
-and set from the schedule seed alone, `run_set` already plays a set whole,
-and `run_staff` already walks the frame. The conductor only WALKS the plan —
-per set: the Producer consumes the Muse's newest logged brief
-(`ProducerAgent.direct`, set start, frame side — the only door the world
-enters through) and BOOKS THE SESSION, `run_set` plays the rounds, the staff
-chain runs at the boundary (Producer -> Critic -> Muse -> Listener ->
-Archivist), the release is PUBLISHED — session tape included (the vault
-doctrine; a vetoed set publishes its tape alone) —
-to Neon (afar.publish; forced dry-run under a mock renderer), and then the
-loop paces itself to AFAR_SETS_PER_DAY. The boundary rule holds throughout:
-`build_context` remains the only perceive path; nothing the conductor
-touches reaches a player mid-set.
+THE LOOP BOOKS ALBUMS. The album is AFAR's unit of work (docs/SPEC.md), so
+one turn of the live loop is one artist making one whole record:
 
-SESSIONS, NOT CONDITIONS (the live default): the schedule stays the piece's
-clock — eras, era stances, sets, rounds — but the schedule's weighted
-condition draw no longer books the room. The Producer does, per set, in
-`direct()`: session_form "together" (contact) or "alone" (isolation), an
-artistic call made against the Muse's brief and stance, the Listener's last
-word, and the last few sessions' forms (variety is the piece's own argument:
-a band that works together, goes off alone, reconvenes). The reasoning is
-logged in the direction row; the log schema keeps `condition` — only its
-SOURCE changes. "parallel" (lockstep without hearing) is a lab condition:
-the live conductor never books it, though run_set still supports it fully.
-If the booking call degrades (staff-degrade doctrine) — or there is no brief
-yet — the session defaults to "together".
-AFAR_EXPERIMENT_MODE=1 restores the experiment parameters whole: the
-schedule's deterministic 3:1:1 draw (parallel included) books every set and
-the Producer books nothing — the controlled experiment runs this same
-conductor unchanged. The lab is one flag away.
+    book (who + how big)  ->  run_album  ->  PUBLISH  ->  the staff react
+
+- **Who** is fair rotation across the whole 25-artist roster: the artist who
+  has gone longest without recording, drawn from the three longest-waiting so
+  the town never metronomes through the alphabet. Deterministic given the log
+  (`afar.booking.book_artist`), so a restart resumes the piece rather than
+  rerolling it.
+- **How big** is MECHANICAL, never a model's call: `AFAR_ALBUM_TRACKS` songs
+  of `AFAR_TRACK_SECONDS` each, shrunk to whatever is left of the day's
+  audio-minutes (`afar.booking.fit_album` — length first, then the tracklist,
+  and nothing at all below the two-song floor). The Producer books nothing
+  any more; a budget is arithmetic.
+- **What the artist hears** is read back out of the log every time
+  (`afar.album_log`): the most recent record by each of the last few other
+  artists to release, plus its own last one, every sleeve crossing through
+  `heard_album_from_row`'s whitelist. The conductor remembers nothing.
+- **Publish comes BEFORE the reactions**, and that ordering is the law in
+  code: `run_reactions` refuses to run without the release id of a record
+  that already exists (architecture rule 1 — staff never touch the artifact).
+  The record goes out, the staff react to a public record, and a second
+  idempotent publish hangs their words off the same catalogue number.
+
+The conductor stays thin: `afar.booking` decides, `afar.album_log` reads,
+`run_album` makes the record, `afar.publish` ships it, `run_reactions` walks
+the staff. This module only WALKS that plan, meters the spend and paces.
+
+THE EXPERIMENT INSTRUMENT (AFAR_EXPERIMENT_MODE=1) runs the ROUND-BASED SET
+loop instead, unchanged: three house acts, rounds, the schedule's 3:1:1
+condition draw, the Producer's direction and cut, the Critic's naming, the
+session tape. That is the offline experiment and the code that reproduces the
+logged round-based history (releases 0001-0007, TAPE-0001..0017). The live
+loop simply never books a set.
+
+THE SCHEDULE still keeps the piece's time in both modes: eras, era stances
+and the position-stable seed come from `afar.schedule` indexed by the album
+(or set) number, so the piece's slow clocks are unchanged by the new spine.
 
 SPEND CONTROL (hard, by design):
 
@@ -42,49 +51,49 @@ SPEND CONTROL (hard, by design):
     conductor, and the health timer reads exactly those rows.
   - AFAR_DAILY_AUDIO_MINUTES is a hard ceiling on generated audio-MINUTES per
     UTC day (110 by default — the $500/mo sizing). Minutes, not generation
-    counts: take lengths are now the Producer's call (30-120s), and minutes
-    are what cost money, so variable lengths self-balance under one gate.
-    The meter lives in a state file (runs/conductor/gen_budget.json) so
-    restarts cannot reset spend; the generation COUNT is still tracked there
-    as telemetry. A set is only started when even its cheapest projection
-    (rounds x players x 30s) fits under the cap; the Producer's chosen
-    duration is then clamped so the whole set's minutes fit what remains.
-    At the cap the conductor starts nothing new and sleeps to the next UTC
-    day. Old {day, generations} state files migrate on read: the count is
-    kept as telemetry and minutes are estimated at 0.5/generation (every
+    counts, are what cost money. The meter lives in a state file
+    (runs/conductor/gen_budget.json) so restarts cannot reset spend; the
+    generation COUNT rides along as telemetry. An album's whole projected
+    spend is charged BEFORE the first render, so a crash mid-record can never
+    under-count what was already paid for; at the cap the conductor books
+    nothing and sleeps to the next UTC day. Old {day, generations} state
+    files migrate on read (minutes estimated at 0.5/generation — every
     pre-migration take was 30s).
-  - AFAR_SETS_PER_DAY paces the loop: after each set, sleep so that sets/day
-    lands near the target, with +/-20% jitter so the piece never metronomes.
+  - AFAR_ALBUMS_PER_DAY paces the live loop (AFAR_SETS_PER_DAY paces the
+    experiment loop): after each record, sleep so the daily count lands near
+    the target, with +/-20% jitter so the piece never metronomes.
   - The ElevenLabs 2-slot concurrency semaphore stays in-process: the
     conductor is a single process (systemd Type=simple, one instance), so a
     process-local semaphore IS the global one. A second kernel writer would
     need the cluster lease DECISIONS.md already flags.
 
-DURABILITY: each set runs under try/except — a failure logs a `set_failed`
-row to the conductor ledger, checkpoints, and the loop continues with the
-next planned set (the schedule is position-stable; nothing else shifts).
-`set_failed` (and the failure backoff) is reserved for `run_set` itself
-failing: a completed set is NEVER voided by staff failure. Staff stages
-degrade individually inside `run_staff` (afar.staff — the material always
-outranks the commentary), the set still publishes, and the conductor logs a
-`staff_degraded` row naming which stages went absent.
-A failed set does NOT wait out the full pace interval: the next attempt
+DURABILITY: each album runs under try/except — a failure logs an
+`album_failed` row to the conductor ledger, checkpoints, and the loop
+continues with the next booking (the rotation reads the log, so a failed
+booking simply never enters the history and that artist stays at the front of
+the queue). `album_failed` is reserved for the RECORD failing: a published
+album is never voided by a staff failure. Reaction stages degrade
+individually inside `run_reactions` (the material always outranks the
+commentary), the record stays out, and the conductor logs a `staff_degraded`
+row naming which reactions went absent.
+A failed album does NOT wait out the full pace interval: the next attempt
 comes after a short failure backoff (AFAR_FAILURE_BACKOFF_MIN, default 15
-minutes, doubling per consecutive failure, capped at the pace interval;
-a completed set resets it) — the daily minutes cap still governs, since
-failed sets spend real audio-minutes.
-On boot the conductor resumes idempotently from the JSONL cursor: the
-highest set index with a `set_completed`/`set_failed` row, plus one.
-SIGTERM is honored mid-set via `run_set(after_round=...)`: the current round
-finishes, the partial set's rows stay as history (no release record — an
-aborted set never finished), the cursor is NOT advanced, and the process
-exits 0; the same set replays whole on the next boot.
+minutes, doubling per consecutive failure, capped at the pace interval; a
+completed album resets it) — the daily minutes cap still governs, since a
+failed album spends real audio-minutes.
+On boot the conductor resumes idempotently from the JSONL cursor: the highest
+index with an `album_completed`/`album_failed` row, plus one.
+SIGTERM finishes the CURRENT RECORD and exits 0 between albums — the unit of
+work is the album now, so that is the unit the stop respects; a record is
+never left half-made, and the cursor advances only on a record that finished.
+(The round-based loop's mid-set `after_round` abort survives in the
+experiment path, where a set is hours long and a round is the natural seam.)
 
 ERA BOUNDARIES are the only place slow state moves: on the frame between two
 eras the FieldTabooMemory rolls over (a hostile era's observed field moves
-carry exactly one era) and every player's SelfState is bumped —
+carry exactly one era) and every artist's SelfState is bumped —
 `persona_state` rows log each bump, and on boot the conductor rebuilds each
-player's version/residue from those rows, so drift survives restarts.
+artist's version/residue from those rows, so drift survives restarts.
 """
 
 from __future__ import annotations
@@ -102,6 +111,7 @@ from typing import Any, Callable, Mapping, Optional, Sequence
 
 from ensemble.agent import SelfState
 
+from afar import album_log
 from afar.agents.muse import Brief
 from afar.agents.personas import PERSONAS
 from afar.agents.player import Player
@@ -110,13 +120,20 @@ from afar.agents.producer import (
     SESSION_FORM_CONDITIONS,
     ProducerAgent,
 )
+from afar.album import MIN_TRACKS
+from afar.booking import MIN_TRACK_SECONDS, AlbumSize, book_artist, fit_album
 from afar.config import AfarConfig, build_config
 from afar.intent import PLAYER_IDS
 from afar.log import JsonlLedger, RunContext
 from afar.perception.embedder import AudioEmbedder, MockEmbedder
-from afar.run import SetAborted, run_set
+from afar.run import SetAborted, run_album, run_set
 from afar.schedule import Schedule, ScheduleConfig, SetPlan
-from afar.staff import load_recent_reactions, run_staff
+from afar.staff import (
+    artist_display_name,
+    load_recent_reactions,
+    run_reactions,
+    run_staff,
+)
 from afar.state.field_taboo import FieldTabooMemory
 
 SECONDS_PER_DAY = 86_400
@@ -167,6 +184,24 @@ def next_set_index(rows: list[Mapping[str, Any]]) -> int:
         int(row["set_index"])
         for row in rows
         if row.get("kind") in ("set_completed", "set_failed") and "set_index" in row
+    ]
+    return (max(closed) + 1) if closed else 0
+
+
+def next_album_index(rows: Sequence[Mapping[str, Any]]) -> int:
+    """The album loop's cursor: resume after the highest index a conductor row
+    closed (`album_completed` or `album_failed`).
+
+    The index is a POSITION in the piece, not an identity: it is what the era
+    clock and the booking draw are keyed on, so it has to advance past a
+    failed record the same way it advances past a finished one. Who records
+    is decided from the log's actual history, so a failed booking leaves that
+    artist exactly where it was — at the front of the queue.
+    """
+    closed = [
+        int(row["album_index"])
+        for row in rows
+        if row.get("kind") in ("album_completed", "album_failed") and "album_index" in row
     ]
     return (max(closed) + 1) if closed else 0
 
@@ -373,6 +408,40 @@ class SetOutcome:
     staff_degraded: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True)
+class AlbumBooking:
+    """One booked record before it exists: who, when, how big, under what seed."""
+
+    index: int
+    artist_id: str
+    era: int
+    stance: str
+    seed: int
+    size: AlbumSize
+    run_id: str
+    isolated: bool = False  # the experiment's control, never booked live
+
+    @property
+    def minutes(self) -> float:
+        return self.size.minutes
+
+
+@dataclass
+class AlbumOutcome:
+    """What one booked record produced — for logs and the --once report."""
+
+    index: int
+    run_id: str
+    artist_id: str
+    completed: bool
+    album_id: str = ""
+    release_id: str = ""
+    title: str = ""
+    publish: Optional[Mapping[str, Any]] = None
+    staff_degraded: tuple[str, ...] = ()
+    error: Optional[str] = None
+
+
 class Conductor:
     """The thin loop. Everything heavy is injected or already exists."""
 
@@ -410,6 +479,10 @@ class Conductor:
         self._set_duration_s = 30
         self.players = [Player(PERSONAS[pid], config.model, config.renderer) for pid in PLAYER_IDS]
         self.producer = ProducerAgent(config.model)
+        self._artists: dict[str, Player] = {
+            pid: player
+            for pid, player in zip(PLAYER_IDS, self.players)
+        }
         self._restore_persona_state()
 
         self._stop = False
@@ -417,9 +490,51 @@ class Conductor:
         self._consecutive_failures = 0  # in-memory: a restart retries promptly anyway
         rows = self._rows()
         self.set_index = next_set_index(rows)
+        self.album_index = next_album_index(rows)
         self.taboo = FieldTabooMemory(
-            stance=self.schedule.set_plan(self.set_index).era_stance
+            stance=self.schedule.set_plan(self._index()).era_stance
         )
+
+    def _index(self) -> int:
+        """Where the piece is on its clock — the album number live, the set
+        number in the experiment. Both index the same `afar.schedule`, so the
+        eras, stances and position-stable seeds are the piece's, not a mode's."""
+        return self.set_index if self.config.experiment_mode else self.album_index
+
+    # -- the roster: who can be booked ----------------------------------------
+
+    @property
+    def roster(self) -> tuple[str, ...]:
+        """Every artist the loop may book, in a stable order: the house trio,
+        then the committed roster (`afar.agents.roster` — 22 acts, so 25 in
+        all). Loaded lazily and ONLY in album mode: the round-based instrument
+        plays the house trio, and its `afar.intent` id guard must stay exactly
+        those three (the roster loader registers ids as a side effect)."""
+        if self.config.experiment_mode:
+            return tuple(PLAYER_IDS)
+        self._load_roster()
+        return tuple(self._artists)
+
+    def _load_roster(self) -> None:
+        if len(self._artists) > len(PLAYER_IDS):
+            return
+        from afar.agents.roster import load_roster
+
+        for artist_id, persona in load_roster().items():
+            if artist_id not in self._artists:
+                self._artists[artist_id] = Player(persona, self.config.model, self.config.renderer)
+        self._restore_persona_state()
+
+    def artist(self, artist_id: str) -> Player:
+        """The Player for one artist id, house or roster."""
+        self._load_roster()
+        if artist_id not in self._artists:
+            raise KeyError(f"no persona for artist {artist_id!r}")
+        return self._artists[artist_id]
+
+    def artist_names(self) -> dict[str, str]:
+        """artist id -> the name the room says out loud."""
+        return {artist_id: artist_display_name(artist_id) for artist_id in self.roster}
 
     @property
     def embedder(self) -> AudioEmbedder:
@@ -440,14 +555,14 @@ class Conductor:
         self.ledger.write("conductor", {"kind": kind, **({"smoke": True} if self.smoke else {}), **row})
 
     def _restore_persona_state(self) -> None:
-        """Rebuild each player's drifted SelfState from logged persona_state
-        rows — drift survives restarts because the log is the memory."""
+        """Rebuild each artist's drifted SelfState from logged persona_state
+        rows — drift survives restarts because the log is the memory. Re-run
+        whenever the roster grows, so a lazily-loaded act arrives drifted."""
         latest: dict[str, Mapping[str, Any]] = {}
         for row in self._rows() if hasattr(self, "ledger") else []:
             if row.get("kind") == "persona_state" and row.get("player"):
                 latest[row["player"]] = row
-        for player in self.players:
-            pid = player.persona.metadata["player_id"]
+        for pid, player in self._artists.items():
             row = latest.get(pid)
             if row:
                 player.self_state = SelfState(
@@ -552,14 +667,18 @@ class Conductor:
         return direction
 
     def _era_intent_tags(self, closing_era: int) -> dict[str, list[list[str]]]:
-        """Every player's lyricalObsessions tag-lists from the closing era's
-        completed sets, read back from the runs' own logs (the log is the
-        memory — a fresh process on a fresh machine drifts identically)."""
-        tags: dict[str, list[list[str]]] = {pid: [] for pid in PLAYER_IDS}
+        """Every artist's lyricalObsessions tag-lists from the closing era's
+        completed work, read back from the runs' own logs (the log is the
+        memory — a fresh process on a fresh machine drifts identically).
+        Reads both spines: `album_completed` rows live, `set_completed` rows
+        in the experiment and across the logged round-based history."""
+        tags: dict[str, list[list[str]]] = {artist_id: [] for artist_id in self.roster}
+        closed = {"album_completed": "album_index", "set_completed": "set_index"}
         for row in self._rows():
-            if row.get("kind") != "set_completed" or "set_index" not in row:
+            index_key = closed.get(str(row.get("kind")))
+            if index_key is None or index_key not in row:
                 continue
-            if self.schedule.era_of(int(row["set_index"])) != closing_era:
+            if self.schedule.era_of(int(row[index_key])) != closing_era:
                 continue
             run_id = str(row.get("run_id", ""))
             path = Path(self.config.runs_root) / run_id / "intents.jsonl"
@@ -597,8 +716,8 @@ class Conductor:
             },
         )
         era_tags = self._era_intent_tags(plan.era - 1)
-        for player in self.players:
-            pid = player.persona.metadata["player_id"]
+        for pid in self.roster:
+            player = self.artist(pid) if pid not in self._artists else self._artists[pid]
             obsessions = top_obsessions(era_tags.get(pid, ())) or list(
                 player.self_state.obsessions
             )
@@ -618,6 +737,178 @@ class Conductor:
                 obsessions=list(player.self_state.obsessions),
                 residue=dict(player.self_state.residue),
             )
+
+    # -- one album (the live spine) --------------------------------------------
+
+    def book(self, index: int, remaining_minutes: float) -> Optional[AlbumBooking]:
+        """Book record `index`: who records, and how big the record is.
+
+        Both halves are mechanical and both are logged. WHO comes from the
+        log's own history through `afar.booking.book_artist` (longest wait
+        first, drawn from the three longest-waiting, deterministic given the
+        history and the schedule seed). HOW BIG is the env knobs shrunk to the
+        day's remaining minutes. Returns None when not even the floor record
+        fits — the caller sleeps to the next UTC day.
+        """
+        plan = self.schedule.set_plan(index)
+        # A smoke is a rehearsal, not a record: the smallest legal album, so a
+        # supervised run exercises the whole chain at floor cost.
+        tracks = MIN_TRACKS if self.smoke else self.config.album_tracks
+        seconds = MIN_TRACK_SECONDS if self.smoke else self.config.track_seconds
+        size = fit_album(tracks, seconds, remaining_minutes)
+        if size is None:
+            return None
+        history = album_log.recorded_history(album_log.album_rows(self.config.runs_root))
+        artist_id = book_artist(self.roster, history, index=index, seed=plan.seed)
+        prefix = "smoke-" if self.smoke else ""
+        return AlbumBooking(
+            index=index,
+            artist_id=artist_id,
+            era=plan.era,
+            stance=plan.era_stance,
+            seed=plan.seed,
+            size=size,
+            run_id=(
+                time.strftime("%Y%m%d-%H%M%S")
+                + f"-{prefix}album-{index:04d}-{artist_id}"
+            ),
+        )
+
+    def run_one_album(self, booking: AlbumBooking) -> AlbumOutcome:
+        """One artist, one record, start to finish: hear -> write -> render ->
+        PUBLISH -> the staff react to a record that is already out."""
+        rows = album_log.album_rows(self.config.runs_root)
+        heard, own_last = album_log.heard_for(
+            rows, booking.artist_id, names=self.artist_names()
+        )
+        ears = album_log.build_ears(self.config.runs_root, rows, booking.artist_id, heard)
+
+        self._log(
+            "album_booked",
+            album_index=booking.index,
+            run_id=booking.run_id,
+            artist=booking.artist_id,
+            era=booking.era,
+            stance=booking.stance,
+            tracks=booking.size.tracks,
+            track_seconds=booking.size.track_seconds,
+            minutes=round(booking.minutes, 3),
+            heard=[a.album_id or a.title for a in heard],
+            own_last=own_last.album_id if own_last else None,
+            seed=booking.seed,
+            renderer=self.config.renderer.name,
+            embedder=self.embedder.name,
+            minutes_today=round(self.budget.spent_minutes, 2),
+            generations_today=self.budget.generations_today,
+        )
+        # Charge the WHOLE record before the first render: a crash mid-album
+        # must never leave spend uncounted (the cap is a ceiling, and the safe
+        # direction to be wrong in is "already paid for").
+        self.budget.add(generations=booking.size.tracks, minutes=booking.minutes)
+
+        ledger = JsonlLedger(
+            self.config.runs_root, booking.run_id, context=RunContext(code_sha=self.config.code_sha)
+        )
+        result = run_album(
+            self.artist(booking.artist_id),
+            n_tracks=booking.size.tracks,
+            duration_s=booking.size.track_seconds,
+            config=self.config,
+            ledger=ledger,
+            embedder=self.embedder,
+            seed=booking.seed,
+            heard=heard,
+            own_last=own_last,
+            ears=ears,
+            isolated=booking.isolated,
+        )
+
+        # PUBLISH FIRST. `run_reactions` refuses to run without the release id
+        # of a record that exists, so this ordering is architecture rule 1
+        # enforced by the call graph rather than by discipline.
+        publish_row = self._publish_album(ledger.run_dir)
+        release_id = str(publish_row.get("release_id", ""))
+
+        reactions = self._react(result, booking, release_id=release_id)
+        if reactions is not None and reactions.degraded:
+            self._log(
+                "staff_degraded",
+                album_index=booking.index,
+                run_id=booking.run_id,
+                stages=list(reactions.degraded),
+            )
+        if reactions is not None:
+            # The second hop: the same catalogue number, now wearing the
+            # staff's words. Idempotent by run id — nothing is renumbered.
+            self._publish_album(ledger.run_dir, release_id=release_id, kind="reactions_published")
+
+        return AlbumOutcome(
+            index=booking.index,
+            run_id=booking.run_id,
+            artist_id=booking.artist_id,
+            completed=True,
+            album_id=result.album_id,
+            release_id=release_id,
+            title=result.album.title,
+            publish=publish_row,
+            staff_degraded=reactions.degraded if reactions is not None else (),
+        )
+
+    def _react(
+        self, result: Any, booking: AlbumBooking, *, release_id: str
+    ) -> Optional[Any]:
+        """The staff react to a PUBLISHED record. Never blocks and never
+        raises: `run_reactions` already degrades stage by stage, and a total
+        failure here (a broken import, a dead provider) leaves the record out
+        and unreviewed rather than voiding it — the material always outranks
+        the commentary."""
+        try:
+            return run_reactions(
+                result.album,
+                run_dir=result.paths["run_dir"],
+                config=self.config,
+                release_id=release_id or result.album_id,
+                artist_name=artist_display_name(booking.artist_id),
+                stance=booking.stance,
+                heard=result.record.get("heard", ()),
+            )
+        except Exception as err:  # noqa: BLE001 — commentary never voids material
+            self._log(
+                "reactions_failed",
+                album_index=booking.index,
+                run_id=booking.run_id,
+                error=f"{type(err).__name__}: {err}"[:300],
+            )
+            return None
+
+    def _publish_album(
+        self,
+        run_dir: Path,
+        *,
+        release_id: Optional[str] = None,
+        kind: str = "album_published",
+    ) -> dict[str, Any]:
+        """Publish one artist's record. DRY-RUN GUARD, unchanged: mock bytes
+        must never land in the public media table, so mock runs (and --smoke)
+        always publish dry."""
+        from afar.publish import publish_album
+
+        dry = self.smoke or self.config.renderer.name == "mock"
+        outcome = publish_album(run_dir, release_id=release_id, dry_run=dry)
+        row = {
+            "release_id": outcome.release_id,
+            "artist": outcome.artist_id,
+            "title": outcome.title,
+            "dry_run": outcome.dry_run,
+            "tracks": outcome.tracks,
+            "media_bytes": outcome.media_bytes,
+            "track_ids": list(outcome.track_ids),
+            "reacted": outcome.reacted,
+        }
+        self._log(kind, run_id=run_dir.name, **row)
+        return row
+
+    # -- one set (the experiment instrument) -----------------------------------
 
     def run_one_set(self, plan: SetPlan) -> SetOutcome:
         """Walk one planned set end to end: direct -> play -> staff -> publish."""
@@ -770,8 +1061,11 @@ class Conductor:
     # -- the loop --------------------------------------------------------------
 
     def run_forever(self) -> int:
-        """Iterate the schedule's eras and sets until stopped. Returns the
-        process exit code (always 0 — SIGTERM is a clean exit)."""
+        """Run the piece until stopped. Returns the process exit code (always
+        0 — SIGTERM is a clean exit).
+
+        Live: the ALBUM loop. AFAR_EXPERIMENT_MODE=1: the round-based SET
+        loop, unchanged — the offline instrument on the same conductor."""
         self._install_signal_handlers()
 
         if not self.config.enabled:
@@ -785,12 +1079,94 @@ class Conductor:
 
         self._log(
             "boot",
+            mode="set" if self.config.experiment_mode else "album",
+            resume_album_index=self.album_index,
             resume_set_index=self.set_index,
+            roster=len(self.roster),
             renderer=self.config.renderer.name,
             embedder=self.embedder.name,
             live_model=self.config.live,
         )
+        return self._set_loop() if self.config.experiment_mode else self._album_loop()
 
+    def _album_loop(self) -> int:
+        """The live loop: book a record, make it, publish it, let the staff
+        react, pace, repeat. SIGTERM finishes the current record and exits."""
+        while not self._stop:
+            plan = self.schedule.set_plan(self.album_index)
+            self._era_boundary(plan)
+
+            booking = self.book(self.album_index, self.budget.remaining_minutes)
+            if booking is None:
+                self._log(
+                    "cap_reached",
+                    album_index=self.album_index,
+                    minutes_today=round(self.budget.spent_minutes, 2),
+                    cap_minutes=self.config.daily_audio_minutes,
+                    generations_today=self.budget.generations_today,
+                )
+                self._idle(seconds_to_next_utc_day(self.clock()), "heartbeat", waiting="cap")
+                continue  # same index; new UTC day, fresh budget
+
+            started = time.monotonic()
+            try:
+                outcome = self.run_one_album(booking)
+                self._consecutive_failures = 0
+                self._log(
+                    "smoke_completed" if self.smoke else "album_completed",
+                    album_index=booking.index,
+                    run_id=outcome.run_id,
+                    artist=outcome.artist_id,
+                    album_id=outcome.album_id,
+                    release_id=outcome.release_id,
+                    title=outcome.title,
+                    minutes_today=round(self.budget.spent_minutes, 2),
+                    generations_today=self.budget.generations_today,
+                )
+            except Exception as err:  # noqa: BLE001 — durability over purity
+                self._consecutive_failures += 1
+                self._log(
+                    "album_failed",
+                    album_index=booking.index,
+                    run_id=booking.run_id,
+                    artist=booking.artist_id,
+                    error=f"{type(err).__name__}: {err}"[:500],
+                    consecutive_failures=self._consecutive_failures,
+                    minutes_today=round(self.budget.spent_minutes, 2),
+                    generations_today=self.budget.generations_today,
+                )
+
+            if self.smoke or self.rounds_override:
+                return 0
+            self.album_index += 1
+            self._wait(time.monotonic() - started, self.config.albums_per_day)
+
+        self._log("stopped", note="SIGTERM between albums")
+        return 0
+
+    def _wait(self, elapsed: float, per_day: float) -> None:
+        """Pace to the daily target — or, after a failure, take the short
+        backoff instead (a transient outage gets a fast second chance)."""
+        if self._consecutive_failures:
+            sleep_s = failure_backoff_seconds(
+                self._consecutive_failures, self.config.failure_backoff_min, per_day
+            )
+            self._last_beat = 0.0  # a backoff is an event: its row always lands
+            self._idle(
+                sleep_s,
+                "heartbeat",
+                waiting="failure_backoff",
+                sleep_seconds=round(sleep_s, 1),
+                consecutive_failures=self._consecutive_failures,
+            )
+        else:
+            sleep_s = pace_seconds(elapsed, per_day, self.rng)
+            self._idle(sleep_s, "heartbeat", waiting="pace", sleep_seconds=round(sleep_s, 1))
+
+    def _set_loop(self) -> int:
+        """EXPERIMENT ONLY (AFAR_EXPERIMENT_MODE=1): the round-based set loop,
+        exactly as it ran before the album spine — the offline instrument and
+        the code that reproduces releases 0001-0007."""
         while not self._stop:
             plan = self.schedule.set_plan(self.set_index)
             self._era_boundary(plan)
@@ -847,28 +1223,10 @@ class Conductor:
                 # --once/--smoke: exactly one set, then out.
                 return 0
             self.set_index += 1
-            elapsed = time.monotonic() - started
-            if self._consecutive_failures:
-                # A transient failure gets a fast second chance, not the full
-                # pace interval (the ElevenLabs-500 lesson). Doubling per
-                # consecutive failure, capped at the pace interval; the daily
-                # cap check above still governs every attempt's spend.
-                sleep_s = failure_backoff_seconds(
-                    self._consecutive_failures,
-                    self.config.failure_backoff_min,
-                    self.config.sets_per_day,
-                )
-                self._last_beat = 0.0  # a backoff is an event: its row always lands
-                self._idle(
-                    sleep_s,
-                    "heartbeat",
-                    waiting="failure_backoff",
-                    sleep_seconds=round(sleep_s, 1),
-                    consecutive_failures=self._consecutive_failures,
-                )
-            else:
-                sleep_s = pace_seconds(elapsed, self.config.sets_per_day, self.rng)
-                self._idle(sleep_s, "heartbeat", waiting="pace", sleep_seconds=round(sleep_s, 1))
+            # A transient failure gets a fast second chance, not the full pace
+            # interval (the ElevenLabs-500 lesson); the daily cap check above
+            # still governs every attempt's spend.
+            self._wait(time.monotonic() - started, self.config.sets_per_day)
 
         self._log("stopped", note="SIGTERM between sets")
         return 0
@@ -909,28 +1267,89 @@ def _load_dotenv(path: Path) -> None:
         os.environ.setdefault(key.strip(), value.strip().strip("'\""))
 
 
+def _once_album(conductor: "Conductor", config: AfarConfig, *, smoke: bool) -> int:
+    """--once / --smoke on the live spine: book one record, make it, report."""
+    conductor._install_signal_handlers()
+    booking = conductor.book(conductor.album_index, conductor.budget.remaining_minutes)
+    if booking is None:
+        print(
+            f"daily audio-minutes budget would be exceeded "
+            f"({conductor.budget.spent_minutes:.1f}/{config.daily_audio_minutes:.0f} "
+            "minutes spent today) — refusing."
+        )
+        return 1
+    conductor._era_boundary(conductor.schedule.set_plan(booking.index))
+    outcome = conductor.run_one_album(booking)
+    kind = "smoke_completed" if smoke else "album_completed"
+    conductor._log(
+        kind,
+        album_index=booking.index,
+        run_id=outcome.run_id,
+        artist=outcome.artist_id,
+        album_id=outcome.album_id,
+        release_id=outcome.release_id,
+        title=outcome.title,
+    )
+    print(
+        f"{kind}: album {booking.index} by {outcome.artist_id} "
+        f"({booking.size.tracks} x {booking.size.track_seconds}s) "
+        f"run_id={outcome.run_id} title={outcome.title!r} publish={outcome.publish}"
+    )
+    return 0
+
+
+def _once_set(conductor: "Conductor", config: AfarConfig, *, smoke: bool, rounds_override: Optional[int]) -> int:
+    """--once / --smoke on the experiment instrument: one round-based set."""
+    conductor._install_signal_handlers()
+    plan = conductor.schedule.set_plan(conductor.set_index)
+    rounds = rounds_override or plan.rounds
+    if conductor.budget.would_exceed(set_minutes(rounds, len(conductor.players), 30)):
+        print(
+            f"daily audio-minutes budget would be exceeded "
+            f"({conductor.budget.spent_minutes:.1f}/{config.daily_audio_minutes:.0f} "
+            "minutes spent today) — refusing."
+        )
+        return 1
+    conductor._era_boundary(plan)
+    try:
+        outcome = conductor.run_one_set(plan)
+    except SetAborted as err:
+        conductor._log("set_aborted", set_index=plan.index, error=str(err))
+        return 0
+    kind = "smoke_completed" if smoke else "set_completed"
+    conductor._log(kind, set_index=plan.index, run_id=outcome.run_id, released=outcome.released)
+    print(
+        f"{kind}: set {plan.index} ({outcome.condition}, {rounds} rounds) "
+        f"run_id={outcome.run_id} released={outcome.released} publish={outcome.publish}"
+    )
+    return 0
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="AFAR's conductor: the continuous loop.")
     parser.add_argument(
-        "--once", action="store_true", help="run exactly one scheduled set, then exit"
+        "--once", action="store_true", help="run exactly one booked album (or set), then exit"
     )
     parser.add_argument(
         "--smoke",
         action="store_true",
-        help="supervised smoke: one set, rounds default 2, publish forced DRY-RUN, "
+        help="supervised smoke: one small record, publish forced DRY-RUN, "
         "cursor not advanced (rows tagged smoke)",
     )
     parser.add_argument(
-        "--rounds", type=int, default=None, help="override rounds per set (with --once/--smoke)"
+        "--rounds",
+        type=int,
+        default=None,
+        help="EXPERIMENT MODE ONLY: override rounds per set (with --once/--smoke)",
     )
     args = parser.parse_args(argv)
 
     _load_dotenv(Path(__file__).resolve().parents[1] / ".env")
     if args.smoke:
-        # A smoke must never seed the piece: its mock rows (a mock brief, a
-        # mock reaction, mock audio) would be read by the first REAL boundary
-        # (load_newest_brief / load_recent_reactions scan the whole runs
-        # root). Smokes run in a sibling root, canonical runs/ untouched.
+        # A smoke must never seed the piece: its mock rows (a mock album, a
+        # mock reaction, mock audio) would be read by the first REAL booking
+        # (album_log / load_recent_reactions scan the whole runs root).
+        # Smokes run in a sibling root, canonical runs/ untouched.
         default_root = Path(__file__).resolve().parents[1] / ".." / "runs"
         root = Path(os.environ.get("AFAR_RUNS_ROOT", str(default_root))).resolve()
         os.environ["AFAR_RUNS_ROOT"] = str(root.parent / f"{root.name}-smoke")
@@ -941,35 +1360,16 @@ def main(argv: Optional[list[str]] = None) -> int:
         return 0
 
     rounds_override = args.rounds if (args.once or args.smoke) else None
-    if args.smoke and rounds_override is None:
+    if args.smoke and rounds_override is None and config.experiment_mode:
         rounds_override = 2
 
     conductor = Conductor(config, rounds_override=rounds_override, smoke=args.smoke)
     if args.once or args.smoke:
-        conductor._install_signal_handlers()
-        plan = conductor.schedule.set_plan(conductor.set_index)
-        rounds = rounds_override or plan.rounds
-        if conductor.budget.would_exceed(set_minutes(rounds, len(conductor.players), 30)):
-            print(
-                f"daily audio-minutes budget would be exceeded "
-                f"({conductor.budget.spent_minutes:.1f}/{config.daily_audio_minutes:.0f} "
-                "minutes spent today) — refusing."
+        if config.experiment_mode:
+            return _once_set(
+                conductor, config, smoke=args.smoke, rounds_override=rounds_override
             )
-            return 1
-        conductor._era_boundary(plan)
-        try:
-            outcome = conductor.run_one_set(plan)
-        except SetAborted as err:
-            conductor._log("set_aborted", set_index=plan.index, error=str(err))
-            return 0
-        kind = "smoke_completed" if args.smoke else "set_completed"
-        conductor._log(kind, set_index=plan.index, run_id=outcome.run_id, released=outcome.released)
-        print(
-            f"{kind}: set {plan.index} ({outcome.condition}, "
-            f"{rounds_override or plan.rounds} rounds) run_id={outcome.run_id} "
-            f"released={outcome.released} publish={outcome.publish}"
-        )
-        return 0
+        return _once_album(conductor, config, smoke=args.smoke)
     return conductor.run_forever()
 
 

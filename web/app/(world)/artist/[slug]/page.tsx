@@ -24,10 +24,15 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * The artist page, streaming anatomy: portrait + name + one plain line,
- * the featured single, the DISCOGRAPHY (every album they appear on, type-
- * filterable), ABOUT — then the AFAR depth below the fold: the Critic's
- * verdicts, the influence ledger, the drift strip.
+ * The artist page — their records' home. Streaming anatomy: portrait + name +
+ * one plain line, the featured single, THEIR LATEST RECORD in their own words,
+ * the DISCOGRAPHY (every album they appear on, type-filterable), ABOUT — then
+ * the AFAR depth below the fold: the Critic's verdicts, the influence ledger,
+ * the drift strip.
+ *
+ * The album is the unit of work now (docs/SPEC.md), so an artist's own albums
+ * are what this page leads with, and the framing under a record is the
+ * ARTIST'S OWN description — the staff appear on the album page, as reactions.
  */
 
 /** "0:30" from seconds; blank when the archive has no audio yet. */
@@ -69,7 +74,10 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
   const nameOf = (id: string) => allAgents.find((a) => a.id === id)?.displayName ?? id;
 
   // DISCOGRAPHY — every album this artist appears on, one grid.
-  const discography = resolveDiscography(albums, agent.id).map((a) => toAlbumCard(a, nameOf));
+  const own = resolveDiscography(albums, agent.id);
+  const discography = own.map((a) => toAlbumCard(a, nameOf));
+  // Their newest record of their own: the one they wrote whole and named.
+  const latestRecord = own.find((a) => a.type === "record") ?? null;
 
   // The featured single: the Producer's pick, or the artist's newest track.
   const ownTracks = albums
@@ -211,14 +219,55 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
           )}
         </section>
 
-        {/* 3 — the records: every album they appear on, one grid. */}
+        {/* 3 — the latest record, in the artist's own words. */}
+        {latestRecord && (
+          <section style={{ padding: "30px var(--gutter) 0" }}>
+            <div className="label" style={{ paddingBottom: 10 }}>
+              THE LATEST RECORD
+            </div>
+            <div
+              style={{
+                outline: "1px solid var(--hairline-frame)",
+                background: "var(--paper-2)",
+                padding: "20px 24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
+              <div className="mono" style={{ fontSize: 11, letterSpacing: "0.26em", color: "var(--sec)" }}>
+                {latestRecord.catalogueNo}
+                {latestRecord.date && ` · ${latestRecord.date.slice(0, 4)}`}
+                {` · ${latestRecord.tracks.length} TRACKS`}
+              </div>
+              <Link
+                href={`/album/${latestRecord.slug}`}
+                className="link"
+                style={{ fontSize: 24, fontWeight: 700, letterSpacing: "0.05em", fontStyle: "normal" }}
+              >
+                {latestRecord.title}
+              </Link>
+              {latestRecord.description && (
+                <p className="quote" style={{ fontSize: 15, lineHeight: 1.65, maxWidth: "58ch" }}>
+                  “{latestRecord.description}”
+                </p>
+              )}
+              <div className="mono" style={{ fontSize: 11, color: "var(--sec)" }}>
+                {agent.displayName.toUpperCase()}, ON THE RECORD — WRITTEN WITH THE SONGS, BEFORE
+                ANY OF IT EXISTED
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* 4 — the records: every album they appear on, one grid. */}
         <section style={{ padding: "28px var(--gutter) 0" }}>
           <div className="label" style={{ paddingBottom: 4 }}>
             DISCOGRAPHY
           </div>
           <p style={{ fontSize: 12, color: "var(--sec)", paddingBottom: 10, maxWidth: 620 }}>
-            Every album {agent.displayName} appears on — sessions, tapes and the records they
-            brought with them.
+            Every album {agent.displayName} appears on — their own records, the sessions and
+            tapes they played on, and the record they brought with them.
           </p>
           {discography.length === 0 ? (
             <p className="mono" style={{ fontSize: 12, color: "var(--sec-deep)" }}>
@@ -229,7 +278,7 @@ export default async function ArtistPage({ params }: { params: Promise<{ slug: s
           )}
         </section>
 
-        {/* 4 — about: the story. */}
+        {/* 5 — about: the story. */}
         <section style={{ padding: "28px var(--gutter) 0" }}>
           <div className="label" style={{ paddingBottom: 8 }}>
             ABOUT
