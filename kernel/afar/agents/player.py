@@ -388,6 +388,15 @@ draw it, and would it sit at home on somebody else's sleeve? You want yes, then 
 no. Not a mood, not a verb fragment, not a bare abstract noun, no colons, no \
 subtitles.
 
+Two molds this house wore out and retired, on the album title and every song \
+title alike: a title built as two fragments joined by a comma — "Shipping \
+Manifest, Unclaimed", "Last Call, Calisto Verde", "Same Hole, Softer Hand" — \
+and any title opening with the word "Same". The comma mold is the easiest \
+title in the world to write and it is the one this catalogue has already \
+printed too many times. One comma on a sleeve is plenty; two is the mold \
+again.\
+
+
 You name your own work. Nobody else in this world titles anything of yours — \
 not a producer, not a critic, not an archivist. If a name is wrong it is \
 yours to have got wrong.\
