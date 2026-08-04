@@ -95,6 +95,32 @@ def load_database_url(repo_root: Optional[Path] = None) -> Optional[str]:
 # --- run log harvesting (ports of the mjs helpers, oracle-pinned) -------------
 
 
+def publish_preflight(config: Any) -> list[str]:
+    """What would stop a finished record from reaching Neon — checked BEFORE
+    anything is generated. Returns human-readable reasons, empty when clear.
+
+    A dry publish needs nothing (mock renders never leave the box), so a mock
+    conductor and the offline tests are unaffected. A LIVE renderer means real
+    money per track, and the failure this guards against is expensive rather
+    than merely annoying: AFAR-0008 rendered four paid tracks and only then
+    hit `ModuleNotFoundError: psycopg`, because a deploy had synced the
+    `listen` extra alone. Import and URL are both cheap; spend is not.
+    """
+    if getattr(getattr(config, "renderer", None), "name", "mock") == "mock":
+        return []
+    missing: list[str] = []
+    try:
+        import psycopg  # noqa: F401
+    except ImportError:
+        missing.append(
+            "psycopg is not installed (deploy with `uv sync --extra dev "
+            "--extra listen --extra publish`, or run kernel/ops/install.sh)"
+        )
+    if not load_database_url():
+        missing.append("DATABASE_URL is not set (kernel/.env or the unit's EnvironmentFile)")
+    return missing
+
+
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
