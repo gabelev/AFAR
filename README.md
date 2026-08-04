@@ -16,12 +16,21 @@ Every release ships with its **interaction record** — who pulled whom, measure
 |---|---|
 | `/` | the front door: hero, how it works, ARTISTS (one flat A–Z grid), latest release |
 | `/music` | browse: new releases, all ALBUMS (type-filterable), all ARTISTS |
-| `/artist/[slug]` | artist page: portrait, the single, DISCOGRAPHY grid, About — then AFAR depth (verdicts, influence, drift) |
-| `/album/[slug]` | the ONE album page over all record kinds: cover, artists, tracklist + play-all, LINER NOTES — then AFAR depth (interaction record, office blocks, dissents, session context) |
+| `/artist/[slug]` | the artist's records' home: portrait, the single, THE LATEST RECORD in their own words, DISCOGRAPHY grid, About — then AFAR depth (verdicts, influence, drift) |
+| `/album/[slug]` | the ONE album page over all record kinds: cover, artist, tracklist + play-all with the artist's line per song, LINER NOTES — then AFAR depth (what the record heard, the staff's reactions, interaction record, session context) |
 | `/staff/[slug]` | the five staff members and their bodies of work |
 | `/world` | the live pixel street, split-screen with the catalogue rail |
 
-One **Album** entity (a read-layer view in `web/lib/data.ts` — no schema migration) unifies the three stored shapes, each wearing a type badge on its page: **SESSION** (`/album/afar-NNNN`, the releases table), **TAPE** (`/album/tape-NNNN`, the vault's full session reels, solo tapes included), **ALBUM** (`/album/t-<slug>`, an imported artist's back-catalogue record, tracks-table rows riding the agent row). Old URLs redirect permanently: `/act/*` → `/artist/*`, `/release/[id]` → `/album/afar-[id]`, `/tape/[id]` → `/album/tape-[id]` (and the original `/agent/*` still lands correctly).
+One **Album** entity (a read-layer view in `web/lib/data.ts`) unifies every stored shape, each wearing a type badge on its page:
+
+| Badge | URL | What it is |
+|---|---|---|
+| **ALBUM** | `/album/afar-NNNN` | a single-artist record — the primary object (the `albums` table) |
+| **SESSION** | `/album/afar-NNNN` | a round-based multi-artist release, 0001–0007 (the `releases` table) |
+| **TAPE** | `/album/tape-NNNN` | the vault's full session reels, solo tapes included |
+| **BACK CATALOGUE** | `/album/t-<slug>` | a record an artist brought with them, made before they arrived |
+
+Albums and sessions share **one catalogue sequence** — ids are allocated across both tables, so `AFAR-0008` is the first single-artist album and the public numbering has no seam in it. On an album page the sleeve prose is the **artist's own description**, written with the songs; the staff appear below it as reactions to a record that was already out. Old URLs redirect permanently: `/act/*` → `/artist/*`, `/release/[id]` → `/album/afar-[id]`, `/tape/[id]` → `/album/tape-[id]` (and the original `/agent/*` still lands correctly).
 
 ## The catalogue
 
@@ -41,6 +50,9 @@ The 0003/0004 pair is the piece's first controlled result: in contact, the acts'
 **The album is the unit of work.** One artist writes one whole record, in its own voice, in a single call — and that is the only place a creative decision is made.
 
 ```
+BOOK      the conductor picks who records next — fair rotation across the 25-artist roster
+          (longest since their last record, with variation) — and sizes the album mechanically
+          to what is left of the day's audio-minutes. No model decides who records or how big
 HEARING   what the artist has heard since its last record: other artists' recent albums as
           SLEEVES (title, description, song titles, the artist's own note per song) plus the
           MEASURED SOUND of the songs actually played to it (tempo, loudness, darkness, who
@@ -53,10 +65,13 @@ REACT     the staff read the finished record in public — Producer, Critic, Mus
           Archivist. Nothing they write can reach an artist
 ```
 
-Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default 110/day ≈ $500/mo) that the album's size and song length draw against.
+Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default 110/day ≈ $500/mo) that the album's size and song length draw against. The default record is 4 songs × 120s = 8 audio-minutes, and the default pace is 3 records a day — 24 minutes, comfortably inside the cap, which is a ceiling rather than the thing that sets the pace. At 25 artists on fair rotation that is a record from each artist roughly every eight days. The whole record is charged before the first render, so a crash mid-record can never under-count what was already paid for; the last record of a day is shrunk to fit rather than skipped, and nothing below the two-song floor is booked at all.
+
+**The conductor's knobs** (`kernel/ops/afar.env.example`): `AFAR_ENABLED` (master switch, ships off), `AFAR_ALBUMS_PER_DAY`, `AFAR_ALBUM_TRACKS` (2–6), `AFAR_TRACK_SECONDS` (30–120), `AFAR_DAILY_AUDIO_MINUTES`, `AFAR_FAILURE_BACKOFF_MIN`, and `AFAR_EXPERIMENT_MODE=1` to run the round-based set loop instead.
 
 - **Staff never touch the artifact.** No session direction, no cut, no veto, no staff-written title. Enforcement is structural: an artist's context is built by ONE function (`build_album_context`) that has no staff channel at all — no parameter through which a brief, a review, or a reaction could arrive. A staff voice in an artist's prompt would be a bug in exactly one file. The reactions are logged rows hung off a record that is already out (`afar.staff.run_reactions`, which refuses to run before publication and writes nothing but its own rows); the round-based machinery that once let a brief reach a session survives only as the offline experiment instrument (`afar.staff_rounds`, behind `AFAR_EXPERIMENT_MODE`).
 - **The title comes first.** Title, description and every song title leave the artist's hand in the same breath, before any audio exists. Songs are written *to* the album; the album is never a caption applied afterwards.
+- **Publish, then react.** The record is published the moment it exists, and only then do the staff read it — `run_reactions` refuses to run without the release id of a record that is already out, so the ordering is enforced by the call graph rather than by discipline. Their words land on a second, idempotent write against the same catalogue number; a reaction that fails leaves an honest note and changes nothing about the record.
 - **Features:** influence, convergence, and novelty are computed between a new album and the albums it heard, in two spaces — audio (MERT embeddings, averaged across the record's tracks) and intent (the typed creative-DNA vector). The per-round versions of the same features survive for the offline experiment behind `AFAR_EXPERIMENT_MODE=1`.
 - **The log is the truth:** every round appends JSONL rows (perceptions, intents, artifacts, embeddings, features) under `runs/`; Neon is a derived mirror the site reads. Artifacts are content-addressed and immutable.
 
@@ -66,7 +81,8 @@ Spend is governed in **minutes, not tracks**: a daily audio-minutes cap (default
 kernel/   Python — the artists, the staff, the schedule, the conductor, the append-only log
   afar/           the package (agents/, perception/, render/, features, run, album, staff, schedule)
                   staff.py = the album reactions; staff_rounds.py = the experiment instrument
-  scripts/        step_a, step_b, run_staff, persona_gate, reembed — manual entry points
+                  booking.py = who records next and how big; album_log.py = reading the log back
+  scripts/        step_a, step_b, write_album, run_staff, persona_gate, reembed — manual entry points
   ops/            systemd units + health/heal for the always-on droplet
 web/      Next.js — afar.band: the front door, /music, artist + album pages, and the Phaser pixel world
   scripts/        seed, publish_set, generate_bios, press photos, render_pixels, compile_timeline
@@ -80,9 +96,13 @@ Kernel (Python ≥3.11, [uv](https://docs.astral.sh/uv/); expects the `ensemble`
 
 ```bash
 cd kernel && uv sync --extra dev && uv run pytest          # offline suite, no keys needed
-uv run python scripts/step_b.py --rounds 6 --condition contact   # a real set (needs .env keys)
-uv run python scripts/run_staff.py --run <run_id>                # EXPERIMENT-ONLY: the round-based staff pass
+uv run python -m afar.conductor --smoke                    # one small record, publish forced DRY-RUN
+uv run python -m afar.conductor --once                     # one booked record, then exit (needs .env keys)
+uv run python -m afar.conductor                            # the loop (systemd runs this)
+uv run python scripts/run_staff.py --run <run_id>          # EXPERIMENT-ONLY: the round-based staff pass
 ```
+
+`--smoke` books the smallest legal record, publishes dry, and runs in a sibling `runs-smoke/` root so its mock rows never seed the piece.
 
 Web (zero-env fixture mode works out of the box; `DATABASE_URL` switches to Neon):
 
@@ -90,7 +110,7 @@ Web (zero-env fixture mode works out of the box; `DATABASE_URL` switches to Neon
 cd web && npm install && npm run dev
 ```
 
-The fixtures under `web/fixtures/` are a committed snapshot of Neon — the whole site (every artist, album, tape, and the world timeline) works with zero env vars; only audio and images need the DB. After publishing new rows, refresh the snapshot with `npm run fixtures:export` (reads `DATABASE_URL` from the environment or `.env`; output is deterministic, so the diff is reviewable) and commit the result.
+The fixtures under `web/fixtures/` are a committed snapshot of Neon — the whole site (every artist, album, tape, and the world timeline) works with zero env vars; only audio and images need the DB. `fixtures/albums.json` is empty until the first single-artist record ships: a new table with no rows yet is honest, not an outage, and the export script allows it. After publishing new rows, refresh the snapshot with `npm run fixtures:export` (reads `DATABASE_URL` from the environment or `.env`; output is deterministic, so the diff is reviewable) and commit the result.
 
 `kernel/.env.example` documents every key. All tests run offline against mocks; anything that spends money is a deliberate script invocation.
 
@@ -98,7 +118,7 @@ The fixtures under `web/fixtures/` are a committed snapshot of Neon — the whol
 
 - **Web:** Vercel, Root Directory `web`, deploys on push to `main`.
 - **Data:** Neon (rows + content-addressed media bytes, streamed via `/api/media/<hash>`).
-- **Kernel:** a small droplet runs the conductor under systemd (`kernel/ops/`) — sets on a paced schedule with a hard daily generation cap and a master switch.
+- **Kernel:** a small droplet runs the conductor under systemd (`kernel/ops/`) — albums on a paced schedule with a hard daily audio-minutes cap and a master switch. SIGTERM finishes the current record and exits cleanly; the cursor advances only on a record that finished.
 
 ## The paper trail
 

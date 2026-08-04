@@ -4,7 +4,7 @@
  * web/lib/data.ts reads Neon when DATABASE_URL is set and falls back to
  * fixtures/*.json otherwise (local dev without a DB, tests, a Neon outage).
  * This script keeps that fallback world current: it reads the `data` jsonb
- * of agents/releases/tracks/tapes plus the compiled timeline row
+ * of agents/albums/releases/tracks/tapes plus the compiled timeline row
  * (timeline_source, id 'current') and rewrites the fixture files.
  *
  * Row payloads are copied VERBATIM — no whitelist — so provenance and
@@ -84,11 +84,17 @@ async function main() {
     return Array.isArray(result) ? result : (result.rows ?? []);
   };
 
-  for (const table of ["agents", "releases", "tracks", "tapes"]) {
+  // `albums` (single-artist records) MAY legitimately be empty: it is a new
+  // table, and a town that has not yet released an album is honest, not an
+  // outage. Every other table must have rows — an outage mid-export must not
+  // wipe the fallback world the fixtures exist to provide.
+  const MAY_BE_EMPTY = new Set(["albums"]);
+
+  for (const table of ["agents", "albums", "releases", "tracks", "tapes"]) {
     const rows = (await rowsOf(`SELECT data FROM ${table} ORDER BY id`)).map((r) => r.data);
-    // Never write an empty snapshot — an outage mid-export must not wipe
-    // the fallback world the fixtures exist to provide.
-    if (rows.length === 0) throw new Error(`${table}: no rows — refusing to write an empty fixture`);
+    if (rows.length === 0 && !MAY_BE_EMPTY.has(table)) {
+      throw new Error(`${table}: no rows — refusing to write an empty fixture`);
+    }
     for (const row of rows) {
       if (typeof row?.id !== "string" || row.id.length === 0) {
         throw new Error(`${table}: a row is missing its string id — refusing to snapshot`);

@@ -14,7 +14,10 @@ Conductor knobs (the spend controls — see afar/conductor.py):
 
     AFAR_ENABLED        -> "1" runs the piece; anything else idles + heartbeats
                            (default "0": the master switch ships OFF)
-    AFAR_SETS_PER_DAY   -> pacing target, float (default 3.0)
+    AFAR_ALBUMS_PER_DAY -> pacing target for the live loop, float (default 3.0)
+    AFAR_ALBUM_TRACKS   -> songs per record, 2-6 (default 4)
+    AFAR_TRACK_SECONDS  -> seconds per song, 30-120 (default 120)
+    AFAR_SETS_PER_DAY   -> pacing target for the EXPERIMENT loop (default 3.0)
     AFAR_DAILY_AUDIO_MINUTES -> hard ceiling on generated audio-minutes per
                            UTC day (default 110 — the $500/mo sizing; replaces
                            AFAR_DAILY_GEN_CAP: with variable take lengths,
@@ -22,15 +25,26 @@ Conductor knobs (the spend controls — see afar/conductor.py):
     AFAR_FAILURE_BACKOFF_MIN -> minutes before retrying after a failed set,
                            doubling per consecutive failure, capped at the
                            pace interval (default 15)
-    AFAR_EXPERIMENT_MODE -> "1" restores the experiment parameters: the
-                           schedule's weighted condition draw (contact :
-                           isolation : parallel at 3:1:1, deterministic from
-                           the schedule seed) books every set, exactly the
-                           pre-sessions behavior. Default "0" — the live
-                           piece: the Producer books each session
-                           (together/alone) and parallel is never booked.
-                           The lab is one flag away; the piece runs on the
-                           office's judgment.
+    AFAR_EXPERIMENT_MODE -> "1" runs the ROUND-BASED SET loop instead of the
+                           album loop: three house acts, rounds, the schedule's
+                           weighted condition draw (contact : isolation :
+                           parallel at 3:1:1, deterministic from the schedule
+                           seed), the Producer's cut and the Critic's naming.
+                           That is the offline experiment instrument and the
+                           code that reproduces the logged round-based history
+                           (releases 0001-0007). Default "0" — the live piece:
+                           one artist books, writes and releases a whole album,
+                           and the staff only react. The lab is one flag away.
+
+ALBUM SIZING (the arithmetic behind the defaults): the daily gate is 110
+audio-minutes (`AFAR_DAILY_AUDIO_MINUTES`, the $500/mo sizing). The default
+record is 4 songs x 120s = 8 audio-minutes, and the default pace is 3 records
+a day = 24 minutes — comfortably inside the cap, which is a CEILING for
+catch-up days and manual runs rather than the thing that sets the pace. At 25
+artists on fair rotation that is a record from each artist roughly every eight
+days. Raising AFAR_ALBUMS_PER_DAY toward 13 saturates the cap; the conductor
+shrinks the last record of a day mechanically rather than overspending
+(`afar.booking.fit_album`).
 """
 
 from __future__ import annotations
@@ -44,6 +58,8 @@ from typing import Sequence
 
 from ensemble.providers.model import Message, MockProvider, ModelProvider
 
+from afar.album import MAX_TRACKS, MIN_TRACKS
+from afar.booking import MAX_TRACK_SECONDS, MIN_TRACK_SECONDS
 from afar.render.base import MockRenderer, Renderer
 
 
@@ -378,10 +394,13 @@ class AfarConfig:
     code_sha: str
     # Conductor spend controls (defaults keep every existing caller working).
     enabled: bool = False  # AFAR_ENABLED — the master switch; ships OFF
-    sets_per_day: float = 3.0  # AFAR_SETS_PER_DAY — pacing target
+    albums_per_day: float = 3.0  # AFAR_ALBUMS_PER_DAY — the live loop's pacing target
+    album_tracks: int = 4  # AFAR_ALBUM_TRACKS — songs per record (2-6)
+    track_seconds: int = 120  # AFAR_TRACK_SECONDS — seconds per song (30-120)
+    sets_per_day: float = 3.0  # AFAR_SETS_PER_DAY — the experiment loop's pacing target
     daily_audio_minutes: float = 110.0  # AFAR_DAILY_AUDIO_MINUTES — the hard daily gate
     failure_backoff_min: float = 15.0  # AFAR_FAILURE_BACKOFF_MIN — post-failure retry delay
-    experiment_mode: bool = False  # AFAR_EXPERIMENT_MODE — "1" = the schedule's condition draw
+    experiment_mode: bool = False  # AFAR_EXPERIMENT_MODE — "1" = the round-based set loop
 
 
 def _kernel_root() -> Path:
@@ -454,6 +473,20 @@ def build_config() -> AfarConfig:
     failure_backoff_min = float(os.environ.get("AFAR_FAILURE_BACKOFF_MIN", "15"))
     if failure_backoff_min <= 0:
         raise ValueError(f"AFAR_FAILURE_BACKOFF_MIN must be > 0, got {failure_backoff_min}")
+    albums_per_day = float(os.environ.get("AFAR_ALBUMS_PER_DAY", "3"))
+    if albums_per_day <= 0:
+        raise ValueError(f"AFAR_ALBUMS_PER_DAY must be > 0, got {albums_per_day}")
+    album_tracks = int(os.environ.get("AFAR_ALBUM_TRACKS", "4"))
+    if not MIN_TRACKS <= album_tracks <= MAX_TRACKS:
+        raise ValueError(
+            f"AFAR_ALBUM_TRACKS must be {MIN_TRACKS}-{MAX_TRACKS}, got {album_tracks}"
+        )
+    track_seconds = int(os.environ.get("AFAR_TRACK_SECONDS", "120"))
+    if not MIN_TRACK_SECONDS <= track_seconds <= MAX_TRACK_SECONDS:
+        raise ValueError(
+            f"AFAR_TRACK_SECONDS must be {MIN_TRACK_SECONDS}-{MAX_TRACK_SECONDS}, "
+            f"got {track_seconds}"
+        )
     return AfarConfig(
         model=model,
         renderer=_build_renderer(runs_root),
@@ -461,6 +494,9 @@ def build_config() -> AfarConfig:
         live=live,
         code_sha=_code_sha(),
         enabled=os.environ.get("AFAR_ENABLED", "0") == "1",
+        albums_per_day=albums_per_day,
+        album_tracks=album_tracks,
+        track_seconds=track_seconds,
         sets_per_day=sets_per_day,
         daily_audio_minutes=daily_audio_minutes,
         failure_backoff_min=failure_backoff_min,

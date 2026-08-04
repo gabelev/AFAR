@@ -1,17 +1,35 @@
-"""Publish one completed set to Neon — the Python port of web/scripts/publish_set.mjs.
+"""Publish a record to Neon — one artist's ALBUM, or one round-based SET.
 
 The conductor runs on the droplet, where there is no Node toolchain, so the
-publish path lives here now: media upserts (content-addressed audio bytes),
-the release + tracks rows, and — new — the compiled world timeline written
+publish path lives here: media upserts (content-addressed audio bytes), the
+rows the web's zod schemas parse, and the compiled world timeline written
 STRAIGHT to Neon (`timeline_source`, id 'current', data jsonb), the shape
 `web/lib/world/timeline.ts` compiles from. `/api/timeline` prefers that row
 over the build-time fixture, so a publish from the droplet reaches production
 WITHOUT a rebuild — closing the old "publish recompiles the fixture but a
 redeploy is still needed" caveat (DECISIONS.md 2026-07-31).
 
+`publish_album` is the LIVE path (the album is the unit of work,
+docs/SPEC.md): one artist's record into a NEW `albums` table, plus its tracks.
+`publish_run` / `publish_tape` are the round-based instrument's, unchanged —
+they publish the sessions and tapes that are the logged history.
+
+Two rules govern the two shapes living side by side:
+
+  - ONE CATALOGUE, TWO TABLES. Ids are allocated across `releases` and
+    `albums` together (`next_catalogue_id`), so the public AFAR-NNNN sequence
+    continues without a seam and one slug space resolves either shape.
+  - APPEND-ONLY, NEVER REWRITTEN. Releases 0001-0007 and TAPE-0001..0017 keep
+    their rows and their numbers exactly as logged. A new shape gets a new
+    table precisely so no deployed reader ever meets a row it cannot parse —
+    one unparseable row would void the whole live catalogue.
+
 Sources of truth are unchanged (architecture rule 3: the JSONL log under
 runs/ is authoritative; Neon is a derived mirror):
 
+  - runs/<id>/album-*.json    — newest by mtime (the album record `run_album`
+    wrote: the artist's whole record, content-addressed)
+  - runs/<id>/staff.jsonl     — the staff's reactions to a PUBLISHED album
   - runs/<id>/release-*.json  — newest by mtime (the corrected/staff-enriched
     record; the append-only supersede chain writes several)
   - runs/<id>/intents.jsonl   — full DNA per (player, round)
@@ -156,6 +174,22 @@ def next_tape_id(existing_ids: Iterable[str]) -> str:
     table are the plain 4 digits; the web prefixes TAPE- for display, the
     same way releases wear AFAR-)."""
     return next_release_id(existing_ids)
+
+
+def next_catalogue_id(release_ids: Iterable[str], album_ids: Iterable[str]) -> str:
+    """The next number in the ONE AFAR-NNNN catalogue series, counted across
+    BOTH homes.
+
+    Single-artist albums are stored in their own `albums` table (a new table
+    for a new shape — the deployed ReleaseSchema must keep parsing every row
+    it already parses, the caution the tapes and import PRs both took), but
+    they are NOT a separate catalogue: they continue the same numbering the
+    round-based sessions started, so AFAR-0008 follows AFAR-0007 and the
+    public sequence has no seam in it. Ids are therefore allocated against the
+    union of both tables and can never collide, which is what lets one slug
+    space (`/album/afar-NNNN`) resolve either shape.
+    """
+    return next_release_id([*(str(i) for i in release_ids), *(str(i) for i in album_ids)])
 
 
 # --- the rows (pure ports of publish_set.mjs main()) --------------------------
@@ -446,6 +480,435 @@ def compile_timeline_blocks(
         if block is not None:
             blocks.append(block)
     return {"blocks": blocks}
+
+
+# --- the album: ONE artist's record (the live spine) --------------------------
+
+
+def newest_album_record_file(run_dir: Path) -> Optional[Path]:
+    """The run's newest album-*.json by mtime — what `run_album` wrote."""
+    candidates = sorted(
+        Path(run_dir).glob("album-*.json"), key=lambda p: p.stat().st_mtime, reverse=True
+    )
+    return candidates[0] if candidates else None
+
+
+def album_track_id(release_id: str, index: int) -> str:
+    """`0008-01` — a track's public id. Position-based rather than act-based
+    (the sessions' `0001-silt`) because an album is one artist's whole record:
+    every track shares the artist, so the tracklist POSITION is the thing that
+    distinguishes them, and it never changes for a published record."""
+    return f"{release_id}-{index + 1:02d}"
+
+
+def album_era(record: Mapping[str, Any]) -> str:
+    """The record's era: majority vote over its own tracks' DNA, ties to the
+    earliest song (same rule the sessions use over the selected takes)."""
+    counts: dict[str, int] = {}
+    order: list[str] = []
+    for track in (record.get("album") or {}).get("tracks") or ():
+        idx = (track.get("intent") or {}).get("era")
+        era = ERAS[idx] if isinstance(idx, int) and 0 <= idx < len(ERAS) else _FALLBACK_ERA
+        if era not in counts:
+            order.append(era)
+        counts[era] = counts.get(era, 0) + 1
+    if not counts:
+        return _FALLBACK_ERA
+    return max(order, key=lambda era: counts[era])
+
+
+def album_influence(record: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """The record's INTENT-space influence edges, min-max normalized into the
+    display range [0, 1] — the same treatment the sessions' final-round graph
+    gets, at album cadence.
+
+    Edges run heard artist -> the recording artist: "how much did that record
+    pull this one". A debut (nothing heard, or nothing measurable) yields an
+    empty list, which is the honest cover for a first record.
+    """
+    influence = ((record.get("features") or {}).get("intent") or {}).get("influence") or {}
+    artist_by_album = {
+        str(h.get("album_id", "")): str(h.get("artist_id", ""))
+        for h in record.get("heard") or ()
+        if isinstance(h, Mapping)
+    }
+    values = [float(v) for v in influence.values()]
+    lo, hi = (min(values), max(values)) if values else (0.0, 0.0)
+    span = (hi - lo) or 1.0
+    to = str(record.get("artist_id", ""))
+    edges = []
+    for album_id, value in influence.items():
+        frm = artist_by_album.get(str(album_id), "")
+        if not frm or frm == to:
+            continue
+        edges.append(
+            {
+                "from": frm,
+                "to": to,
+                "weight": round(min(1.0, max(0.0, (float(value) - lo) / span)), 4),
+            }
+        )
+    return edges
+
+
+def reactions_from_rows(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """The staff's logged album-reaction rows -> the same block shape
+    `afar.staff.AlbumReactions.to_row()` returns.
+
+    The LOG is what the publisher reads, never the object the staff pass
+    ran returned (architecture rule 3), so a republish of an old run puts the
+    same words back on the sleeve. Newest row per stage wins; a stage with no
+    row simply is not there, and its `staff_stage_failed` note (if any) rides
+    under `degraded` so the page can say so honestly.
+    """
+    block: dict[str, Any] = {}
+    degraded: dict[str, str] = {}
+    by_kind = {
+        "producer_reaction": "producer",
+        "album_review": "critic",
+        "scene_note": "muse",
+        "listener_reaction": "listener",
+        "shelving": "archivist",
+    }
+    for row in rows:
+        kind = str(row.get("kind", ""))
+        if kind == "staff_stage_failed":
+            stage = str(row.get("stage") or row.get("agent") or "")
+            if stage and row.get("note"):
+                degraded[stage] = str(row["note"])
+            continue
+        stage = by_kind.get(kind)
+        if stage is None:
+            continue
+        entry = {k: v for k, v in row.items() if k not in _LOG_STAMPS}
+        block[stage] = entry
+        degraded.pop(stage, None)
+    if degraded:
+        block["degraded"] = degraded
+    return block
+
+
+#: Row keys that are provenance, not content — stripped when a logged staff
+#: row becomes a sleeve block.
+_LOG_STAMPS: frozenset[str] = frozenset(
+    {"ts", "run_id", "code_sha", "seed", "renderer_version", "prompt_sha",
+     "kind", "agent", "album_id", "release_id", "artist", "condition"}
+)
+
+
+def build_album_row(
+    release_id: str,
+    record: Mapping[str, Any],
+    run_id: str,
+    *,
+    reactions: Optional[Mapping[str, Any]] = None,
+) -> dict[str, Any]:
+    """The albums-row jsonb — the shape `web/lib/data.ts` AlbumRecordSchema
+    parses. A NEW table and a NEW schema: no releases row ever meets a shape
+    it cannot parse (the tapes/import precedent).
+
+    Attribution is FIRST-CLASS: `artistId` is a required top-level field, not
+    an inference from the tracklist, because an album belongs to one artist —
+    that is the whole spine (docs/SPEC.md).
+
+    The artist's own `description` is the sleeve text. It sits where the
+    Critic's release title and the Producer's selection note used to sit,
+    because the artist names and frames its own work now and the staff only
+    react. `reactions` (the logged staff block) is optional and additive: the
+    record publishes the moment it exists, and the commentary lands on the
+    superseding write a beat later.
+    """
+    body = record.get("album") or {}
+    tracks = record.get("tracks") or []
+    row: dict[str, Any] = {
+        "id": release_id,
+        "kind": "album",
+        "title": str(body.get("title", "")),
+        "artistId": str(record.get("artist_id", "")),
+        "description": str(body.get("description", "")),
+        "date": f"{run_id[0:4]}-{run_id[4:6]}-{run_id[6:8]}",
+        "era": album_era(record),
+        "trackIds": [album_track_id(release_id, i) for i in range(len(tracks))],
+        "influence": album_influence(record),
+        "heard": [
+            {
+                "albumId": str(h.get("album_id", "")),
+                "artistId": str(h.get("artist_id", "")),
+                "title": str(h.get("title", "")),
+            }
+            for h in record.get("heard") or ()
+            if isinstance(h, Mapping)
+        ],
+        "metadata": {
+            "runId": run_id,
+            "albumId": str(record.get("album_id", "")),
+            "albumRecordId": str(record.get("record_id", "")),
+            "session": record.get("session"),
+            "features": record.get("features"),
+            "isolated": bool((record.get("session") or {}).get("isolated", False)),
+            "publishedBy": "afar.publish (the album loop)",
+        },
+    }
+    return apply_reactions(row, reactions)
+
+
+def apply_reactions(
+    row: dict[str, Any], reactions: Optional[Mapping[str, Any]]
+) -> dict[str, Any]:
+    """Hang the staff's reactions off a published album row.
+
+    Additive, never destructive: nothing the staff said can change the title,
+    the description, the tracklist or the artist — the record was already out
+    when the first reaction was written (architecture rule 1). A stage that
+    degraded leaves its honest note under `staffDegraded` and no prose at all.
+    """
+    if not reactions:
+        return row
+    degraded = dict(reactions.get("degraded") or {})
+
+    def _text(stage: str, *keys: str) -> Optional[str]:
+        entry = reactions.get(stage) or {}
+        for key in keys:
+            value = entry.get(key)
+            if value:
+                return normalize_act_names(str(value))
+        return None
+
+    producer = _text("producer", "text")
+    if producer:
+        row["producerNote"] = producer
+    review = _text("critic", "text", "verdict")
+    if review:
+        row["review"] = review
+    track_notes = (reactions.get("critic") or {}).get("track_notes") or {}
+    if track_notes:
+        row["trackNotes"] = {
+            str(k): normalize_act_names(str(v)) for k, v in track_notes.items() if v
+        }
+    scene = _text("muse", "text", "body")
+    if scene:
+        row["sceneNote"] = scene
+    theme = (reactions.get("muse") or {}).get("theme")
+    if theme:
+        row["sceneTheme"] = normalize_act_names(str(theme))
+    reaction = _text("listener", "text")
+    if reaction:
+        row["reaction"] = reaction
+    valence = (reactions.get("listener") or {}).get("valence")
+    if valence:
+        row["reactionValence"] = str(valence)
+    liner = _text("archivist", "liner_notes", "notes")
+    if liner:
+        row["linerNotes"] = liner
+    placement = (reactions.get("archivist") or {}).get("placement")
+    if placement:
+        row["metadata"]["placement"] = str(placement)
+    if degraded:
+        row["staffDegraded"] = degraded
+    return row
+
+
+def build_album_track_rows(
+    release_id: str, record: Mapping[str, Any], run_id: str
+) -> list[dict[str, Any]]:
+    """One tracks row per song — TrackSchema plus provenance keys. Every track
+    on an album carries the same `agentId`: the artist whose record it is."""
+    artist_id = str(record.get("artist_id", ""))
+    body = record.get("album") or {}
+    dna_by_index = {
+        i: (t.get("intent") or {}) for i, t in enumerate(body.get("tracks") or ())
+    }
+    rows = []
+    for i, track in enumerate(record.get("tracks") or ()):
+        rows.append(
+            {
+                "id": album_track_id(release_id, i),
+                "releaseId": release_id,
+                "agentId": artist_id,
+                "title": str(track.get("title", "")),
+                "durationSec": int(track.get("duration_s", 0)) or None,
+                "audioUrl": f"/api/media/{track.get('hash', '')}",
+                # provenance (stripped by data.ts on read)
+                "trackIndex": i,
+                "line": normalize_act_names(str(track.get("note", ""))),
+                "intent": dna_by_index.get(i, {}),
+                "runId": run_id,
+                "albumId": str(record.get("album_id", "")),
+            }
+        )
+    return rows
+
+
+@dataclass(frozen=True)
+class AlbumPublishOutcome:
+    """What one album publish did (or, dry, would have done)."""
+
+    release_id: str
+    run_id: str
+    artist_id: str
+    title: str
+    dry_run: bool
+    tracks: int = 0
+    media_bytes: int = 0
+    track_ids: tuple[str, ...] = ()
+    timeline_blocks: int = 0
+    reacted: bool = False  # True when the staff's reactions rode this write
+
+
+def _album_id_for_run(conn: Any, run_id: str) -> Optional[str]:
+    """A run's already-published catalogue id, if any — republish (the second
+    hop, once the staff have reacted) keeps the same number."""
+    for row_id, data in conn.execute("SELECT id, data FROM albums").fetchall():
+        if _as_mapping(data).get("metadata", {}).get("runId") == run_id:
+            return str(row_id)
+    return None
+
+
+def publish_album(
+    run_dir: Path,
+    *,
+    release_id: Optional[str] = None,
+    db_url: Optional[str] = None,
+    dry_run: bool = False,
+    connection: Any = None,
+) -> AlbumPublishOutcome:
+    """Publish ONE artist's record: media -> tracks -> albums row -> timeline.
+
+    Everything is read from the run's own log (architecture rule 3): the album
+    record `run_album` wrote, the artifact rows for the audio, and the staff's
+    logged reaction rows if any exist yet. Idempotent — a run keeps its
+    catalogue number — which is what makes the two-hop publish safe: the
+    record goes out the moment it exists, the staff react to a record that is
+    already public, and a second call re-writes the same row with their words
+    on it.
+
+    `dry_run=True` computes everything and writes NOTHING (no psycopg import,
+    no network) — the conductor forces it whenever the renderer is mock.
+    """
+    from afar.staff import load_reactions
+
+    run_dir = Path(run_dir)
+    run_id = run_dir.name
+    runs_root = run_dir.parent
+
+    record_file = newest_album_record_file(run_dir)
+    if record_file is None:
+        raise FileNotFoundError(f"no album-*.json under {run_dir}")
+    record = json.loads(record_file.read_text(encoding="utf-8"))
+    album_id = str(record.get("album_id", ""))
+
+    artifact_paths = {a["hash"]: a["path"] for a in read_jsonl(run_dir / "artifacts.jsonl")}
+    audio: dict[str, bytes] = {}
+    for track in record.get("tracks") or ():
+        digest = str(track.get("hash", ""))
+        file = artifact_paths.get(digest)
+        if not file:
+            raise ValueError(f"no artifact row for hash {digest}")
+        data = _resolve_audio(file, runs_root).read_bytes()
+        if len(data) < 1000:
+            raise ValueError(f"suspiciously small mp3 for track {digest}: {len(data)} bytes")
+        audio[digest] = data
+
+    reactions = reactions_from_rows(load_reactions(run_dir, album_id=album_id))
+
+    if dry_run:
+        rid = release_id or "0000"
+        row = build_album_row(rid, record, run_id, reactions=reactions)
+        track_rows = build_album_track_rows(rid, record, run_id)
+        return AlbumPublishOutcome(
+            release_id=rid,
+            run_id=run_id,
+            artist_id=row["artistId"],
+            title=row["title"],
+            dry_run=True,
+            tracks=len(track_rows),
+            media_bytes=sum(len(b) for b in audio.values()),
+            track_ids=tuple(t["id"] for t in track_rows),
+            reacted=bool(reactions),
+        )
+
+    conn = connection
+    if conn is None:
+        import psycopg
+
+        url = db_url or load_database_url()
+        if not url:
+            raise RuntimeError("DATABASE_URL not set and not found in kernel/.env")
+        if url.startswith("postgres://"):
+            url = "postgresql://" + url[len("postgres://"):]
+        conn = psycopg.connect(url)
+
+    try:
+        jsonb = _jsonb_for(conn)
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS media "
+            "(id text PRIMARY KEY, content_type text NOT NULL, bytes bytea NOT NULL)"
+        )
+        for table in ("releases", "albums", "tracks", "timeline_source"):
+            conn.execute(
+                f"CREATE TABLE IF NOT EXISTS {table} (id text PRIMARY KEY, data jsonb NOT NULL)"
+            )
+
+        if release_id is None:
+            release_id = _album_id_for_run(conn, run_id)
+        if release_id is None:
+            release_ids = [r[0] for r in conn.execute("SELECT id FROM releases").fetchall()]
+            album_ids = [r[0] for r in conn.execute("SELECT id FROM albums").fetchall()]
+            release_id = next_catalogue_id(release_ids, album_ids)
+
+        row = build_album_row(release_id, record, run_id, reactions=reactions)
+        track_rows = build_album_track_rows(release_id, record, run_id)
+
+        for digest, data in audio.items():
+            conn.execute(
+                "INSERT INTO media (id, content_type, bytes) VALUES (%s, %s, %s) "
+                "ON CONFLICT (id) DO UPDATE SET content_type = EXCLUDED.content_type, "
+                "bytes = EXCLUDED.bytes",
+                (digest, "audio/mpeg", data),
+            )
+        for track in track_rows:
+            conn.execute(
+                "INSERT INTO tracks (id, data) VALUES (%s, %s) "
+                "ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data",
+                (track["id"], jsonb(track)),
+            )
+        conn.execute(
+            "INSERT INTO albums (id, data) VALUES (%s, %s) "
+            "ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data",
+            (release_id, jsonb(row)),
+        )
+
+        # The world's timeline still compiles from the ROUND-BASED releases —
+        # the town's staged walks are a round-based grammar (rounds, per-act
+        # lines, the archive walk) and an album has none of it. Recompiling
+        # here keeps the row fresh and valid across an album publish; staging
+        # albums in the world is its own design round (DECISIONS.md).
+        all_rows = conn.execute("SELECT id, data FROM releases ORDER BY id").fetchall()
+        timeline = compile_timeline_blocks(
+            [(r[0], _as_mapping(r[1])) for r in all_rows], runs_root
+        )
+        conn.execute(
+            "INSERT INTO timeline_source (id, data) VALUES ('current', %s) "
+            "ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data",
+            (jsonb(timeline),),
+        )
+        conn.commit()
+    finally:
+        if connection is None:
+            conn.close()
+
+    return AlbumPublishOutcome(
+        release_id=release_id,
+        run_id=run_id,
+        artist_id=row["artistId"],
+        title=row["title"],
+        dry_run=False,
+        tracks=len(track_rows),
+        media_bytes=sum(len(b) for b in audio.values()),
+        track_ids=tuple(t["id"] for t in track_rows),
+        timeline_blocks=len(timeline["blocks"]),
+        reacted=bool(reactions),
+    )
 
 
 # --- the tape (the vault doctrine: the session's FULL tape releases) ----------

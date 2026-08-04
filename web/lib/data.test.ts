@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   AgentSchema,
+  AlbumRecordSchema,
   PLAYER_IDS,
   ReleaseSchema,
   STAFF_IDS,
@@ -513,11 +514,129 @@ describe("albums (the streaming IA's one entity)", () => {
   });
 
   it("speaks the casual register on every type badge", () => {
+    expect(albumTypeLabel("record")).toBe("ALBUM");
     expect(albumTypeLabel("session")).toBe("SESSION");
     expect(albumTypeLabel("tape")).toBe("TAPE");
-    expect(albumTypeLabel("album")).toBe("ALBUM");
-    for (const type of ["session", "tape", "album"] as const) {
+    expect(albumTypeLabel("album")).toBe("BACK CATALOGUE");
+    for (const type of ["record", "session", "tape", "album"] as const) {
       expect(albumTypeGloss(type).length).toBeGreaterThan(20);
     }
+  });
+});
+
+/**
+ * Single-artist albums — the catalogue's primary object. What matters here:
+ * attribution is a field (not a guess from the tracklist), the sleeve prose
+ * is the ARTIST'S, the staff are optional and additive, and album ids share
+ * one slug space with the round-based sessions without colliding.
+ */
+describe("single-artist albums (the album spine)", () => {
+  const artist = AgentSchema.parse({
+    id: "vess",
+    kind: "player",
+    name: "vess",
+    displayName: "Vess Camber",
+    role: "Act — accumulation",
+    stance: "Mixing the demo again.",
+    description: ["A bedroom producer."],
+    palette: null,
+  });
+  const recordRow = {
+    id: "0008",
+    kind: "album" as const,
+    title: "Seam in the Wax",
+    artistId: "vess",
+    description: "Six months of the same four bars, finally posted.",
+    date: "2026-08-04",
+    era: "2020s",
+    trackIds: ["0008-01", "0008-02"],
+    heard: [{ albumId: "h1", artistId: "rust", title: "Oxide in the Joist" }],
+    influence: [{ from: "rust", to: "vess", weight: 0.82 }],
+    review: "It holds. It is not trying to be liked.",
+    reaction: "Played it twice.",
+    reactionValence: "liked" as const,
+    linerNotes: "Shelved where it can be found.",
+  };
+  const recordTracks = [
+    {
+      id: "0008-01",
+      releaseId: "0008",
+      agentId: "vess",
+      title: "Standpipe",
+      durationSec: 120,
+      audioUrl: "/api/media/aaa",
+      line: "I kept the hiss.",
+    },
+    {
+      id: "0008-02",
+      releaseId: "0008",
+      agentId: "vess",
+      title: "Dark at the Sill",
+      durationSec: 120,
+      audioUrl: "/api/media/bbb",
+    },
+  ].map((t) => TrackSchema.parse(t));
+
+  const albums = resolveAlbums(
+    [artist],
+    [],
+    [],
+    recordTracks,
+    [AlbumRecordSchema.parse(recordRow)],
+  );
+  const album = albums[0];
+
+  it("is one artist's record, attributed by a field rather than inferred", () => {
+    expect(album.type).toBe("record");
+    expect(album.artistIds).toEqual(["vess"]);
+    expect(album.catalogueNo).toBe("AFAR-0008");
+    expect(album.slug).toBe("afar-0008");
+  });
+
+  it("carries the ARTIST's own words as the sleeve prose", () => {
+    expect(album.description).toBe(recordRow.description);
+    // The shapes whose framing was written by someone else carry none.
+    expect(resolveAlbums([artist], [], [], [], []).length).toBe(0);
+  });
+
+  it("keeps the tracklist in the artist's own order, with their per-song line", () => {
+    expect(album.tracks.map((t) => t.title)).toEqual(["Standpipe", "Dark at the Sill"]);
+    expect(album.tracks[0].note).toBe("I kept the hiss.");
+    expect(album.tracks[1].note).toBeNull();
+  });
+
+  it("shows what pulled the record, strongest first, in artist-id space", () => {
+    expect(album.pulledBy).toEqual([
+      { artistId: "rust", albumId: "h1", title: "Oxide in the Joist", weight: 0.82 },
+    ]);
+    // No graph cover: that figure is the round-based sessions' three acts.
+    expect(album.influence).toBeNull();
+  });
+
+  it("parses a record nobody has reacted to yet", () => {
+    const bare = AlbumRecordSchema.parse({
+      id: "0009",
+      kind: "album",
+      title: "Untitled",
+      artistId: "vess",
+      description: "d",
+      date: "2026-08-05",
+      era: "2020s",
+      trackIds: [],
+    });
+    expect(bare.review).toBeUndefined();
+    expect(bare.heard).toEqual([]);
+    expect(bare.staffDegraded).toEqual({});
+  });
+
+  it("shares one slug space with the sessions and never collides", () => {
+    expect(albumSlug("record", "0008")).toBe("afar-0008");
+    expect(albumSlug("session", "0001")).toBe("afar-0001");
+    expect(resolveAlbum(albums, "AFAR-0008")?.slug).toBe("afar-0008");
+    expect(resolveAlbum(albums, "afar-0001")).toBeNull();
+  });
+
+  it("puts the artist's own record in their discography", () => {
+    expect(resolveDiscography(albums, "vess").map((a) => a.slug)).toEqual(["afar-0008"]);
   });
 });

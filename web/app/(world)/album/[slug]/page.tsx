@@ -21,11 +21,16 @@ import {
 export const dynamic = "force-dynamic";
 
 /**
- * The one album page. Sessions (AFAR-NNNN), session tapes (TAPE-NNNN) and
- * imported records all wear the same anatomy — cover, artists, year,
- * tracklist with play-all, liner notes — with the AFAR-specific depth
- * (interaction record, verdicts, dissents, session context) below the
- * fold. The type badge says which kind of record you're holding.
+ * The one album page. Single-artist albums (AFAR-NNNN, the primary object
+ * now), round-based sessions (the logged history), session tapes (TAPE-NNNN)
+ * and imported records all wear the same anatomy — cover, artists, year,
+ * tracklist with play-all, liner notes — with the AFAR-specific depth below
+ * the fold. The type badge says which kind of record you're holding.
+ *
+ * On a single-artist album the sleeve prose is THE ARTIST'S OWN: the
+ * description they wrote with the songs sits where the staff's framing sits
+ * on a session, and the staff appear below it as reactions to a record that
+ * was already out (docs/SPEC.md — staff never touch the artifact).
  */
 
 /** "0:30" from seconds; blank when the archive has no audio yet. */
@@ -39,6 +44,18 @@ const OFFICE_BLOCKS = [
   { label: "FROM THE MUSE — THE BRIEF", staffId: "muse", pick: "brief" },
   { label: "FROM THE PRODUCER — THE SELECTION", staffId: "producer", pick: "selection" },
   { label: "FROM THE CRITIC — THE REVIEW", staffId: "critic", pick: "review" },
+  { label: "FROM THE LISTENER — THE REACTION", staffId: "listener", pick: "reaction" },
+] as const;
+
+/**
+ * The staff on a single-artist album — REACTIONS, in the order they were
+ * written. Nothing here reached the artist: the record was already public
+ * when the first of these was filed.
+ */
+const REACTION_BLOCKS = [
+  { label: "FROM THE PRODUCER — THE ROOM'S REACTION", staffId: "producer", pick: "producerNote" },
+  { label: "FROM THE CRITIC — THE VERDICT", staffId: "critic", pick: "review" },
+  { label: "FROM THE MUSE — WHAT THE SCENE IS DOING", staffId: "muse", pick: "sceneNote" },
   { label: "FROM THE LISTENER — THE REACTION", staffId: "listener", pick: "reaction" },
 ] as const;
 
@@ -106,6 +123,7 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
   const names = Object.fromEntries(agents.map((a) => [a.id, a.displayName]));
   const release = album.release;
   const tape = album.tape;
+  const record = album.record;
   const companionTape = release ? resolveTapeForRelease(tapes, release.id) : null;
   const yearLine = [
     album.date?.slice(0, 4),
@@ -168,9 +186,21 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
           <span title={albumTypeGloss(album.type)}>{albumTypeLabel(album.type)}</span>
           {yearLine && ` · ${yearLine}`}
         </div>
+        {/* THE ARTIST ON THE RECORD — their own words, written with the songs,
+            before any audio existed. Nobody else's framing goes here. */}
+        {album.description && (
+          <p
+            className="quote"
+            style={{ fontSize: 16, lineHeight: 1.65, maxWidth: 640, marginTop: 10 }}
+          >
+            “{album.description}”
+          </p>
+        )}
         {/* The honest one-line frame, kind by kind. */}
         <p style={{ fontSize: 13, color: "var(--sec-deep)", maxWidth: 620, marginTop: 4 }}>
-          {tape ? (
+          {record ? (
+            `An album by ${displayName(record.artistId)} — written whole, in their own voice, and named by them.`
+          ) : tape ? (
             <>
               {tapeStatusLine(tape)}
               {tape.releaseId && (
@@ -211,7 +241,7 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
               <div
                 key={track.id}
                 className={`rule-row${i === album.tracks.length - 1 ? " rule-row-last" : ""}`}
-                style={{ display: "flex", gap: 12, alignItems: "center", padding: "9px 0" }}
+                style={{ display: "flex", gap: 12, alignItems: "center", padding: "9px 0", flexWrap: "wrap" }}
               >
                 <span className="mono" style={{ fontSize: 11, width: 24, flex: "none", color: "var(--sec)" }}>
                   {i + 1}
@@ -236,6 +266,15 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
                 <span className="mono" style={{ fontSize: 11, color: "var(--sec)", marginLeft: "auto" }}>
                   {track.audioUrl ? mmss(track.durationSec) : "audio not yet archived"}
                 </span>
+                {/* The one thing the artist said about this song. */}
+                {track.note && (
+                  <p
+                    className="quote"
+                    style={{ fontSize: 13, width: "100%", paddingLeft: 60, color: "var(--sec-deep)" }}
+                  >
+                    “{track.note}”
+                  </p>
+                )}
               </div>
             ))
           )}
@@ -254,6 +293,128 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
         )}
 
         {/* ——— Below the fold: the AFAR depth. ——— */}
+
+        {record && (
+          <>
+            {/* WHAT THIS RECORD HEARD — the measured pull, artist to artist.
+                What an artist heard changed what it made; it never became
+                what the record is about (docs/SPEC.md). */}
+            {(album.pulledBy.length > 0 || record.heard.length > 0) && (
+              <section
+                style={{
+                  margin: "0 var(--gutter)",
+                  borderTop: "1px solid var(--hairline-strong)",
+                  padding: "20px 0 22px",
+                }}
+              >
+                <div className="label" style={{ paddingBottom: 6 }}>
+                  WHAT THIS RECORD HEARD
+                </div>
+                <p style={{ fontSize: 12, color: "var(--sec)", maxWidth: 620, paddingBottom: 10 }}>
+                  Before writing, {displayName(record.artistId)} heard these records. We measure
+                  how far each one pulled this one — from the recordings themselves, not from
+                  anybody&apos;s account of them.
+                </p>
+                {(album.pulledBy.length > 0
+                  ? album.pulledBy
+                  : record.heard.map((h) => ({ ...h, weight: 0 }))
+                ).map((pull, i, rows) => (
+                  <div
+                    key={`${pull.artistId}-${pull.albumId}`}
+                    className={`rule-row${i === rows.length - 1 ? " rule-row-last" : ""}`}
+                    style={{ display: "flex", gap: 12, alignItems: "baseline", padding: "9px 0" }}
+                  >
+                    <span className="mono" style={{ fontSize: 11, width: 56, flex: "none", color: "var(--sec)" }}>
+                      {pull.weight > 0 ? `${Math.round(pull.weight * 100)}%` : "—"}
+                    </span>
+                    <span style={{ fontSize: 13 }}>
+                      <Link href={`/artist/${pull.artistId}`} className="link" style={{ fontStyle: "normal" }}>
+                        {displayName(pull.artistId)}
+                      </Link>
+                      {pull.title && <span style={{ color: "var(--sec-deep)" }}> — {pull.title}</span>}
+                    </span>
+                  </div>
+                ))}
+              </section>
+            )}
+
+            {/* THE STAFF REACT — after the fact, in public, to a record that
+                was already out. None of this reached the artist. */}
+            {REACTION_BLOCKS.filter((b) => record[b.pick]).map((block) => (
+              <section
+                key={block.staffId}
+                style={{ margin: "0 var(--gutter)", borderTop: "1px solid var(--hairline-strong)", padding: "20px 0" }}
+              >
+                <div className="label">{block.label}</div>
+                {block.staffId === "listener" && record.reactionValence && (
+                  <div
+                    className="mono"
+                    style={{ fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", marginTop: 8 }}
+                    title="The Listener's one-word verdict"
+                  >
+                    VERDICT: {record.reactionValence}
+                  </div>
+                )}
+                <p className="quote" style={{ fontSize: 14, marginTop: 10, maxWidth: 680 }}>
+                  “{record[block.pick]}”
+                </p>
+                <div style={{ fontSize: 12, marginTop: 8 }}>
+                  <Link href={`/staff/${block.staffId}`} className="link">
+                    more from {displayName(block.staffId).toLowerCase()} →
+                  </Link>
+                </div>
+              </section>
+            ))}
+
+            {Object.keys(record.trackNotes).length > 0 && (
+              <section
+                style={{
+                  margin: "0 var(--gutter)",
+                  borderTop: "1px solid var(--hairline-strong)",
+                  padding: "20px 0 22px",
+                }}
+              >
+                <div className="label" style={{ paddingBottom: 6 }}>
+                  THE CRITIC, SONG BY SONG
+                </div>
+                {Object.entries(record.trackNotes).map(([title, note], i, rows) => (
+                  <div
+                    key={title}
+                    className={`rule-row${i === rows.length - 1 ? " rule-row-last" : ""}`}
+                    style={{ padding: "9px 0" }}
+                  >
+                    <div className="mono" style={{ fontSize: 11, letterSpacing: "0.14em", color: "var(--sec)" }}>
+                      {title.toUpperCase()}
+                    </div>
+                    <p className="quote" style={{ fontSize: 13, marginTop: 4, maxWidth: 660 }}>
+                      “{note}”
+                    </p>
+                  </div>
+                ))}
+              </section>
+            )}
+
+            {/* Honest about silence: a reaction that failed says so. */}
+            {Object.keys(record.staffDegraded).length > 0 && (
+              <section
+                style={{
+                  margin: "0 var(--gutter)",
+                  borderTop: "1px solid var(--hairline-strong)",
+                  padding: "18px 0 22px",
+                }}
+              >
+                <div className="label" style={{ paddingBottom: 6 }}>
+                  WHO DIDN&apos;T FILE
+                </div>
+                {Object.entries(record.staffDegraded).map(([stage, note]) => (
+                  <p key={stage} style={{ fontSize: 13, color: "var(--sec-deep)", maxWidth: 620 }}>
+                    {note}
+                  </p>
+                ))}
+              </section>
+            )}
+          </>
+        )}
 
         {release && (
           <>
@@ -418,7 +579,9 @@ export default async function AlbumPage({ params }: { params: Promise<{ slug: st
           ? "NOTHING RECORDED IS EVER WORTHLESS. SOME THINGS ARE JUST SHELVED WRONG."
           : album.type === "session"
             ? "THE GRAPH IS THE COVER. NOTHING IS ILLUSTRATED TWICE."
-            : "EVERYTHING LIVES HERE. MUSIC FROM AFAR."}
+            : album.type === "record"
+              ? "THE ARTIST NAMES ITS OWN WORK. THE STAFF ONLY REACT."
+              : "EVERYTHING LIVES HERE. MUSIC FROM AFAR."}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ERAS, SonicPaletteSchema } from "@/lib/intent/schema";
 import agentsJson from "@/fixtures/agents.json";
+import albumsJson from "@/fixtures/albums.json";
 import releasesJson from "@/fixtures/releases.json";
 import tapesJson from "@/fixtures/tapes.json";
 import tracksJson from "@/fixtures/tracks.json";
@@ -78,6 +79,10 @@ export const TrackSchema = z.object({
   title: z.string().min(1),
   durationSec: z.number().int().positive().nullable(),
   audioUrl: z.string().min(1).nullable(),
+  /** The ONE line the artist says about this song (Album.tracks[].note, and
+   * the acts' studio line on the round-based takes). No min length: rows have
+   * carried an empty string here since before it was surfaced. */
+  line: z.string().optional(),
 });
 
 export const InfluenceEdgeSchema = z.object({
@@ -181,6 +186,85 @@ export const TapeSchema = z
     releaseId: t.releaseId ?? null,
   }));
 
+/**
+ * A single-artist ALBUM — the catalogue's primary object (docs/SPEC.md: the
+ * album is the unit of work). One artist writes a whole record in its own
+ * voice; the staff only react afterwards.
+ *
+ * Its own table (`albums`), so no existing releases row ever meets a shape it
+ * cannot parse — the same caution the tapes and import PRs took, and the
+ * reason one unparseable row can never void the live catalogue. Ids continue
+ * the ONE AFAR-NNNN sequence across both tables (AFAR-0008 follows the last
+ * session, AFAR-0007), so the public numbering has no seam in it.
+ *
+ * `artistId` and `description` are the two fields that make this shape what it
+ * is: attribution is first-class rather than inferred from a tracklist, and
+ * the description is the ARTIST's own framing of the record — it sits where
+ * the Critic's title and the Producer's selection note used to sit. Every
+ * staff field below is optional, because a record publishes before anyone has
+ * reacted to it and each reaction degrades independently.
+ */
+export const AlbumRecordSchema = z
+  .object({
+    id: z.string().min(1),
+    kind: z.literal("album"),
+    title: z.string().min(1),
+    /** Whose record this is. One artist, always. */
+    artistId: z.string().min(1),
+    /** The artist's own words about the record, written with the songs. */
+    description: z.string().min(1),
+    date: z.string().min(1),
+    era: z.enum(ERAS),
+    trackIds: z.array(z.string().min(1)),
+    /** Records this artist heard before writing — sleeve facts, never verdicts. */
+    heard: z
+      .array(
+        z.object({
+          albumId: z.string(),
+          artistId: z.string(),
+          title: z.string(),
+        }),
+      )
+      .optional(),
+    /** Album-cadence influence: which heard record pulled this one, [0,1]. */
+    influence: z
+      .array(
+        z.object({
+          from: z.string().min(1),
+          to: z.string().min(1),
+          weight: z.number().min(0).max(1),
+        }),
+      )
+      .optional(),
+    /** The Producer's reaction to the finished record. It books nothing. */
+    producerNote: z.string().min(1).optional(),
+    /** The Critic's public verdict. It names nothing. */
+    review: z.string().min(1).optional(),
+    /** The Critic on individual songs, keyed by song title. */
+    trackNotes: z.record(z.string(), z.string()).optional(),
+    /** The Muse on what the scene is doing alongside this record. */
+    sceneNote: z.string().min(1).optional(),
+    sceneTheme: z.string().min(1).optional(),
+    /** The Listener from the cheap seats. */
+    reaction: z.string().min(1).optional(),
+    reactionValence: z.enum(["loved", "liked", "mixed", "cold"]).optional(),
+    /** The Archivist's back-of-sleeve prose. */
+    linerNotes: z.string().min(1).optional(),
+    /** Honest notes left by reactions that failed — stage -> what it means. */
+    staffDegraded: z.record(z.string(), z.string()).optional(),
+    coverUrl: z.string().min(1).nullable().optional(),
+  })
+  .transform((a) => ({
+    ...a,
+    heard: a.heard ?? [],
+    influence: a.influence ?? [],
+    trackNotes: a.trackNotes ?? {},
+    staffDegraded: a.staffDegraded ?? {},
+    coverUrl: a.coverUrl ?? null,
+  }));
+
+export type AlbumRecord = z.infer<typeof AlbumRecordSchema>;
+
 export type Tape = z.infer<typeof TapeSchema>;
 export type TapeTake = z.infer<typeof TapeTakeSchema>;
 
@@ -239,6 +323,11 @@ export const fixtureAgents: Agent[] = z.array(AgentSchema).parse(agentsJson);
 export const fixtureReleases: Release[] = z.array(ReleaseSchema).parse(releasesJson);
 export const fixtureTracks: Track[] = z.array(TrackSchema).parse(tracksJson);
 export const fixtureTapes: Tape[] = z.array(TapeSchema).parse(tapesJson);
+/** Single-artist albums. Empty until the first record ships — a new table
+ * with no rows yet is honest, not an outage. */
+export const fixtureAlbumRecords: AlbumRecord[] = z
+  .array(AlbumRecordSchema)
+  .parse(albumsJson);
 
 /**
  * Thin Neon branch: run a query if DATABASE_URL is set, fall back to
@@ -257,7 +346,7 @@ async function fromDb<T>(query: () => Promise<T | null>): Promise<T | null> {
 type JsonRow = { data: unknown };
 
 async function dbRows(
-  table: "agents" | "releases" | "tracks" | "tapes",
+  table: "agents" | "releases" | "tracks" | "tapes" | "albums",
 ): Promise<unknown[] | null> {
   const { sql } = await import("@/lib/db");
   const result = (await sql().query(`SELECT data FROM ${table} ORDER BY id`)) as
@@ -317,6 +406,15 @@ export async function listTapes(): Promise<Tape[]> {
 export async function getTape(id: string): Promise<Tape | null> {
   const tapes = await listTapes();
   return tapes.find((t) => t.id === id) ?? null;
+}
+
+/** Every single-artist album, the catalogue's primary object. */
+export async function listAlbumRecords(): Promise<AlbumRecord[]> {
+  const db = await fromDb(async () => {
+    const rows = await dbRows("albums");
+    return rows ? z.array(AlbumRecordSchema).parse(rows) : null;
+  });
+  return db ?? fixtureAlbumRecords;
 }
 
 /** The session tape that companions a release, if the vault holds one. */
@@ -403,7 +501,23 @@ export async function singleForAct(
  * (CLAUDE.md: entity ids never rename).
  * ———————————————————————————————————————————————————————————————————— */
 
-export type AlbumType = "session" | "tape" | "album";
+/**
+ * The four shapes in the catalogue:
+ * - `record` — a single-artist ALBUM, the primary object now (AFAR-NNNN);
+ * - `session` — a round-based multi-artist release, the logged history
+ *   (AFAR-0001..0007), append-only and never renamed;
+ * - `tape` — a session's full recording (TAPE-NNNN);
+ * - `album` — a back-catalogue record an artist brought with them.
+ */
+export type AlbumType = "record" | "session" | "tape" | "album";
+
+/** One measured pull on a record: which heard album moved it, and how much. */
+export interface AlbumPull {
+  artistId: string;
+  albumId: string;
+  title: string;
+  weight: number;
+}
 
 /** "0001" -> "AFAR-0001" (mirrors lib/acts.catalogueNumber, which imports from here). */
 function catalogueNumberOf(releaseId: string): string {
@@ -416,6 +530,8 @@ export interface AlbumTrackView {
   artistId: string;
   durationSec: number | null;
   audioUrl: string | null;
+  /** What the artist said about this song, if they said anything. */
+  note: string | null;
 }
 
 export interface AlbumView {
@@ -432,12 +548,21 @@ export interface AlbumView {
   /** The era line under the title ("2020s"). */
   era: string | null;
   tracks: AlbumTrackView[];
+  /**
+   * The ARTIST's own framing of the record, written with the songs. Set on
+   * single-artist albums; null on the shapes whose sleeve prose was written
+   * by someone else (or by nobody).
+   */
+  description: string | null;
   /** The Archivist's back-of-sleeve prose, whatever shape it rode in on. */
   linerNotes: string | null;
   /** Imported album art; sessions render their graph cover from `influence`. */
   coverUrl: string | null;
   influence: InfluenceEdge[] | null;
+  /** Album-cadence influence: which records pulled this one (records only). */
+  pulledBy: AlbumPull[];
   /** The depth payload — exactly one of these is set, matching `type`. */
+  record: AlbumRecord | null;
   release: Release | null;
   tape: Tape | null;
   importArtistId: string | null;
@@ -446,32 +571,92 @@ export interface AlbumView {
 /** The casual-listener word for each album type (the type badge). */
 export function albumTypeLabel(type: AlbumType): string {
   switch (type) {
+    case "record":
+      return "ALBUM";
     case "session":
       return "SESSION";
     case "tape":
       return "TAPE";
     default:
-      return "ALBUM";
+      return "BACK CATALOGUE";
   }
 }
 
 /** One plain line saying what a badge means — the tooltip next to it. */
 export function albumTypeGloss(type: AlbumType): string {
   switch (type) {
+    case "record":
+      return "An album one artist wrote and recorded here — every song theirs, named by them";
     case "session":
       return "A finished record cut from one recording session — one take from each artist on it";
     case "tape":
       return "The whole session, every take, in the order it was played";
     default:
-      return "A studio album an artist brought with them";
+      return "A studio album an artist brought with them, made before they arrived";
   }
 }
 
-/** "afar-0001" | "tape-0010" | "t-lolgorithm" — slugs are lowercased catalogue ids. */
+/**
+ * "afar-0008" | "afar-0001" | "tape-0010" | "t-lolgorithm" — slugs are
+ * lowercased catalogue ids. Single-artist albums and the round-based sessions
+ * share the `afar-` slug space because they share ONE id sequence: ids are
+ * allocated across both tables, so a slug always resolves to exactly one
+ * record and old links never change meaning.
+ */
 export function albumSlug(type: AlbumType, id: string): string {
-  if (type === "session") return `afar-${id}`.toLowerCase();
+  if (type === "record" || type === "session") return `afar-${id}`.toLowerCase();
   if (type === "tape") return `tape-${id}`.toLowerCase();
   return id.toLowerCase();
+}
+
+/**
+ * One artist's album. The tracklist is `trackIds` in the artist's own order —
+ * an album is a sequence, not a set, so the order the record was written in is
+ * the order it plays in.
+ */
+function recordAlbum(record: AlbumRecord, tracks: Track[]): AlbumView {
+  const byId = new Map(tracks.map((t) => [t.id, t]));
+  const own = record.trackIds
+    .map((id) => byId.get(id))
+    .filter((t): t is Track => t !== undefined);
+  const pulledBy = record.influence
+    .filter((e) => e.to === record.artistId)
+    .map((e) => {
+      const heard = record.heard.find((h) => h.artistId === e.from);
+      return {
+        artistId: e.from,
+        albumId: heard?.albumId ?? "",
+        title: heard?.title ?? "",
+        weight: e.weight,
+      };
+    })
+    .sort((a, b) => b.weight - a.weight);
+  return {
+    slug: albumSlug("record", record.id),
+    type: "record",
+    catalogueNo: catalogueNumberOf(record.id),
+    title: record.title,
+    artistIds: [record.artistId],
+    date: record.date,
+    era: record.era,
+    tracks: own.map((t) => ({
+      id: t.id,
+      title: t.title,
+      artistId: t.agentId,
+      durationSec: t.durationSec,
+      audioUrl: t.audioUrl,
+      note: t.line?.trim() || null,
+    })),
+    description: record.description,
+    linerNotes: record.linerNotes ?? null,
+    coverUrl: record.coverUrl,
+    influence: null, // the graph cover is the sessions' three-act figure
+    pulledBy,
+    record,
+    release: null,
+    tape: null,
+    importArtistId: null,
+  };
 }
 
 function sessionAlbum(release: Release, tracks: Track[]): AlbumView {
@@ -493,10 +678,14 @@ function sessionAlbum(release: Release, tracks: Track[]): AlbumView {
       artistId: t.agentId,
       durationSec: t.durationSec,
       audioUrl: t.audioUrl,
+      note: null,
     })),
+    description: null,
     linerNotes: release.linerNotes ?? null,
     coverUrl: null,
     influence: release.influence,
+    pulledBy: [],
+    record: null,
     release,
     tape: null,
     importArtistId: null,
@@ -522,10 +711,14 @@ function tapeAlbum(tape: Tape): AlbumView {
       artistId: take.agentId,
       durationSec: take.durationSec ?? null,
       audioUrl: take.audioUrl,
+      note: null,
     })),
+    description: null,
     linerNotes: tape.linerNotes ?? null,
     coverUrl: null,
     influence: null,
+    pulledBy: [],
+    record: null,
     release: null,
     tape,
     importArtistId: null,
@@ -550,10 +743,14 @@ function importAlbum(agent: Agent, tracks: Track[]): AlbumView | null {
       artistId: t.agentId,
       durationSec: t.durationSec,
       audioUrl: t.audioUrl,
+      note: null,
     })),
+    description: null,
     linerNotes: agent.album.linerNotes ?? null,
     coverUrl: agent.coverUrl,
     influence: null,
+    pulledBy: [],
+    record: null,
     release: null,
     tape: null,
     importArtistId: agent.id,
@@ -561,17 +758,19 @@ function importAlbum(agent: Agent, tracks: Track[]): AlbumView | null {
 }
 
 /**
- * Every album in the catalogue, one flat list: dated records (sessions and
- * tapes) newest first, then the imported back catalogues (undated — they
- * predate the sessions) alphabetically. Pure so it's testable.
+ * Every album in the catalogue, one flat list: dated records (single-artist
+ * albums, sessions and tapes) newest first, then the imported back catalogues
+ * (undated — they predate the sessions) alphabetically. Pure so it's testable.
  */
 export function resolveAlbums(
   agents: Agent[],
   releases: Release[],
   tapes: Tape[],
   tracks: Track[],
+  records: AlbumRecord[] = [],
 ): AlbumView[] {
   const dated = [
+    ...records.map((r) => recordAlbum(r, tracks)),
     ...releases.map((r) => sessionAlbum(r, tracks)),
     ...tapes.map(tapeAlbum),
   ].sort(
@@ -584,13 +783,14 @@ export function resolveAlbums(
 }
 
 export async function listAlbums(): Promise<AlbumView[]> {
-  const [agents, releases, tapes, tracks] = await Promise.all([
+  const [agents, releases, tapes, tracks, records] = await Promise.all([
     listAgents(),
     listReleases(),
     listTapes(),
     listTracks(),
+    listAlbumRecords(),
   ]);
-  return resolveAlbums(agents, releases, tapes, tracks);
+  return resolveAlbums(agents, releases, tapes, tracks, records);
 }
 
 export function resolveAlbum(albums: AlbumView[], slug: string): AlbumView | null {
