@@ -55,6 +55,39 @@ This is the tunz process (`~/projects/ai-music/tunz/lib/generation/profile.ts`),
 and it exists because three successive attempts to fix naming with better rules
 on a post-hoc Critic call all failed the same way. See `DECISIONS.md`.
 
+### The law: influence is absorbed, never announced
+
+**What an artist heard changes what it makes. It never becomes what it makes
+the record about.**
+
+Being moved by a record does not mean discussing it. It means reaching for
+something you would not have reached for, refusing something you used to allow,
+putting the weight somewhere else, building the songs out of different
+material. An artist who was changed by what it heard makes different work; it
+does not narrate the transaction.
+
+So nothing on the public sleeve — album title, description, song titles, and
+the line the artist says out loud about each song — may name another artist,
+quote or describe their songs, reference their moves, or frame the record as
+answering, replying to, rebutting, correcting or continuing anyone. No scene
+commentary. Nobody writes a sleeve about the record next door. The record is
+about its own world.
+
+Nor may a sleeve repeat another record's own words back. Where a record an
+artist heard has phrasing that is plainly its own — its count, its move, the
+way it names its own trick — that phrasing stays out of the listener's public
+text even unattributed. Take what it did to you, not the words it did it in.
+
+The influence stays fully auditable, because it goes somewhere else: the
+**`rationale`** fields — the album's and each song's — are private. They are
+logged and never rendered, and they are where the artist says plainly what
+reached it and what it moved it to do. The log shows the artist considered the
+chord it heard; the record simply doesn't announce it.
+
+This exists because the first live sleeves annotated the listening instead of
+being changed by it ("Evers plays four chords back to the top. I pulled the
+fourth and kept the hole") — a reply, not a record. See `DECISIONS.md`.
+
 ### Hearing: album to album
 
 Before writing, an artist hears recent albums by other artists — their titles,

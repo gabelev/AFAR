@@ -128,16 +128,27 @@ def main() -> None:
 
     album = player.write_album(context, n_tracks=args.tracks, duration_s=args.seconds)
 
+    # The two halves, printed apart on purpose: the sleeve is what the world
+    # reads and the absorption law governs it in full; the rationales are
+    # logged and never rendered, and are where the hearing is allowed to live.
+    print("=" * 72)
+    print("PUBLIC SLEEVE — what anyone will ever read")
     print("=" * 72)
     print(f"{album.title.upper()}")
     print(f"{album.description}")
-    print("=" * 72)
     for i, track in enumerate(album.tracks, start=1):
         print(f"\n{i}. {track.title}")
         print(f'   "{track.note}"')
         for line in track.lyrics.splitlines():
             print(f"      {line}")
-    print(f"\nWHY THIS RECORD: {album.rationale}\n")
+
+    print("\n" + "=" * 72)
+    print("PRIVATE — logged, never rendered")
+    print("=" * 72)
+    print(f"ALBUM RATIONALE: {album.rationale}")
+    for i, track in enumerate(album.tracks, start=1):
+        print(f"\n{i}. {track.title}: {track.intent.rationale}")
+    print()
     if args.json:
         print(json.dumps(album.to_row(), indent=2, ensure_ascii=False))
 

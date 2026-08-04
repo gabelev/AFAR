@@ -98,6 +98,63 @@ def test_the_user_message_carries_the_laws_of_the_record(tmp_path):
     assert "You name your own work" in prompt
 
 
+def test_the_absorption_law_is_in_the_prompt(tmp_path):
+    """What you heard changes what you make; it never becomes what you make it
+    about. The first live sleeves annotated the listening instead of being
+    changed by it ("Evers plays four chords back to the top. I pulled the
+    fourth") — a reply, not a record. This law is what forbids that."""
+    player = _player(tmp_path)
+    player.write_album(_context(), n_tracks=3, duration_s=45)
+    prompt = player.model.calls[0][1].content
+    assert "CHANGES WHAT YOU MAKE" in prompt
+    assert "never becomes what you make it ABOUT" in prompt
+    # the ban, named field by field
+    assert "never name another artist" in prompt
+    assert "never quote or describe their songs or their titles" in prompt
+    for framing in ("answering", "replying to", "rebutting", "correcting"):
+        assert framing in prompt
+    assert "No commentary on the scene" in prompt
+    assert "sleeve about the record next door" in prompt
+    # and what absorption looks like instead
+    assert "reach for something you would not have reached for" in prompt
+    assert "do not narrate the transaction" in prompt
+
+
+def test_the_public_sleeve_and_the_private_rationale_are_split_in_the_prompt(tmp_path):
+    """The influence stays auditable: the log still shows what the artist
+    considered, the record just does not announce it."""
+    player = _player(tmp_path)
+    player.write_album(_context(), n_tracks=3, duration_s=45)
+    prompt = player.model.calls[0][1].content
+    assert "PUBLIC (it goes on the sleeve" in prompt
+    assert "PRIVATE (logged, never printed)" in prompt
+    assert '"title": PUBLIC' in prompt
+    assert '"description": PUBLIC' in prompt
+    assert '"rationale": PRIVATE' in prompt
+    assert '"note": PUBLIC' in prompt
+    # the rationale is named as the place the hearing goes
+    assert "The hearing goes in the RATIONALES" in prompt
+    assert "this is where what you heard belongs" in prompt.lower()
+
+
+def test_the_heard_block_says_it_is_not_a_subject(tmp_path):
+    player = _player(tmp_path)
+    player.write_album(_context(), n_tracks=3, duration_s=45)
+    prompt = player.model.calls[0][1].content
+    assert "not to give you a subject" in prompt
+    assert "may appear anywhere on your sleeve" in prompt
+
+
+def test_the_material_the_artist_hears_is_not_weakened_by_the_law(tmp_path):
+    """Only what may be WRITTEN changed — what reaches the artist did not."""
+    player = _player(tmp_path)
+    player.write_album(_context(), n_tracks=3, duration_s=45)
+    prompt = player.model.calls[0][1].content
+    assert 'Roan Patina — "Oxide in the Joist"' in prompt
+    assert "Four takes left outdoors." in prompt
+    assert '1. "Standpipe" — I kept the hiss.' in prompt
+
+
 def test_the_prompt_shows_the_sleeves_of_what_was_heard(tmp_path):
     player = _player(tmp_path)
     player.write_album(_context(), n_tracks=2, duration_s=30)

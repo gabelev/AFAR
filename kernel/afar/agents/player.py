@@ -239,7 +239,9 @@ SECONDS PER TRACK: {duration_s}""",
             "WHAT YOU HAVE HEARD SINCE YOUR LAST RECORD (other artists' finished "
             "records; where a song was actually played to you, the measured facts "
             "of how it sounded are under it — trust those over what the sleeve "
-            "claims):\n\n" + "\n\n".join(blocks)
+            "claims). This is here to CHANGE WHAT YOU MAKE, not to give you a "
+            "subject: none of these names, titles or moves may appear anywhere on "
+            "your sleeve.\n\n" + "\n\n".join(blocks)
         )
 
     def _decision_prompt(self, perception: Perception) -> str:
@@ -331,9 +333,12 @@ SECONDS PER TRACK: {duration_s}""",
 
 #: The tunz process, stated as law (docs/SPEC.md; tunz profile.ts, whose
 #: titles are good because the title is an INPUT). One traceability law in
-#: place of ban lists — the two rule-list cures each just grew a new rut — and
-#: the ordering rule that the whole architecture exists to enforce: the title
-#: is written WITH the songs, by the artist that will make the record.
+#: place of ban lists — the two rule-list cures each just grew a new rut — the
+#: ordering rule the whole architecture exists to enforce (the title is written
+#: WITH the songs, by the artist that will make the record), and the absorption
+#: law: the first live sleeves annotated the listening instead of being changed
+#: by it ("Evers plays four chords back to the top. I pulled the fourth"), which
+#: is a reply, not a record. Nobody writes a sleeve about the record next door.
 _ALBUM_LAWS = """\
 HOW A RECORD GETS WRITTEN HERE.
 
@@ -341,6 +346,32 @@ Everything on this record is traceable to two things and nothing else: who you \
 are, and what you have heard. The era you work in, what you refuse, the images \
 you keep returning to, and the specific records that reached you since the last \
 time — that is the entire source. Nothing arrives from outside it.
+
+What you heard CHANGES WHAT YOU MAKE. It never becomes what you make it ABOUT. \
+Being moved by a record does not mean discussing it. It means you reach for \
+something you would not have reached for, or refuse something you used to \
+allow, or put the weight in a different place, or build the songs out of \
+different material. An artist who was changed by what they heard makes \
+different work. They do not narrate the transaction.
+
+So: on everything anyone will ever read — the album title, the description, \
+every song title, and the line you say out loud about each song — you never \
+name another artist, never quote or describe their songs or their titles, \
+never mention what they did or kept or left out, and never frame this record \
+as answering, replying to, rebutting, correcting, continuing or improving on \
+anyone. No commentary on the scene. No "they went quiet so I went loud". \
+Nobody writes a sleeve about the record next door. This record is about its \
+own world: your places, your materials, your obsessions, the things that are \
+yours alone.
+
+Nor do you repeat another record's words back. If a sleeve you heard has a \
+phrase that is plainly its own — its count, its move, the way it names its own \
+trick — that phrasing is theirs and it stays out of your public text even \
+unattributed. Take what it did to you, not the words it did it in.
+
+The hearing goes in the RATIONALES — the album's and each song's. Those are \
+private: they are logged and never printed on anything, and they are the right \
+and only place to say plainly what reached you and what it moved you to do.
 
 The title is written WITH the songs, not after them. You are not captioning \
 finished music. You decide what this record IS, and the songs are written to \
@@ -414,25 +445,32 @@ def _answer_contract(n_tracks: int, duration_s: int, lines: int, words: int) -> 
     return f"""\
 HOW YOU ANSWER.
 Reply with exactly ONE JSON object and nothing else (a ```json fence is fine). \
-It is the whole record:
+It is the whole record. Each field is marked PUBLIC (it goes on the sleeve, \
+where the absorption law applies in full) or PRIVATE (logged, never printed):
 
 {{
-  "title": the album's title,
-  "description": 1-2 sentences on this record as a body of work, in your own \
-voice — concrete detail from the record itself, the way a good capsule note \
-reads. No praise, no pitch.
-  "rationale": why this record, now — a few sentences, first person, plain \
-words. Your account of what you are doing and what you have heard.
+  "title": PUBLIC — the album's title.
+  "description": PUBLIC — 1-2 sentences on this record as a body of work, in \
+your own voice: concrete detail from the record itself, the way a good capsule \
+note reads. No praise, no pitch, and nothing about anybody else's record.
+  "rationale": PRIVATE — why this record, now. A few sentences, first person, \
+plain words. This is where what you heard belongs: name it, say what it moved \
+you to do, say what you did instead of what you would have done. Nobody but \
+the archive ever reads this, so be direct about it here.
   "tracks": exactly {n_tracks} objects, in running order:
     {{
-      "title": the song's title,
-      "note": the one line you say out loud about this song — studio speech, \
-about 90 characters, plain words, the same register as the "line" in your \
-instructions. This is the only thing anyone else will read you saying about it.
+      "title": PUBLIC — the song's title.
+      "note": PUBLIC — the one line you say out loud about this song. Studio \
+speech, about 90 characters, plain words, the same register as the "line" in \
+your instructions. It is about the song and the room it was made in — never \
+about another artist, their record, or what you are answering. This is the \
+only thing anyone will read you saying about it.
       "intent": the complete Intent object your instructions describe — \
 seedPrompt, era, influences, sonicPalette, vocalCharacter, lyricalObsessions, \
-visualStyle, lyrics, rationale, player_id. The "line" field is optional here: \
-the note above is what you said.
+visualStyle, lyrics, rationale, player_id. Its "rationale" is PRIVATE, like the \
+album's: what this song is doing and what in your hearing put it there. Its \
+"lyrics" are PUBLIC — they are sung. The "line" field is optional here: the \
+note above is what you said.
     }}
 }}
 
