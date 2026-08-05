@@ -16,6 +16,7 @@ import pytest
 from afar.asking import (
     DEFAULT_ASK_COOLDOWN_HOURS,
     DEFAULT_ASK_COOLDOWN_MAX_HOURS,
+    DEFAULT_FAILED_COOLDOWN_HOURS,
     DEFAULT_RECORD_COOLDOWN_HOURS,
     AskState,
     Urge,
@@ -183,3 +184,59 @@ def test_the_knocking_order_is_seeded_and_is_not_alphabetical():
     # is not a privilege.
     firsts = {ask_order(ROSTER, random.Random(s))[0] for s in range(200)}
     assert firsts == set(ROSTER)
+
+
+# --- a yes that never became a record is not a record -------------------------
+
+
+def _row(kind: str, artist: str, ts: str, **extra: object) -> dict:
+    return {"kind": kind, "artist": artist, "ts": ts, **extra}
+
+
+def test_a_failed_record_does_not_spend_the_artists_yes() -> None:
+    """the-sardis-fasola-society, 2026-08-05: said yes, the render timed out,
+    and the full day's record cooldown then silenced an artist that had
+    something to make. A failure earns the short wait instead."""
+    rows = [
+        _row("artist_asked", "rust", "2026-08-05T12:00:00+00:00", ready=True, why="there is one"),
+        _row("album_failed", "rust", "2026-08-05T12:05:00+00:00", error="TimeoutError"),
+    ]
+    state = ask_states(rows, ["rust"])["rust"]
+    assert state.last_event == "failed"
+    assert state.cooldown_hours() == DEFAULT_FAILED_COOLDOWN_HOURS
+    assert state.cooldown_hours() < DEFAULT_RECORD_COOLDOWN_HOURS
+
+    now = datetime(2026, 8, 5, 13, 30, tzinfo=timezone.utc)
+    assert state.may_be_asked(now)
+
+
+def test_a_failure_is_not_a_decline_and_leaves_the_streak_alone() -> None:
+    rows = [
+        _row("artist_asked", "rust", "2026-08-01T00:00:00+00:00", ready=False, why="not yet"),
+        _row("artist_asked", "rust", "2026-08-02T00:00:00+00:00", ready=False, why="not yet"),
+        _row("artist_asked", "rust", "2026-08-03T00:00:00+00:00", ready=True, why="there is one"),
+        _row("album_failed", "rust", "2026-08-03T00:05:00+00:00", error="TimeoutError"),
+    ]
+    state = ask_states(rows, ["rust"])["rust"]
+    # The yes already cleared the streak; the failure must not revive it.
+    assert state.declines == 0
+    assert state.records == 0
+
+
+def test_a_completed_record_still_earns_the_full_wait() -> None:
+    rows = [
+        _row("artist_asked", "rust", "2026-08-05T12:00:00+00:00", ready=True, why="there is one"),
+        _row("album_completed", "rust", "2026-08-05T12:30:00+00:00", release_id="0013"),
+    ]
+    state = ask_states(rows, ["rust"])["rust"]
+    assert state.last_event == "recorded"
+    assert state.cooldown_hours() == DEFAULT_RECORD_COOLDOWN_HOURS
+
+
+def test_a_record_that_lands_after_a_failure_wins() -> None:
+    """Log order decides: the salvage/retry that succeeds is the last word."""
+    rows = [
+        _row("album_failed", "rust", "2026-08-05T12:05:00+00:00", error="TimeoutError"),
+        _row("album_completed", "rust", "2026-08-05T12:40:00+00:00", release_id="0013"),
+    ]
+    assert ask_states(rows, ["rust"])["rust"].last_event == "recorded"
