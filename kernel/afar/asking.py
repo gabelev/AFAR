@@ -64,6 +64,12 @@ DEFAULT_ASK_COOLDOWN_HOURS = 12.0
 DEFAULT_ASK_COOLDOWN_MAX_HOURS = 168.0
 #: The wait after an artist says yes (AFAR_RECORD_COOLDOWN_HOURS).
 DEFAULT_RECORD_COOLDOWN_HOURS = 24.0
+#: The wait after a yes whose record then FAILED (AFAR_FAILED_COOLDOWN_HOURS).
+#: Short on purpose: the artist had a record in it and a timeout took the
+#: slot, so the yes is not spent — but a long enough pause that an artist
+#: whose records keep failing cannot spin the loop. The conductor's own
+#: failure backoff paces the retries globally either way.
+DEFAULT_FAILED_COOLDOWN_HOURS = 1.0
 
 #: How many doors the conductor knocks on per tick before letting the tick go
 #: (AFAR_ASKS_PER_TICK). It stops at the first yes: the budget, the renderer
@@ -142,9 +148,10 @@ class AskState:
     """What the log says about one artist's answering history.
 
     `last_event` is one of "" (never asked, never recorded), "recorded",
-    "accepted" (said yes; the record may or may not have landed) or
-    "declined". `declines` counts CONSECUTIVE declines since the last yes or
-    record — the exponent in the curve.
+    "accepted" (said yes and the record is in flight), "failed" (said yes and
+    the record died before it landed) or "declined". `declines` counts
+    CONSECUTIVE declines since the last yes or record — the exponent in the
+    curve; a failure is not a decline and never touches it.
     """
 
     artist_id: str
@@ -160,8 +167,15 @@ class AskState:
         base_hours: float = DEFAULT_ASK_COOLDOWN_HOURS,
         max_hours: float = DEFAULT_ASK_COOLDOWN_MAX_HOURS,
         record_hours: float = DEFAULT_RECORD_COOLDOWN_HOURS,
+        failed_hours: float = DEFAULT_FAILED_COOLDOWN_HOURS,
     ) -> float:
         """How long this artist is left alone after its last answer."""
+        if self.last_event == "failed":
+            # A yes that never became a record is not a record. Spending the
+            # full day's cooldown on it would let a network timeout silence
+            # an artist that had something to make (the-sardis-fasola-society,
+            # 2026-08-05, lost its slot to a read timeout).
+            return failed_hours
         if self.last_event in ("recorded", "accepted"):
             return record_hours
         if self.last_event == "declined":
@@ -188,9 +202,10 @@ def ask_states(
 ) -> dict[str, AskState]:
     """Every artist's answering history, rebuilt from the conductor's rows.
 
-    Reads exactly two kinds: `artist_asked` (who was asked, what they said,
-    when) and `album_completed` (who actually made a record). Rows are taken
-    in log order; a yes or a finished record resets the decline streak.
+    Reads exactly three kinds: `artist_asked` (who was asked, what they said,
+    when), `album_completed` (who actually made a record) and `album_failed`
+    (whose record died on the way). Rows are taken in log order; a yes or a
+    finished record resets the decline streak, and a failure leaves it alone.
     Smoke rows never count — a rehearsal is not an answer.
     """
     states = {artist_id: AskState(artist_id=artist_id) for artist_id in roster}
@@ -211,6 +226,17 @@ def ask_states(
                 last_event_at=stamp or state.last_event_at,
                 declines=0 if ready else state.declines + 1,
                 asks=state.asks + 1,
+                records=state.records,
+            )
+        elif kind == "album_failed":
+            # The yes stands: this artist is asked again shortly, and may
+            # still have the same record in it.
+            states[artist_id] = AskState(
+                artist_id=artist_id,
+                last_event="failed",
+                last_event_at=stamp or state.last_event_at,
+                declines=state.declines,
+                asks=state.asks,
                 records=state.records,
             )
         elif kind == "album_completed":

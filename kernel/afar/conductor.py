@@ -822,6 +822,7 @@ class Conductor:
             "base_hours": self.config.ask_cooldown_hours,
             "max_hours": self.config.ask_cooldown_max_hours,
             "record_hours": self.config.record_cooldown_hours,
+            "failed_hours": self.config.failed_cooldown_hours,
         }
 
     def ask(self, artist_id: str, *, state: Optional[AskState] = None) -> Urge:

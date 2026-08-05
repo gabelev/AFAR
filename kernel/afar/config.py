@@ -459,6 +459,7 @@ class AfarConfig:
     ask_cooldown_hours: float = 12.0  # AFAR_ASK_COOLDOWN_HOURS — after one decline
     ask_cooldown_max_hours: float = 168.0  # AFAR_ASK_COOLDOWN_MAX_HOURS — the cap
     record_cooldown_hours: float = 24.0  # AFAR_RECORD_COOLDOWN_HOURS — after a yes
+    failed_cooldown_hours: float = 1.0  # AFAR_FAILED_COOLDOWN_HOURS — after a yes whose record died
     album_tracks: int = 4  # AFAR_ALBUM_TRACKS — songs per record (2-6)
     track_seconds: int = 120  # AFAR_TRACK_SECONDS — seconds per song (30-120)
     sets_per_day: float = 3.0  # AFAR_SETS_PER_DAY — the experiment loop's pacing target
@@ -578,6 +579,11 @@ def build_config() -> AfarConfig:
             "AFAR_ASK_COOLDOWN_MAX_HOURS must be >= AFAR_ASK_COOLDOWN_HOURS, got "
             f"{ask_cooldown_max_hours} < {ask_cooldown_hours}"
         )
+    failed_cooldown_hours = float(os.environ.get("AFAR_FAILED_COOLDOWN_HOURS", "1"))
+    if failed_cooldown_hours < 0:
+        raise ValueError(
+            f"AFAR_FAILED_COOLDOWN_HOURS must be >= 0, got {failed_cooldown_hours}"
+        )
     record_cooldown_hours = float(os.environ.get("AFAR_RECORD_COOLDOWN_HOURS", "24"))
     if record_cooldown_hours < 0:
         raise ValueError(
@@ -607,6 +613,7 @@ def build_config() -> AfarConfig:
         ask_cooldown_hours=ask_cooldown_hours,
         ask_cooldown_max_hours=ask_cooldown_max_hours,
         record_cooldown_hours=record_cooldown_hours,
+        failed_cooldown_hours=failed_cooldown_hours,
         album_tracks=album_tracks,
         track_seconds=track_seconds,
         sets_per_day=sets_per_day,

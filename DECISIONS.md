@@ -2,6 +2,10 @@
 
 Architecture and art-direction decisions, newest first. Each entry: what was decided, why, and what it supersedes. The Notion "afar — MAS Design Brief" is the founding spec; entries here marked **override** take precedence over it.
 
+## 2026-08-05
+
+- **A yes that never became a record is not a record** *(PR: failed-yes-keeps-its-slot; Gabe: "yes" to fixing it)*. Under the ask loop, cooldown was keyed on the ANSWER: any yes earned the full 24h record cooldown "whether or not the record landed". the-sardis-fasola-society said yes on 2026-08-05, its record died on a `TimeoutError` before anything was rendered, and the artist was then silenced for a day over a network hiccup — the conductor deciding by arithmetic that an artist with a record in it had had its turn. `ask_states` now reads a third row kind, `album_failed`, into a `"failed"` state carrying `AFAR_FAILED_COOLDOWN_HOURS` (default **1h**, short on purpose: the yes stands and the same record may still be there, but an artist whose records keep failing cannot spin the loop — and the conductor's own failure backoff paces retries globally regardless). A failure is **not** a decline: it never touches the consecutive-decline streak, so it cannot push an artist up the 12h→168h curve. Log order still decides, so a salvage or retry that lands afterwards wins and earns the normal full wait.
+
 ## 2026-08-04
 
 - **NO ROUNDS, NO ROTATION: artists decide when they record** *(PR: artist-agency; Gabe: "Let's not do rounds. Let artists fire up whenever they want." — supersedes the fair-rotation booking in the entry below, which is deleted)*. Turn-taking was still the conductor deciding who makes art, just politely. It is gone. The conductor is now a clock and a budget governor: one turn of the live loop is a **tick** — pick who may be asked, knock on up to `AFAR_ASKS_PER_TICK` doors in a shuffled order, stop at the first yes, and make a record only if there is one. `afar/booking.py`'s `book_artist`/`rotation_order` and their tests are deleted; `fit_album` stays, because sizing was always mechanical and still is. The round-based experiment path behind `AFAR_EXPERIMENT_MODE` is untouched.
